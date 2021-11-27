@@ -9,9 +9,11 @@ import net.minecraft.util.Hand;
 import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.IContainerFactory;
 import net.minecraftforge.registries.IForgeRegistry;
 import shadows.hostilenetworks.gui.DeepLearnerContainer;
+import shadows.hostilenetworks.item.DeepLearnerItem;
 
 @Mod(HostileNetworks.MODID)
 public class HostileNetworks {
@@ -20,6 +22,7 @@ public class HostileNetworks {
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
 
 	public HostileNetworks() {
+		FMLJavaModLoadingContext.get().getModEventBus().register(this);
 	}
 
 	@SubscribeEvent
@@ -27,6 +30,7 @@ public class HostileNetworks {
 		IForgeRegistry<Item> reg = e.getRegistry();
 		reg.register(new Item(new Item.Properties()).setRegistryName("blank_data_model"));
 		reg.register(new Item(new Item.Properties()).setRegistryName("polymer_clay"));
+		reg.register(new DeepLearnerItem(new Item.Properties()).setRegistryName("deep_learner"));
 	}
 
 	@SubscribeEvent

@@ -11,6 +11,7 @@ public class Hostile {
 	public static class Items {
 		public static final Item BLANK_DATA_MODEL = null;
 		public static final Item POLYMER_CLAY = null;
+		public static final Item DEEP_LEARNER = null;
 	}
 
 	@ObjectHolder(HostileNetworks.MODID)

@@ -1,2 +1,9 @@
 {
+	"hostilenetworks.gui.learner_empty.0": "No Data Model Found",
+	"hostilenetworks.gui.learner_empty.1": "Please insert a Data Model!",
+	"hostilenetworks.gui.learner_empty.2": "Your models will be trained",
+	"hostilenetworks.gui.learner_empty.3": "when placed in the Deep Learner.",
+	"hostilenetworks.gui.learner_empty.4": "",
+	"hostilenetworks.gui.learner_empty.5": "In order to train the model",
+	"hostilenetworks.gui.learner_empty.6": "you must deliver the killing blow."
 }

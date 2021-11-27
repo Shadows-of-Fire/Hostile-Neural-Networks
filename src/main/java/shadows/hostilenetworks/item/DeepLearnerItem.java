@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.items.ItemStackHandler;
 import shadows.hostilenetworks.gui.DeepLearnerContainer;
 
 public class DeepLearnerItem extends Item {
@@ -44,6 +45,22 @@ public class DeepLearnerItem extends Item {
 	@OnlyIn(Dist.CLIENT)
 	public void appendHoverText(ItemStack pStack, World pLevel, List<ITextComponent> pTooltip, ITooltipFlag pFlag) {
 
+	}
+
+	@Override
+	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+		return oldStack.getItem() != newStack.getItem();
+	}
+
+	public static ItemStackHandler getItemHandler(ItemStack stack) {
+		if (stack.isEmpty() || !stack.hasTag()) return new ItemStackHandler(4);
+		ItemStackHandler handler = new ItemStackHandler(4);
+		if (stack.hasTag() && stack.getTag().contains("learner_inv")) handler.deserializeNBT(stack.getTag().getCompound("learner_inv"));
+		return handler;
+	}
+
+	public static void saveItems(ItemStack stack, ItemStackHandler handler) {
+		stack.getOrCreateTag().put("learner_inv", handler.serializeNBT());
 	}
 
 	protected class Provider implements INamedContainerProvider {
