@@ -1,0 +1,38 @@
+package shadows.hostilenetworks;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.item.Item;
+import net.minecraft.util.Hand;
+import net.minecraftforge.event.RegistryEvent.Register;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.network.IContainerFactory;
+import net.minecraftforge.registries.IForgeRegistry;
+import shadows.hostilenetworks.gui.DeepLearnerContainer;
+
+@Mod(HostileNetworks.MODID)
+public class HostileNetworks {
+
+	public static final String MODID = "hostilenetworks";
+	public static final Logger LOGGER = LogManager.getLogger(MODID);
+
+	public HostileNetworks() {
+	}
+
+	@SubscribeEvent
+	public void registerItems(Register<Item> e) {
+		IForgeRegistry<Item> reg = e.getRegistry();
+		reg.register(new Item(new Item.Properties()).setRegistryName("blank_data_model"));
+		reg.register(new Item(new Item.Properties()).setRegistryName("polymer_clay"));
+	}
+
+	@SubscribeEvent
+	public void containers(Register<ContainerType<?>> e) {
+		IForgeRegistry<ContainerType<?>> reg = e.getRegistry();
+		reg.register(new ContainerType<>((IContainerFactory<DeepLearnerContainer>) (id, inv, buf) -> new DeepLearnerContainer(id, inv, buf.readBoolean() ? Hand.MAIN_HAND : Hand.OFF_HAND)).setRegistryName("deep_learner"));
+	}
+
+}
