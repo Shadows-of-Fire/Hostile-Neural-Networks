@@ -16,8 +16,12 @@ import com.google.gson.JsonSerializer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.Color;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.registries.ForgeRegistries;
+import shadows.hostilenetworks.HostileNetworks;
 
 public class DataModel {
 
@@ -48,6 +52,18 @@ public class DataModel {
 		this.id = id;
 	}
 
+	public ResourceLocation getId() {
+		return id;
+	}
+
+	public ITextComponent getName() {
+		return this.name;
+	}
+
+	public List<TranslationTextComponent> getTrivia() {
+		return trivia;
+	}
+
 	public static class Adapter implements JsonDeserializer<DataModel>, JsonSerializer<DataModel> {
 
 		public static final DataModel.Adapter INSTANCE = new Adapter();
@@ -75,6 +91,7 @@ public class DataModel {
 			EntityType<?> t = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(obj.get("type").getAsString()));
 			if (t == null) throw new JsonParseException("DataModel has invalid entity type " + obj.get("type").getAsString());
 			TranslationTextComponent name = new TranslationTextComponent(obj.get("name").getAsString());
+			if (obj.has("name_color")) name.withStyle(Style.EMPTY.withColor(Color.fromRgb(Integer.decode(obj.get("name_color").getAsString()))));
 			int maxHealth = obj.get("max_health").getAsInt();
 			float guiScale = obj.get("gui_scale").getAsFloat();
 			float guiXOff = obj.get("gui_x_offset").getAsFloat();
@@ -84,9 +101,10 @@ public class DataModel {
 			List<TranslationTextComponent> trivia = new ArrayList<>();
 			if (obj.has("trivia")) {
 				JsonArray arr = obj.get("trivia").getAsJsonArray();
-				arr.forEach(e -> {
-					trivia.add(new TranslationTextComponent(e.getAsString()));
-				});
+				for (int i = 0; i < Math.min(4, arr.size()); i++) {
+					trivia.add(new TranslationTextComponent(arr.get(i).getAsString()));
+				}
+				if (arr.size() > 4) HostileNetworks.LOGGER.error("Data Model for " + t.getRegistryName() + " has more than the max allowed trivia lines (4).");
 			}
 			return new DataModel(t, name, maxHealth, guiScale, guiXOff, guiYOff, baseDrop, pristineDrop, trivia);
 		}

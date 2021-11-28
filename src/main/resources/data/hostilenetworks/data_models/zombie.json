@@ -1,0 +1,19 @@
+{
+	"type": "minecraft:zombie",
+	"name": "entity.minecraft.zombie",
+	"name_color": "0xAA3333",
+	"max_health": 20,
+	"gui_scale": 1,
+	"gui_x_offset": 0,
+	"gui_y_offset": 0,
+	"base_drop": {
+		"item": "minecraft:stick"
+	},
+	"pristine_drop": {
+		"item": "minecraft:iron_ingot"
+	},
+	"trivia": [
+		"zombie.trivia.0",
+		"zombie.trivia.1"
+	]
+}

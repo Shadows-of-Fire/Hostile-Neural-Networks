@@ -4,6 +4,7 @@ import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
 import net.minecraftforge.registries.ObjectHolder;
 import shadows.hostilenetworks.gui.DeepLearnerContainer;
+import shadows.hostilenetworks.item.DataModelItem;
 
 public class Hostile {
 
@@ -12,6 +13,7 @@ public class Hostile {
 		public static final Item BLANK_DATA_MODEL = null;
 		public static final Item POLYMER_CLAY = null;
 		public static final Item DEEP_LEARNER = null;
+		public static final DataModelItem DATA_MODEL = null;
 	}
 
 	@ObjectHolder(HostileNetworks.MODID)

@@ -1,9 +1,38 @@
 {
+	"item.hostilenetworks.deep_learner": "Deep Learner",
+	"item.hostilenetworks.data_model": "%s Data Model",
+	"item.hostilenetworks.blank_data_model": "Model Framework",
+	
 	"hostilenetworks.gui.learner_empty.0": "No Data Model Found",
 	"hostilenetworks.gui.learner_empty.1": "Please insert a Data Model!",
 	"hostilenetworks.gui.learner_empty.2": "Your models will be trained",
 	"hostilenetworks.gui.learner_empty.3": "when placed in the Deep Learner.",
 	"hostilenetworks.gui.learner_empty.4": "",
 	"hostilenetworks.gui.learner_empty.5": "In order to train the model",
-	"hostilenetworks.gui.learner_empty.6": "you must deliver the killing blow."
+	"hostilenetworks.gui.learner_empty.6": "you must deliver the killing blow.",
+	"hostilenetworks.gui.name": "Name",
+	"hostilenetworks.gui.info": "Information",
+	"hostilenetworks.gui.tier": "Model Tier: ",
+	"hostilenetworks.gui.accuracy": "Model Accuracy: ",
+	"hostilenetworks.gui.next_tier": "Upgrades to ",
+	"hostilenetworks.gui.next_tier2": " in %s ",
+	"hostilenetworks.gui.kill": "kill",
+	"hostilenetworks.gui.kills": "kills",
+	"hostilenetworks.gui.stats": "Statistics",
+	
+	"hostilenetworks.tier.faulty": "Faulty",
+	"hostilenetworks.tier.basic": "Basic",
+	"hostilenetworks.tier.advanced": "Advanced",
+	"hostilenetworks.tier.superior": "Superior",
+	"hostilenetworks.tier.self_aware": "Self Aware",
+	
+	"hostilenetworks.info.click_to_attune": "%s on an entity to %s.",
+	"hostilenetworks.info.hold_shift": "- Hold %s for more info",
+	
+	"hostilenetworks.color_text.build": "Build a Data Model",
+	"hostilenetworks.color_text.shift": "SHIFT",
+	"hostilenetworks.color_text.rclick": "Right-Click",
+	
+	"hostilenetworks.msg.no_model": "No known models exist for this specimen."
+	
 }

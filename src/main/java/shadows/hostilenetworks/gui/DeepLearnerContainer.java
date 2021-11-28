@@ -1,5 +1,7 @@
 package shadows.hostilenetworks.gui;
 
+import java.util.List;
+
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
@@ -11,6 +13,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import shadows.hostilenetworks.Hostile;
+import shadows.hostilenetworks.data.CachedModel;
 import shadows.hostilenetworks.item.DeepLearnerItem;
 
 public class DeepLearnerContainer extends Container {
@@ -70,6 +73,14 @@ public class DeepLearnerContainer extends Container {
 			if (!learnerInv.getStackInSlot(i).isEmpty()) hasModels = true;
 		}
 		return hasModels;
+	}
+
+	public void fillWithModels(List<CachedModel> list) {
+		list.clear();
+		for (int i = 0; i < 4; i++) {
+			ItemStack stack = learnerInv.getStackInSlot(i);
+			if (!stack.isEmpty()) list.add(new CachedModel(stack));
+		}
 	}
 
 	public class DataModelSlot extends SlotItemHandler {
