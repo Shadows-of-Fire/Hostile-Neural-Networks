@@ -19,6 +19,7 @@ import net.minecraft.util.math.vector.Vector3f;
 import shadows.hostilenetworks.HostileClient;
 import shadows.hostilenetworks.HostileNetworks;
 import shadows.hostilenetworks.data.CachedModel;
+import shadows.hostilenetworks.data.DataModel;
 
 public class DataModelItemStackRenderer extends ItemStackTileEntityRenderer {
 
@@ -28,20 +29,22 @@ public class DataModelItemStackRenderer extends ItemStackTileEntityRenderer {
 
 	@Override
 	public void renderByItem(ItemStack stack, TransformType type, MatrixStack matrix, IRenderTypeBuffer buf, int light, int overlay) {
-		CachedModel model = new CachedModel(stack);
+		CachedModel model = new CachedModel(stack, 0);
 		ItemRenderer irenderer = Minecraft.getInstance().getItemRenderer();
 		IBakedModel base = irenderer.getItemModelShaper().getModelManager().getModel(DATA_MODEL_BASE);
 		matrix.pushPose();
 		if (type != TransformType.GUI) {
 			matrix.translate(1, 1, 0);
-			matrix.scale(0.5F, 0.5F, 0.5F);
+			float scale = 0.5F;
+			matrix.scale(scale, scale, scale);
 			matrix.translate(-1.5F, -0.5F, 0.5F);
 			matrix.mulPose(Vector3f.XP.rotationDegrees(90));
 		} else {
 			matrix.translate(0, -.5F, -.5F);
 			matrix.mulPose(Vector3f.XN.rotationDegrees(75));
 			matrix.mulPose(Vector3f.ZP.rotationDegrees(45));
-			matrix.scale(0.9F, 0.9F, 0.9F);
+			float scale = 0.9F;
+			matrix.scale(scale, scale, scale);
 			matrix.translate(0.775, 0, -0.0825);
 		}
 		irenderer.renderModelLists(base, stack, light, overlay, matrix, ItemRenderer.getFoilBufferDirect(GHOST_ENTITY_BUF, RenderTypeLookup.getRenderType(stack, true), true, false));
@@ -50,13 +53,13 @@ public class DataModelItemStackRenderer extends ItemStackTileEntityRenderer {
 		if (model.getModel() != null) {
 			LivingEntity ent = model.getEntity(Minecraft.getInstance().level);
 			if (ent != null) {
-				renderEntityInInventory(matrix, type, ent);
+				renderEntityInInventory(matrix, type, ent, model.getModel());
 			}
 		}
 	}
 
 	@SuppressWarnings("deprecation")
-	public void renderEntityInInventory(MatrixStack matrix, TransformType type, LivingEntity pLivingEntity) {
+	public void renderEntityInInventory(MatrixStack matrix, TransformType type, LivingEntity pLivingEntity, DataModel model) {
 		RenderSystem.pushMatrix();
 		matrix.pushPose();
 		matrix.translate(0.5, 0.5, 0.5);
@@ -65,16 +68,18 @@ public class DataModelItemStackRenderer extends ItemStackTileEntityRenderer {
 			matrix.translate(0, -0.5, 0);
 
 			float scale = 0.4F;
+			scale *= model.getScale();
 			matrix.scale(scale, scale, scale);
 			matrix.translate(0, 0.4 + 0.05 * Math.sin((HostileClient.clientTicks + Minecraft.getInstance().getDeltaFrameTime()) / 12), 0);
 		} else {
 			float scale = 0.25F;
+			scale *= model.getScale();
 			matrix.scale(scale, scale, scale);
 			matrix.translate(0, 0.12 + 0.05 * Math.sin((HostileClient.clientTicks + Minecraft.getInstance().getDeltaFrameTime()) / 12), 0);
 		}
 		pLivingEntity.yRot = 30;
-		if(type == TransformType.FIRST_PERSON_LEFT_HAND || type == TransformType.THIRD_PERSON_LEFT_HAND) pLivingEntity.yRot = -30;
-		if(type == TransformType.FIXED) pLivingEntity.yRot = 180;
+		if (type == TransformType.FIRST_PERSON_LEFT_HAND || type == TransformType.THIRD_PERSON_LEFT_HAND) pLivingEntity.yRot = -30;
+		if (type == TransformType.FIXED) pLivingEntity.yRot = 180;
 		pLivingEntity.yBodyRot = pLivingEntity.yRot;
 		pLivingEntity.yHeadRot = pLivingEntity.yRot;
 		pLivingEntity.yHeadRotO = pLivingEntity.yRot;

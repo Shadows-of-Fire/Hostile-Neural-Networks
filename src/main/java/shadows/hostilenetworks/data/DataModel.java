@@ -28,17 +28,15 @@ public class DataModel {
 	protected ResourceLocation id;
 	protected final EntityType<?> type;
 	protected final TranslationTextComponent name;
-	protected final int maxHealth;
 	protected final float guiScale;
 	protected final float guiXOff, guiYOff;
 	protected final ItemStack baseDrop;
 	protected final ItemStack pristineDrop;
 	protected final List<TranslationTextComponent> trivia;
 
-	public DataModel(EntityType<?> type, TranslationTextComponent name, int maxHealth, float guiScale, float guiXOff, float guiYOff, ItemStack baseDrop, ItemStack pristineDrop, List<TranslationTextComponent> trivia) {
+	public DataModel(EntityType<?> type, TranslationTextComponent name, float guiScale, float guiXOff, float guiYOff, ItemStack baseDrop, ItemStack pristineDrop, List<TranslationTextComponent> trivia) {
 		this.type = type;
 		this.name = name;
-		this.maxHealth = maxHealth;
 		this.guiScale = guiScale;
 		this.guiYOff = guiYOff;
 		this.guiXOff = guiXOff;
@@ -64,6 +62,10 @@ public class DataModel {
 		return trivia;
 	}
 
+	public float getScale() {
+		return guiScale;
+	}
+
 	public static class Adapter implements JsonDeserializer<DataModel>, JsonSerializer<DataModel> {
 
 		public static final DataModel.Adapter INSTANCE = new Adapter();
@@ -73,7 +75,6 @@ public class DataModel {
 			JsonObject obj = new JsonObject();
 			obj.addProperty("type", src.type.getRegistryName().toString());
 			obj.addProperty("name", src.name.getKey());
-			obj.addProperty("max_health", src.maxHealth);
 			obj.addProperty("gui_scale", src.guiScale);
 			obj.addProperty("gui_x_offset", src.guiXOff);
 			obj.addProperty("gui_y_offset", src.guiYOff);
@@ -92,7 +93,6 @@ public class DataModel {
 			if (t == null) throw new JsonParseException("DataModel has invalid entity type " + obj.get("type").getAsString());
 			TranslationTextComponent name = new TranslationTextComponent(obj.get("name").getAsString());
 			if (obj.has("name_color")) name.withStyle(Style.EMPTY.withColor(Color.fromRgb(Integer.decode(obj.get("name_color").getAsString()))));
-			int maxHealth = obj.get("max_health").getAsInt();
 			float guiScale = obj.get("gui_scale").getAsFloat();
 			float guiXOff = obj.get("gui_x_offset").getAsFloat();
 			float guiYOff = obj.get("gui_y_offset").getAsFloat();
@@ -106,7 +106,7 @@ public class DataModel {
 				}
 				if (arr.size() > 4) HostileNetworks.LOGGER.error("Data Model for " + t.getRegistryName() + " has more than the max allowed trivia lines (4).");
 			}
-			return new DataModel(t, name, maxHealth, guiScale, guiXOff, guiYOff, baseDrop, pristineDrop, trivia);
+			return new DataModel(t, name, guiScale, guiXOff, guiYOff, baseDrop, pristineDrop, trivia);
 		}
 
 	}

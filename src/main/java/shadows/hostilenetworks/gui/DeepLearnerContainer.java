@@ -1,6 +1,6 @@
 package shadows.hostilenetworks.gui;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -22,6 +22,7 @@ public class DeepLearnerContainer extends Container {
 	protected final PlayerEntity player;
 	protected final ItemStack deepLearner;
 	protected final ItemStackHandler learnerInv;
+	protected Consumer<Integer> notifyCallback;
 
 	public DeepLearnerContainer(int id, PlayerInventory pInv, Hand hand) {
 		super(Hostile.Containers.DEEP_LEARNER, id);
@@ -55,6 +56,10 @@ public class DeepLearnerContainer extends Container {
 		}
 	}
 
+	public void setNotifyCallback(Consumer<Integer> r) {
+		this.notifyCallback = r;
+	}
+
 	@Override
 	public boolean stillValid(PlayerEntity pPlayer) {
 		return deepLearner.getItem() == Hostile.Items.DEEP_LEARNER && this.player.getItemInHand(this.hand) == this.deepLearner;
@@ -75,11 +80,10 @@ public class DeepLearnerContainer extends Container {
 		return hasModels;
 	}
 
-	public void fillWithModels(List<CachedModel> list) {
-		list.clear();
+	public void fillWithModels(CachedModel[] models) {
 		for (int i = 0; i < 4; i++) {
 			ItemStack stack = learnerInv.getStackInSlot(i);
-			if (!stack.isEmpty()) list.add(new CachedModel(stack));
+			models[i] = stack.isEmpty() ? null : new CachedModel(stack, i);
 		}
 	}
 
@@ -97,6 +101,14 @@ public class DeepLearnerContainer extends Container {
 		@Override
 		public int getMaxStackSize() {
 			return 1;
+		}
+
+		@Override
+		public void setChanged() {
+			super.setChanged();
+			if (DeepLearnerContainer.this.notifyCallback != null) {
+				DeepLearnerContainer.this.notifyCallback.accept(((Slot) this).index);
+			}
 		}
 	}
 

@@ -1,0 +1,18 @@
+{
+	"type": "minecraft:skeleton",
+	"name": "entity.minecraft.skeleton",
+	"name_color": "0xAAAAAA",
+	"gui_scale": 1,
+	"gui_x_offset": 0,
+	"gui_y_offset": 0,
+	"base_drop": {
+		"item": "minecraft:stick"
+	},
+	"pristine_drop": {
+		"item": "minecraft:iron_ingot"
+	},
+	"trivia": [
+		"skeleton.trivia.0",
+		"skeleton.trivia.1"
+	]
+}

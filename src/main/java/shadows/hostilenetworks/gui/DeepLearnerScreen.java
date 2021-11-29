@@ -9,12 +9,14 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.button.ImageButton;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3f;
@@ -40,8 +42,9 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 	private List<TickableText> texts = new ArrayList<>();
 	private TickableText stats = new TickableText(I18n.get("hostilenetworks.gui.stats"), Color.AQUA);
 	private final String[] statArray = new String[3];
-	private boolean hasModels = false;
-	private List<CachedModel> models = new ArrayList<>();
+	private int numModels = 0;
+	private boolean emptyText = true;
+	private CachedModel[] models = new CachedModel[4];
 	private int spin = 0;
 	private int selectedModel = 0;
 
@@ -50,11 +53,57 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 		this.imageWidth = WIDTH;
 		this.imageHeight = HEIGHT;
 		this.setupEmptyText();
+		pMenu.setNotifyCallback(slotId -> {
+			ItemStack stack = pMenu.getSlot(slotId).getItem();
+			CachedModel old = models[slotId];
+			models[slotId] = stack.isEmpty() ? null : new CachedModel(stack, slotId);
+			if (old == null && models[slotId] != null) {
+				if (++numModels == 1) {
+					selectedModel = slotId;
+					setupModel(models[selectedModel]);
+					emptyText = false;
+				}
+			} else if (old != null && models[slotId] == null) {
+				numModels--;
+				if (numModels > 0 && slotId == selectedModel) selectLeft();
+			} else if (slotId == selectedModel && models[selectedModel] != null) setupModel(models[selectedModel]);
+		});
 	}
 
 	@Override
 	public void init(Minecraft pMinecraft, int pWidth, int pHeight) {
 		super.init(pMinecraft, pWidth, pHeight);
+		this.addButton(new ImageButton(this.getGuiLeft() - 27, this.getGuiTop() + 105, 24, 24, 84, 140, 24, BASE, btn -> {
+			selectLeft();
+		}));
+
+		this.addButton(new ImageButton(this.getGuiLeft() - 1, this.getGuiTop() + 105, 24, 24, 108, 140, 24, BASE, btn -> {
+			selectRight();
+		}));
+	}
+
+	public void selectLeft() {
+		if (numModels == 0) return;
+		int old = selectedModel;
+		CachedModel model = models[clamp(selectedModel - 1)];
+		while (model == null)
+			model = models[clamp(selectedModel - 1)];
+		if (model.getSlot() != old) setupModel(model);
+	}
+
+	public void selectRight() {
+		if (numModels == 0) return;
+		int old = selectedModel;
+		CachedModel model = models[clamp(selectedModel + 1)];
+		while (model == null)
+			model = models[clamp(selectedModel + 1)];
+		if (model.getSlot() != old) setupModel(model);
+	}
+
+	private int clamp(int idx) {
+		if (idx == -1) idx = 3;
+		if (idx == 4) idx = 0;
+		return selectedModel = idx;
 	}
 
 	@Override
@@ -71,14 +120,14 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 		int top = this.getGuiTop();
 		this.blit(matrix, left + 41, top, 0, 0, 256, 140);
 
-		if (hasModels) {
+		if (numModels > 0) {
 			for (int i = 0; i < 3; i++) {
 				this.blit(matrix, left + WIDTH - 49 - this.stats.getWidth(font), top + 8 + font.lineHeight + (font.lineHeight + 2) * i, 0, 140 + 9 * i, 9, 9);
 			}
 
 			this.blit(matrix, left - 41, top, 9, 140, 75, 101);
 
-			LivingEntity ent = models.get(selectedModel).getEntity(minecraft.level);
+			LivingEntity ent = models[selectedModel].getEntity(minecraft.level);
 
 			ent.yBodyRot = spin % 360;
 			renderEntityInInventory(left - 4, top + 90, 40, 0, 0, ent);
@@ -91,6 +140,13 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 
 		this.getMinecraft().getTextureManager().bind(PLAYER);
 		this.blit(matrix, left + 81, top + 145, 0, 0, 176, 90);
+		if (numModels <= 1) {
+			this.buttons.get(0).visible = false;
+			this.buttons.get(1).visible = false;
+		} else {
+			this.buttons.get(0).visible = true;
+			this.buttons.get(1).visible = true;
+		}
 	}
 
 	@Override
@@ -108,7 +164,7 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 				left += t.getWidth(font);
 			}
 		}
-		if (hasModels) {
+		if (this.numModels > 0) {
 			this.stats.render(font, stack, WIDTH - 49 - this.stats.getWidth(font), top);
 		}
 	}
@@ -118,16 +174,20 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 		super.tick();
 
 		if (!this.menu.hasModels()) {
-			if (hasModels) {
+			if (!emptyText) {
 				setupEmptyText();
-				hasModels = false;
+				emptyText = true;
 			}
 		} else {
-			if (!hasModels) {
-				this.menu.fillWithModels(this.models);
-				setupModel(this.models.get(0));
-				this.selectedModel = 0;
-				hasModels = true;
+			if (emptyText) {
+				for (int i = 0; i < 4; i++) {
+					if (models[i] != null) {
+						setupModel(models[i]);
+						selectedModel = i;
+						emptyText = false;
+						break;
+					}
+				}
 			}
 		}
 
@@ -207,14 +267,17 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 	}
 
 	@SuppressWarnings("deprecation")
-	public void renderEntityInInventory(int pPosX, int pPosY, int pScale, float pMouseX, float pMouseY, LivingEntity pLivingEntity) {
+	public void renderEntityInInventory(float pPosX, float pPosY, float pScale, float pMouseX, float pMouseY, LivingEntity pLivingEntity) {
 		float f1 = (float) Math.atan((double) (pMouseY / 40.0F));
 		RenderSystem.pushMatrix();
-		RenderSystem.translatef((float) pPosX, (float) pPosY, 1050.0F);
+		RenderSystem.translatef(pPosX, pPosY, 1050.0F);
 		RenderSystem.scalef(1.0F, 1.0F, -1.0F);
 		MatrixStack matrixstack = new MatrixStack();
 		matrixstack.translate(0.0D, 0.0D, 1000.0D);
-		matrixstack.scale((float) pScale, (float) pScale, (float) pScale);
+
+		pScale *= this.models[selectedModel].getModel().getScale();
+
+		matrixstack.scale(pScale, pScale, pScale);
 		Quaternion quaternion = Vector3f.ZP.rotationDegrees(180.0F);
 		Quaternion quaternion1 = Vector3f.XP.rotationDegrees(f1 * 20.0F);
 		quaternion.mul(quaternion1);

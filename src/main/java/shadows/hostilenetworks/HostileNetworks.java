@@ -31,10 +31,10 @@ public class HostileNetworks {
 	@SubscribeEvent
 	public void registerItems(Register<Item> e) {
 		IForgeRegistry<Item> reg = e.getRegistry();
-		reg.register(new BlankDataModelItem(new Item.Properties()).setRegistryName("blank_data_model"));
+		reg.register(new BlankDataModelItem(new Item.Properties().stacksTo(1)).setRegistryName("blank_data_model"));
 		reg.register(new Item(new Item.Properties()).setRegistryName("polymer_clay"));
 		reg.register(new DeepLearnerItem(new Item.Properties()).setRegistryName("deep_learner"));
-		reg.register(new DataModelItem(new Item.Properties().setISTER(() -> DataModelItemStackRenderer::new)).setRegistryName("data_model"));
+		reg.register(new DataModelItem(new Item.Properties().stacksTo(1).setISTER(() -> DataModelItemStackRenderer::new)).setRegistryName("data_model"));
 	}
 
 	@SubscribeEvent

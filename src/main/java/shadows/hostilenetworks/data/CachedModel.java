@@ -15,18 +15,21 @@ public class CachedModel {
 	protected final DataModel model;
 	protected final int kills;
 	protected final ModelTier tier;
+	protected final int slot;
 	private Entity cachedEntity;
 
-	public CachedModel(DataModel model, int kills) {
+	public CachedModel(DataModel model, int kills, int slot) {
 		this.model = model;
 		this.kills = kills;
 		this.tier = ModelTier.getByKills(kills);
+		this.slot = slot;
 	}
 
-	public CachedModel(ItemStack stack) {
+	public CachedModel(ItemStack stack, int slot) {
 		this.model = DataModelItem.getStoredModel(stack);
 		this.kills = DataModelItem.getKills(stack);
 		this.tier = ModelTier.getByKills(kills);
+		this.slot = slot;
 	}
 
 	public DataModel getModel() {
@@ -39,6 +42,10 @@ public class CachedModel {
 
 	public ModelTier getTier() {
 		return this.tier;
+	}
+
+	public int getSlot() {
+		return this.slot;
 	}
 
 	public float getAccuracy() {

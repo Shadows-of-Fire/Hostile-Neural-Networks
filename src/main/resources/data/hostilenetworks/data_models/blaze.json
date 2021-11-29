@@ -1,0 +1,18 @@
+{
+	"type": "minecraft:blaze",
+	"name": "entity.minecraft.blaze",
+	"name_color": "0xFF2222",
+	"gui_scale": 1,
+	"gui_x_offset": 0,
+	"gui_y_offset": 0,
+	"base_drop": {
+		"item": "minecraft:stick"
+	},
+	"pristine_drop": {
+		"item": "minecraft:iron_ingot"
+	},
+	"trivia": [
+		"blaze.trivia.0",
+		"blaze.trivia.1"
+	]
+}
