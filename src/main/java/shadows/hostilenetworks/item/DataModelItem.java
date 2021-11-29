@@ -22,7 +22,7 @@ public class DataModelItem extends Item {
 
 	public static final String DATA_MODEL = "data_model";
 	public static final String ID = "id";
-	public static final String KILLS = "kills";
+	public static final String DATA = "data";
 
 	public DataModelItem(Properties pProperties) {
 		super(pProperties);
@@ -63,8 +63,8 @@ public class DataModelItem extends Item {
 		stack.getOrCreateTagElement(DATA_MODEL).putString(ID, model.getId().toString());
 	}
 
-	public static int getKills(ItemStack stack) {
-		return stack.getOrCreateTagElement(DATA_MODEL).getInt(KILLS);
+	public static int getData(ItemStack stack) {
+		return stack.getOrCreateTagElement(DATA_MODEL).getInt(DATA);
 	}
 
 }

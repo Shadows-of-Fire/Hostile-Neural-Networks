@@ -14,6 +14,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import shadows.hostilenetworks.Hostile;
 import shadows.hostilenetworks.data.CachedModel;
+import shadows.hostilenetworks.item.DataModelItem;
 import shadows.hostilenetworks.item.DeepLearnerItem;
 
 public class DeepLearnerContainer extends Container {
@@ -95,7 +96,7 @@ public class DeepLearnerContainer extends Container {
 
 		@Override
 		public boolean mayPlace(ItemStack stack) {
-			return !stack.isEmpty();// && stack.getItem() instanceof ItemDataModel;
+			return stack.getItem() instanceof DataModelItem;
 		}
 
 		@Override

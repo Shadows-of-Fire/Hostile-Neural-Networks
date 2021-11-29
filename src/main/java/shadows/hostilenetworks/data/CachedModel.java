@@ -13,22 +13,22 @@ import shadows.hostilenetworks.item.DataModelItem;
 public class CachedModel {
 
 	protected final DataModel model;
-	protected final int kills;
+	protected final int data;
 	protected final ModelTier tier;
 	protected final int slot;
 	private Entity cachedEntity;
 
-	public CachedModel(DataModel model, int kills, int slot) {
+	public CachedModel(DataModel model, int data, int slot) {
 		this.model = model;
-		this.kills = kills;
-		this.tier = ModelTier.getByKills(kills);
+		this.data = data;
+		this.tier = ModelTier.getByData(data);
 		this.slot = slot;
 	}
 
 	public CachedModel(ItemStack stack, int slot) {
 		this.model = DataModelItem.getStoredModel(stack);
-		this.kills = DataModelItem.getKills(stack);
-		this.tier = ModelTier.getByKills(kills);
+		this.data = DataModelItem.getData(stack);
+		this.tier = ModelTier.getByData(data);
 		this.slot = slot;
 	}
 
@@ -36,8 +36,8 @@ public class CachedModel {
 		return model;
 	}
 
-	public int getKills() {
-		return this.kills;
+	public int getData() {
+		return this.data;
 	}
 
 	public ModelTier getTier() {
@@ -52,12 +52,12 @@ public class CachedModel {
 		ModelTier next = this.tier.next();
 		int diff = next.data - tier.data;
 		float tDiff = next.accuracy - tier.accuracy;
-		return tier.accuracy + tDiff * (diff - (next.data - kills)) / diff;
+		return tier.accuracy + tDiff * (diff - (next.data - data)) / diff;
 	}
 
 	public int getKillsNeeded() {
 		ModelTier next = this.tier.next();
-		return MathHelper.ceil((next.data - kills) / (float) tier.dataPerKill);
+		return MathHelper.ceil((next.data - data) / (float) tier.dataPerKill);
 	}
 
 	public LivingEntity getEntity(World world) {

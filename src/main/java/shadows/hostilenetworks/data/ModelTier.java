@@ -1,6 +1,8 @@
 package shadows.hostilenetworks.data;
 
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 
 public enum ModelTier {
 	FAULTY(0, 1, "faulty", TextFormatting.DARK_GRAY, 0.01F),
@@ -34,9 +36,13 @@ public enum ModelTier {
 		return VALUES[this.ordinal() + 1];
 	}
 
-	public static ModelTier getByKills(int kills) {
+	public ITextComponent getComponent() {
+		return new TranslationTextComponent("hostilenetworks.tier." + name).withStyle(color);
+	}
+
+	public static ModelTier getByData(int data) {
 		for (int i = 4; i >= 0; i--) {
-			if (kills >= VALUES[i].data) return VALUES[i];
+			if (data >= VALUES[i].data) return VALUES[i];
 		}
 		return FAULTY;
 	}

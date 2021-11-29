@@ -211,6 +211,8 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 		}
 	}
 
+	private static DecimalFormat fmt = new DecimalFormat("##.##%");
+
 	private void setupModel(CachedModel cache) {
 		DataModel model = cache.getModel();
 		if (model == null) {
@@ -231,7 +233,7 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 		ModelTier next = tier.next();
 		addText(I18n.get("hostilenetworks.tier." + tier.name), tier.color.getColor());
 		addText(I18n.get("hostilenetworks.gui.accuracy"), Color.WHITE, false);
-		addText(new DecimalFormat("##.##%").format(cache.getAccuracy()), tier.color.getColor());
+		addText(fmt.format(cache.getAccuracy()), tier.color.getColor());
 		if (tier != next) {
 			addText(I18n.get("hostilenetworks.gui.next_tier"), Color.WHITE, false);
 			addText(I18n.get("hostilenetworks.tier." + next.name), next.color.getColor(), false);

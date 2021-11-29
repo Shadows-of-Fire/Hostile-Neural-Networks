@@ -20,6 +20,9 @@
 	"hostilenetworks.gui.kills": "kills",
 	"hostilenetworks.gui.stats": "Statistics",
 	
+	"hostilenetworks.hud.model": " Model",
+	"hostilenetworks.hud.kills": "%s Remaining",
+	
 	"hostilenetworks.tier.faulty": "Faulty",
 	"hostilenetworks.tier.basic": "Basic",
 	"hostilenetworks.tier.advanced": "Advanced",
@@ -33,6 +36,9 @@
 	"hostilenetworks.color_text.shift": "SHIFT",
 	"hostilenetworks.color_text.rclick": "Right-Click",
 	
-	"hostilenetworks.msg.no_model": "No known models exist for this specimen."
+	"hostilenetworks.msg.no_model": "No known models exist for this specimen.",
 	
+	"zombie.trivia.0": "They moan in the moonlight.",
+	"zombie.trivia.1": "Does not understand the need",
+	"zombie.trivia.2": "for personal space."
 }
