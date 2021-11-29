@@ -15,13 +15,17 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.items.ItemStackHandler;
+import shadows.hostilenetworks.data.CachedModel;
 import shadows.hostilenetworks.gui.DeepLearnerContainer;
+import shadows.hostilenetworks.util.Color;
+import shadows.placebo.util.ClientUtil;
 
 public class DeepLearnerItem extends Item {
 
@@ -43,8 +47,30 @@ public class DeepLearnerItem extends Item {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void appendHoverText(ItemStack pStack, World pLevel, List<ITextComponent> pTooltip, ITooltipFlag pFlag) {
-
+	public void appendHoverText(ItemStack pStack, World pLevel, List<ITextComponent> list, ITooltipFlag pFlag) {
+		list.add(new TranslationTextComponent("hostilenetworks.info.deep_learner", Color.withColor("hostilenetworks.color_text.hud", Color.WHITE)).withStyle(TextFormatting.GRAY));
+		if (ClientUtil.isHoldingShift()) {
+			ItemStackHandler inv = getItemHandler(pStack);
+			boolean empty = true;
+			for (int i = 0; i < 4; i++)
+				if (!inv.getStackInSlot(i).isEmpty()) empty = false;
+			if (empty) return;
+			list.add(new TranslationTextComponent("hostilenetworks.info.dl_contains").withStyle(TextFormatting.GRAY));
+			for (int i = 0; i < 4; i++) {
+				ItemStack stack = inv.getStackInSlot(i);
+				if (stack.isEmpty()) continue;
+				CachedModel model = new CachedModel(stack, 0);
+				if (model.getModel() == null) continue;
+				list.add(new TranslationTextComponent("- %s %s", model.getTier().getComponent(), stack.getItem().getName(stack)).withStyle(TextFormatting.GRAY));
+			}
+		} else {
+			ItemStackHandler inv = getItemHandler(pStack);
+			boolean empty = true;
+			for (int i = 0; i < 4; i++)
+				if (!inv.getStackInSlot(i).isEmpty()) empty = false;
+			if (empty) return;
+			list.add(new TranslationTextComponent("hostilenetworks.info.hold_shift", Color.withColor("hostilenetworks.color_text.shift", Color.WHITE)).withStyle(TextFormatting.GRAY));
+		}
 	}
 
 	@Override

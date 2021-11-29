@@ -55,24 +55,27 @@ public class DeepLearnerHudRenderer {
 			renderable.add(Pair.of(cModel, model));
 		}
 
+		if (renderable.isEmpty()) return;
+
 		int spacing = 28;
-		int paddedSpacing = spacing + 1;
 		int x = 6;
 		int y = 6;
 
 		WeirdRenderThings.TRANSLUCENT_TRANSPARENCY.setupRenderState();
+		mc.getTextureManager().bind(DL_HUD);
+		Screen.blit(e.getMatrixStack(), 3, 3, 0, 23, 113, 1, 256, 256);
 		for (int i = 0; i < renderable.size(); i++) {
-			mc.getTextureManager().bind(DL_HUD);
-			Screen.blit(e.getMatrixStack(), 3, 3 + paddedSpacing * i, 0, 23 + (i > 0 ? 1 : 0), 113, paddedSpacing, 256, 256);
+			Screen.blit(e.getMatrixStack(), 3, 4 + spacing * i, 0, 24, 113, spacing, 256, 256);
 			CachedModel cModel = renderable.get(i).getLeft();
 			Screen.blit(e.getMatrixStack(), x + 18, y + i * spacing + 10, 0, 0, 89, 12, 256, 256);
 			int width = 87;
 			if (cModel.getTier() != ModelTier.SELF_AWARE) {
-				width = MathHelper.ceil(width * cModel.getData() / (float) cModel.getTier().next().data);
+				int prev = cModel.getTier().data;
+				width = MathHelper.ceil(width * (cModel.getData() - prev) / (float) (cModel.getTier().next().data - prev));
 			}
 			Screen.blit(e.getMatrixStack(), x + 19, y + i * spacing + 11, 0, 12, width, 10, 256, 256);
 		}
-		Screen.blit(e.getMatrixStack(), 3, 3 + paddedSpacing * renderable.size(), 0, 123, 113, 1, 256, 256);
+		Screen.blit(e.getMatrixStack(), 3, 4 + spacing * renderable.size(), 0, 122, 113, 2, 256, 256);
 		WeirdRenderThings.TRANSLUCENT_TRANSPARENCY.clearRenderState();
 
 		for (int i = 0; i < renderable.size(); i++) {
@@ -85,7 +88,7 @@ public class DeepLearnerHudRenderer {
 			ITextComponent comp = cModel.getTier().getComponent();
 			mc.font.drawShadow(e.getMatrixStack(), comp, x + 4, y + spacing * i, 0xFFFFFF);
 			mc.font.drawShadow(e.getMatrixStack(), new TranslationTextComponent("hostilenetworks.hud.model"), x + mc.font.width(comp) + 4, y + spacing * i, 0xFFFFFF);
-			mc.font.drawShadow(e.getMatrixStack(), I18n.get("hostilenetworks.hud.kills", cModel.getKillsNeeded()), x + 21, y + 12 + i * spacing, 0xFFFFFF);
+			if (cModel.getTier() != ModelTier.SELF_AWARE) mc.font.drawShadow(e.getMatrixStack(), I18n.get("hostilenetworks.hud.kills", cModel.getKillsNeeded()), x + 21, y + 12 + i * spacing, 0xFFFFFF);
 		}
 	}
 

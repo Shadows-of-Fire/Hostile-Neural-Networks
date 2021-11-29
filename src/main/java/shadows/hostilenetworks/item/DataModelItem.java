@@ -15,6 +15,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import shadows.hostilenetworks.data.DataModel;
 import shadows.hostilenetworks.data.DataModelManager;
+import shadows.hostilenetworks.data.ModelTier;
 import shadows.hostilenetworks.util.Color;
 import shadows.placebo.util.ClientUtil;
 
@@ -31,7 +32,21 @@ public class DataModelItem extends Item {
 	@Override
 	public void appendHoverText(ItemStack pStack, World pLevel, List<ITextComponent> list, ITooltipFlag pFlag) {
 		if (ClientUtil.isHoldingShift()) {
-
+			DataModel model = getStoredModel(pStack);
+			if (model == null) {
+				list.add(new TranslationTextComponent("Error: %s", new StringTextComponent("Broke_AF").withStyle(TextFormatting.OBFUSCATED, TextFormatting.GRAY)));
+				return;
+			}
+			int data = getData(pStack);
+			ModelTier tier = ModelTier.getByData(data);
+			list.add(new TranslationTextComponent("hostilenetworks.info.tier", tier.getComponent()));
+			int dProg = data - tier.data;
+			int dMax = tier.next().data - tier.data;
+			if (tier != ModelTier.SELF_AWARE) {
+				list.add(new TranslationTextComponent("hostilenetworks.info.data", new TranslationTextComponent("hostilenetworks.info.dprog", dProg, dMax).withStyle(TextFormatting.GRAY)));
+				list.add(new TranslationTextComponent("hostilenetworks.info.dpk", new StringTextComponent("" + tier.dataPerKill).withStyle(TextFormatting.GRAY)));
+			}
+			list.add(new TranslationTextComponent("hostilenetworks.info.sim_cost", new TranslationTextComponent("hostilenetworks.info.rft", model.getSimCost()).withStyle(TextFormatting.GRAY)));
 		} else {
 			list.add(new TranslationTextComponent("hostilenetworks.info.hold_shift", Color.withColor("hostilenetworks.color_text.shift", TextFormatting.WHITE.getColor())).withStyle(TextFormatting.GRAY));
 		}
@@ -65,6 +80,10 @@ public class DataModelItem extends Item {
 
 	public static int getData(ItemStack stack) {
 		return stack.getOrCreateTagElement(DATA_MODEL).getInt(DATA);
+	}
+
+	public static void setData(ItemStack stack, int data) {
+		stack.getOrCreateTagElement(DATA_MODEL).putInt(DATA, data);
 	}
 
 }

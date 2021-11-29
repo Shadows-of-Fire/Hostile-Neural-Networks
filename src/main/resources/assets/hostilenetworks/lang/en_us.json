@@ -31,12 +31,22 @@
 	
 	"hostilenetworks.info.click_to_attune": "%s on an entity to %s.",
 	"hostilenetworks.info.hold_shift": "- Hold %s for more info",
+	"hostilenetworks.info.tier": "Tier: %s",
+	"hostilenetworks.info.data": "Data Collected: %s",
+	"hostilenetworks.info.dprog": "%s/%s",
+	"hostilenetworks.info.dpk": "Data Per Kill: %s",
+	"hostilenetworks.info.sim_cost": "Simulation Cost: %s",
+	"hostilenetworks.info.rft": "%s FE/t",
+	"hostilenetworks.info.deep_learner": "Displays a %s when held and models are within",
+	"hostilenetworks.info.dl_contains": "Contains the following models",
 	
 	"hostilenetworks.color_text.build": "Build a Data Model",
 	"hostilenetworks.color_text.shift": "SHIFT",
 	"hostilenetworks.color_text.rclick": "Right-Click",
+	"hostilenetworks.color_text.hud": "HUD",
 	
 	"hostilenetworks.msg.no_model": "No known models exist for this specimen.",
+	"hostilenetworks.msg.built": "Successfully constructed a %s Data Model",
 	
 	"zombie.trivia.0": "They moan in the moonlight.",
 	"zombie.trivia.1": "Does not understand the need",

@@ -30,16 +30,18 @@ public class DataModel {
 	protected final TranslationTextComponent name;
 	protected final float guiScale;
 	protected final float guiXOff, guiYOff;
+	protected final int simCost;
 	protected final ItemStack baseDrop;
 	protected final ItemStack pristineDrop;
 	protected final List<TranslationTextComponent> trivia;
 
-	public DataModel(EntityType<?> type, TranslationTextComponent name, float guiScale, float guiXOff, float guiYOff, ItemStack baseDrop, ItemStack pristineDrop, List<TranslationTextComponent> trivia) {
+	public DataModel(EntityType<?> type, TranslationTextComponent name, float guiScale, float guiXOff, float guiYOff, int simCost, ItemStack baseDrop, ItemStack pristineDrop, List<TranslationTextComponent> trivia) {
 		this.type = type;
 		this.name = name;
 		this.guiScale = guiScale;
 		this.guiYOff = guiYOff;
 		this.guiXOff = guiXOff;
+		this.simCost = simCost;
 		this.baseDrop = baseDrop;
 		this.pristineDrop = pristineDrop;
 		this.trivia = trivia;
@@ -66,6 +68,14 @@ public class DataModel {
 		return guiScale;
 	}
 
+	public int getSimCost() {
+		return this.simCost;
+	}
+
+	public EntityType<?> getType() {
+		return this.type;
+	}
+
 	public static class Adapter implements JsonDeserializer<DataModel>, JsonSerializer<DataModel> {
 
 		public static final DataModel.Adapter INSTANCE = new Adapter();
@@ -78,6 +88,7 @@ public class DataModel {
 			obj.addProperty("gui_scale", src.guiScale);
 			obj.addProperty("gui_x_offset", src.guiXOff);
 			obj.addProperty("gui_y_offset", src.guiYOff);
+			obj.addProperty("sim_cost", src.simCost);
 			obj.add("base_drop", context.serialize(src.baseDrop));
 			obj.add("pristine_drop", context.serialize(src.pristineDrop));
 			JsonArray arr = new JsonArray();
@@ -96,6 +107,7 @@ public class DataModel {
 			float guiScale = obj.get("gui_scale").getAsFloat();
 			float guiXOff = obj.get("gui_x_offset").getAsFloat();
 			float guiYOff = obj.get("gui_y_offset").getAsFloat();
+			int simCost = obj.get("sim_cost").getAsInt();
 			ItemStack baseDrop = context.deserialize(obj.get("base_drop"), ItemStack.class);
 			ItemStack pristineDrop = context.deserialize(obj.get("pristine_drop"), ItemStack.class);
 			List<TranslationTextComponent> trivia = new ArrayList<>();
@@ -106,7 +118,7 @@ public class DataModel {
 				}
 				if (arr.size() > 4) HostileNetworks.LOGGER.error("Data Model for " + t.getRegistryName() + " has more than the max allowed trivia lines (4).");
 			}
-			return new DataModel(t, name, guiScale, guiXOff, guiYOff, baseDrop, pristineDrop, trivia);
+			return new DataModel(t, name, guiScale, guiXOff, guiYOff, simCost, baseDrop, pristineDrop, trivia);
 		}
 
 	}

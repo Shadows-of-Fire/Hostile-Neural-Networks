@@ -5,6 +5,7 @@
 	"gui_scale": 0.75,
 	"gui_x_offset": 0,
 	"gui_y_offset": 0,
+	"sim_cost": 512,
 	"base_drop": {
 		"item": "minecraft:stick"
 	},
