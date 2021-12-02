@@ -276,15 +276,17 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 		RenderSystem.scalef(1.0F, 1.0F, -1.0F);
 		MatrixStack matrixstack = new MatrixStack();
 		matrixstack.translate(0.0D, 0.0D, 1000.0D);
+		DataModel model = this.models[selectedModel].getModel();
 
-		pScale *= this.models[selectedModel].getModel().getScale();
+		pScale *= model.getScale();
 
 		matrixstack.scale(pScale, pScale, pScale);
 		Quaternion quaternion = Vector3f.ZP.rotationDegrees(180.0F);
 		Quaternion quaternion1 = Vector3f.XP.rotationDegrees(f1 * 20.0F);
 		quaternion.mul(quaternion1);
 		matrixstack.mulPose(quaternion);
-		pLivingEntity.yRot = ((spin + this.minecraft.getDeltaFrameTime()) * 2.25F) % 360;
+		matrixstack.mulPose(Vector3f.YP.rotationDegrees(((spin + this.minecraft.getDeltaFrameTime()) * 2.25F) % 360));
+		pLivingEntity.yRot = 0;
 		pLivingEntity.yBodyRot = pLivingEntity.yRot;
 		pLivingEntity.yHeadRot = pLivingEntity.yRot;
 		pLivingEntity.yHeadRotO = pLivingEntity.yRot;
@@ -295,7 +297,7 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 		IRenderTypeBuffer.Impl rtBuffer = Minecraft.getInstance().renderBuffers().bufferSource();
 		WeirdRenderThings.fullbright = true;
 		RenderSystem.runAsFancy(() -> {
-			entityrenderermanager.render(pLivingEntity, 0.0D, 0.0D, 0.0D, 0.0F, 1, matrixstack, new WrappedRTBuffer(rtBuffer), 15728880);
+			entityrenderermanager.render(pLivingEntity, model.getXOffset(), model.getYOffset(), model.getZOffset(), 0.0F, 1, matrixstack, new WrappedRTBuffer(rtBuffer), 15728880);
 		});
 		rtBuffer.endBatch();
 		WeirdRenderThings.fullbright = false;

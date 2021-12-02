@@ -1,10 +1,11 @@
 {
 	"type": "minecraft:enderman",
 	"name": "entity.minecraft.enderman",
-	"name_color": "0x000000",
+	"name_color": "0x222222",
 	"gui_scale": 0.75,
 	"gui_x_offset": 0,
 	"gui_y_offset": 0,
+	"gui_z_offset": 0,
 	"sim_cost": 512,
 	"base_drop": {
 		"item": "minecraft:stick"

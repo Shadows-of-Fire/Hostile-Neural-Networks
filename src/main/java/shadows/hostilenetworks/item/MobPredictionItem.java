@@ -6,7 +6,9 @@ import javax.annotation.Nullable;
 
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -16,6 +18,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import shadows.hostilenetworks.HostileConfig;
 import shadows.hostilenetworks.data.DataModel;
+import shadows.hostilenetworks.data.DataModelManager;
 import shadows.hostilenetworks.data.ModelTier;
 import shadows.hostilenetworks.util.Color;
 import shadows.placebo.util.ClientUtil;
@@ -49,12 +52,26 @@ public class MobPredictionItem extends Item {
 			}
 			ModelTier tier = getTier(pStack);
 			list.add(new TranslationTextComponent("hostilenetworks.info.tier", tier.getComponent()));
-			list.add(new TranslationTextComponent("hostilenetworks.info.rolls", new StringTextComponent("" + HostileConfig.rollsArray[tier.ordinal()]).withStyle(tier.color)).withStyle(TextFormatting.GRAY));
+			list.add(new TranslationTextComponent("hostilenetworks.info.looting", new TranslationTextComponent("enchantment.level." + tier.ordinal()).withStyle(TextFormatting.GRAY)));
 			list.add(new TranslationTextComponent("hostilenetworks.info.player", trueFalse(tier.ordinal() >= ModelTier.ADVANCED.ordinal())));
+
+			list.add(new TranslationTextComponent("hostilenetworks.info.rolls", new StringTextComponent("" + HostileConfig.rollsArray[tier.ordinal()]).withStyle(TextFormatting.GRAY)));
+
 			list.add(new TranslationTextComponent("hostilenetworks.info.exp", trueFalse(tier.ordinal() >= ModelTier.SUPERIOR.ordinal())));
-			list.add(new TranslationTextComponent("hostilenetworks.info.looting", new TranslationTextComponent("enchantment.level." + tier.ordinal()).withStyle(tier.color)));
 		} else {
 			list.add(new TranslationTextComponent("hostilenetworks.info.hold_shift", Color.withColor("hostilenetworks.color_text.shift", TextFormatting.WHITE.getColor())).withStyle(TextFormatting.GRAY));
+		}
+	}
+
+	@Override
+	public void fillItemCategory(ItemGroup pGroup, NonNullList<ItemStack> pItems) {
+		if (this.allowdedIn(pGroup)) {
+			for (DataModel model : DataModelManager.INSTANCE.getAllModels()) {
+				ItemStack s = new ItemStack(this);
+				setStoredModel(s, model);
+				setTier(s, ModelTier.BASIC);
+				pItems.add(s);
+			}
 		}
 	}
 

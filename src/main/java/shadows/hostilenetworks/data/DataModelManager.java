@@ -1,5 +1,6 @@
 package shadows.hostilenetworks.data;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,7 +74,7 @@ public class DataModelManager extends JsonReloadListener {
 		return modelsByType.get(type);
 	}
 
-	//	public Collection<DataModel> getAllModels() {
-	//		return registry.values();
-	//	}
+	public Collection<DataModel> getAllModels() {
+		return registry.values();
+	}
 }

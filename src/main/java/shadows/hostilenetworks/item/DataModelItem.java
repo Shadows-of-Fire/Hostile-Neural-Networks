@@ -6,7 +6,9 @@ import javax.annotation.Nullable;
 
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -50,6 +52,17 @@ public class DataModelItem extends Item {
 			list.add(new TranslationTextComponent("hostilenetworks.info.sim_cost", new TranslationTextComponent("hostilenetworks.info.rft", model.getSimCost()).withStyle(TextFormatting.GRAY)));
 		} else {
 			list.add(new TranslationTextComponent("hostilenetworks.info.hold_shift", Color.withColor("hostilenetworks.color_text.shift", TextFormatting.WHITE.getColor())).withStyle(TextFormatting.GRAY));
+		}
+	}
+
+	@Override
+	public void fillItemCategory(ItemGroup pGroup, NonNullList<ItemStack> pItems) {
+		if (this.allowdedIn(pGroup)) {
+			for (DataModel model : DataModelManager.INSTANCE.getAllModels()) {
+				ItemStack s = new ItemStack(this);
+				setStoredModel(s, model);
+				pItems.add(s);
+			}
 		}
 	}
 

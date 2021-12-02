@@ -53,7 +53,7 @@ public class HostileNetworks {
 	@SubscribeEvent
 	public void blocks(Register<Block> e) {
 		IForgeRegistry<Block> reg = e.getRegistry();
-		reg.register(new SimChamberBlock(Block.Properties.of(Material.STONE).lightLevel(s -> 1).strength(4, 3000)).setRegistryName("sim_chamber"));
+		reg.register(new SimChamberBlock(Block.Properties.of(Material.STONE).lightLevel(s -> 1).strength(4, 3000).noOcclusion()).setRegistryName("sim_chamber"));
 	}
 
 	@SubscribeEvent
@@ -65,11 +65,11 @@ public class HostileNetworks {
 	@SubscribeEvent
 	public void registerItems(Register<Item> e) {
 		IForgeRegistry<Item> reg = e.getRegistry();
+		reg.register(new DeepLearnerItem(new Item.Properties().tab(TAB)).setRegistryName("deep_learner"));
 		reg.register(new BlankDataModelItem(new Item.Properties().stacksTo(1).tab(TAB)).setRegistryName("blank_data_model"));
 		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("polymer_clay"));
-		reg.register(new DeepLearnerItem(new Item.Properties().tab(TAB)).setRegistryName("deep_learner"));
-		reg.register(new DataModelItem(new Item.Properties().stacksTo(1).tab(TAB).setISTER(() -> DataModelItemStackRenderer::new)).setRegistryName("data_model"));
 		reg.register(new BlockItem(Hostile.Blocks.SIM_CHAMBER, new Item.Properties().tab(TAB)).setRegistryName("sim_chamber"));
+		reg.register(new DataModelItem(new Item.Properties().stacksTo(1).tab(TAB).setISTER(() -> DataModelItemStackRenderer::new)).setRegistryName("data_model"));
 		reg.register(new MobPredictionItem(new Item.Properties().tab(TAB)).setRegistryName("prediction"));
 	}
 

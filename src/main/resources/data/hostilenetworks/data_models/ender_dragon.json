@@ -1,0 +1,18 @@
+{
+	"type": "minecraft:ender_dragon",
+	"name": "entity.minecraft.ender_dragon",
+	"name_color": "0xCC00CC",
+	"gui_scale": 0.25,
+	"gui_x_offset": 0,
+	"gui_y_offset": 0.5,
+	"gui_z_offset": 0,
+	"sim_cost": 2560,
+	"base_drop": {
+		"item": "minecraft:stick"
+	},
+	"loot_table": "minecraft:entities/ender_dragon",
+	"trivia": [
+		"ender_dragon.trivia.0",
+		"ender_dragon.trivia.1"
+	]
+}

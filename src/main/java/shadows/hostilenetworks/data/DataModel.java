@@ -31,18 +31,19 @@ public class DataModel {
 	protected final EntityType<?> type;
 	protected final TranslationTextComponent name;
 	protected final float guiScale;
-	protected final float guiXOff, guiYOff;
+	protected final float guiXOff, guiYOff, guiZOff;
 	protected final int simCost;
 	protected final ItemStack baseDrop;
 	protected final ResourceLocation lootTable;
 	protected final List<TranslationTextComponent> trivia;
 
-	public DataModel(EntityType<?> type, TranslationTextComponent name, float guiScale, float guiXOff, float guiYOff, int simCost, ItemStack baseDrop, ResourceLocation lootTable, List<TranslationTextComponent> trivia) {
+	public DataModel(EntityType<?> type, TranslationTextComponent name, float guiScale, float guiXOff, float guiYOff, float guiZOff, int simCost, ItemStack baseDrop, ResourceLocation lootTable, List<TranslationTextComponent> trivia) {
 		this.type = type;
 		this.name = name;
 		this.guiScale = guiScale;
 		this.guiYOff = guiYOff;
 		this.guiXOff = guiXOff;
+		this.guiZOff = guiZOff;
 		this.simCost = simCost;
 		this.baseDrop = baseDrop;
 		this.lootTable = lootTable;
@@ -68,6 +69,18 @@ public class DataModel {
 
 	public float getScale() {
 		return guiScale;
+	}
+
+	public float getYOffset() {
+		return this.guiYOff;
+	}
+
+	public float getXOffset() {
+		return this.guiXOff;
+	}
+
+	public float getZOffset() {
+		return this.guiZOff;
 	}
 
 	public int getSimCost() {
@@ -101,6 +114,7 @@ public class DataModel {
 			obj.addProperty("gui_scale", src.guiScale);
 			obj.addProperty("gui_x_offset", src.guiXOff);
 			obj.addProperty("gui_y_offset", src.guiYOff);
+			obj.addProperty("gui_z_offset", src.guiZOff);
 			obj.addProperty("sim_cost", src.simCost);
 			obj.add("base_drop", context.serialize(src.baseDrop));
 			obj.addProperty("loot_table", src.lootTable.toString());
@@ -120,6 +134,7 @@ public class DataModel {
 			float guiScale = obj.get("gui_scale").getAsFloat();
 			float guiXOff = obj.get("gui_x_offset").getAsFloat();
 			float guiYOff = obj.get("gui_y_offset").getAsFloat();
+			float guiZOff = obj.get("gui_z_offset").getAsFloat();
 			int simCost = obj.get("sim_cost").getAsInt();
 			ItemStack baseDrop = context.deserialize(obj.get("base_drop"), ItemStack.class);
 			ResourceLocation lootTable = new ResourceLocation(obj.get("loot_table").getAsString());
@@ -131,7 +146,7 @@ public class DataModel {
 				}
 				if (arr.size() > 4) HostileNetworks.LOGGER.error("Data Model for " + t.getRegistryName() + " has more than the max allowed trivia lines (4).");
 			}
-			return new DataModel(t, name, guiScale, guiXOff, guiYOff, simCost, baseDrop, lootTable, trivia);
+			return new DataModel(t, name, guiScale, guiXOff, guiYOff, guiZOff, simCost, baseDrop, lootTable, trivia);
 		}
 
 	}

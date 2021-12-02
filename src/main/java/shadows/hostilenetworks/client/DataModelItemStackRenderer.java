@@ -64,9 +64,7 @@ public class DataModelItemStackRenderer extends ItemStackTileEntityRenderer {
 		matrix.pushPose();
 		matrix.translate(0.5, 0.5, 0.5);
 		if (type == TransformType.GUI) {
-
 			matrix.translate(0, -0.5, 0);
-
 			float scale = 0.4F;
 			scale *= model.getScale();
 			matrix.scale(scale, scale, scale);
@@ -77,9 +75,12 @@ public class DataModelItemStackRenderer extends ItemStackTileEntityRenderer {
 			matrix.scale(scale, scale, scale);
 			matrix.translate(0, 0.12 + 0.05 * Math.sin((HostileClient.clientTicks + Minecraft.getInstance().getDeltaFrameTime()) / 12), 0);
 		}
-		pLivingEntity.yRot = 30;
-		if (type == TransformType.FIRST_PERSON_LEFT_HAND || type == TransformType.THIRD_PERSON_LEFT_HAND) pLivingEntity.yRot = -30;
-		if (type == TransformType.FIXED) pLivingEntity.yRot = 180;
+
+		float rotation = 30;
+		if (type == TransformType.FIRST_PERSON_LEFT_HAND || type == TransformType.THIRD_PERSON_LEFT_HAND) rotation = -30;
+		if (type == TransformType.FIXED) rotation = 180;
+		matrix.mulPose(Vector3f.YP.rotationDegrees(rotation));
+		pLivingEntity.yRot = 0;
 		pLivingEntity.yBodyRot = pLivingEntity.yRot;
 		pLivingEntity.yHeadRot = pLivingEntity.yRot;
 		pLivingEntity.yHeadRotO = pLivingEntity.yRot;
@@ -89,7 +90,7 @@ public class DataModelItemStackRenderer extends ItemStackTileEntityRenderer {
 		WeirdRenderThings.fullbright = true;
 		WeirdRenderThings.translucent = true;
 		RenderSystem.runAsFancy(() -> {
-			entityrenderermanager.render(pLivingEntity, 0.0D, 0.0D, 0.0D, 0.0F, 1, matrix, new WrappedRTBuffer(rtBuffer), 15728880);
+			entityrenderermanager.render(pLivingEntity, model.getXOffset(), model.getYOffset(), model.getZOffset(), 0.0F, 1, matrix, new WrappedRTBuffer(rtBuffer), 15728880);
 		});
 		rtBuffer.endBatch();
 		WeirdRenderThings.translucent = false;
