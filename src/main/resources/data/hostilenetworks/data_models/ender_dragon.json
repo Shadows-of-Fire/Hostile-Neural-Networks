@@ -8,7 +8,7 @@
 	"gui_z_offset": 0,
 	"sim_cost": 2560,
 	"base_drop": {
-		"item": "minecraft:stick"
+		"item": "hostilenetworks:extraterrestrial_matter"
 	},
 	"loot_table": "minecraft:entities/ender_dragon",
 	"trivia": [

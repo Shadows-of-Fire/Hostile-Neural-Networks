@@ -68,6 +68,9 @@ public class HostileNetworks {
 		reg.register(new DeepLearnerItem(new Item.Properties().tab(TAB)).setRegistryName("deep_learner"));
 		reg.register(new BlankDataModelItem(new Item.Properties().stacksTo(1).tab(TAB)).setRegistryName("blank_data_model"));
 		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("polymer_clay"));
+		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("overworldian_matter"));
+		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("hellish_matter"));
+		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("extraterrestrial_matter"));
 		reg.register(new BlockItem(Hostile.Blocks.SIM_CHAMBER, new Item.Properties().tab(TAB)).setRegistryName("sim_chamber"));
 		reg.register(new DataModelItem(new Item.Properties().stacksTo(1).tab(TAB).setISTER(() -> DataModelItemStackRenderer::new)).setRegistryName("data_model"));
 		reg.register(new MobPredictionItem(new Item.Properties().tab(TAB)).setRegistryName("prediction"));
