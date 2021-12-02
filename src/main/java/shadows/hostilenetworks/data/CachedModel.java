@@ -8,28 +8,24 @@ import net.minecraft.world.World;
 import shadows.hostilenetworks.item.DataModelItem;
 
 /**
- * A Cached model is a temporarily-deserialized model, used on the client for rendering purposes.
+ * A Cached model is a temporarily-deserialized model. It retains space for a cached entity for rendering.
  */
 public class CachedModel {
 
-	protected final DataModel model;
-	protected final int data;
-	protected final ModelTier tier;
+	protected final ItemStack stack;
 	protected final int slot;
+	protected final DataModel model;
+
+	protected int data;
+	protected ModelTier tier;
 	private Entity cachedEntity;
 
-	public CachedModel(DataModel model, int data, int slot) {
-		this.model = model;
-		this.data = data;
-		this.tier = ModelTier.getByData(data);
-		this.slot = slot;
-	}
-
 	public CachedModel(ItemStack stack, int slot) {
+		this.stack = stack;
+		this.slot = slot;
 		this.model = DataModelItem.getStoredModel(stack);
 		this.data = DataModelItem.getData(stack);
 		this.tier = ModelTier.getByData(data);
-		this.slot = slot;
 	}
 
 	public DataModel getModel() {
@@ -42,6 +38,12 @@ public class CachedModel {
 
 	public ModelTier getTier() {
 		return this.tier;
+	}
+
+	public void setData(int data) {
+		this.data = data;
+		if (this.data > this.tier.next().data) this.tier = this.tier.next();
+		DataModelItem.setData(stack, data);
 	}
 
 	public int getSlot() {
@@ -65,6 +67,14 @@ public class CachedModel {
 			this.cachedEntity = this.model.type.create(world);
 		}
 		return this.cachedEntity instanceof LivingEntity ? (LivingEntity) this.cachedEntity : null;
+	}
+
+	public ItemStack getPredictionDrop() {
+		return this.model.getPredictionDrop(this.tier);
+	}
+
+	public ItemStack getSourceStack() {
+		return this.stack;
 	}
 
 }

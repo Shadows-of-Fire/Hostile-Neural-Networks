@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import shadows.hostilenetworks.gui.DeepLearnerScreen;
+import shadows.hostilenetworks.gui.SimChamberScreen;
 
 @EventBusSubscriber(bus = Bus.MOD, value = Dist.CLIENT, modid = HostileNetworks.MODID)
 public class HostileClient {
@@ -23,6 +24,7 @@ public class HostileClient {
 	public static void init(FMLClientSetupEvent e) {
 		e.enqueueWork(() -> {
 			ScreenManager.register(Hostile.Containers.DEEP_LEARNER, DeepLearnerScreen::new);
+			ScreenManager.register(Hostile.Containers.SIM_CHAMBER, SimChamberScreen::new);
 		});
 		MinecraftForge.EVENT_BUS.addListener(HostileClient::tick);
 	}

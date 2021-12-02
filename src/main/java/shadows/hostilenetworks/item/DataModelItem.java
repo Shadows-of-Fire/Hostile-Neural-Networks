@@ -24,6 +24,7 @@ public class DataModelItem extends Item {
 	public static final String DATA_MODEL = "data_model";
 	public static final String ID = "id";
 	public static final String DATA = "data";
+	public static final String ITERATIONS = "iterations";
 
 	public DataModelItem(Properties pProperties) {
 		super(pProperties);
@@ -84,6 +85,14 @@ public class DataModelItem extends Item {
 
 	public static void setData(ItemStack stack, int data) {
 		stack.getOrCreateTagElement(DATA_MODEL).putInt(DATA, data);
+	}
+
+	public static int getIters(ItemStack stack) {
+		return stack.getOrCreateTagElement(DATA_MODEL).getInt(ITERATIONS);
+	}
+
+	public static void setIters(ItemStack stack, int data) {
+		stack.getOrCreateTagElement(DATA_MODEL).putInt(ITERATIONS, data);
 	}
 
 }

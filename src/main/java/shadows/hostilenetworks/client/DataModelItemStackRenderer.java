@@ -70,7 +70,7 @@ public class DataModelItemStackRenderer extends ItemStackTileEntityRenderer {
 			float scale = 0.4F;
 			scale *= model.getScale();
 			matrix.scale(scale, scale, scale);
-			matrix.translate(0, 0.4 + 0.05 * Math.sin((HostileClient.clientTicks + Minecraft.getInstance().getDeltaFrameTime()) / 12), 0);
+			matrix.translate(0, 0.45, 0);
 		} else {
 			float scale = 0.25F;
 			scale *= model.getScale();

@@ -9,9 +9,7 @@
 	"base_drop": {
 		"item": "minecraft:stick"
 	},
-	"pristine_drop": {
-		"item": "minecraft:iron_ingot"
-	},
+	"loot_table": "minecraft:entities/enderman",
 	"trivia": [
 		"enderman.trivia.0",
 		"enderman.trivia.1"

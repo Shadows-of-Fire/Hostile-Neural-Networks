@@ -10,9 +10,7 @@
 	"base_drop": {
 		"item": "minecraft:stick"
 	},
-	"pristine_drop": {
-		"item": "minecraft:iron_ingot"
-	},
+	"loot_table": "minecraft:entities/zombie",
 	"trivia": [
 		"zombie.trivia.0",
 		"zombie.trivia.1",

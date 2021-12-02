@@ -9,9 +9,7 @@
 	"base_drop": {
 		"item": "minecraft:stick"
 	},
-	"pristine_drop": {
-		"item": "minecraft:iron_ingot"
-	},
+	"loot_table": "minecraft:entities/blaze",
 	"trivia": [
 		"blaze.trivia.0",
 		"blaze.trivia.1"

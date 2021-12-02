@@ -21,7 +21,9 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.registries.ForgeRegistries;
+import shadows.hostilenetworks.Hostile;
 import shadows.hostilenetworks.HostileNetworks;
+import shadows.hostilenetworks.item.MobPredictionItem;
 
 public class DataModel {
 
@@ -32,10 +34,10 @@ public class DataModel {
 	protected final float guiXOff, guiYOff;
 	protected final int simCost;
 	protected final ItemStack baseDrop;
-	protected final ItemStack pristineDrop;
+	protected final ResourceLocation lootTable;
 	protected final List<TranslationTextComponent> trivia;
 
-	public DataModel(EntityType<?> type, TranslationTextComponent name, float guiScale, float guiXOff, float guiYOff, int simCost, ItemStack baseDrop, ItemStack pristineDrop, List<TranslationTextComponent> trivia) {
+	public DataModel(EntityType<?> type, TranslationTextComponent name, float guiScale, float guiXOff, float guiYOff, int simCost, ItemStack baseDrop, ResourceLocation lootTable, List<TranslationTextComponent> trivia) {
 		this.type = type;
 		this.name = name;
 		this.guiScale = guiScale;
@@ -43,7 +45,7 @@ public class DataModel {
 		this.guiXOff = guiXOff;
 		this.simCost = simCost;
 		this.baseDrop = baseDrop;
-		this.pristineDrop = pristineDrop;
+		this.lootTable = lootTable;
 		this.trivia = trivia;
 	}
 
@@ -76,6 +78,17 @@ public class DataModel {
 		return this.type;
 	}
 
+	public ItemStack getBaseDrop() {
+		return this.baseDrop;
+	}
+
+	public ItemStack getPredictionDrop(ModelTier tier) {
+		ItemStack stk = new ItemStack(Hostile.Items.PREDICTION);
+		MobPredictionItem.setStoredModel(stk, this);
+		MobPredictionItem.setTier(stk, tier);
+		return stk;
+	}
+
 	public static class Adapter implements JsonDeserializer<DataModel>, JsonSerializer<DataModel> {
 
 		public static final DataModel.Adapter INSTANCE = new Adapter();
@@ -90,7 +103,7 @@ public class DataModel {
 			obj.addProperty("gui_y_offset", src.guiYOff);
 			obj.addProperty("sim_cost", src.simCost);
 			obj.add("base_drop", context.serialize(src.baseDrop));
-			obj.add("pristine_drop", context.serialize(src.pristineDrop));
+			obj.addProperty("loot_table", src.lootTable.toString());
 			JsonArray arr = new JsonArray();
 			src.trivia.forEach(t -> arr.add(t.getKey()));
 			obj.add("trivia", arr);
@@ -109,7 +122,7 @@ public class DataModel {
 			float guiYOff = obj.get("gui_y_offset").getAsFloat();
 			int simCost = obj.get("sim_cost").getAsInt();
 			ItemStack baseDrop = context.deserialize(obj.get("base_drop"), ItemStack.class);
-			ItemStack pristineDrop = context.deserialize(obj.get("pristine_drop"), ItemStack.class);
+			ResourceLocation lootTable = new ResourceLocation(obj.get("loot_table").getAsString());
 			List<TranslationTextComponent> trivia = new ArrayList<>();
 			if (obj.has("trivia")) {
 				JsonArray arr = obj.get("trivia").getAsJsonArray();
@@ -118,7 +131,7 @@ public class DataModel {
 				}
 				if (arr.size() > 4) HostileNetworks.LOGGER.error("Data Model for " + t.getRegistryName() + " has more than the max allowed trivia lines (4).");
 			}
-			return new DataModel(t, name, guiScale, guiXOff, guiYOff, simCost, baseDrop, pristineDrop, trivia);
+			return new DataModel(t, name, guiScale, guiXOff, guiYOff, simCost, baseDrop, lootTable, trivia);
 		}
 
 	}
