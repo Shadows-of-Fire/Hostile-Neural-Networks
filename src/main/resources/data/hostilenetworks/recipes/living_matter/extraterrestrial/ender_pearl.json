@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "hostilenetworks:extraterrestrial_matter" },
+    { "item": "minecraft:emerald" },
+    { "item": "minecraft:snowball" },
+    { "item": "minecraft:slime_ball" }
+  ],
+  "result": {
+    "item": "minecraft:ender_pearl"
+  }
+}

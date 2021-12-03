@@ -1,10 +1,7 @@
 package shadows.hostilenetworks.data;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -22,7 +19,6 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.registries.ForgeRegistries;
 import shadows.hostilenetworks.Hostile;
-import shadows.hostilenetworks.HostileNetworks;
 import shadows.hostilenetworks.item.MobPredictionItem;
 
 public class DataModel {
@@ -35,9 +31,9 @@ public class DataModel {
 	protected final int simCost;
 	protected final ItemStack baseDrop;
 	protected final ResourceLocation lootTable;
-	protected final List<TranslationTextComponent> trivia;
+	protected final String triviaKey;
 
-	public DataModel(EntityType<?> type, TranslationTextComponent name, float guiScale, float guiXOff, float guiYOff, float guiZOff, int simCost, ItemStack baseDrop, ResourceLocation lootTable, List<TranslationTextComponent> trivia) {
+	public DataModel(EntityType<?> type, TranslationTextComponent name, float guiScale, float guiXOff, float guiYOff, float guiZOff, int simCost, ItemStack baseDrop, ResourceLocation lootTable, String triviaKey) {
 		this.type = type;
 		this.name = name;
 		this.guiScale = guiScale;
@@ -47,7 +43,7 @@ public class DataModel {
 		this.simCost = simCost;
 		this.baseDrop = baseDrop;
 		this.lootTable = lootTable;
-		this.trivia = trivia;
+		this.triviaKey = triviaKey;
 	}
 
 	public void setId(ResourceLocation id) {
@@ -63,8 +59,8 @@ public class DataModel {
 		return this.name;
 	}
 
-	public List<TranslationTextComponent> getTrivia() {
-		return trivia;
+	public String getTriviaKey() {
+		return triviaKey;
 	}
 
 	public float getScale() {
@@ -118,9 +114,7 @@ public class DataModel {
 			obj.addProperty("sim_cost", src.simCost);
 			obj.add("base_drop", context.serialize(src.baseDrop));
 			obj.addProperty("loot_table", src.lootTable.toString());
-			JsonArray arr = new JsonArray();
-			src.trivia.forEach(t -> arr.add(t.getKey()));
-			obj.add("trivia", arr);
+			obj.addProperty("trivia", src.triviaKey);
 			return obj;
 		}
 
@@ -138,15 +132,8 @@ public class DataModel {
 			int simCost = obj.get("sim_cost").getAsInt();
 			ItemStack baseDrop = context.deserialize(obj.get("base_drop"), ItemStack.class);
 			ResourceLocation lootTable = new ResourceLocation(obj.get("loot_table").getAsString());
-			List<TranslationTextComponent> trivia = new ArrayList<>();
-			if (obj.has("trivia")) {
-				JsonArray arr = obj.get("trivia").getAsJsonArray();
-				for (int i = 0; i < Math.min(4, arr.size()); i++) {
-					trivia.add(new TranslationTextComponent(arr.get(i).getAsString()));
-				}
-				if (arr.size() > 4) HostileNetworks.LOGGER.error("Data Model for " + t.getRegistryName() + " has more than the max allowed trivia lines (4).");
-			}
-			return new DataModel(t, name, guiScale, guiXOff, guiYOff, guiZOff, simCost, baseDrop, lootTable, trivia);
+			String triviaKey = obj.has("trivia") ? obj.get("trivia").getAsString() : "hostilenetworks.trivia.nothing";
+			return new DataModel(t, name, guiScale, guiXOff, guiYOff, guiZOff, simCost, baseDrop, lootTable, triviaKey);
 		}
 
 	}

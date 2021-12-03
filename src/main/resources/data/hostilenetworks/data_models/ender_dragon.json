@@ -11,8 +11,5 @@
 		"item": "hostilenetworks:extraterrestrial_matter"
 	},
 	"loot_table": "minecraft:entities/ender_dragon",
-	"trivia": [
-		"ender_dragon.trivia.0",
-		"ender_dragon.trivia.1"
-	]
+	"trivia": "hostilenetworks.trivia.ender_dragon"
 }

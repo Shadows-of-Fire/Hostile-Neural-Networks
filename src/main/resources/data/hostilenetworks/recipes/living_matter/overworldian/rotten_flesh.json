@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "hostilenetworks:overworldian_matter" },
+    { "item": "minecraft:porkchop" }
+  ],
+  "result": {
+    "item": "minecraft:rotten_flesh",
+    "count": 16
+  }
+}

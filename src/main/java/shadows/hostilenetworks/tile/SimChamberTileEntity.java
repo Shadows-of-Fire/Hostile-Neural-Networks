@@ -2,7 +2,9 @@ package shadows.hostilenetworks.tile;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -74,6 +76,34 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 
 	public SimChamberTileEntity() {
 		super(Hostile.TileEntities.SIM_CHAMBER);
+	}
+
+	@Override
+	public CompoundNBT save(CompoundNBT tag) {
+		tag = super.save(tag);
+		tag.put("inventory", inventory.serializeNBT());
+		tag.putInt("energy", this.energy.getEnergyStored());
+		tag.putString("model", this.currentModel == null ? "null" : this.currentModel.getModel().getId().toString());
+		tag.putInt("runtime", this.runtime);
+		tag.putBoolean("predSuccess", predictionSuccess);
+		tag.putInt("failState", this.failState.ordinal());
+		return tag;
+	}
+
+	@Override
+	public void load(BlockState state, CompoundNBT tag) {
+		super.load(state, tag);
+		this.inventory.deserializeNBT(tag.getCompound("inventory"));
+		this.energy.setEnergy(tag.getInt("energy"));
+		ItemStack model = inventory.getStackInSlot(0);
+		CachedModel cModel = getOrLoadModel(model);
+		String modelId = tag.getString("model");
+		if (cModel != null && cModel.getModel().getId().toString().equals(modelId)) {
+			this.currentModel = cModel;
+		}
+		this.runtime = tag.getInt("runtime");
+		this.predictionSuccess = tag.getBoolean("predSuccess");
+		this.failState = FailureState.values()[tag.getInt("failState")];
 	}
 
 	@Override

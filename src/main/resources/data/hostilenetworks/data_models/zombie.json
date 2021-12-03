@@ -1,8 +1,7 @@
 {
 	"type": "minecraft:zombie",
 	"name": "entity.minecraft.zombie",
-	"name_color": "0xAA3333",
-	"max_health": 20,
+	"name_color": "0x3B622F",
 	"gui_scale": 1,
 	"gui_x_offset": 0,
 	"gui_y_offset": 0,
@@ -12,9 +11,5 @@
 		"item": "hostilenetworks:overworldian_matter"
 	},
 	"loot_table": "minecraft:entities/zombie",
-	"trivia": [
-		"zombie.trivia.0",
-		"zombie.trivia.1",
-		"zombie.trivia.2"
-	]
+	"trivia": "hostilenetworks.trivia.zombie"
 }

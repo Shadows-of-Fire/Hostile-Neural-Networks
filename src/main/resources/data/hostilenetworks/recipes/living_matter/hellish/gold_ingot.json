@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "minecraft:glowstone_dust" },
+    { "item": "minecraft:iron_ingot" },
+    { "item": "hostilenetworks:hellish_matter" }
+  ],
+  "result": {
+    "item": "minecraft:gold_ingot",
+    "count": 6
+  }
+}

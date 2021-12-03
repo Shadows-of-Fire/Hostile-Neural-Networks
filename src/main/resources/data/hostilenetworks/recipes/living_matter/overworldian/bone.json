@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "hostilenetworks:overworldian_matter" },
+    { "item": "minecraft:bone_meal" }
+  ],
+  "result": {
+    "item": "minecraft:bone",
+    "count": 22
+  }
+}

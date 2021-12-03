@@ -52,7 +52,7 @@ public class MobPredictionItem extends Item {
 			}
 			ModelTier tier = getTier(pStack);
 			list.add(new TranslationTextComponent("hostilenetworks.info.tier", tier.getComponent()));
-			list.add(new TranslationTextComponent("hostilenetworks.info.looting", new TranslationTextComponent("enchantment.level." + tier.ordinal()).withStyle(TextFormatting.GRAY)));
+			list.add(new TranslationTextComponent("hostilenetworks.info.looting", new TranslationTextComponent("enchantment.level." + (tier.ordinal() - 1)).withStyle(TextFormatting.GRAY)));
 			list.add(new TranslationTextComponent("hostilenetworks.info.player", trueFalse(tier.ordinal() >= ModelTier.ADVANCED.ordinal())));
 
 			list.add(new TranslationTextComponent("hostilenetworks.info.rolls", new StringTextComponent("" + HostileConfig.rollsArray[tier.ordinal()]).withStyle(TextFormatting.GRAY)));

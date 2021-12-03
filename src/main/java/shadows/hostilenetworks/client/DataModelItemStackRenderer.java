@@ -76,8 +76,8 @@ public class DataModelItemStackRenderer extends ItemStackTileEntityRenderer {
 			matrix.translate(0, 0.12 + 0.05 * Math.sin((HostileClient.clientTicks + Minecraft.getInstance().getDeltaFrameTime()) / 12), 0);
 		}
 
-		float rotation = 30;
-		if (type == TransformType.FIRST_PERSON_LEFT_HAND || type == TransformType.THIRD_PERSON_LEFT_HAND) rotation = -30;
+		float rotation = -30;
+		if (type == TransformType.FIRST_PERSON_LEFT_HAND || type == TransformType.THIRD_PERSON_LEFT_HAND) rotation = 30;
 		if (type == TransformType.FIXED) rotation = 180;
 		matrix.mulPose(Vector3f.YP.rotationDegrees(rotation));
 		pLivingEntity.yRot = 0;

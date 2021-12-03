@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "hostilenetworks:overworldian_matter" },
+    { "item": "minecraft:quartz" }
+  ],
+  "result": {
+    "item": "minecraft:prismarine_shard",
+    "count": 2
+  }
+}

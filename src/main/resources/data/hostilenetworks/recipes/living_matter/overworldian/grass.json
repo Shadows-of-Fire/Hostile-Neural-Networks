@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "tag": "minecraft:leaves" },
+    { "item": "minecraft:dirt" },
+    { "item": "hostilenetworks:overworldian_matter" }
+  ],
+  "result": {
+    "item": "minecraft:grass",
+    "count": 4
+  }
+}

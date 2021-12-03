@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:wither_skeleton",
+	"name": "entity.minecraft.wither_skeleton",
+	"name_color": "0x343434",
+	"gui_scale": 0.85,
+	"gui_x_offset": 0,
+	"gui_y_offset": 0,
+	"gui_z_offset": 0,
+	"sim_cost": 256,
+	"base_drop": {
+		"item": "hostilenetworks:hellish_matter"
+	},
+	"loot_table": "minecraft:entities/wither_skeleton",
+	"trivia": "hostilenetworks.trivia.wither_skeleton"
+}

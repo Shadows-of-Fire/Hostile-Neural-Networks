@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "hostilenetworks:overworldian_matter" },
+    { "item": "hostilenetworks:overworldian_matter" },
+    { "item": "hostilenetworks:overworldian_matter" },
+    { "item": "hostilenetworks:overworldian_matter" },
+    { "item": "minecraft:rotten_flesh" }
+  ],
+  "result": {
+    "item": "minecraft:iron_ingot",
+    "count": 8
+  }
+}

@@ -1,7 +1,7 @@
 {
 	"type": "minecraft:skeleton",
 	"name": "entity.minecraft.skeleton",
-	"name_color": "0xAAAAAA",
+	"name_color": "0xBCBCBC",
 	"gui_scale": 1,
 	"gui_x_offset": 0,
 	"gui_y_offset": 0,
@@ -11,8 +11,5 @@
 		"item": "hostilenetworks:overworldian_matter"
 	},
 	"loot_table": "minecraft:entities/skeleton",
-	"trivia": [
-		"skeleton.trivia.0",
-		"skeleton.trivia.1"
-	]
+	"trivia": "hostilenetworks.trivia.skeleton"
 }

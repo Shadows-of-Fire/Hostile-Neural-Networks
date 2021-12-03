@@ -1,7 +1,7 @@
 {
 	"type": "minecraft:enderman",
 	"name": "entity.minecraft.enderman",
-	"name_color": "0x222222",
+	"name_color": "0x161616",
 	"gui_scale": 0.75,
 	"gui_x_offset": 0,
 	"gui_y_offset": 0,
@@ -11,8 +11,5 @@
 		"item": "hostilenetworks:extraterrestrial_matter"
 	},
 	"loot_table": "minecraft:entities/enderman",
-	"trivia": [
-		"enderman.trivia.0",
-		"enderman.trivia.1"
-	]
+	"trivia": "hostilenetworks.trivia.enderman"
 }

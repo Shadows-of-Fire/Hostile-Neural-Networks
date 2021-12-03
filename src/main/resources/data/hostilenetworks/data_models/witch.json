@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:witch",
+	"name": "entity.minecraft.witch",
+	"name_color": "0x361758",
+	"gui_scale": 0.8,
+	"gui_x_offset": 0,
+	"gui_y_offset": 0,
+	"gui_z_offset": 0,
+	"sim_cost": 160,
+	"base_drop": {
+		"item": "hostilenetworks:overworldian_matter"
+	},
+	"loot_table": "minecraft:entities/witch",
+	"trivia": "hostilenetworks.trivia.witch"
+}

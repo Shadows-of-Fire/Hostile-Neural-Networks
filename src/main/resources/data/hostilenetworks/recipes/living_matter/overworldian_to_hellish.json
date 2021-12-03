@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " O ",
+    "ONO",
+    " O "
+  ],
+  "key": {
+    "O": {
+      "item": "hostilenetworks:overworldian_matter"
+    },
+    "N": {
+      "item": "minecraft:netherrack"
+    }
+  },
+  "result": {
+    "item": "hostilenetworks:hellish_matter"
+  }
+}

@@ -32,10 +32,10 @@ public class DeepLearnerContainer extends Container {
 		this.deepLearner = player.getItemInHand(hand);
 		this.learnerInv = DeepLearnerItem.getItemHandler(this.deepLearner);
 
-		addSlot(new DataModelSlot(learnerInv, 0, 257, 100));
-		addSlot(new DataModelSlot(learnerInv, 1, 275, 100));
-		addSlot(new DataModelSlot(learnerInv, 2, 257, 118));
-		addSlot(new DataModelSlot(learnerInv, 3, 275, 118));
+		addSlot(new DataModelSlot(learnerInv, 0, 256, 99));
+		addSlot(new DataModelSlot(learnerInv, 1, 274, 99));
+		addSlot(new DataModelSlot(learnerInv, 2, 256, 117));
+		addSlot(new DataModelSlot(learnerInv, 3, 274, 117));
 
 		for (int row = 0; row < 9; row++) {
 			int index = row;
@@ -86,6 +86,31 @@ public class DeepLearnerContainer extends Container {
 			ItemStack stack = learnerInv.getStackInSlot(i);
 			models[i] = stack.isEmpty() ? null : new CachedModel(stack, i);
 		}
+	}
+
+	@Override
+	public ItemStack quickMoveStack(PlayerEntity pPlayer, int pIndex) {
+		ItemStack itemstack = ItemStack.EMPTY;
+		Slot slot = this.slots.get(pIndex);
+		if (slot != null && slot.hasItem()) {
+			ItemStack itemstack1 = slot.getItem();
+			itemstack = itemstack1.copy();
+			if (pIndex < 4) {
+				if (!this.moveItemStackTo(itemstack1, 4, this.slots.size(), false)) return ItemStack.EMPTY;
+			} else if (itemstack1.getItem() instanceof DataModelItem) {
+				if (!this.moveItemStackTo(itemstack1, 0, 4, false)) return ItemStack.EMPTY;
+			} else if (pIndex < 4 + 9) {
+				if (!this.moveItemStackTo(itemstack1, 4 + 9, this.slots.size(), false)) return ItemStack.EMPTY;
+			} else if (!this.moveItemStackTo(itemstack1, 4, 13, false)) return ItemStack.EMPTY;
+
+			if (itemstack1.isEmpty()) {
+				slot.set(ItemStack.EMPTY);
+			} else {
+				slot.setChanged();
+			}
+		}
+
+		return itemstack;
 	}
 
 	public class DataModelSlot extends SlotItemHandler {

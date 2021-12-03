@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "hostilenetworks:overworldian_matter" },
+    { "item": "minecraft:coal" }
+  ],
+  "result": {
+    "item": "minecraft:gunpowder",
+    "count": 16
+  }
+}

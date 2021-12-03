@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:ghast",
+	"name": "entity.minecraft.ghast",
+	"name_color": "0xF0F0F0",
+	"gui_scale": 0.25,
+	"gui_x_offset": 0,
+	"gui_y_offset": 4,
+	"gui_z_offset": 0,
+	"sim_cost": 256,
+	"base_drop": {
+		"item": "hostilenetworks:hellish_matter"
+	},
+	"loot_table": "minecraft:entities/ghast",
+	"trivia": "hostilenetworks.trivia.ghast"
+}

@@ -21,7 +21,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 import shadows.hostilenetworks.HostileNetworks;
 import shadows.hostilenetworks.client.WeirdRenderThings;
 import shadows.hostilenetworks.client.WrappedRTBuffer;
@@ -152,7 +151,7 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 	@Override
 	protected void renderLabels(MatrixStack stack, int pX, int pY) {
 		int left = 49;
-		int top = 8;
+		int top = 6;
 		int spacing = this.font.lineHeight + 3;
 		int idx = 0;
 		for (TickableText t : texts) {
@@ -215,17 +214,16 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 
 	private void setupModel(CachedModel cache) {
 		DataModel model = cache.getModel();
-		if (model == null) {
-
-			return;
-		}
+		if (model == null) return;
 		resetText();
 		addText(I18n.get("hostilenetworks.gui.name"), Color.AQUA);
 		addText(model.getName().getString(), Color.WHITE);
 		addText(I18n.get("hostilenetworks.gui.info"), Color.AQUA);
-		List<TranslationTextComponent> trivia = model.getTrivia();
-		trivia.forEach(t -> addText(t.getString(), Color.WHITE));
-		for (int i = trivia.size(); i < 4; i++) {
+		String[] trivia = I18n.get(model.getTriviaKey()).split("\\n");
+		for (int i = 0; i < Math.min(4, trivia.length); i++) {
+			addText(trivia[i], Color.WHITE);
+		}
+		for (int i = trivia.length; i < 5; i++) {
 			addText("", 0);
 		}
 		addText(I18n.get("hostilenetworks.gui.tier"), Color.WHITE, false);

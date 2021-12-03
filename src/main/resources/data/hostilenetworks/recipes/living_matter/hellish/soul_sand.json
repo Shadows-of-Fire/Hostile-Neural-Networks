@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "hostilenetworks:hellish_matter" },
+    { "item": "minecraft:sand" }
+  ],
+  "result": {
+    "item": "minecraft:soul_sand",
+    "count": 4
+  }
+}

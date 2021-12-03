@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "hostilenetworks:hellish_matter" },
+    { "item": "minecraft:gunpowder" }
+  ],
+  "result": {
+    "item": "minecraft:blaze_powder",
+    "count": 2
+  }
+}

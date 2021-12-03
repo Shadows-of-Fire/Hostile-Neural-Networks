@@ -68,6 +68,33 @@ public class SimChamberContainer extends Container {
 		return this.tile.getFailState();
 	}
 
+	@Override
+	public ItemStack quickMoveStack(PlayerEntity pPlayer, int pIndex) {
+		ItemStack itemstack = ItemStack.EMPTY;
+		Slot slot = this.slots.get(pIndex);
+		if (slot != null && slot.hasItem()) {
+			ItemStack itemstack1 = slot.getItem();
+			itemstack = itemstack1.copy();
+			if (pIndex < 4) {
+				if (!this.moveItemStackTo(itemstack1, 4, this.slots.size(), false)) return ItemStack.EMPTY;
+			} else if (itemstack1.getItem() instanceof DataModelItem) {
+				if (!this.moveItemStackTo(itemstack1, 0, 1, false)) return ItemStack.EMPTY;
+			} else if (itemstack1.getItem() == Hostile.Items.POLYMER_CLAY) {
+				if (!this.moveItemStackTo(itemstack1, 1, 2, false)) return ItemStack.EMPTY;
+			} else if (pIndex < 4 + 9) {
+				if (!this.moveItemStackTo(itemstack1, 4 + 9, this.slots.size(), false)) return ItemStack.EMPTY;
+			} else if (!this.moveItemStackTo(itemstack1, 4, 13, false)) return ItemStack.EMPTY;
+
+			if (itemstack1.isEmpty()) {
+				slot.set(ItemStack.EMPTY);
+			} else {
+				slot.setChanged();
+			}
+		}
+
+		return itemstack;
+	}
+
 	public class FilteredSlot extends SlotItemHandler {
 
 		protected final Predicate<ItemStack> filter;
@@ -86,7 +113,7 @@ public class SimChamberContainer extends Container {
 
 		@Override
 		public int getMaxStackSize() {
-			return 1;
+			return 64;
 		}
 
 		@Override

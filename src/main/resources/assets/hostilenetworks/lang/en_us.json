@@ -83,7 +83,18 @@
 	"hostilenetworks.msg.no_model": "No known models exist for this specimen.",
 	"hostilenetworks.msg.built": "Successfully constructed a %s Data Model",
 	
-	"zombie.trivia.0": "They moan in the moonlight.",
-	"zombie.trivia.1": "Does not understand the need",
-	"zombie.trivia.2": "for personal space."
+	"hostilenetworks.trivia.blaze": "Bring buckets and watch in despair\nas it evaporates, and everything is\non fire. You are on fire.",
+	"hostilenetworks.trivia.creeper": "An inverse architect by trade.\nGenerally misunderstood.",
+	"hostilenetworks.trivia.ender_dragon": "Lord of The End, yet keeps no hoard.\nDestroy the crystals, break the cycle.",
+	"hostilenetworks.trivia.enderman": "Friendly unless provoked.\nFooled by pumpkins.\nTeleports short distances.",
+	"hostilenetworks.trivia.ghast": "If you hear something that sounds\nlike a crying llama, you're probably\nhearing a ghast.",
+	"hostilenetworks.trivia.skeleton": "A formidable archer, but may be running\n some sort ofcheat engine.\nA shield would be useful.",
+	"hostilenetworks.trivia.slime": "\"A Slime Haiku\"\nThe bounce\nbounce his bounce\nsquish",
+	"hostilenetworks.trivia.spider": "Nocturnal douchebags.\nDrops strands of string for some reason.",
+	"hostilenetworks.trivia.witch": "Affinity with potions and concoctions.\nMaybe you should develop an antidote.",
+	"hostilenetworks.trivia.wither_skeleton": "A charred skeleton.\nIts bow did not survive the process.\nHunted for their skulls.",
+	"hostilenetworks.trivia.wither": "Do not approach this enemy, run!\nI mean it has 3 heads, what could\npossibly go wrong?",
+	"hostilenetworks.trivia.zombie": "They moan in the moonlight.\nDoes not understand the need\nfor personal space.",
+	
+	"enchantment.level.0": "0"
 }
