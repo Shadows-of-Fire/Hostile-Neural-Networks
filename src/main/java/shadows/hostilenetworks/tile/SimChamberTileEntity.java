@@ -158,7 +158,7 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 	 */
 	public boolean canStartSimulation() {
 		if (inventory.getStackInSlot(1).isEmpty()) {
-			this.failState = FailureState.POLYMER;
+			this.failState = FailureState.INPUT;
 			return false;
 		}
 
@@ -241,7 +241,7 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 		@Override
 		public boolean isItemValid(int slot, ItemStack stack) {
 			if (slot == 0) return stack.getItem() instanceof DataModelItem;
-			else if (slot == 1) return stack.getItem() == Hostile.Items.POLYMER_CLAY;
+			else if (slot == 1) return DataModelItem.matchesInput(this.getStackInSlot(0), stack);
 			return true;
 		}
 
@@ -267,7 +267,7 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 		NONE("none"),
 		OUTPUT("output"),
 		ENERGY("energy"),
-		POLYMER("polymer"),
+		INPUT("input"),
 		MODEL("model"),
 		FAULTY("faulty");
 

@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "hostilenetworks:item/hellish_matter"
+    "layer0": "hostilenetworks:item/prediction"
   }
 }

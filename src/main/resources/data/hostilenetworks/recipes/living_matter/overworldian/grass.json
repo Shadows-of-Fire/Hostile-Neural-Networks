@@ -3,7 +3,7 @@
   "ingredients": [
     { "tag": "minecraft:leaves" },
     { "item": "minecraft:dirt" },
-    { "item": "hostilenetworks:overworldian_matter" }
+    { "item": "hostilenetworks:overworld_prediction" }
   ],
   "result": {
     "item": "minecraft:grass",

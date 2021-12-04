@@ -7,13 +7,13 @@
   ],
   "key": {
     "O": {
-      "item": "hostilenetworks:overworldian_matter"
+      "item": "hostilenetworks:overworld_prediction"
     },
     "N": {
       "item": "minecraft:netherrack"
     }
   },
   "result": {
-    "item": "hostilenetworks:hellish_matter"
+    "item": "hostilenetworks:nether_prediction"
   }
 }

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "hostilenetworks:block/loot_fabricator",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "hostilenetworks:block/loot_fabricator"
+    },
+    "facing=south": {
+      "model": "hostilenetworks:block/loot_fabricator",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "hostilenetworks:block/loot_fabricator",
+      "y": 270
+    }
+  }
+}

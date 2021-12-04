@@ -3,6 +3,7 @@ package shadows.hostilenetworks;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
@@ -12,8 +13,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import shadows.hostilenetworks.data.DataModel;
 import shadows.hostilenetworks.gui.DeepLearnerScreen;
+import shadows.hostilenetworks.gui.LootFabScreen;
 import shadows.hostilenetworks.gui.SimChamberScreen;
+import shadows.hostilenetworks.item.MobPredictionItem;
 
 @EventBusSubscriber(bus = Bus.MOD, value = Dist.CLIENT, modid = HostileNetworks.MODID)
 public class HostileClient {
@@ -25,6 +29,7 @@ public class HostileClient {
 		e.enqueueWork(() -> {
 			ScreenManager.register(Hostile.Containers.DEEP_LEARNER, DeepLearnerScreen::new);
 			ScreenManager.register(Hostile.Containers.SIM_CHAMBER, SimChamberScreen::new);
+			ScreenManager.register(Hostile.Containers.LOOT_FABRICATOR, LootFabScreen::new);
 		});
 		MinecraftForge.EVENT_BUS.addListener(HostileClient::tick);
 	}
@@ -32,6 +37,18 @@ public class HostileClient {
 	@SubscribeEvent
 	public static void mrl(ModelRegistryEvent e) {
 		ModelLoader.addSpecialModel(new ResourceLocation(HostileNetworks.MODID, "item/data_model_base"));
+	}
+
+	@SubscribeEvent
+	public static void colors(ColorHandlerEvent.Item e) {
+		e.getItemColors().register((stack, tint) -> {
+			DataModel model = MobPredictionItem.getStoredModel(stack);
+			int color = 0xFFFFFF;
+			if (model != null) {
+				color = model.getNameColor();
+			}
+			return color;
+		}, Hostile.Items.PREDICTION);
 	}
 
 	public static void tick(ClientTickEvent e) {

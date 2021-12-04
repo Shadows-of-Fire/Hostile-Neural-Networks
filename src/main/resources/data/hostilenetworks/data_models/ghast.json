@@ -7,9 +7,21 @@
 	"gui_y_offset": 4,
 	"gui_z_offset": 0,
 	"sim_cost": 256,
-	"base_drop": {
-		"item": "hostilenetworks:hellish_matter"
+	"input": {
+		"item": "hostilenetworks:empty_prediction"
 	},
-	"loot_table": "minecraft:entities/ghast",
-	"trivia": "hostilenetworks.trivia.ghast"
+	"base_drop": {
+		"item": "hostilenetworks:nether_prediction"
+	},
+	"trivia": "hostilenetworks.trivia.ghast",
+	"fabricator_drops": [
+		{
+			"item": "minecraft:ghast_tear",
+			"count": 6
+		},
+		{
+			"item": "minecraft:gunpowder",
+			"count": 8
+		}
+	]
 }

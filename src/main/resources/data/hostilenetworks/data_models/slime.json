@@ -7,9 +7,21 @@
 	"gui_y_offset": 0,
 	"gui_z_offset": 0,
 	"sim_cost": 160,
-	"base_drop": {
-		"item": "hostilenetworks:overworldian_matter"
+	"input": {
+		"item": "hostilenetworks:empty_prediction"
 	},
-	"loot_table": "minecraft:entities/slime",
-	"trivia": "hostilenetworks.trivia.slime"
+	"base_drop": {
+		"item": "hostilenetworks:overworld_prediction"
+	},
+	"trivia": "hostilenetworks.trivia.slime",
+	"fabricator_drops": [
+		{
+			"item": "minecraft:slime_ball",
+			"count": 16
+		},
+		{
+			"item": "minecraft:slime_block",
+			"count": 4
+		}
+	]
 }

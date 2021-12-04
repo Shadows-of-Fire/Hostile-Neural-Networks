@@ -7,9 +7,25 @@
 	"gui_y_offset": 0,
 	"gui_z_offset": 0,
 	"sim_cost": 256,
-	"base_drop": {
-		"item": "hostilenetworks:hellish_matter"
+	"input": {
+		"item": "hostilenetworks:empty_prediction"
 	},
-	"loot_table": "minecraft:entities/wither_skeleton",
-	"trivia": "hostilenetworks.trivia.wither_skeleton"
+	"base_drop": {
+		"item": "hostilenetworks:nether_prediction"
+	},
+	"trivia": "hostilenetworks.trivia.wither_skeleton",
+	"fabricator_drops": [
+		{
+			"item": "minecraft:coal",
+			"count": 32
+		},
+		{
+			"item": "minecraft:wither_skeleton_skull",
+			"count": 3
+		},
+		{
+			"item": "minecraft:stone_sword",
+			"count": 1
+		}
+	]
 }

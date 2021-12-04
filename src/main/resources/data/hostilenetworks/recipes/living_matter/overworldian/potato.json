@@ -1,7 +1,7 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    { "item": "hostilenetworks:overworldian_matter" },
+    { "item": "hostilenetworks:overworld_prediction" },
     { "item": "minecraft:stick" }
   ],
   "result": {

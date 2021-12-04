@@ -7,9 +7,21 @@
 	"gui_y_offset": 0,
 	"gui_z_offset": 0,
 	"sim_cost": 80,
-	"base_drop": {
-		"item": "hostilenetworks:overworldian_matter"
+	"input": {
+		"item": "hostilenetworks:empty_prediction"
 	},
-	"loot_table": "minecraft:entities/creeper",
-	"trivia": "hostilenetworks.trivia.creeper"
+	"base_drop": {
+		"item": "hostilenetworks:overworld_prediction"
+	},
+	"trivia": "hostilenetworks.trivia.creeper",
+	"fabricator_drops": [
+		{
+			"item": "minecraft:gunpowder",
+			"count": 16
+		},
+		{
+			"item": "minecraft:creeper_head",
+			"count": 4
+		}
+	]
 }

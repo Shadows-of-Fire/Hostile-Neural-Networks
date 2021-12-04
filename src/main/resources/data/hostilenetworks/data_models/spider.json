@@ -7,9 +7,25 @@
 	"gui_y_offset": 0,
 	"gui_z_offset": 0,
 	"sim_cost": 80,
-	"base_drop": {
-		"item": "hostilenetworks:overworldian_matter"
+	"input": {
+		"item": "hostilenetworks:empty_prediction"
 	},
-	"loot_table": "minecraft:entities/spider",
-	"trivia": "hostilenetworks.trivia.spider"
+	"base_drop": {
+		"item": "hostilenetworks:overworld_prediction"
+	},
+	"trivia": "hostilenetworks.trivia.spider",
+	"fabricator_drops": [
+		{
+			"item": "minecraft:string",
+			"count": 32
+		},
+		{
+			"item": "minecraft:spider_eye",
+			"count": 8
+		},
+		{
+			"item": "minecraft:cobweb",
+			"count": 4
+		}
+	]
 }

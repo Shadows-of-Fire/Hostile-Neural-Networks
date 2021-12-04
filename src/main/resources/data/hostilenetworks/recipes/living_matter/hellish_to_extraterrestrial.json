@@ -7,13 +7,13 @@
   ],
   "key": {
     "H": {
-      "item": "hostilenetworks:hellish_matter"
+      "item": "hostilenetworks:nether_prediction"
     },
     "E": {
       "item": "minecraft:end_stone"
     }
   },
   "result": {
-    "item": "hostilenetworks:extraterrestrial_matter"
+    "item": "hostilenetworks:end_prediction"
   }
 }

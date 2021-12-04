@@ -3,8 +3,8 @@
   "ingredients": [
     { "item": "minecraft:string" },
     { "item": "minecraft:slime_ball" },
-    { "item": "hostilenetworks:overworldian_matter" },
-    { "item": "hostilenetworks:overworldian_matter" }
+    { "item": "hostilenetworks:overworld_prediction" },
+    { "item": "hostilenetworks:overworld_prediction" }
   ],
   "result": {
     "item": "minecraft:cobweb",

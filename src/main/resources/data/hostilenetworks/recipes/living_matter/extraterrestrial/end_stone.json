@@ -4,7 +4,7 @@
     { "item": "minecraft:sandstone" },
     { "item": "minecraft:sandstone" },
     { "item": "minecraft:ender_pearl" },
-    { "item": "hostilenetworks:extraterrestrial_matter" }
+    { "item": "hostilenetworks:end_prediction" }
   ],
   "result": {
     "item": "minecraft:end_stone",

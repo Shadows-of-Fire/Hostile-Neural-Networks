@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "hostilenetworks:item/polymer_clay"
+    "layer0": "hostilenetworks:item/end_prediction"
   }
 }

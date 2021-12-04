@@ -1,7 +1,7 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    { "item": "hostilenetworks:hellish_matter" },
+    { "item": "hostilenetworks:nether_prediction" },
     { "item": "minecraft:red_mushroom" }
   ],
   "result": {

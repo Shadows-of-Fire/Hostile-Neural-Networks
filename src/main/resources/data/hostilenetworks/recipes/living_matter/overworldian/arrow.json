@@ -3,7 +3,7 @@
   "ingredients": [
     { "item": "minecraft:stick" },
     { "item": "minecraft:flint" },
-    { "item": "hostilenetworks:overworldian_matter" }
+    { "item": "hostilenetworks:overworld_prediction" }
   ],
   "result": {
     "item": "minecraft:arrow",

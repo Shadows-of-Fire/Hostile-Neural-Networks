@@ -1,7 +1,7 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    { "item": "hostilenetworks:extraterrestrial_matter" },
+    { "item": "hostilenetworks:end_prediction" },
     { "item": "minecraft:apple" }
   ],
   "result": {

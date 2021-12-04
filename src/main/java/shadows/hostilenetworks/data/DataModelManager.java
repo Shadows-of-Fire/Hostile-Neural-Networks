@@ -44,6 +44,7 @@ public class DataModelManager extends JsonReloadListener {
 		this.modelsByType.clear();
 		pObject.forEach((loc, ele) -> {
 			try {
+				if (ele.getAsJsonObject().entrySet().isEmpty()) return; //Ignore empty files so people can delete models.
 				DataModel model = GSON.fromJson(ele, DataModel.class);
 				model.setId(loc);
 				register(model);

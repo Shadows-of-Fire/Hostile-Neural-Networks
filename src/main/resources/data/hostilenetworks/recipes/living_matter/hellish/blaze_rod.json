@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     { "item": "minecraft:bone" },
-    { "item": "hostilenetworks:hellish_matter" },
-    { "item": "hostilenetworks:hellish_matter" }
+    { "item": "hostilenetworks:nether_prediction" },
+    { "item": "hostilenetworks:nether_prediction" }
   ],
   "result": {
     "item": "minecraft:blaze_rod"

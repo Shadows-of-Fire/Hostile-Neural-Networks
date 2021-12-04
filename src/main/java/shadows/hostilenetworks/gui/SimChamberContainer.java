@@ -1,6 +1,5 @@
 package shadows.hostilenetworks.gui;
 
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import net.minecraft.entity.player.PlayerEntity;
@@ -22,7 +21,6 @@ public class SimChamberContainer extends Container {
 	protected final BlockPos pos;
 	protected final World level;
 	protected SimChamberTileEntity tile;
-	protected Consumer<Integer> notifyCallback;
 
 	public SimChamberContainer(int id, PlayerInventory pInv, BlockPos pos) {
 		super(Hostile.Containers.SIM_CHAMBER, id);
@@ -31,7 +29,7 @@ public class SimChamberContainer extends Container {
 		this.tile = ((SimChamberTileEntity) level.getBlockEntity(pos));
 		SimItemHandler inventory = tile.getInventory();
 		this.addSlot(new FilteredSlot(inventory, 0, -13, 1, s -> s.getItem() instanceof DataModelItem));
-		this.addSlot(new FilteredSlot(inventory, 1, 176, 7, s -> s.getItem() == Hostile.Items.POLYMER_CLAY));
+		this.addSlot(new FilteredSlot(inventory, 1, 176, 7, s -> DataModelItem.matchesInput(this.getSlot(0).getItem(), s)));
 		this.addSlot(new FilteredSlot(inventory, 2, 196, 7, s -> false));
 		this.addSlot(new FilteredSlot(inventory, 3, 186, 27, s -> false));
 
@@ -70,32 +68,32 @@ public class SimChamberContainer extends Container {
 
 	@Override
 	public ItemStack quickMoveStack(PlayerEntity pPlayer, int pIndex) {
-		ItemStack itemstack = ItemStack.EMPTY;
+		ItemStack slotStackCopy = ItemStack.EMPTY;
 		Slot slot = this.slots.get(pIndex);
 		if (slot != null && slot.hasItem()) {
-			ItemStack itemstack1 = slot.getItem();
-			itemstack = itemstack1.copy();
+			ItemStack slotStack = slot.getItem();
+			slotStackCopy = slotStack.copy();
 			if (pIndex < 4) {
-				if (!this.moveItemStackTo(itemstack1, 4, this.slots.size(), false)) return ItemStack.EMPTY;
-			} else if (itemstack1.getItem() instanceof DataModelItem) {
-				if (!this.moveItemStackTo(itemstack1, 0, 1, false)) return ItemStack.EMPTY;
-			} else if (itemstack1.getItem() == Hostile.Items.POLYMER_CLAY) {
-				if (!this.moveItemStackTo(itemstack1, 1, 2, false)) return ItemStack.EMPTY;
+				if (!this.moveItemStackTo(slotStack, 4, this.slots.size(), false)) return ItemStack.EMPTY;
+			} else if (slotStack.getItem() instanceof DataModelItem) {
+				if (!this.moveItemStackTo(slotStack, 0, 1, false)) return ItemStack.EMPTY;
+			} else if (DataModelItem.matchesInput(this.getSlot(0).getItem(), slotStack)) {
+				if (!this.moveItemStackTo(slotStack, 1, 2, false)) return ItemStack.EMPTY;
 			} else if (pIndex < 4 + 9) {
-				if (!this.moveItemStackTo(itemstack1, 4 + 9, this.slots.size(), false)) return ItemStack.EMPTY;
-			} else if (!this.moveItemStackTo(itemstack1, 4, 13, false)) return ItemStack.EMPTY;
+				if (!this.moveItemStackTo(slotStack, 4 + 9, this.slots.size(), false)) return ItemStack.EMPTY;
+			} else if (!this.moveItemStackTo(slotStack, 4, 13, false)) return ItemStack.EMPTY;
 
-			if (itemstack1.isEmpty()) {
+			if (slotStack.isEmpty()) {
 				slot.set(ItemStack.EMPTY);
 			} else {
 				slot.setChanged();
 			}
 		}
 
-		return itemstack;
+		return slotStackCopy;
 	}
 
-	public class FilteredSlot extends SlotItemHandler {
+	protected class FilteredSlot extends SlotItemHandler {
 
 		protected final Predicate<ItemStack> filter;
 		protected final int index;

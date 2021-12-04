@@ -7,9 +7,21 @@
 	"gui_y_offset": 0,
 	"gui_z_offset": 0,
 	"sim_cost": 512,
-	"base_drop": {
-		"item": "hostilenetworks:extraterrestrial_matter"
+	"input": {
+		"item": "hostilenetworks:empty_prediction"
 	},
-	"loot_table": "minecraft:entities/enderman",
-	"trivia": "hostilenetworks.trivia.enderman"
+	"base_drop": {
+		"item": "hostilenetworks:end_prediction"
+	},
+	"trivia": "hostilenetworks.trivia.enderman",
+	"fabricator_drops": [
+		{
+			"item": "minecraft:ender_pearl",
+			"count": 4
+		},
+		{
+			"item": "minecraft:end_crystal",
+			"count": 1
+		}
+	]
 }

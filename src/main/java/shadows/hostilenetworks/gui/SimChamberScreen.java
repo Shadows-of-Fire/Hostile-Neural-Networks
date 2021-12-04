@@ -14,6 +14,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import shadows.hostilenetworks.HostileConfig;
@@ -73,7 +74,7 @@ public class SimChamberScreen extends ContainerScreen<SimChamberContainer> {
 	protected void renderLabels(MatrixStack stack, int pX, int pY) {
 		int runtime = this.menu.getRuntime();
 		if (runtime > 0) {
-			int rTime = MathHelper.ceil(100F * (300 - runtime) / 300);
+			int rTime = Math.min(99, MathHelper.ceil(100F * (300 - runtime) / 300));
 			this.font.drawShadow(stack, rTime + "%", 184, 123, Color.AQUA);
 		}
 		CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
@@ -145,6 +146,8 @@ public class SimChamberScreen extends ContainerScreen<SimChamberContainer> {
 		Screen.blit(stack, left + 28, top + 145, 0, 0, 176, 90, 256, 256);
 	}
 
+	private static final ITextComponent ERROR = new StringTextComponent("ERROR").withStyle(TextFormatting.OBFUSCATED);
+
 	@Override
 	public void tick() {
 		if (this.menu.getFailState() != FailureState.NONE) {
@@ -153,6 +156,12 @@ public class SimChamberScreen extends ContainerScreen<SimChamberContainer> {
 			if (oState != this.lastFailState) {
 				this.body.clear();
 				String[] msg = I18n.get(this.lastFailState.getKey()).split("\\n");
+				if (this.lastFailState == FailureState.INPUT) {
+					CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
+					ITextComponent name = ERROR;
+					if (cModel.getModel() != null) name = cModel.getModel().getInput().getHoverName();
+					msg = I18n.get(this.lastFailState.getKey(), name.getString()).split("\\n");
+				}
 				for (String s : msg)
 					this.body.add(new TickableText(s, Color.WHITE));
 			}

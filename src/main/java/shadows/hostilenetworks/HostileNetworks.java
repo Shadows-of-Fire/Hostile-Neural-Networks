@@ -20,14 +20,17 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.IContainerFactory;
 import net.minecraftforge.registries.IForgeRegistry;
+import shadows.hostilenetworks.block.LootFabBlock;
 import shadows.hostilenetworks.block.SimChamberBlock;
 import shadows.hostilenetworks.client.DataModelItemStackRenderer;
 import shadows.hostilenetworks.gui.DeepLearnerContainer;
+import shadows.hostilenetworks.gui.LootFabContainer;
 import shadows.hostilenetworks.gui.SimChamberContainer;
 import shadows.hostilenetworks.item.BlankDataModelItem;
 import shadows.hostilenetworks.item.DataModelItem;
 import shadows.hostilenetworks.item.DeepLearnerItem;
 import shadows.hostilenetworks.item.MobPredictionItem;
+import shadows.hostilenetworks.tile.LootFabTileEntity;
 import shadows.hostilenetworks.tile.SimChamberTileEntity;
 
 @Mod(HostileNetworks.MODID)
@@ -54,12 +57,14 @@ public class HostileNetworks {
 	public void blocks(Register<Block> e) {
 		IForgeRegistry<Block> reg = e.getRegistry();
 		reg.register(new SimChamberBlock(Block.Properties.of(Material.STONE).lightLevel(s -> 1).strength(4, 3000).noOcclusion()).setRegistryName("sim_chamber"));
+		reg.register(new LootFabBlock(Block.Properties.of(Material.STONE).lightLevel(s -> 1).strength(4, 3000).noOcclusion()).setRegistryName("loot_fabricator"));
 	}
 
 	@SubscribeEvent
 	public void tiles(Register<TileEntityType<?>> e) {
 		IForgeRegistry<TileEntityType<?>> reg = e.getRegistry();
 		reg.register(new TileEntityType<>(SimChamberTileEntity::new, ImmutableSet.of(Hostile.Blocks.SIM_CHAMBER), null).setRegistryName("sim_chamber"));
+		reg.register(new TileEntityType<>(LootFabTileEntity::new, ImmutableSet.of(Hostile.Blocks.LOOT_FABRICATOR), null).setRegistryName("loot_fabricator"));
 	}
 
 	@SubscribeEvent
@@ -67,11 +72,12 @@ public class HostileNetworks {
 		IForgeRegistry<Item> reg = e.getRegistry();
 		reg.register(new DeepLearnerItem(new Item.Properties().tab(TAB)).setRegistryName("deep_learner"));
 		reg.register(new BlankDataModelItem(new Item.Properties().stacksTo(1).tab(TAB)).setRegistryName("blank_data_model"));
-		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("polymer_clay"));
-		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("overworldian_matter"));
-		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("hellish_matter"));
-		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("extraterrestrial_matter"));
+		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("empty_prediction"));
+		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("overworld_prediction"));
+		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("nether_prediction"));
+		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("end_prediction"));
 		reg.register(new BlockItem(Hostile.Blocks.SIM_CHAMBER, new Item.Properties().tab(TAB)).setRegistryName("sim_chamber"));
+		reg.register(new BlockItem(Hostile.Blocks.LOOT_FABRICATOR, new Item.Properties().tab(TAB)).setRegistryName("loot_fabricator"));
 		reg.register(new DataModelItem(new Item.Properties().stacksTo(1).tab(TAB).setISTER(() -> DataModelItemStackRenderer::new)).setRegistryName("data_model"));
 		reg.register(new MobPredictionItem(new Item.Properties().tab(TAB)).setRegistryName("prediction"));
 	}
@@ -81,6 +87,7 @@ public class HostileNetworks {
 		IForgeRegistry<ContainerType<?>> reg = e.getRegistry();
 		reg.register(new ContainerType<>((IContainerFactory<DeepLearnerContainer>) (id, inv, buf) -> new DeepLearnerContainer(id, inv, buf.readBoolean() ? Hand.MAIN_HAND : Hand.OFF_HAND)).setRegistryName("deep_learner"));
 		reg.register(new ContainerType<>((IContainerFactory<SimChamberContainer>) (id, inv, buf) -> new SimChamberContainer(id, inv, buf.readBlockPos())).setRegistryName("sim_chamber"));
+		reg.register(new ContainerType<>((IContainerFactory<LootFabContainer>) (id, inv, buf) -> new LootFabContainer(id, inv, buf.readBlockPos())).setRegistryName("loot_fabricator"));
 	}
 
 }

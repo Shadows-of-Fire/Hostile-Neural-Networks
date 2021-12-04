@@ -8,6 +8,7 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -106,6 +107,23 @@ public class DataModelItem extends Item {
 
 	public static void setIters(ItemStack stack, int data) {
 		stack.getOrCreateTagElement(DATA_MODEL).putInt(ITERATIONS, data);
+	}
+
+	public static boolean matchesInput(ItemStack model, ItemStack stack) {
+		DataModel dModel = getStoredModel(model);
+		if (dModel == null) return false;
+		ItemStack input = dModel.getInput();
+		boolean item = input.getItem() == stack.getItem();
+		if (input.hasTag()) {
+			if (stack.hasTag()) {
+				CompoundNBT t1 = input.getTag();
+				CompoundNBT t2 = stack.getTag();
+				for (String s : t1.getAllKeys()) {
+					if (!t1.get(s).equals(t2.get(s))) return false;
+				}
+				return true;
+			} else return false;
+		} else return item;
 	}
 
 }

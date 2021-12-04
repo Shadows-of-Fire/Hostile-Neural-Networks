@@ -7,9 +7,17 @@
 	"gui_y_offset": -0.33,
 	"gui_z_offset": 0,
 	"sim_cost": 256,
-	"base_drop": {
-		"item": "hostilenetworks:extraterrestrial_matter"
+	"input": {
+		"item": "hostilenetworks:empty_prediction"
 	},
-	"loot_table": "minecraft:entities/wither",
-	"trivia": "hostilenetworks.trivia.wither"
+	"base_drop": {
+		"item": "hostilenetworks:end_prediction"
+	},
+	"trivia": "hostilenetworks.trivia.wither",
+	"fabricator_drops": [
+		{
+			"item": "minecraft:nether_star",
+			"count": 1
+		}
+	]
 }
