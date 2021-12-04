@@ -14,11 +14,14 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Hand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.IContainerFactory;
+import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
 import net.minecraftforge.registries.IForgeRegistry;
 import shadows.hostilenetworks.block.LootFabBlock;
 import shadows.hostilenetworks.block.SimChamberBlock;
@@ -30,8 +33,11 @@ import shadows.hostilenetworks.item.BlankDataModelItem;
 import shadows.hostilenetworks.item.DataModelItem;
 import shadows.hostilenetworks.item.DeepLearnerItem;
 import shadows.hostilenetworks.item.MobPredictionItem;
+import shadows.hostilenetworks.net.DataModelMessage;
+import shadows.hostilenetworks.net.DataModelResetMessage;
 import shadows.hostilenetworks.tile.LootFabTileEntity;
 import shadows.hostilenetworks.tile.SimChamberTileEntity;
+import shadows.placebo.util.NetworkUtils;
 
 @Mod(HostileNetworks.MODID)
 public class HostileNetworks {
@@ -39,6 +45,14 @@ public class HostileNetworks {
 	public static final String MODID = "hostilenetworks";
 	public static final String VERSION = "1.0.0";
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
+	//Formatter::off
+    public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
+            .named(new ResourceLocation(MODID, MODID))
+            .clientAcceptedVersions(s->true)
+            .serverAcceptedVersions(s->true)
+            .networkProtocolVersion(() -> "1.0.0")
+            .simpleChannel();
+    //Formatter::on
 
 	public static final ItemGroup TAB = new ItemGroup(MODID) {
 
@@ -51,6 +65,8 @@ public class HostileNetworks {
 
 	public HostileNetworks() {
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
+		NetworkUtils.registerMessage(CHANNEL, 0, new DataModelResetMessage());
+		NetworkUtils.registerMessage(CHANNEL, 1, new DataModelMessage());
 	}
 
 	@SubscribeEvent

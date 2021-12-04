@@ -70,6 +70,10 @@ public class LootFabContainer extends Container {
 	public int getRuntime() {
 		return this.tile.getRuntime();
 	}
+	
+	public int getSelectedDrop(DataModel model) {
+		return this.tile.getSelectedDrop(model);
+	}
 
 	protected class FilteredSlot extends SlotItemHandler {
 

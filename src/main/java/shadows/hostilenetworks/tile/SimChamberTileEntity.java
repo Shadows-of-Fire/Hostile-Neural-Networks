@@ -44,7 +44,9 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 			case 2:
 				return failState.ordinal();
 			case 3:
-				return energy.getEnergyStored();
+				return energy.getEnergyStored() & 0xFFFF;
+			case 4:
+				return energy.getEnergyStored() >> 16;
 			}
 			return -1;
 		}
@@ -62,14 +64,19 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 				failState = FailureState.values()[pValue];
 				return;
 			case 3:
-				energy.setEnergy(pValue);
+				pValue = ((short) pValue) & 0xFFFF;
+				energy.setEnergy((energy.getEnergyStored() & 0xFFFF0000) | (pValue));
+				return;
+			case 4:
+				pValue = ((short) pValue) & 0xFFFF;
+				energy.setEnergy((energy.getEnergyStored() & 0x0000FFFF) | (pValue << 16));
 				return;
 			}
 		}
 
 		@Override
 		public int getCount() {
-			return 4;
+			return 6;
 		}
 
 	};
@@ -109,7 +116,7 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 	@Override
 	public void tick() {
 		if (level.isClientSide) return;
-		this.energy.receiveEnergy(4000, false);
+		//this.energy.receiveEnergy(4000, false);
 		ItemStack model = inventory.getStackInSlot(0);
 		if (!model.isEmpty()) {
 			CachedModel oldModel = currentModel;

@@ -1,6 +1,7 @@
 package shadows.hostilenetworks.data;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.JsonDeserializationContext;
@@ -14,6 +15,7 @@ import com.google.gson.reflect.TypeToken;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.Color;
 import net.minecraft.util.text.Style;
@@ -128,6 +130,47 @@ public class DataModel {
 		return String.format("DataModel[%s]", this.id);
 	}
 
+	public void write(PacketBuffer buf) {
+		buf.writeUtf(this.id.toString());
+		buf.writeUtf(this.type.getRegistryName().toString());
+		buf.writeUtf(this.name.getKey());
+		buf.writeUtf(this.name.getStyle().getColor().serialize());
+		buf.writeFloat(this.guiScale);
+		buf.writeFloat(this.guiXOff);
+		buf.writeFloat(this.guiYOff);
+		buf.writeFloat(this.guiZOff);
+		buf.writeInt(this.simCost);
+		buf.writeItem(this.input);
+		buf.writeItem(this.baseDrop);
+		buf.writeUtf(triviaKey);
+		buf.writeVarInt(this.fabDrops.size());
+		for (ItemStack i : this.fabDrops)
+			buf.writeItem(i);
+	}
+
+	public static DataModel read(PacketBuffer buf) {
+		ResourceLocation id = new ResourceLocation(buf.readUtf());
+		EntityType<?> type = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(buf.readUtf()));
+		TranslationTextComponent name = new TranslationTextComponent(buf.readUtf());
+		name.withStyle(Style.EMPTY.withColor(Color.parseColor(buf.readUtf())));
+		float guiScale = buf.readFloat();
+		float guiXOff = buf.readFloat();
+		float guiYOff = buf.readFloat();
+		float guiZOff = buf.readFloat();
+		int simCost = buf.readInt();
+		ItemStack input = buf.readItem();
+		ItemStack baseDrop = buf.readItem();
+		String triviaKey = buf.readUtf();
+		int dropSize = buf.readVarInt();
+		List<ItemStack> fabDrops = new ArrayList<>(dropSize);
+		for (int i = 0; i < dropSize; i++) {
+			fabDrops.add(buf.readItem());
+		}
+		DataModel model = new DataModel(type, name, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops);
+		model.setId(id);
+		return model;
+	}
+
 	public static class Adapter implements JsonDeserializer<DataModel>, JsonSerializer<DataModel> {
 
 		public static final DataModel.Adapter INSTANCE = new Adapter();
@@ -137,11 +180,13 @@ public class DataModel {
 			JsonObject obj = new JsonObject();
 			obj.addProperty("type", src.type.getRegistryName().toString());
 			obj.addProperty("name", src.name.getKey());
+			obj.addProperty("name_color", src.getNameColor());
 			obj.addProperty("gui_scale", src.guiScale);
 			obj.addProperty("gui_x_offset", src.guiXOff);
 			obj.addProperty("gui_y_offset", src.guiYOff);
 			obj.addProperty("gui_z_offset", src.guiZOff);
 			obj.addProperty("sim_cost", src.simCost);
+			obj.add("input", context.serialize(src.input));
 			obj.add("base_drop", context.serialize(src.baseDrop));
 			obj.addProperty("trivia", src.triviaKey);
 			obj.add("fabricator_drops", context.serialize(src.fabDrops));

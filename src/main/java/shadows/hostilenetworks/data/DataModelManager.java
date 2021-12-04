@@ -13,11 +13,15 @@ import com.google.gson.JsonParseException;
 
 import net.minecraft.client.resources.JsonReloadListener;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import shadows.hostilenetworks.HostileNetworks;
+import shadows.hostilenetworks.net.DataModelMessage;
+import shadows.hostilenetworks.net.DataModelResetMessage;
+import shadows.placebo.util.NetworkUtils;
 import shadows.placebo.util.json.ItemAdapter;
 
 public class DataModelManager extends JsonReloadListener {
@@ -40,8 +44,7 @@ public class DataModelManager extends JsonReloadListener {
 
 	@Override
 	protected void apply(Map<ResourceLocation, JsonElement> pObject, IResourceManager pResourceManager, IProfiler pProfiler) {
-		this.registry.clear();
-		this.modelsByType.clear();
+		clear();
 		pObject.forEach((loc, ele) -> {
 			try {
 				if (ele.getAsJsonObject().entrySet().isEmpty()) return; //Ignore empty files so people can delete models.
@@ -55,7 +58,7 @@ public class DataModelManager extends JsonReloadListener {
 		});
 	}
 
-	protected void register(DataModel model) {
+	public void register(DataModel model) {
 		if (registry.containsKey(model.id)) throw new UnsupportedOperationException("Attempted to register duplicate data model " + model.id);
 		registry.put(model.id, model);
 		if (modelsByType.containsKey(model.type)) {
@@ -77,5 +80,19 @@ public class DataModelManager extends JsonReloadListener {
 
 	public Collection<DataModel> getAllModels() {
 		return registry.values();
+	}
+
+	public static void dispatch(PlayerEntity p) {
+		if (p.level.getServer() != null && p.level.getServer().isDedicatedServer()) {
+			NetworkUtils.sendTo(HostileNetworks.CHANNEL, new DataModelResetMessage(), p);
+			for (DataModel dm : INSTANCE.registry.values()) {
+				NetworkUtils.sendTo(HostileNetworks.CHANNEL, new DataModelMessage(dm), p);
+			}
+		}
+	}
+
+	public void clear() {
+		this.registry.clear();
+		this.modelsByType.clear();
 	}
 }

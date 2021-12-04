@@ -10,6 +10,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
 import net.minecraftforge.eventbus.api.Event.Result;
@@ -76,6 +77,14 @@ public class HostileEvents {
 				ModelTier tier = ModelTier.getByData(data);
 				DataModelItem.setData(model, data + tier.dataPerKill + bonus);
 			}
+		}
+	}
+
+	@SubscribeEvent
+	public static void sync(OnDatapackSyncEvent e) {
+		PlayerEntity p = e.getPlayer();
+		if (!p.level.isClientSide) {
+			DataModelManager.dispatch(p);
 		}
 	}
 

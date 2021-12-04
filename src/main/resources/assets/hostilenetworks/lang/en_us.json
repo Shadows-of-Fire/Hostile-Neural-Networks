@@ -33,6 +33,8 @@
 	"hostilenetworks.gui.data": "%s/%s Data collected",
 	"hostilenetworks.gui.energy": "%s/%s FE",
 	"hostilenetworks.gui.cost": "Model energy cost: %s FE/t",
+	"hostilenetworks.gui.fab_cost": "Energy cost: %s FE/t",
+	"hostilenetworks.gui.clear": "Click to clear selection",
 	
 	"hostilenetworks.hud.model": " Model",
 	"hostilenetworks.hud.kills": "%s Remaining",
