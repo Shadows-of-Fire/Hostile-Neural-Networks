@@ -8,8 +8,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -39,7 +39,7 @@ public class DeepLearnerHudRenderer {
 		if (e.getType() != ElementType.ALL) return;
 		Minecraft mc = Minecraft.getInstance();
 		PlayerEntity player = mc.player;
-		if (player == null || (!(mc.screen instanceof ChatScreen) && mc.screen != null)) return;
+		if (player == null || !(mc.screen instanceof ChatScreen) && mc.screen != null) return;
 
 		ItemStack stack = player.getMainHandItem();
 		if (stack.getItem() != Hostile.Items.DEEP_LEARNER) stack = player.getOffhandItem();
@@ -63,19 +63,19 @@ public class DeepLearnerHudRenderer {
 
 		WeirdRenderThings.TRANSLUCENT_TRANSPARENCY.setupRenderState();
 		mc.getTextureManager().bind(DL_HUD);
-		Screen.blit(e.getMatrixStack(), 3, 3, 0, 23, 113, 1, 256, 256);
+		AbstractGui.blit(e.getMatrixStack(), 3, 3, 0, 23, 113, 1, 256, 256);
 		for (int i = 0; i < renderable.size(); i++) {
-			Screen.blit(e.getMatrixStack(), 3, 4 + spacing * i, 0, 24, 113, spacing, 256, 256);
+			AbstractGui.blit(e.getMatrixStack(), 3, 4 + spacing * i, 0, 24, 113, spacing, 256, 256);
 			CachedModel cModel = renderable.get(i).getLeft();
-			Screen.blit(e.getMatrixStack(), x + 18, y + i * spacing + 10, 0, 0, 89, 12, 256, 256);
+			AbstractGui.blit(e.getMatrixStack(), x + 18, y + i * spacing + 10, 0, 0, 89, 12, 256, 256);
 			int width = 87;
 			if (cModel.getTier() != ModelTier.SELF_AWARE) {
 				int prev = cModel.getTier().data;
 				width = MathHelper.ceil(width * (cModel.getData() - prev) / (float) (cModel.getTier().next().data - prev));
 			}
-			Screen.blit(e.getMatrixStack(), x + 19, y + i * spacing + 11, 0, 12, width, 10, 256, 256);
+			AbstractGui.blit(e.getMatrixStack(), x + 19, y + i * spacing + 11, 0, 12, width, 10, 256, 256);
 		}
-		Screen.blit(e.getMatrixStack(), 3, 4 + spacing * renderable.size(), 0, 122, 113, 2, 256, 256);
+		AbstractGui.blit(e.getMatrixStack(), 3, 4 + spacing * renderable.size(), 0, 122, 113, 2, 256, 256);
 		WeirdRenderThings.TRANSLUCENT_TRANSPARENCY.clearRenderState();
 
 		for (int i = 0; i < renderable.size(); i++) {
@@ -99,12 +99,12 @@ public class DeepLearnerHudRenderer {
 		mc.font.drawShadow(matrix, comp, x + 4, y, 0xFFFFFF);
 		mc.font.drawShadow(matrix, new TranslationTextComponent("hostilenetworks.hud.model"), x + mc.font.width(comp) + 4, y, 0xFFFFFF);
 		mc.getTextureManager().bind(DL_HUD);
-		Screen.blit(matrix, x + 18, y + 10, 0, 0, 89, 12, 256, 256);
+		AbstractGui.blit(matrix, x + 18, y + 10, 0, 0, 89, 12, 256, 256);
 		int width = 87;
 		if (model.getTier() != ModelTier.SELF_AWARE) {
 			width = MathHelper.ceil(width * model.getData() / (float) model.getTier().next().data);
 		}
-		Screen.blit(matrix, x + 19, y + 11, 0, 12, width, 10, 256, 256);
+		AbstractGui.blit(matrix, x + 19, y + 11, 0, 12, width, 10, 256, 256);
 	}
 
 }

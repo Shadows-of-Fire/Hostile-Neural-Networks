@@ -15,7 +15,7 @@ public class WrappedRTBuffer implements IRenderTypeBuffer {
 
 	@Override
 	public IVertexBuilder getBuffer(RenderType type) {
-		return new GhostVertexBuilder(wrapped.getBuffer(type), 0xBB);
+		return new GhostVertexBuilder(this.wrapped.getBuffer(type), 0xBB);
 	}
 
 }

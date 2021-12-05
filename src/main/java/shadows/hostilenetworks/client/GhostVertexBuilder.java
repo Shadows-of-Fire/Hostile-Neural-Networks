@@ -13,37 +13,37 @@ public class GhostVertexBuilder implements IVertexBuilder {
 
 	@Override
 	public IVertexBuilder vertex(double x, double y, double z) {
-		return wrapped.vertex(x, y, z);
+		return this.wrapped.vertex(x, y, z);
 	}
 
 	@Override
 	public IVertexBuilder color(int red, int green, int blue, int alpha) {
-		return wrapped.color(red, green, blue, (alpha * this.alpha) / 0xFF);
+		return this.wrapped.color(red, green, blue, alpha * this.alpha / 0xFF);
 	}
 
 	@Override
 	public IVertexBuilder uv(float u, float v) {
-		return wrapped.uv(u, v);
+		return this.wrapped.uv(u, v);
 	}
 
 	@Override
 	public IVertexBuilder overlayCoords(int u, int v) {
-		return wrapped.overlayCoords(u, v);
+		return this.wrapped.overlayCoords(u, v);
 	}
 
 	@Override
 	public IVertexBuilder uv2(int u, int v) {
-		return wrapped.uv2(u, v);
+		return this.wrapped.uv2(u, v);
 	}
 
 	@Override
 	public IVertexBuilder normal(float x, float y, float z) {
-		return wrapped.normal(x, y, z);
+		return this.wrapped.normal(x, y, z);
 	}
 
 	@Override
 	public void endVertex() {
-		wrapped.endVertex();
+		this.wrapped.endVertex();
 	}
 
 }

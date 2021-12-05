@@ -41,11 +41,11 @@ public class LootFabTileEntity extends TileEntity implements ITickableTileEntity
 		public int get(int pIndex) {
 			switch (pIndex) {
 			case 0:
-				return runtime;
+				return LootFabTileEntity.this.runtime;
 			case 1:
-				return energy.getEnergyStored() & 0xFFFF;
+				return LootFabTileEntity.this.energy.getEnergyStored() & 0xFFFF;
 			case 2:
-				return energy.getEnergyStored() >> 16;
+				return LootFabTileEntity.this.energy.getEnergyStored() >> 16;
 			}
 			return -1;
 		}
@@ -54,15 +54,15 @@ public class LootFabTileEntity extends TileEntity implements ITickableTileEntity
 		public void set(int pIndex, int pValue) {
 			switch (pIndex) {
 			case 0:
-				runtime = pValue;
+				LootFabTileEntity.this.runtime = pValue;
 				return;
 			case 1:
-				pValue = ((short) pValue) & 0xFFFF;
-				energy.setEnergy((energy.getEnergyStored() & 0xFFFF0000) | (pValue));
+				pValue = (short) pValue & 0xFFFF;
+				LootFabTileEntity.this.energy.setEnergy(LootFabTileEntity.this.energy.getEnergyStored() & 0xFFFF0000 | pValue);
 				return;
 			case 2:
-				pValue = ((short) pValue) & 0xFFFF;
-				energy.setEnergy((energy.getEnergyStored() & 0x0000FFFF) | (pValue << 16));
+				pValue = (short) pValue & 0xFFFF;
+				LootFabTileEntity.this.energy.setEnergy(LootFabTileEntity.this.energy.getEnergyStored() & 0x0000FFFF | pValue << 16);
 				return;
 			}
 		}
@@ -81,7 +81,7 @@ public class LootFabTileEntity extends TileEntity implements ITickableTileEntity
 
 	@Override
 	public void tick() {
-		if (level.isClientSide) return;
+		if (this.level.isClientSide) return;
 		this.energy.receiveEnergy(4000, false);
 		DataModel dm = MobPredictionItem.getStoredModel(this.inventory.getStackInSlot(0));
 		if (dm != null) {
@@ -94,12 +94,12 @@ public class LootFabTileEntity extends TileEntity implements ITickableTileEntity
 			if (selection != -1) {
 				if (this.runtime == 0) {
 					ItemStack out = dm.getFabDrops().get(selection).copy();
-					if (insertInOutput(out, true)) this.runtime = 60;
+					if (this.insertInOutput(out, true)) this.runtime = 60;
 				} else {
 					if (this.energy.getEnergyStored() < HostileConfig.fabPowerCost) return;
 					this.energy.setEnergy(this.energy.getEnergyStored() - HostileConfig.fabPowerCost);
-					if (--runtime == 0) {
-						insertInOutput(dm.getFabDrops().get(selection).copy(), false);
+					if (--this.runtime == 0) {
+						this.insertInOutput(dm.getFabDrops().get(selection).copy(), false);
 						this.inventory.getStackInSlot(0).shrink(1);
 					}
 				}
@@ -131,15 +131,15 @@ public class LootFabTileEntity extends TileEntity implements ITickableTileEntity
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-		if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return LazyOptional.of(() -> inventory).cast();
-		if (cap == CapabilityEnergy.ENERGY) return LazyOptional.of(() -> energy).cast();
+		if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return LazyOptional.of(() -> this.inventory).cast();
+		if (cap == CapabilityEnergy.ENERGY) return LazyOptional.of(() -> this.energy).cast();
 		return super.getCapability(cap, side);
 	}
 
 	@Override
 	public CompoundNBT save(CompoundNBT tag) {
 		tag = super.save(tag);
-		tag.put("saved_selections", writeSelections(new CompoundNBT()));
+		tag.put("saved_selections", this.writeSelections(new CompoundNBT()));
 		tag.put("inventory", this.inventory.serializeNBT());
 		tag.putInt("energy", this.energy.getEnergyStored());
 		tag.putInt("runtime", this.runtime);
@@ -160,19 +160,19 @@ public class LootFabTileEntity extends TileEntity implements ITickableTileEntity
 	@Override
 	public SUpdateTileEntityPacket getUpdatePacket() {
 		CompoundNBT tag = new CompoundNBT();
-		tag.put("saved_selections", writeSelections(new CompoundNBT()));
+		tag.put("saved_selections", this.writeSelections(new CompoundNBT()));
 		return new SUpdateTileEntityPacket(this.getBlockPos(), 0, tag);
 	}
 
 	@Override
 	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
-		readSelections(pkt.getTag().getCompound("saved_selections"));
+		this.readSelections(pkt.getTag().getCompound("saved_selections"));
 	}
 
 	@Override
 	public CompoundNBT getUpdateTag() {
 		CompoundNBT tag = super.getUpdateTag();
-		tag.put("saved_selections", writeSelections(new CompoundNBT()));
+		tag.put("saved_selections", this.writeSelections(new CompoundNBT()));
 		return tag;
 	}
 

@@ -26,23 +26,23 @@ public class SimChamberContainer extends Container {
 		super(Hostile.Containers.SIM_CHAMBER, id);
 		this.pos = pos;
 		this.level = pInv.player.level;
-		this.tile = ((SimChamberTileEntity) level.getBlockEntity(pos));
-		SimItemHandler inventory = tile.getInventory();
+		this.tile = (SimChamberTileEntity) this.level.getBlockEntity(pos);
+		SimItemHandler inventory = this.tile.getInventory();
 		this.addSlot(new FilteredSlot(inventory, 0, -13, 1, s -> s.getItem() instanceof DataModelItem));
 		this.addSlot(new FilteredSlot(inventory, 1, 176, 7, s -> DataModelItem.matchesInput(this.getSlot(0).getItem(), s)));
 		this.addSlot(new FilteredSlot(inventory, 2, 196, 7, s -> false));
 		this.addSlot(new FilteredSlot(inventory, 3, 186, 27, s -> false));
 
 		for (int row = 0; row < 9; row++) {
-			addSlot(new Slot(pInv, row, 36 + row * 18, 211));
+			this.addSlot(new Slot(pInv, row, 36 + row * 18, 211));
 		}
 
 		for (int row = 0; row < 3; row++) {
 			for (int column = 0; column < 9; column++) {
-				addSlot(new Slot(pInv, column + row * 9 + 9, 36 + column * 18, 153 + row * 18));
+				this.addSlot(new Slot(pInv, column + row * 9 + 9, 36 + column * 18, 153 + row * 18));
 			}
 		}
-		this.addDataSlots(tile.getRefHolder());
+		this.addDataSlots(this.tile.getRefHolder());
 	}
 
 	@Override

@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " P ",
+    "EOE",
+    "LCL"
+  ],
+  "key": {
+    "P": {
+      "tag": "forge:glass_panes"
+    },
+    "E": {
+      "item": "minecraft:ender_pearl"
+    },
+	"O": {
+      "tag": "forge:obsidian"
+    },
+	"L": {
+      "tag": "forge:gems/lapis"
+    },
+	"C": {
+      "item": "minecraft:comparator"
+    }
+  },
+  "result": {
+    "item": "hostilenetworks:sim_chamber"
+  }
+}

@@ -7,7 +7,7 @@ import java.util.List;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerInventory;
@@ -59,13 +59,13 @@ public class SimChamberScreen extends ContainerScreen<SimChamberContainer> {
 			if (cModel.getModel() != null) {
 				txt.add(new TranslationTextComponent("hostilenetworks.gui.cost", cModel.getModel().getSimCost()));
 			}
-			this.renderWrappedToolTip(pPoseStack, txt, pX, pY, font);
+			this.renderWrappedToolTip(pPoseStack, txt, pX, pY, this.font);
 		} else if (this.isHovering(14, 48, 7, 87, pX, pY)) {
 			CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
 			if (cModel.getModel() != null) {
 				List<ITextComponent> txt = new ArrayList<>(1);
 				txt.add(new TranslationTextComponent("hostilenetworks.gui.data", cModel.getData() - cModel.getTier().data, cModel.getTier().next().data - cModel.getTier().data));
-				this.renderWrappedToolTip(pPoseStack, txt, pX, pY, font);
+				this.renderWrappedToolTip(pPoseStack, txt, pX, pY, this.font);
 			}
 		} else super.renderTooltip(pPoseStack, pX, pY);
 	}
@@ -87,10 +87,10 @@ public class SimChamberScreen extends ContainerScreen<SimChamberContainer> {
 
 			xOff = 18;
 			msg = I18n.get("hostilenetworks.gui.tier");
-			this.font.draw(stack, msg, xOff, 9 + (this.font.lineHeight + 3), Color.WHITE);
+			this.font.draw(stack, msg, xOff, 9 + this.font.lineHeight + 3, Color.WHITE);
 			xOff += this.font.width(msg);
 			msg = I18n.get("hostilenetworks.tier." + cModel.getTier().name);
-			this.font.draw(stack, msg, xOff, 9 + (this.font.lineHeight + 3), cModel.getTier().color.getColor());
+			this.font.draw(stack, msg, xOff, 9 + this.font.lineHeight + 3, cModel.getTier().color.getColor());
 
 			xOff = 18;
 			msg = I18n.get("hostilenetworks.gui.accuracy");
@@ -105,12 +105,12 @@ public class SimChamberScreen extends ContainerScreen<SimChamberContainer> {
 		int spacing = this.font.lineHeight + 3;
 		int idx = 0;
 		for (TickableText t : this.body) {
-			t.render(font, stack, left, top + spacing * idx);
+			t.render(this.font, stack, left, top + spacing * idx);
 			if (t.causesNewLine()) {
 				idx++;
 				left = 29;
 			} else {
-				left += t.getWidth(font);
+				left += t.getWidth(this.font);
 			}
 		}
 	}
@@ -120,15 +120,15 @@ public class SimChamberScreen extends ContainerScreen<SimChamberContainer> {
 		Minecraft mc = Minecraft.getInstance();
 		mc.getTextureManager().bind(BASE);
 
-		int left = getGuiLeft();
-		int top = getGuiTop();
+		int left = this.getGuiLeft();
+		int top = this.getGuiTop();
 
-		Screen.blit(stack, left + 8, top, 0, 0, 216, 141, 256, 256);
-		Screen.blit(stack, left - 14, top, 0, 141, 18, 18, 256, 256);
+		AbstractGui.blit(stack, left + 8, top, 0, 0, 216, 141, 256, 256);
+		AbstractGui.blit(stack, left - 14, top, 0, 141, 18, 18, 256, 256);
 
 		int energyHeight = 87 - MathHelper.ceil(87F * this.menu.getEnergyStored() / HostileConfig.simPowerCap);
 
-		Screen.blit(stack, left + 211, top + 48, 18, 141, 7, energyHeight, 256, 256);
+		AbstractGui.blit(stack, left + 211, top + 48, 18, 141, 7, energyHeight, 256, 256);
 
 		int dataHeight = 87;
 		CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
@@ -137,13 +137,13 @@ public class SimChamberScreen extends ContainerScreen<SimChamberContainer> {
 			ModelTier tier = cModel.getTier();
 			ModelTier next = tier.next();
 			if (tier == next) dataHeight = 0;
-			else dataHeight = 87 - MathHelper.ceil(87F * (float) (data - tier.data) / (next.data - tier.data));
+			else dataHeight = 87 - MathHelper.ceil(87F * (data - tier.data) / (next.data - tier.data));
 		}
 
-		Screen.blit(stack, left + 14, top + 48, 18, 141, 7, dataHeight, 256, 256);
+		AbstractGui.blit(stack, left + 14, top + 48, 18, 141, 7, dataHeight, 256, 256);
 
 		mc.getTextureManager().bind(PLAYER);
-		Screen.blit(stack, left + 28, top + 145, 0, 0, 176, 90, 256, 256);
+		AbstractGui.blit(stack, left + 28, top + 145, 0, 0, 176, 90, 256, 256);
 	}
 
 	private static final ITextComponent ERROR = new StringTextComponent("ERROR").withStyle(TextFormatting.OBFUSCATED);
@@ -166,7 +166,7 @@ public class SimChamberScreen extends ContainerScreen<SimChamberContainer> {
 					this.body.add(new TickableText(s, Color.WHITE));
 			}
 			this.runtimeTextLoaded = false;
-		} else if (!runtimeTextLoaded) {
+		} else if (!this.runtimeTextLoaded) {
 			int ticks = 300 - this.menu.getRuntime();
 			float speed = 0.65F;
 			this.body.clear();

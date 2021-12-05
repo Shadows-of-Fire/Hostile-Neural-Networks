@@ -49,16 +49,14 @@ public class LootFabBlock extends HorizontalBlock {
 		if (pLevel.isClientSide) {
 			return ActionResultType.SUCCESS;
 		} else {
-			NetworkHooks.openGui((ServerPlayerEntity) pPlayer, getMenuProvider(pState, pLevel, pPos), pPos);
+			NetworkHooks.openGui((ServerPlayerEntity) pPlayer, this.getMenuProvider(pState, pLevel, pPos), pPos);
 			return ActionResultType.CONSUME;
 		}
 	}
 
 	@Override
 	public INamedContainerProvider getMenuProvider(BlockState pState, World pLevel, BlockPos pPos) {
-		return new SimpleNamedContainerProvider((id, inv, player) -> {
-			return new LootFabContainer(id, inv, pPos);
-		}, new TranslationTextComponent(this.getDescriptionId()));
+		return new SimpleNamedContainerProvider((id, inv, player) -> new LootFabContainer(id, inv, pPos), new TranslationTextComponent(this.getDescriptionId()));
 	}
 
 	@Override

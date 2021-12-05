@@ -37,7 +37,7 @@ public enum ModelTier {
 	}
 
 	public ITextComponent getComponent() {
-		return new TranslationTextComponent("hostilenetworks.tier." + name).withStyle(color);
+		return new TranslationTextComponent("hostilenetworks.tier." + this.name).withStyle(this.color);
 	}
 
 	public static ModelTier getByData(int data) {

@@ -58,7 +58,7 @@ public class DataModel {
 	}
 
 	public ResourceLocation getId() {
-		return id;
+		return this.id;
 	}
 
 	public TranslationTextComponent getName() {
@@ -66,11 +66,11 @@ public class DataModel {
 	}
 
 	public String getTriviaKey() {
-		return triviaKey;
+		return this.triviaKey;
 	}
 
 	public float getScale() {
-		return guiScale;
+		return this.guiScale;
 	}
 
 	public float getYOffset() {
@@ -105,7 +105,7 @@ public class DataModel {
 		return this.fabDrops;
 	}
 
-	public ItemStack getPredictionDrop(ModelTier tier) {
+	public ItemStack getPredictionDrop() {
 		ItemStack stk = new ItemStack(Hostile.Items.PREDICTION);
 		MobPredictionItem.setStoredModel(stk, this);
 		return stk;
@@ -117,12 +117,12 @@ public class DataModel {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj instanceof DataModel && ((DataModel) obj).id.equals(id);
+		return obj instanceof DataModel && ((DataModel) obj).id.equals(this.id);
 	}
 
 	@Override
 	public int hashCode() {
-		return id.hashCode();
+		return this.id.hashCode();
 	}
 
 	@Override
@@ -142,7 +142,7 @@ public class DataModel {
 		buf.writeInt(this.simCost);
 		buf.writeItem(this.input);
 		buf.writeItem(this.baseDrop);
-		buf.writeUtf(triviaKey);
+		buf.writeUtf(this.triviaKey);
 		buf.writeVarInt(this.fabDrops.size());
 		for (ItemStack i : this.fabDrops)
 			buf.writeItem(i);

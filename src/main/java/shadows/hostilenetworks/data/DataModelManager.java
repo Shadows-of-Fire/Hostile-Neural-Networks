@@ -44,13 +44,13 @@ public class DataModelManager extends JsonReloadListener {
 
 	@Override
 	protected void apply(Map<ResourceLocation, JsonElement> pObject, IResourceManager pResourceManager, IProfiler pProfiler) {
-		clear();
+		this.clear();
 		pObject.forEach((loc, ele) -> {
 			try {
 				if (ele.getAsJsonObject().entrySet().isEmpty()) return; //Ignore empty files so people can delete models.
 				DataModel model = GSON.fromJson(ele, DataModel.class);
 				model.setId(loc);
-				register(model);
+				this.register(model);
 			} catch (JsonParseException ex) {
 				HostileNetworks.LOGGER.error("Failed to load data model {}.", loc);
 				ex.printStackTrace();
@@ -59,27 +59,27 @@ public class DataModelManager extends JsonReloadListener {
 	}
 
 	public void register(DataModel model) {
-		if (registry.containsKey(model.id)) throw new UnsupportedOperationException("Attempted to register duplicate data model " + model.id);
-		registry.put(model.id, model);
-		if (modelsByType.containsKey(model.type)) {
+		if (this.registry.containsKey(model.id)) throw new UnsupportedOperationException("Attempted to register duplicate data model " + model.id);
+		this.registry.put(model.id, model);
+		if (this.modelsByType.containsKey(model.type)) {
 			String msg = "Attempted to register two models (%s and %s) for Entity Type %s!";
-			throw new UnsupportedOperationException(String.format(msg, model.id, modelsByType.get(model.type).id, model.type.getRegistryName()));
+			throw new UnsupportedOperationException(String.format(msg, model.id, this.modelsByType.get(model.type).id, model.type.getRegistryName()));
 		}
-		modelsByType.put(model.type, model);
+		this.modelsByType.put(model.type, model);
 	}
 
 	@Nullable
 	public DataModel getModel(ResourceLocation id) {
-		return registry.get(id);
+		return this.registry.get(id);
 	}
 
 	@Nullable
 	public DataModel getModel(EntityType<?> type) {
-		return modelsByType.get(type);
+		return this.modelsByType.get(type);
 	}
 
 	public Collection<DataModel> getAllModels() {
-		return registry.values();
+		return this.registry.values();
 	}
 
 	public static void dispatch(PlayerEntity p) {

@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "LPL",
+    "RSR",
+    "LGL"
+  ],
+  "key": {
+    "L": {
+      "tag": "forge:gems/lapis"
+    },
+	"P": {
+      "item": "minecraft:repeater"
+    },
+	"R": {
+      "tag": "forge:dusts/redstone"
+    },
+	"S": {
+      "item": "minecraft:smooth_stone"
+    },
+	"G": {
+      "tag": "forge:ingots/gold"
+    }
+  },
+  "result": {
+    "item": "hostilenetworks:blank_data_model"
+  }
+}

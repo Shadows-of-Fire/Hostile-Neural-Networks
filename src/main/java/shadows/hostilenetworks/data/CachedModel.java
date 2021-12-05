@@ -25,11 +25,11 @@ public class CachedModel {
 		this.slot = slot;
 		this.model = DataModelItem.getStoredModel(stack);
 		this.data = DataModelItem.getData(stack);
-		this.tier = ModelTier.getByData(data);
+		this.tier = ModelTier.getByData(this.data);
 	}
 
 	public DataModel getModel() {
-		return model;
+		return this.model;
 	}
 
 	public int getData() {
@@ -43,7 +43,7 @@ public class CachedModel {
 	public void setData(int data) {
 		this.data = data;
 		if (this.data > this.tier.next().data) this.tier = this.tier.next();
-		DataModelItem.setData(stack, data);
+		DataModelItem.setData(this.stack, data);
 	}
 
 	public int getSlot() {
@@ -52,14 +52,14 @@ public class CachedModel {
 
 	public float getAccuracy() {
 		ModelTier next = this.tier.next();
-		int diff = next.data - tier.data;
-		float tDiff = next.accuracy - tier.accuracy;
-		return tier.accuracy + tDiff * (diff - (next.data - data)) / diff;
+		int diff = next.data - this.tier.data;
+		float tDiff = next.accuracy - this.tier.accuracy;
+		return this.tier.accuracy + tDiff * (diff - (next.data - this.data)) / diff;
 	}
 
 	public int getKillsNeeded() {
 		ModelTier next = this.tier.next();
-		return MathHelper.ceil((next.data - data) / (float) tier.dataPerKill);
+		return MathHelper.ceil((next.data - this.data) / (float) this.tier.dataPerKill);
 	}
 
 	public LivingEntity getEntity(World world) {
@@ -70,7 +70,7 @@ public class CachedModel {
 	}
 
 	public ItemStack getPredictionDrop() {
-		return this.model.getPredictionDrop(this.tier);
+		return this.model.getPredictionDrop();
 	}
 
 	public ItemStack getSourceStack() {

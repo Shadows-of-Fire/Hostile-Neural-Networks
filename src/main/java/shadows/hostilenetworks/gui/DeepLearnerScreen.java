@@ -54,18 +54,18 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 		this.setupEmptyText();
 		pMenu.setNotifyCallback(slotId -> {
 			ItemStack stack = pMenu.getSlot(slotId).getItem();
-			CachedModel old = models[slotId];
-			models[slotId] = stack.isEmpty() ? null : new CachedModel(stack, slotId);
-			if (old == null && models[slotId] != null) {
-				if (++numModels == 1) {
-					selectedModel = slotId;
-					setupModel(models[selectedModel]);
-					emptyText = false;
+			CachedModel old = this.models[slotId];
+			this.models[slotId] = stack.isEmpty() ? null : new CachedModel(stack, slotId);
+			if (old == null && this.models[slotId] != null) {
+				if (++this.numModels == 1) {
+					this.selectedModel = slotId;
+					this.setupModel(this.models[this.selectedModel]);
+					this.emptyText = false;
 				}
-			} else if (old != null && models[slotId] == null) {
-				numModels--;
-				if (numModels > 0 && slotId == selectedModel) selectLeft();
-			} else if (slotId == selectedModel && models[selectedModel] != null) setupModel(models[selectedModel]);
+			} else if (old != null && this.models[slotId] == null) {
+				this.numModels--;
+				if (this.numModels > 0 && slotId == this.selectedModel) this.selectLeft();
+			} else if (slotId == this.selectedModel && this.models[this.selectedModel] != null) this.setupModel(this.models[this.selectedModel]);
 		});
 	}
 
@@ -73,36 +73,36 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 	public void init(Minecraft pMinecraft, int pWidth, int pHeight) {
 		super.init(pMinecraft, pWidth, pHeight);
 		this.addButton(new ImageButton(this.getGuiLeft() - 27, this.getGuiTop() + 105, 24, 24, 84, 140, 24, BASE, btn -> {
-			selectLeft();
+			this.selectLeft();
 		}));
 
 		this.addButton(new ImageButton(this.getGuiLeft() - 1, this.getGuiTop() + 105, 24, 24, 108, 140, 24, BASE, btn -> {
-			selectRight();
+			this.selectRight();
 		}));
 	}
 
 	public void selectLeft() {
-		if (numModels == 0) return;
-		int old = selectedModel;
-		CachedModel model = models[clamp(selectedModel - 1)];
+		if (this.numModels == 0) return;
+		int old = this.selectedModel;
+		CachedModel model = this.models[this.clamp(this.selectedModel - 1)];
 		while (model == null)
-			model = models[clamp(selectedModel - 1)];
-		if (model.getSlot() != old) setupModel(model);
+			model = this.models[this.clamp(this.selectedModel - 1)];
+		if (model.getSlot() != old) this.setupModel(model);
 	}
 
 	public void selectRight() {
-		if (numModels == 0) return;
-		int old = selectedModel;
-		CachedModel model = models[clamp(selectedModel + 1)];
+		if (this.numModels == 0) return;
+		int old = this.selectedModel;
+		CachedModel model = this.models[this.clamp(this.selectedModel + 1)];
 		while (model == null)
-			model = models[clamp(selectedModel + 1)];
-		if (model.getSlot() != old) setupModel(model);
+			model = this.models[this.clamp(this.selectedModel + 1)];
+		if (model.getSlot() != old) this.setupModel(model);
 	}
 
 	private int clamp(int idx) {
 		if (idx == -1) idx = 3;
 		if (idx == 4) idx = 0;
-		return selectedModel = idx;
+		return this.selectedModel = idx;
 	}
 
 	@Override
@@ -119,27 +119,27 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 		int top = this.getGuiTop();
 		this.blit(matrix, left + 41, top, 0, 0, 256, 140);
 
-		if (numModels > 0) {
+		if (this.numModels > 0) {
 			for (int i = 0; i < 3; i++) {
-				this.blit(matrix, left + WIDTH - 49 - this.stats.getWidth(font), top + 8 + font.lineHeight + (font.lineHeight + 2) * i, 0, 140 + 9 * i, 9, 9);
+				this.blit(matrix, left + WIDTH - 49 - this.stats.getWidth(this.font), top + 8 + this.font.lineHeight + (this.font.lineHeight + 2) * i, 0, 140 + 9 * i, 9, 9);
 			}
 
 			this.blit(matrix, left - 41, top, 9, 140, 75, 101);
 
-			LivingEntity ent = models[selectedModel].getEntity(minecraft.level);
+			LivingEntity ent = this.models[this.selectedModel].getEntity(this.minecraft.level);
 
-			ent.yBodyRot = spin % 360;
-			renderEntityInInventory(left - 4, top + 90, 40, 0, 0, ent);
+			ent.yBodyRot = this.spin % 360;
+			this.renderEntityInInventory(left - 4, top + 90, 40, 0, 0, ent);
 
 			for (int i = 0; i < 3; i++) {
-				this.font.draw(matrix, statArray[i], left + WIDTH - 36 - this.stats.getWidth(font), top + 9 + font.lineHeight + (font.lineHeight + 2) * i, Color.WHITE);
+				this.font.draw(matrix, this.statArray[i], left + WIDTH - 36 - this.stats.getWidth(this.font), top + 9 + this.font.lineHeight + (this.font.lineHeight + 2) * i, Color.WHITE);
 			}
 
 		}
 
 		this.getMinecraft().getTextureManager().bind(PLAYER);
 		this.blit(matrix, left + 81, top + 145, 0, 0, 176, 90);
-		if (numModels <= 1) {
+		if (this.numModels <= 1) {
 			this.buttons.get(0).visible = false;
 			this.buttons.get(1).visible = false;
 		} else {
@@ -154,17 +154,17 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 		int top = 6;
 		int spacing = this.font.lineHeight + 3;
 		int idx = 0;
-		for (TickableText t : texts) {
-			t.render(font, stack, left, top + spacing * idx);
+		for (TickableText t : this.texts) {
+			t.render(this.font, stack, left, top + spacing * idx);
 			if (t.causesNewLine()) {
 				idx++;
 				left = 49;
 			} else {
-				left += t.getWidth(font);
+				left += t.getWidth(this.font);
 			}
 		}
 		if (this.numModels > 0) {
-			this.stats.render(font, stack, WIDTH - 49 - this.stats.getWidth(font), top);
+			this.stats.render(this.font, stack, WIDTH - 49 - this.stats.getWidth(this.font), top);
 		}
 	}
 
@@ -173,25 +173,25 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 		super.tick();
 
 		if (!this.menu.hasModels()) {
-			if (!emptyText) {
-				setupEmptyText();
-				emptyText = true;
+			if (!this.emptyText) {
+				this.setupEmptyText();
+				this.emptyText = true;
 			}
 		} else {
-			if (emptyText) {
+			if (this.emptyText) {
 				for (int i = 0; i < 4; i++) {
-					if (models[i] != null) {
-						setupModel(models[i]);
-						selectedModel = i;
-						emptyText = false;
+					if (this.models[i] != null) {
+						this.setupModel(this.models[i]);
+						this.selectedModel = i;
+						this.emptyText = false;
 						break;
 					}
 				}
 			}
 		}
 
-		for (int i = 0; i < texts.size(); i++) {
-			TickableText txt = texts.get(i);
+		for (int i = 0; i < this.texts.size(); i++) {
+			TickableText txt = this.texts.get(i);
 			if (!txt.isDone()) {
 				txt.tick();
 				break;
@@ -200,13 +200,13 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 
 		this.stats.tick();
 
-		spin++;
+		this.spin++;
 	}
 
 	private void setupEmptyText() {
-		resetText();
+		this.resetText();
 		for (int i = 0; i < 7; i++) {
-			addText(I18n.get("hostilenetworks.gui.learner_empty." + i), i == 0 ? Color.AQUA : Color.WHITE);
+			this.addText(I18n.get("hostilenetworks.gui.learner_empty." + i), i == 0 ? Color.AQUA : Color.WHITE);
 		}
 	}
 
@@ -215,42 +215,42 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 	private void setupModel(CachedModel cache) {
 		DataModel model = cache.getModel();
 		if (model == null) return;
-		resetText();
-		addText(I18n.get("hostilenetworks.gui.name"), Color.AQUA);
-		addText(model.getName().getString(), Color.WHITE);
-		addText(I18n.get("hostilenetworks.gui.info"), Color.AQUA);
+		this.resetText();
+		this.addText(I18n.get("hostilenetworks.gui.name"), Color.AQUA);
+		this.addText(model.getName().getString(), Color.WHITE);
+		this.addText(I18n.get("hostilenetworks.gui.info"), Color.AQUA);
 		String[] trivia = I18n.get(model.getTriviaKey()).split("\\n");
 		for (int i = 0; i < Math.min(4, trivia.length); i++) {
-			addText(trivia[i], Color.WHITE);
+			this.addText(trivia[i], Color.WHITE);
 		}
 		for (int i = trivia.length; i < 5; i++) {
-			addText("", 0);
+			this.addText("", 0);
 		}
-		addText(I18n.get("hostilenetworks.gui.tier"), Color.WHITE, false);
+		this.addText(I18n.get("hostilenetworks.gui.tier"), Color.WHITE, false);
 		ModelTier tier = cache.getTier();
 		ModelTier next = tier.next();
-		addText(I18n.get("hostilenetworks.tier." + tier.name), tier.color.getColor());
-		addText(I18n.get("hostilenetworks.gui.accuracy"), Color.WHITE, false);
-		addText(fmt.format(cache.getAccuracy()), tier.color.getColor());
+		this.addText(I18n.get("hostilenetworks.tier." + tier.name), tier.color.getColor());
+		this.addText(I18n.get("hostilenetworks.gui.accuracy"), Color.WHITE, false);
+		this.addText(fmt.format(cache.getAccuracy()), tier.color.getColor());
 		if (tier != next) {
-			addText(I18n.get("hostilenetworks.gui.next_tier"), Color.WHITE, false);
-			addText(I18n.get("hostilenetworks.tier." + next.name), next.color.getColor(), false);
-			addText(I18n.get("hostilenetworks.gui.next_tier2", cache.getKillsNeeded()), Color.WHITE, false);
-			addText(I18n.get("hostilenetworks.gui.kill" + (cache.getKillsNeeded() > 1 ? "s" : "")), Color.WHITE);
+			this.addText(I18n.get("hostilenetworks.gui.next_tier"), Color.WHITE, false);
+			this.addText(I18n.get("hostilenetworks.tier." + next.name), next.color.getColor(), false);
+			this.addText(I18n.get("hostilenetworks.gui.next_tier2", cache.getKillsNeeded()), Color.WHITE, false);
+			this.addText(I18n.get("hostilenetworks.gui.kill" + (cache.getKillsNeeded() > 1 ? "s" : "")), Color.WHITE);
 		} else {
-			addText(I18n.get("hostilenetworks.gui.max_tier"), Color.WHITE);
+			this.addText(I18n.get("hostilenetworks.gui.max_tier"), Color.WHITE);
 		}
 
 		LivingEntity ent = cache.getEntity(this.minecraft.level);
 
 		if (ent == null) {
 			for (int i = 0; i < 3; i++)
-				statArray[i] = "\u00A7k99999";
+				this.statArray[i] = "\u00A7k99999";
 		}
 
-		statArray[0] = String.valueOf((int) (ent.getAttribute(Attributes.MAX_HEALTH).getBaseValue() / 2));
-		statArray[1] = String.valueOf((int) (ent.getAttribute(Attributes.ARMOR).getBaseValue() / 2));
-		statArray[2] = String.valueOf(ReflectionThings.getExperienceReward(ent, this.inventory.player));
+		this.statArray[0] = String.valueOf((int) (ent.getAttribute(Attributes.MAX_HEALTH).getBaseValue() / 2));
+		this.statArray[1] = String.valueOf((int) (ent.getAttribute(Attributes.ARMOR).getBaseValue() / 2));
+		this.statArray[2] = String.valueOf(ReflectionThings.getExperienceReward(ent, this.inventory.player));
 	}
 
 	private void addText(String msg, int color) {
@@ -268,13 +268,13 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 
 	@SuppressWarnings("deprecation")
 	public void renderEntityInInventory(float pPosX, float pPosY, float pScale, float pMouseX, float pMouseY, LivingEntity pLivingEntity) {
-		float f1 = (float) Math.atan((double) (pMouseY / 40.0F));
+		float f1 = (float) Math.atan(pMouseY / 40.0F);
 		RenderSystem.pushMatrix();
 		RenderSystem.translatef(pPosX, pPosY, 1050.0F);
 		RenderSystem.scalef(1.0F, 1.0F, -1.0F);
 		MatrixStack matrixstack = new MatrixStack();
 		matrixstack.translate(0.0D, 0.0D, 1000.0D);
-		DataModel model = this.models[selectedModel].getModel();
+		DataModel model = this.models[this.selectedModel].getModel();
 
 		pScale *= model.getScale();
 
@@ -283,7 +283,7 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 		Quaternion quaternion1 = Vector3f.XP.rotationDegrees(f1 * 20.0F);
 		quaternion.mul(quaternion1);
 		matrixstack.mulPose(quaternion);
-		matrixstack.mulPose(Vector3f.YP.rotationDegrees(((spin + this.minecraft.getDeltaFrameTime()) * 2.25F) % 360));
+		matrixstack.mulPose(Vector3f.YP.rotationDegrees((this.spin + this.minecraft.getDeltaFrameTime()) * 2.25F % 360));
 		pLivingEntity.yRot = 0;
 		pLivingEntity.yBodyRot = pLivingEntity.yRot;
 		pLivingEntity.yHeadRot = pLivingEntity.yRot;

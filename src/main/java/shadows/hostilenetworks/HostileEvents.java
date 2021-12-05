@@ -83,7 +83,10 @@ public class HostileEvents {
 	@SubscribeEvent
 	public static void sync(OnDatapackSyncEvent e) {
 		PlayerEntity p = e.getPlayer();
-		if (!p.level.isClientSide) {
+		if (p == null) {
+			for (PlayerEntity pe : e.getPlayerList().getPlayers())
+				DataModelManager.dispatch(pe);
+		} else if (!p.level.isClientSide) {
 			DataModelManager.dispatch(p);
 		}
 	}

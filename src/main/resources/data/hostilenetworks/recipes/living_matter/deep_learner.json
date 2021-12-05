@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "OCO",
+    "CPC",
+    "ORO"
+  ],
+  "key": {
+    "P": {
+      "tag": "forge:glass_panes"
+    },
+	"O": {
+      "tag": "forge:obsidian"
+    },
+	"R": {
+      "tag": "forge:dusts/redstone"
+    },
+	"C": {
+      "item": "minecraft:repeater"
+    }
+  },
+  "result": {
+    "item": "hostilenetworks:deep_learner"
+  }
+}

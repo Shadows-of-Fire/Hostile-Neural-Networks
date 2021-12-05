@@ -99,7 +99,7 @@ public class DeepLearnerItem extends Item {
 
 		@Override
 		public Container createMenu(int id, PlayerInventory inv, PlayerEntity player) {
-			return new DeepLearnerContainer(id, inv, hand);
+			return new DeepLearnerContainer(id, inv, this.hand);
 		}
 
 		@Override

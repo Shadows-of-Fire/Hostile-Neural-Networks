@@ -29,3 +29,10 @@ description='''${desc}'''
     versionRange="[${mcVersion},)"
     ordering="NONE"
     side="BOTH"
+
+[[dependencies.${modid}]]
+    modId="placebo"
+    mandatory=true
+    versionRange="[4.6.0,)"
+    ordering="NONE"
+    side="BOTH"

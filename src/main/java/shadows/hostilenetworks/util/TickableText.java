@@ -36,11 +36,11 @@ public class TickableText {
 	}
 
 	public void render(FontRenderer font, MatrixStack stack, int x, int y) {
-		font.draw(stack, message.substring(0, MathHelper.ceil(Math.min(ticks * tickRate, message.length()))), x, y, color);
+		font.draw(stack, this.message.substring(0, MathHelper.ceil(Math.min(this.ticks * this.tickRate, this.message.length()))), x, y, this.color);
 	}
 
 	public int getMaxUsefulTicks() {
-		return MathHelper.floor(message.length() / tickRate);
+		return MathHelper.floor(this.message.length() / this.tickRate);
 	}
 
 	public void reset() {
@@ -48,7 +48,7 @@ public class TickableText {
 	}
 
 	public boolean isDone() {
-		return ticks * tickRate >= message.length();
+		return this.ticks * this.tickRate >= this.message.length();
 	}
 
 	public boolean causesNewLine() {

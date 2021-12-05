@@ -53,7 +53,7 @@ public class DataModelItemStackRenderer extends ItemStackTileEntityRenderer {
 		if (model.getModel() != null) {
 			LivingEntity ent = model.getEntity(Minecraft.getInstance().level);
 			if (ent != null) {
-				renderEntityInInventory(matrix, type, ent, model.getModel());
+				this.renderEntityInInventory(matrix, type, ent, model.getModel());
 			}
 		}
 	}

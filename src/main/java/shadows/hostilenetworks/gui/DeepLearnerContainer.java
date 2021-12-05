@@ -29,21 +29,21 @@ public class DeepLearnerContainer extends Container {
 		super(Hostile.Containers.DEEP_LEARNER, id);
 		this.hand = hand;
 		this.player = pInv.player;
-		this.deepLearner = player.getItemInHand(hand);
+		this.deepLearner = this.player.getItemInHand(hand);
 		this.learnerInv = DeepLearnerItem.getItemHandler(this.deepLearner);
 
-		addSlot(new DataModelSlot(learnerInv, 0, 256, 99));
-		addSlot(new DataModelSlot(learnerInv, 1, 274, 99));
-		addSlot(new DataModelSlot(learnerInv, 2, 256, 117));
-		addSlot(new DataModelSlot(learnerInv, 3, 274, 117));
+		this.addSlot(new DataModelSlot(this.learnerInv, 0, 256, 99));
+		this.addSlot(new DataModelSlot(this.learnerInv, 1, 274, 99));
+		this.addSlot(new DataModelSlot(this.learnerInv, 2, 256, 117));
+		this.addSlot(new DataModelSlot(this.learnerInv, 3, 274, 117));
 
 		for (int row = 0; row < 9; row++) {
 			int index = row;
-			Slot slot = new Slot(player.inventory, index, 89 + row * 18, 211);
-			if (hand == Hand.MAIN_HAND && index == player.inventory.selected) {
-				slot = new LockedSlot(player.inventory, index, 89 + row * 18, 211);
+			Slot slot = new Slot(this.player.inventory, index, 89 + row * 18, 211);
+			if (hand == Hand.MAIN_HAND && index == this.player.inventory.selected) {
+				slot = new LockedSlot(this.player.inventory, index, 89 + row * 18, 211);
 			}
-			addSlot(slot);
+			this.addSlot(slot);
 		}
 
 		for (int row = 0; row < 3; row++) {
@@ -51,8 +51,8 @@ public class DeepLearnerContainer extends Container {
 				int x = 89 + column * 18;
 				int y = 153 + row * 18;
 				int index = column + row * 9 + 9;
-				Slot slot = new Slot(player.inventory, index, x, y);
-				addSlot(slot);
+				Slot slot = new Slot(this.player.inventory, index, x, y);
+				this.addSlot(slot);
 			}
 		}
 	}
@@ -63,7 +63,7 @@ public class DeepLearnerContainer extends Container {
 
 	@Override
 	public boolean stillValid(PlayerEntity pPlayer) {
-		return deepLearner.getItem() == Hostile.Items.DEEP_LEARNER && this.player.getItemInHand(this.hand) == this.deepLearner;
+		return this.deepLearner.getItem() == Hostile.Items.DEEP_LEARNER && this.player.getItemInHand(this.hand) == this.deepLearner;
 	}
 
 	@Override
@@ -76,14 +76,14 @@ public class DeepLearnerContainer extends Container {
 	public boolean hasModels() {
 		boolean hasModels = false;
 		for (int i = 0; i < 4; i++) {
-			if (!learnerInv.getStackInSlot(i).isEmpty()) hasModels = true;
+			if (!this.learnerInv.getStackInSlot(i).isEmpty()) hasModels = true;
 		}
 		return hasModels;
 	}
 
 	public void fillWithModels(CachedModel[] models) {
 		for (int i = 0; i < 4; i++) {
-			ItemStack stack = learnerInv.getStackInSlot(i);
+			ItemStack stack = this.learnerInv.getStackInSlot(i);
 			models[i] = stack.isEmpty() ? null : new CachedModel(stack, i);
 		}
 	}

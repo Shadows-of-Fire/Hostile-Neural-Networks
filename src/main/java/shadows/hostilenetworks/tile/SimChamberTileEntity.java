@@ -38,15 +38,15 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 		public int get(int pIndex) {
 			switch (pIndex) {
 			case 0:
-				return runtime;
+				return SimChamberTileEntity.this.runtime;
 			case 1:
-				return predictionSuccess ? 1 : 0;
+				return SimChamberTileEntity.this.predictionSuccess ? 1 : 0;
 			case 2:
-				return failState.ordinal();
+				return SimChamberTileEntity.this.failState.ordinal();
 			case 3:
-				return energy.getEnergyStored() & 0xFFFF;
+				return SimChamberTileEntity.this.energy.getEnergyStored() & 0xFFFF;
 			case 4:
-				return energy.getEnergyStored() >> 16;
+				return SimChamberTileEntity.this.energy.getEnergyStored() >> 16;
 			}
 			return -1;
 		}
@@ -55,21 +55,21 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 		public void set(int pIndex, int pValue) {
 			switch (pIndex) {
 			case 0:
-				runtime = pValue;
+				SimChamberTileEntity.this.runtime = pValue;
 				return;
 			case 1:
-				predictionSuccess = pValue == 1;
+				SimChamberTileEntity.this.predictionSuccess = pValue == 1;
 				return;
 			case 2:
-				failState = FailureState.values()[pValue];
+				SimChamberTileEntity.this.failState = FailureState.values()[pValue];
 				return;
 			case 3:
-				pValue = ((short) pValue) & 0xFFFF;
-				energy.setEnergy((energy.getEnergyStored() & 0xFFFF0000) | (pValue));
+				pValue = (short) pValue & 0xFFFF;
+				SimChamberTileEntity.this.energy.setEnergy(SimChamberTileEntity.this.energy.getEnergyStored() & 0xFFFF0000 | pValue);
 				return;
 			case 4:
-				pValue = ((short) pValue) & 0xFFFF;
-				energy.setEnergy((energy.getEnergyStored() & 0x0000FFFF) | (pValue << 16));
+				pValue = (short) pValue & 0xFFFF;
+				SimChamberTileEntity.this.energy.setEnergy(SimChamberTileEntity.this.energy.getEnergyStored() & 0x0000FFFF | pValue << 16);
 				return;
 			}
 		}
@@ -88,11 +88,11 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 	@Override
 	public CompoundNBT save(CompoundNBT tag) {
 		tag = super.save(tag);
-		tag.put("inventory", inventory.serializeNBT());
+		tag.put("inventory", this.inventory.serializeNBT());
 		tag.putInt("energy", this.energy.getEnergyStored());
 		tag.putString("model", this.currentModel == null ? "null" : this.currentModel.getModel().getId().toString());
 		tag.putInt("runtime", this.runtime);
-		tag.putBoolean("predSuccess", predictionSuccess);
+		tag.putBoolean("predSuccess", this.predictionSuccess);
 		tag.putInt("failState", this.failState.ordinal());
 		return tag;
 	}
@@ -102,8 +102,8 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 		super.load(state, tag);
 		this.inventory.deserializeNBT(tag.getCompound("inventory"));
 		this.energy.setEnergy(tag.getInt("energy"));
-		ItemStack model = inventory.getStackInSlot(0);
-		CachedModel cModel = getOrLoadModel(model);
+		ItemStack model = this.inventory.getStackInSlot(0);
+		CachedModel cModel = this.getOrLoadModel(model);
 		String modelId = tag.getString("model");
 		if (cModel != null && cModel.getModel().getId().toString().equals(modelId)) {
 			this.currentModel = cModel;
@@ -115,48 +115,48 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 
 	@Override
 	public void tick() {
-		if (level.isClientSide) return;
-		//this.energy.receiveEnergy(4000, false);
-		ItemStack model = inventory.getStackInSlot(0);
+		if (this.level.isClientSide) return;
+		this.energy.receiveEnergy(4000, false);
+		ItemStack model = this.inventory.getStackInSlot(0);
 		if (!model.isEmpty()) {
-			CachedModel oldModel = currentModel;
-			currentModel = getOrLoadModel(model);
-			if (oldModel != currentModel) {
+			CachedModel oldModel = this.currentModel;
+			this.currentModel = this.getOrLoadModel(model);
+			if (oldModel != this.currentModel) {
 				this.runtime = 0;
 			}
-			if (currentModel != null) {
-				if (currentModel.getTier() == ModelTier.FAULTY) {
+			if (this.currentModel != null) {
+				if (this.currentModel.getTier() == ModelTier.FAULTY) {
 					this.failState = FailureState.FAULTY;
 					this.runtime = 0;
 					return;
 				}
 				if (this.runtime == 0) {
-					if (canStartSimulation()) {
-						runtime = 300;
-						predictionSuccess = level.random.nextFloat() <= currentModel.getAccuracy();
-						inventory.getStackInSlot(1).shrink(1);
+					if (this.canStartSimulation()) {
+						this.runtime = 300;
+						this.predictionSuccess = this.level.random.nextFloat() <= this.currentModel.getAccuracy();
+						this.inventory.getStackInSlot(1).shrink(1);
 					}
 				} else if (--this.runtime == 0) {
-					ItemStack stk = inventory.getStackInSlot(2);
-					if (stk.isEmpty()) inventory.setStackInSlot(2, currentModel.getModel().getBaseDrop().copy());
+					ItemStack stk = this.inventory.getStackInSlot(2);
+					if (stk.isEmpty()) this.inventory.setStackInSlot(2, this.currentModel.getModel().getBaseDrop().copy());
 					else stk.grow(1);
-					if (predictionSuccess) {
-						stk = inventory.getStackInSlot(3);
-						if (stk.isEmpty()) inventory.setStackInSlot(3, currentModel.getPredictionDrop());
+					if (this.predictionSuccess) {
+						stk = this.inventory.getStackInSlot(3);
+						if (stk.isEmpty()) this.inventory.setStackInSlot(3, this.currentModel.getPredictionDrop());
 						else stk.grow(1);
 					}
-					ModelTier tier = currentModel.getTier();
+					ModelTier tier = this.currentModel.getTier();
 					if (tier != tier.next()) {
-						currentModel.setData(currentModel.getData() + 1);
+						this.currentModel.setData(this.currentModel.getData() + 1);
 					}
 					DataModelItem.setIters(model, DataModelItem.getIters(model) + 1);
 				} else if (this.runtime != 0) {
-					energy.setEnergy(energy.getEnergyStored() - currentModel.getModel().getSimCost());
+					this.energy.setEnergy(this.energy.getEnergyStored() - this.currentModel.getModel().getSimCost());
 				}
 				return;
 			}
 		}
-		failState = FailureState.MODEL;
+		this.failState = FailureState.MODEL;
 		this.runtime = 0;
 	}
 
@@ -164,27 +164,27 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 	 * Checks if the output slots are clear and there is enough power for a sim run.
 	 */
 	public boolean canStartSimulation() {
-		if (inventory.getStackInSlot(1).isEmpty()) {
+		if (this.inventory.getStackInSlot(1).isEmpty()) {
 			this.failState = FailureState.INPUT;
 			return false;
 		}
 
-		DataModel model = currentModel.getModel();
-		ItemStack nOut = inventory.getStackInSlot(2);
-		ItemStack pOut = inventory.getStackInSlot(3);
+		DataModel model = this.currentModel.getModel();
+		ItemStack nOut = this.inventory.getStackInSlot(2);
+		ItemStack pOut = this.inventory.getStackInSlot(3);
 		ItemStack nOutExp = model.getBaseDrop();
-		ItemStack pOutExp = currentModel.getPredictionDrop();
+		ItemStack pOutExp = this.currentModel.getPredictionDrop();
 
-		if (canStack(nOut, nOutExp) && canStack(pOut, pOutExp)) {
-			if (hasPowerFor(model)) {
-				failState = FailureState.NONE;
+		if (this.canStack(nOut, nOutExp) && this.canStack(pOut, pOutExp)) {
+			if (this.hasPowerFor(model)) {
+				this.failState = FailureState.NONE;
 				return true;
 			} else {
-				failState = FailureState.ENERGY;
+				this.failState = FailureState.ENERGY;
 				return false;
 			}
 		} else {
-			failState = FailureState.OUTPUT;
+			this.failState = FailureState.OUTPUT;
 			return false;
 		}
 	}
@@ -195,23 +195,23 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 	}
 
 	public boolean hasPowerFor(DataModel model) {
-		return energy.getEnergyStored() >= model.getSimCost() * 300;
+		return this.energy.getEnergyStored() >= model.getSimCost() * 300;
 	}
 
 	@Nullable
 	protected CachedModel getOrLoadModel(ItemStack stack) {
-		if (currentModel == null || currentModel.getSourceStack() != stack) {
+		if (this.currentModel == null || this.currentModel.getSourceStack() != stack) {
 			CachedModel model = new CachedModel(stack, 0);
 			if (model.getModel() != null) return model;
 			else return null;
 		}
-		return currentModel;
+		return this.currentModel;
 	}
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-		if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return LazyOptional.of(() -> inventory).cast();
-		if (cap == CapabilityEnergy.ENERGY) return LazyOptional.of(() -> energy).cast();
+		if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return LazyOptional.of(() -> this.inventory).cast();
+		if (cap == CapabilityEnergy.ENERGY) return LazyOptional.of(() -> this.energy).cast();
 		return super.getCapability(cap, side);
 	}
 
@@ -285,7 +285,7 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 		}
 
 		public String getKey() {
-			return "hostilenetworks.fail." + name;
+			return "hostilenetworks.fail." + this.name;
 		}
 	}
 
