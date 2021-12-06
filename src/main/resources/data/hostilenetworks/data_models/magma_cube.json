@@ -1,0 +1,23 @@
+{
+	"type": "minecraft:magma_cube",
+	"name": "entity.minecraft.magma_cube",
+	"name_color": "0xCC2200",
+	"gui_scale": 2,
+	"gui_x_offset": 0,
+	"gui_y_offset": 0,
+	"gui_z_offset": 0,
+	"sim_cost": 160,
+	"input": {
+		"item": "hostilenetworks:empty_prediction"
+	},
+	"base_drop": {
+		"item": "hostilenetworks:nether_prediction"
+	},
+	"trivia": "hostilenetworks.trivia.magma_cube",
+	"fabricator_drops": [
+		{
+			"item": "minecraft:magma_cream",
+			"count": 16
+		}
+	]
+}

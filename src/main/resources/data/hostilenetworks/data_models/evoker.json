@@ -1,0 +1,27 @@
+{
+	"type": "minecraft:evoker",
+	"name": "entity.minecraft.evoker",
+	"name_color": "0xCEC987",
+	"gui_scale": 1,
+	"gui_x_offset": 0,
+	"gui_y_offset": 0,
+	"gui_z_offset": 0,
+	"sim_cost": 1024,
+	"input": {
+		"item": "hostilenetworks:empty_prediction"
+	},
+	"base_drop": {
+		"item": "hostilenetworks:overworld_prediction"
+	},
+	"trivia": "hostilenetworks.trivia.evoker",
+	"fabricator_drops": [
+		{
+			"item": "minecraft:emerald",
+			"count": 4
+		},
+		{
+			"item": "minecraft:totem_of_undying",
+			"count": 1
+		}
+	]
+}
