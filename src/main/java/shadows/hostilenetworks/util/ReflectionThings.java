@@ -14,7 +14,7 @@ public class ReflectionThings {
 
 	static {
 		try {
-			Method getXPReward = LivingEntity.class.getDeclaredMethod(ASMAPI.mapMethod("getExperienceReward"), PlayerEntity.class);
+			Method getXPReward = LivingEntity.class.getDeclaredMethod(ASMAPI.mapMethod("func_70693_a"), PlayerEntity.class);
 			getXPReward.setAccessible(true);
 			getExperienceReward = MethodHandles.lookup().unreflect(getXPReward);
 		} catch (Exception e) {
