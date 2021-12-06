@@ -33,7 +33,15 @@ public class DataModelItemStackRenderer extends ItemStackTileEntityRenderer {
 		ItemRenderer irenderer = Minecraft.getInstance().getItemRenderer();
 		IBakedModel base = irenderer.getItemModelShaper().getModelManager().getModel(DATA_MODEL_BASE);
 		matrix.pushPose();
-		if (type != TransformType.GUI) {
+		if (type == TransformType.FIXED) {
+			matrix.translate(1, 1, 0);
+			float scale = 0.5F;
+			matrix.scale(scale, scale, scale);
+			matrix.translate(-1.5F, -0.5F, 0.5F);
+			matrix.mulPose(Vector3f.XP.rotationDegrees(90));
+			matrix.mulPose(Vector3f.XP.rotationDegrees(90));
+			matrix.translate(0, 0, -1);
+		} else if (type != TransformType.GUI) {
 			matrix.translate(1, 1, 0);
 			float scale = 0.5F;
 			matrix.scale(scale, scale, scale);
@@ -63,7 +71,15 @@ public class DataModelItemStackRenderer extends ItemStackTileEntityRenderer {
 		RenderSystem.pushMatrix();
 		matrix.pushPose();
 		matrix.translate(0.5, 0.5, 0.5);
-		if (type == TransformType.GUI) {
+		if (type == TransformType.FIXED) {
+			matrix.translate(0, -0.5, 0);
+			float scale = 0.4F;
+			scale *= model.getScale();
+			matrix.scale(scale, scale, scale);
+			matrix.translate(0, 1.45, 0);
+			matrix.mulPose(Vector3f.XN.rotationDegrees(90));
+			matrix.mulPose(Vector3f.YN.rotationDegrees(180));
+		} else if (type == TransformType.GUI) {
 			matrix.translate(0, -0.5, 0);
 			float scale = 0.4F;
 			scale *= model.getScale();

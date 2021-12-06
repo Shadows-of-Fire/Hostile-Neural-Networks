@@ -82,7 +82,6 @@ public class LootFabTileEntity extends TileEntity implements ITickableTileEntity
 	@Override
 	public void tick() {
 		if (this.level.isClientSide) return;
-		this.energy.receiveEnergy(4000, false);
 		DataModel dm = MobPredictionItem.getStoredModel(this.inventory.getStackInSlot(0));
 		if (dm != null) {
 			int selection = this.savedSelections.getInt(dm);

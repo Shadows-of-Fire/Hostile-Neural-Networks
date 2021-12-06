@@ -116,7 +116,6 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 	@Override
 	public void tick() {
 		if (this.level.isClientSide) return;
-		this.energy.receiveEnergy(4000, false);
 		ItemStack model = this.inventory.getStackInSlot(0);
 		if (!model.isEmpty()) {
 			CachedModel oldModel = this.currentModel;
