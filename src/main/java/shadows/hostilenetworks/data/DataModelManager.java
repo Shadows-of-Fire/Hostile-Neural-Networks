@@ -11,20 +11,20 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
-import net.minecraft.client.resources.JsonReloadListener;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import shadows.hostilenetworks.HostileNetworks;
 import shadows.hostilenetworks.net.DataModelMessage;
 import shadows.hostilenetworks.net.DataModelResetMessage;
-import shadows.placebo.util.NetworkUtils;
-import shadows.placebo.util.json.ItemAdapter;
+import shadows.placebo.json.ItemAdapter;
+import shadows.placebo.network.PacketDistro;
 
-public class DataModelManager extends JsonReloadListener {
+public class DataModelManager extends SimpleJsonResourceReloadListener {
 
 	//Formatter::off
 	public static final Gson GSON = new GsonBuilder()
@@ -43,7 +43,7 @@ public class DataModelManager extends JsonReloadListener {
 	}
 
 	@Override
-	protected void apply(Map<ResourceLocation, JsonElement> pObject, IResourceManager pResourceManager, IProfiler pProfiler) {
+	protected void apply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
 		this.clear();
 		pObject.forEach((loc, ele) -> {
 			try {
@@ -82,11 +82,11 @@ public class DataModelManager extends JsonReloadListener {
 		return this.registry.values();
 	}
 
-	public static void dispatch(PlayerEntity p) {
+	public static void dispatch(Player p) {
 		if (p.level.getServer() != null && p.level.getServer().isDedicatedServer()) {
-			NetworkUtils.sendTo(HostileNetworks.CHANNEL, new DataModelResetMessage(), p);
+			PacketDistro.sendTo(HostileNetworks.CHANNEL, new DataModelResetMessage(), p);
 			for (DataModel dm : INSTANCE.registry.values()) {
-				NetworkUtils.sendTo(HostileNetworks.CHANNEL, new DataModelMessage(dm), p);
+				PacketDistro.sendTo(HostileNetworks.CHANNEL, new DataModelMessage(dm), p);
 			}
 		}
 	}

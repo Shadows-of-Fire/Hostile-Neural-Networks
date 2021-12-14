@@ -4,23 +4,24 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.gui.widget.button.ImageButton;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import shadows.hostilenetworks.HostileNetworks;
 import shadows.hostilenetworks.client.WeirdRenderThings;
 import shadows.hostilenetworks.client.WrappedRTBuffer;
@@ -29,9 +30,10 @@ import shadows.hostilenetworks.data.DataModel;
 import shadows.hostilenetworks.data.ModelTier;
 import shadows.hostilenetworks.util.Color;
 import shadows.hostilenetworks.util.ReflectionThings;
-import shadows.hostilenetworks.util.TickableText;
+import shadows.placebo.screen.PlaceboContainerScreen;
+import shadows.placebo.screen.TickableText;
 
-public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
+public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContainer> {
 
 	public static final int WIDTH = 338;
 	public static final int HEIGHT = 235;
@@ -46,8 +48,9 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 	private CachedModel[] models = new CachedModel[4];
 	private int spin = 0;
 	private int selectedModel = 0;
+	private ImageButton btnLeft, btnRight;
 
-	public DeepLearnerScreen(DeepLearnerContainer pMenu, PlayerInventory pPlayerInventory, ITextComponent pTitle) {
+	public DeepLearnerScreen(DeepLearnerContainer pMenu, Inventory pPlayerInventory, Component pTitle) {
 		super(pMenu, pPlayerInventory, pTitle);
 		this.imageWidth = WIDTH;
 		this.imageHeight = HEIGHT;
@@ -70,13 +73,13 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 	}
 
 	@Override
-	public void init(Minecraft pMinecraft, int pWidth, int pHeight) {
-		super.init(pMinecraft, pWidth, pHeight);
-		this.addButton(new ImageButton(this.getGuiLeft() - 27, this.getGuiTop() + 105, 24, 24, 84, 140, 24, BASE, btn -> {
+	public void init() {
+		super.init();
+		btnLeft = this.addRenderableWidget(new ImageButton(this.getGuiLeft() - 27, this.getGuiTop() + 105, 24, 24, 84, 140, 24, BASE, btn -> {
 			this.selectLeft();
 		}));
 
-		this.addButton(new ImageButton(this.getGuiLeft() - 1, this.getGuiTop() + 105, 24, 24, 108, 140, 24, BASE, btn -> {
+		btnRight = this.addRenderableWidget(new ImageButton(this.getGuiLeft() - 1, this.getGuiTop() + 105, 24, 24, 108, 140, 24, BASE, btn -> {
 			this.selectRight();
 		}));
 	}
@@ -106,15 +109,10 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 	}
 
 	@Override
-	public void render(MatrixStack stack, int pMouseX, int pMouseY, float pPartialTicks) {
-		this.renderBackground(stack);
-		super.render(stack, pMouseX, pMouseY, pPartialTicks);
-		this.renderTooltip(stack, pMouseX, pMouseY);
-	}
-
-	@Override
-	protected void renderBg(MatrixStack matrix, float pPartialTicks, int pX, int pY) {
-		this.getMinecraft().getTextureManager().bind(BASE);
+	protected void renderBg(PoseStack matrix, float pPartialTicks, int pX, int pY) {
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderSystem.setShaderTexture(0, BASE);
 		int left = this.getGuiLeft();
 		int top = this.getGuiTop();
 		this.blit(matrix, left + 41, top, 0, 0, 256, 140);
@@ -137,19 +135,19 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 
 		}
 
-		this.getMinecraft().getTextureManager().bind(PLAYER);
+		RenderSystem.setShaderTexture(0, PLAYER);
 		this.blit(matrix, left + 81, top + 145, 0, 0, 176, 90);
 		if (this.numModels <= 1) {
-			this.buttons.get(0).visible = false;
-			this.buttons.get(1).visible = false;
+			btnLeft.visible = false;
+			btnRight.visible = false;
 		} else {
-			this.buttons.get(0).visible = true;
-			this.buttons.get(1).visible = true;
+			btnLeft.visible = true;
+			btnRight.visible = true;
 		}
 	}
 
 	@Override
-	protected void renderLabels(MatrixStack stack, int pX, int pY) {
+	protected void renderLabels(PoseStack stack, int pX, int pY) {
 		int left = 49;
 		int top = 6;
 		int spacing = this.font.lineHeight + 3;
@@ -169,9 +167,7 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 	}
 
 	@Override
-	public void tick() {
-		super.tick();
-
+	public void containerTick() {
 		if (!this.menu.hasModels()) {
 			if (!this.emptyText) {
 				this.setupEmptyText();
@@ -250,7 +246,7 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 
 		this.statArray[0] = String.valueOf((int) (ent.getAttribute(Attributes.MAX_HEALTH).getBaseValue() / 2));
 		this.statArray[1] = String.valueOf((int) (ent.getAttribute(Attributes.ARMOR).getBaseValue() / 2));
-		this.statArray[2] = String.valueOf(ReflectionThings.getExperienceReward(ent, this.inventory.player));
+		this.statArray[2] = String.valueOf(ReflectionThings.getExperienceReward(ent, this.menu.player));
 	}
 
 	private void addText(String msg, int color) {
@@ -269,10 +265,12 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 	@SuppressWarnings("deprecation")
 	public void renderEntityInInventory(float pPosX, float pPosY, float pScale, float pMouseX, float pMouseY, LivingEntity pLivingEntity) {
 		float f1 = (float) Math.atan(pMouseY / 40.0F);
-		RenderSystem.pushMatrix();
-		RenderSystem.translatef(pPosX, pPosY, 1050.0F);
-		RenderSystem.scalef(1.0F, 1.0F, -1.0F);
-		MatrixStack matrixstack = new MatrixStack();
+		PoseStack posestack = RenderSystem.getModelViewStack();
+		posestack.pushPose();
+		posestack.translate(pPosX, pPosY, 1050.0F);
+		posestack.scale(1.0F, 1.0F, -1.0F);
+		RenderSystem.applyModelViewMatrix();
+		PoseStack matrixstack = new PoseStack();
 		matrixstack.translate(0.0D, 0.0D, 1000.0D);
 		DataModel model = this.models[this.selectedModel].getModel();
 
@@ -284,23 +282,25 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 		quaternion.mul(quaternion1);
 		matrixstack.mulPose(quaternion);
 		matrixstack.mulPose(Vector3f.YP.rotationDegrees((this.spin + this.minecraft.getDeltaFrameTime()) * 2.25F % 360));
-		pLivingEntity.yRot = 0;
-		pLivingEntity.yBodyRot = pLivingEntity.yRot;
-		pLivingEntity.yHeadRot = pLivingEntity.yRot;
-		pLivingEntity.yHeadRotO = pLivingEntity.yRot;
-		EntityRendererManager entityrenderermanager = Minecraft.getInstance().getEntityRenderDispatcher();
+		pLivingEntity.setYRot(0);
+		pLivingEntity.yBodyRot = pLivingEntity.getYRot();
+		pLivingEntity.yHeadRot = pLivingEntity.getYRot();
+		pLivingEntity.yHeadRotO = pLivingEntity.getYRot();
+		EntityRenderDispatcher entityrenderermanager = Minecraft.getInstance().getEntityRenderDispatcher();
 		quaternion1.conj();
 		entityrenderermanager.overrideCameraOrientation(quaternion1);
 		entityrenderermanager.setRenderShadow(false);
-		IRenderTypeBuffer.Impl rtBuffer = Minecraft.getInstance().renderBuffers().bufferSource();
-		WeirdRenderThings.fullbright = true;
+		MultiBufferSource.BufferSource rtBuffer = Minecraft.getInstance().renderBuffers().bufferSource();
+		WeirdRenderThings.fullbright_gui = true;
 		RenderSystem.runAsFancy(() -> {
 			entityrenderermanager.render(pLivingEntity, model.getXOffset(), model.getYOffset(), model.getZOffset(), 0.0F, 1, matrixstack, new WrappedRTBuffer(rtBuffer), 15728880);
 		});
 		rtBuffer.endBatch();
-		WeirdRenderThings.fullbright = false;
+		WeirdRenderThings.fullbright_gui = false;
 		entityrenderermanager.setRenderShadow(true);
-		RenderSystem.popMatrix();
+		posestack.popPose();
+		RenderSystem.applyModelViewMatrix();
+		Lighting.setupFor3DItems();
 	}
 
 }

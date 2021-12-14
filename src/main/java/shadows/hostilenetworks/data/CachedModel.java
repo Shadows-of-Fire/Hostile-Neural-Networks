@@ -1,10 +1,10 @@
 package shadows.hostilenetworks.data;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 import shadows.hostilenetworks.item.DataModelItem;
 
 /**
@@ -59,10 +59,10 @@ public class CachedModel {
 
 	public int getKillsNeeded() {
 		ModelTier next = this.tier.next();
-		return MathHelper.ceil((next.data - this.data) / (float) this.tier.dataPerKill);
+		return Mth.ceil((next.data - this.data) / (float) this.tier.dataPerKill);
 	}
 
-	public LivingEntity getEntity(World world) {
+	public LivingEntity getEntity(Level world) {
 		if (this.cachedEntity == null) {
 			this.cachedEntity = this.model.type.create(world);
 		}

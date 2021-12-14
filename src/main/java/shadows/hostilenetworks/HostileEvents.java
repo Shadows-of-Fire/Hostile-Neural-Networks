@@ -1,14 +1,14 @@
 package shadows.hostilenetworks;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.Util;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -29,18 +29,18 @@ public class HostileEvents {
 
 	@SubscribeEvent
 	public static void modelAttunement(EntityInteractSpecific e) {
-		PlayerEntity player = e.getPlayer();
+		Player player = e.getPlayer();
 		ItemStack stack = player.getItemInHand(e.getHand());
 		if (stack.getItem() == Hostile.Items.BLANK_DATA_MODEL) {
 			if (!player.level.isClientSide) {
 				DataModel model = DataModelManager.INSTANCE.getModel(e.getTarget().getType());
 				if (model == null) {
-					ITextComponent msg = new TranslationTextComponent("hostilenetworks.msg.no_model").withStyle(TextFormatting.RED);
+					Component msg = new TranslatableComponent("hostilenetworks.msg.no_model").withStyle(ChatFormatting.RED);
 					player.sendMessage(msg, Util.NIL_UUID);
 					return;
 				}
 
-				ITextComponent msg = new TranslationTextComponent("hostilenetworks.msg.built", model.getName()).withStyle(TextFormatting.GOLD);
+				Component msg = new TranslatableComponent("hostilenetworks.msg.built", model.getName()).withStyle(ChatFormatting.GOLD);
 				player.sendMessage(msg, Util.NIL_UUID);
 
 				ItemStack modelStack = new ItemStack(Hostile.Items.DATA_MODEL);
@@ -59,9 +59,9 @@ public class HostileEvents {
 	@SubscribeEvent
 	public static void kill(LivingDeathEvent e) {
 		Entity src = e.getSource().getEntity();
-		if (src instanceof ServerPlayerEntity) {
-			ServerPlayerEntity p = (ServerPlayerEntity) src;
-			p.inventory.items.stream().filter(s -> s.getItem() == Items.DEEP_LEARNER).forEach(dl -> updateModels(dl, e.getEntityLiving().getType(), 0));
+		if (src instanceof ServerPlayer) {
+			ServerPlayer p = (ServerPlayer) src;
+			p.getInventory().items.stream().filter(s -> s.getItem() == Items.DEEP_LEARNER).forEach(dl -> updateModels(dl, e.getEntityLiving().getType(), 0));
 			if (p.getOffhandItem().getItem() == Items.DEEP_LEARNER) updateModels(p.getOffhandItem(), e.getEntityLiving().getType(), 0);
 		}
 	}
@@ -82,9 +82,9 @@ public class HostileEvents {
 
 	@SubscribeEvent
 	public static void sync(OnDatapackSyncEvent e) {
-		PlayerEntity p = e.getPlayer();
+		Player p = e.getPlayer();
 		if (p == null) {
-			for (PlayerEntity pe : e.getPlayerList().getPlayers())
+			for (Player pe : e.getPlayerList().getPlayers())
 				DataModelManager.dispatch(pe);
 		} else if (!p.level.isClientSide) {
 			DataModelManager.dispatch(p);

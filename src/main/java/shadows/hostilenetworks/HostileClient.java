@@ -1,7 +1,7 @@
 package shadows.hostilenetworks;
 
-import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
@@ -27,9 +27,9 @@ public class HostileClient {
 	@SubscribeEvent
 	public static void init(FMLClientSetupEvent e) {
 		e.enqueueWork(() -> {
-			ScreenManager.register(Hostile.Containers.DEEP_LEARNER, DeepLearnerScreen::new);
-			ScreenManager.register(Hostile.Containers.SIM_CHAMBER, SimChamberScreen::new);
-			ScreenManager.register(Hostile.Containers.LOOT_FABRICATOR, LootFabScreen::new);
+			MenuScreens.register(Hostile.Containers.DEEP_LEARNER, DeepLearnerScreen::new);
+			MenuScreens.register(Hostile.Containers.SIM_CHAMBER, SimChamberScreen::new);
+			MenuScreens.register(Hostile.Containers.LOOT_FABRICATOR, LootFabScreen::new);
 		});
 		MinecraftForge.EVENT_BUS.addListener(HostileClient::tick);
 	}

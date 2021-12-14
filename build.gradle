@@ -19,7 +19,7 @@ apply plugin: 'eclipse'
 
 archivesBaseName = "${fileName}-${mcVersion}"
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 minecraft {
     mappings channel: 'parchment', version: project.properties.parchmentVersion

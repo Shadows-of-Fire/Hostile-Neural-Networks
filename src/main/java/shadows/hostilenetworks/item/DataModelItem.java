@@ -1,21 +1,25 @@
 package shadows.hostilenetworks.item;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.client.IItemRenderProperties;
+import shadows.hostilenetworks.client.DataModelItemStackRenderer;
 import shadows.hostilenetworks.data.DataModel;
 import shadows.hostilenetworks.data.DataModelManager;
 import shadows.hostilenetworks.data.ModelTier;
@@ -34,30 +38,30 @@ public class DataModelItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack pStack, World pLevel, List<ITextComponent> list, ITooltipFlag pFlag) {
+	public void appendHoverText(ItemStack pStack, Level pLevel, List<Component> list, TooltipFlag pFlag) {
 		if (ClientUtil.isHoldingShift()) {
 			DataModel model = getStoredModel(pStack);
 			if (model == null) {
-				list.add(new TranslationTextComponent("Error: %s", new StringTextComponent("Broke_AF").withStyle(TextFormatting.OBFUSCATED, TextFormatting.GRAY)));
+				list.add(new TranslatableComponent("Error: %s", new TextComponent("Broke_AF").withStyle(ChatFormatting.OBFUSCATED, ChatFormatting.GRAY)));
 				return;
 			}
 			int data = getData(pStack);
 			ModelTier tier = ModelTier.getByData(data);
-			list.add(new TranslationTextComponent("hostilenetworks.info.tier", tier.getComponent()));
+			list.add(new TranslatableComponent("hostilenetworks.info.tier", tier.getComponent()));
 			int dProg = data - tier.data;
 			int dMax = tier.next().data - tier.data;
 			if (tier != ModelTier.SELF_AWARE) {
-				list.add(new TranslationTextComponent("hostilenetworks.info.data", new TranslationTextComponent("hostilenetworks.info.dprog", dProg, dMax).withStyle(TextFormatting.GRAY)));
-				list.add(new TranslationTextComponent("hostilenetworks.info.dpk", new StringTextComponent("" + tier.dataPerKill).withStyle(TextFormatting.GRAY)));
+				list.add(new TranslatableComponent("hostilenetworks.info.data", new TranslatableComponent("hostilenetworks.info.dprog", dProg, dMax).withStyle(ChatFormatting.GRAY)));
+				list.add(new TranslatableComponent("hostilenetworks.info.dpk", new TextComponent("" + tier.dataPerKill).withStyle(ChatFormatting.GRAY)));
 			}
-			list.add(new TranslationTextComponent("hostilenetworks.info.sim_cost", new TranslationTextComponent("hostilenetworks.info.rft", model.getSimCost()).withStyle(TextFormatting.GRAY)));
+			list.add(new TranslatableComponent("hostilenetworks.info.sim_cost", new TranslatableComponent("hostilenetworks.info.rft", model.getSimCost()).withStyle(ChatFormatting.GRAY)));
 		} else {
-			list.add(new TranslationTextComponent("hostilenetworks.info.hold_shift", Color.withColor("hostilenetworks.color_text.shift", TextFormatting.WHITE.getColor())).withStyle(TextFormatting.GRAY));
+			list.add(new TranslatableComponent("hostilenetworks.info.hold_shift", Color.withColor("hostilenetworks.color_text.shift", ChatFormatting.WHITE.getColor())).withStyle(ChatFormatting.GRAY));
 		}
 	}
 
 	@Override
-	public void fillItemCategory(ItemGroup pGroup, NonNullList<ItemStack> pItems) {
+	public void fillItemCategory(CreativeModeTab pGroup, NonNullList<ItemStack> pItems) {
 		if (this.allowdedIn(pGroup)) {
 			for (DataModel model : DataModelManager.INSTANCE.getAllModels()) {
 				ItemStack s = new ItemStack(this);
@@ -68,13 +72,25 @@ public class DataModelItem extends Item {
 	}
 
 	@Override
-	public ITextComponent getName(ItemStack pStack) {
+	public Component getName(ItemStack pStack) {
 		DataModel model = getStoredModel(pStack);
-		ITextComponent modelName;
+		Component modelName;
 		if (model == null) {
-			modelName = new StringTextComponent("BROKEN").withStyle(TextFormatting.OBFUSCATED);
+			modelName = new TextComponent("BROKEN").withStyle(ChatFormatting.OBFUSCATED);
 		} else modelName = model.getName();
-		return new TranslationTextComponent(this.getDescriptionId(pStack), modelName);
+		return new TranslatableComponent(this.getDescriptionId(pStack), modelName);
+	}
+
+	@Override
+	public void initializeClient(Consumer<IItemRenderProperties> consumer) {
+		consumer.accept(new IItemRenderProperties() {
+			DataModelItemStackRenderer dmisr = new DataModelItemStackRenderer();
+
+			@Override
+			public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
+				return dmisr;
+			}
+		});
 	}
 
 	/**
@@ -116,8 +132,8 @@ public class DataModelItem extends Item {
 		boolean item = input.getItem() == stack.getItem();
 		if (input.hasTag()) {
 			if (stack.hasTag()) {
-				CompoundNBT t1 = input.getTag();
-				CompoundNBT t2 = stack.getTag();
+				CompoundTag t1 = input.getTag();
+				CompoundTag t2 = stack.getTag();
 				for (String s : t1.getAllKeys()) {
 					if (!t1.get(s).equals(t2.get(s))) return false;
 				}

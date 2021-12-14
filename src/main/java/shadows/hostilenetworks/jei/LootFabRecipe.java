@@ -1,6 +1,6 @@
 package shadows.hostilenetworks.jei;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import shadows.hostilenetworks.data.DataModel;
 
 public class LootFabRecipe {

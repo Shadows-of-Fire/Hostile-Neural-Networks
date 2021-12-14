@@ -2,25 +2,25 @@ package shadows.hostilenetworks.item;
 
 import java.util.List;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 import net.minecraftforge.items.ItemStackHandler;
 import shadows.hostilenetworks.data.CachedModel;
 import shadows.hostilenetworks.gui.DeepLearnerContainer;
@@ -34,34 +34,34 @@ public class DeepLearnerItem extends Item {
 	}
 
 	@Override
-	public ActionResultType useOn(ItemUseContext ctx) {
-		if (!ctx.getLevel().isClientSide) NetworkHooks.openGui((ServerPlayerEntity) ctx.getPlayer(), new Provider(ctx.getHand()), buf -> buf.writeBoolean(ctx.getHand() == Hand.MAIN_HAND));
-		return ActionResultType.CONSUME;
+	public InteractionResult useOn(UseOnContext ctx) {
+		if (!ctx.getLevel().isClientSide) NetworkHooks.openGui((ServerPlayer) ctx.getPlayer(), new Provider(ctx.getHand()), buf -> buf.writeBoolean(ctx.getHand() == InteractionHand.MAIN_HAND));
+		return InteractionResult.CONSUME;
 	}
 
 	@Override
-	public ActionResult<ItemStack> use(World pLevel, PlayerEntity pPlayer, Hand pHand) {
-		if (!pPlayer.level.isClientSide) NetworkHooks.openGui((ServerPlayerEntity) pPlayer, new Provider(pHand), buf -> buf.writeBoolean(pHand == Hand.MAIN_HAND));
-		return ActionResult.consume(pPlayer.getItemInHand(pHand));
+	public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand) {
+		if (!pPlayer.level.isClientSide) NetworkHooks.openGui((ServerPlayer) pPlayer, new Provider(pHand), buf -> buf.writeBoolean(pHand == InteractionHand.MAIN_HAND));
+		return InteractionResultHolder.consume(pPlayer.getItemInHand(pHand));
 	}
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void appendHoverText(ItemStack pStack, World pLevel, List<ITextComponent> list, ITooltipFlag pFlag) {
-		list.add(new TranslationTextComponent("hostilenetworks.info.deep_learner", Color.withColor("hostilenetworks.color_text.hud", Color.WHITE)).withStyle(TextFormatting.GRAY));
+	public void appendHoverText(ItemStack pStack, Level pLevel, List<Component> list, TooltipFlag pFlag) {
+		list.add(new TranslatableComponent("hostilenetworks.info.deep_learner", Color.withColor("hostilenetworks.color_text.hud", Color.WHITE)).withStyle(ChatFormatting.GRAY));
 		if (ClientUtil.isHoldingShift()) {
 			ItemStackHandler inv = getItemHandler(pStack);
 			boolean empty = true;
 			for (int i = 0; i < 4; i++)
 				if (!inv.getStackInSlot(i).isEmpty()) empty = false;
 			if (empty) return;
-			list.add(new TranslationTextComponent("hostilenetworks.info.dl_contains").withStyle(TextFormatting.GRAY));
+			list.add(new TranslatableComponent("hostilenetworks.info.dl_contains").withStyle(ChatFormatting.GRAY));
 			for (int i = 0; i < 4; i++) {
 				ItemStack stack = inv.getStackInSlot(i);
 				if (stack.isEmpty()) continue;
 				CachedModel model = new CachedModel(stack, 0);
 				if (model.getModel() == null) continue;
-				list.add(new TranslationTextComponent("- %s %s", model.getTier().getComponent(), stack.getItem().getName(stack)).withStyle(TextFormatting.GRAY));
+				list.add(new TranslatableComponent("- %s %s", model.getTier().getComponent(), stack.getItem().getName(stack)).withStyle(ChatFormatting.GRAY));
 			}
 		} else {
 			ItemStackHandler inv = getItemHandler(pStack);
@@ -69,7 +69,7 @@ public class DeepLearnerItem extends Item {
 			for (int i = 0; i < 4; i++)
 				if (!inv.getStackInSlot(i).isEmpty()) empty = false;
 			if (empty) return;
-			list.add(new TranslationTextComponent("hostilenetworks.info.hold_shift", Color.withColor("hostilenetworks.color_text.shift", Color.WHITE)).withStyle(TextFormatting.GRAY));
+			list.add(new TranslatableComponent("hostilenetworks.info.hold_shift", Color.withColor("hostilenetworks.color_text.shift", Color.WHITE)).withStyle(ChatFormatting.GRAY));
 		}
 	}
 
@@ -89,22 +89,22 @@ public class DeepLearnerItem extends Item {
 		stack.getOrCreateTag().put("learner_inv", handler.serializeNBT());
 	}
 
-	protected class Provider implements INamedContainerProvider {
+	protected class Provider implements MenuProvider {
 
-		private final Hand hand;
+		private final InteractionHand hand;
 
-		protected Provider(Hand hand) {
+		protected Provider(InteractionHand hand) {
 			this.hand = hand;
 		}
 
 		@Override
-		public Container createMenu(int id, PlayerInventory inv, PlayerEntity player) {
+		public AbstractContainerMenu createMenu(int id, Inventory inv, Player player) {
 			return new DeepLearnerContainer(id, inv, this.hand);
 		}
 
 		@Override
-		public ITextComponent getDisplayName() {
-			return new TranslationTextComponent("hostilenetworks.title.deep_learner");
+		public Component getDisplayName() {
+			return new TranslatableComponent("hostilenetworks.title.deep_learner");
 		}
 	}
 }

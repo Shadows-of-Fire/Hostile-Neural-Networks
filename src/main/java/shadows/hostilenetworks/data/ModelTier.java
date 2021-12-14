@@ -1,24 +1,24 @@
 package shadows.hostilenetworks.data;
 
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public enum ModelTier {
-	FAULTY(0, 1, "faulty", TextFormatting.DARK_GRAY, 0.01F),
-	BASIC(6, 4, "basic", TextFormatting.GREEN, 0.05F),
-	ADVANCED(6 + 48, 10, "advanced", TextFormatting.BLUE, 0.22F),
-	SUPERIOR(6 + 48 + 300, 18, "superior", TextFormatting.LIGHT_PURPLE, 0.65F),
-	SELF_AWARE(6 + 48 + 300 + 900, 0, "self_aware", TextFormatting.GOLD, 0.995F);
+	FAULTY(0, 1, "faulty", ChatFormatting.DARK_GRAY, 0.01F),
+	BASIC(6, 4, "basic", ChatFormatting.GREEN, 0.05F),
+	ADVANCED(6 + 48, 10, "advanced", ChatFormatting.BLUE, 0.22F),
+	SUPERIOR(6 + 48 + 300, 18, "superior", ChatFormatting.LIGHT_PURPLE, 0.65F),
+	SELF_AWARE(6 + 48 + 300 + 900, 0, "self_aware", ChatFormatting.GOLD, 0.995F);
 
 	private static final ModelTier[] VALUES = ModelTier.values();
 
 	public final int data, dataPerKill;
 	public final String name;
-	public final TextFormatting color;
+	public final ChatFormatting color;
 	public final float accuracy;
 
-	private ModelTier(int data, int dataPerKill, String name, TextFormatting color, float accuracy) {
+	private ModelTier(int data, int dataPerKill, String name, ChatFormatting color, float accuracy) {
 		this.data = data;
 		this.dataPerKill = dataPerKill;
 		this.name = name;
@@ -36,8 +36,8 @@ public enum ModelTier {
 		return VALUES[this.ordinal() + 1];
 	}
 
-	public ITextComponent getComponent() {
-		return new TranslationTextComponent("hostilenetworks.tier." + this.name).withStyle(this.color);
+	public Component getComponent() {
+		return new TranslatableComponent("hostilenetworks.tier." + this.name).withStyle(this.color);
 	}
 
 	public static ModelTier getByData(int data) {

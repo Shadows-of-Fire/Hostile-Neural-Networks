@@ -2,14 +2,14 @@ package shadows.hostilenetworks.net;
 
 import java.util.function.Supplier;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.fmllegacy.network.NetworkEvent.Context;
 import shadows.hostilenetworks.data.DataModel;
 import shadows.hostilenetworks.data.DataModelManager;
-import shadows.placebo.util.NetworkUtils;
-import shadows.placebo.util.NetworkUtils.MessageProvider;
+import shadows.placebo.network.MessageHelper;
+import shadows.placebo.network.MessageProvider;
 
-public class DataModelMessage extends MessageProvider<DataModelMessage> {
+public class DataModelMessage implements MessageProvider<DataModelMessage> {
 
 	protected DataModel dm;
 
@@ -22,20 +22,20 @@ public class DataModelMessage extends MessageProvider<DataModelMessage> {
 	}
 
 	@Override
-	public void write(DataModelMessage msg, PacketBuffer buf) {
+	public void write(DataModelMessage msg, FriendlyByteBuf buf) {
 		msg.dm.write(buf);
 	}
 
 	@Override
-	public DataModelMessage read(PacketBuffer buf) {
+	public DataModelMessage read(FriendlyByteBuf buf) {
 		return new DataModelMessage(DataModel.read(buf));
 	}
 
 	@Override
 	public void handle(DataModelMessage msg, Supplier<Context> ctx) {
-		NetworkUtils.handlePacket(() -> () -> {
+		MessageHelper.handlePacket(() -> () -> {
 			DataModelManager.INSTANCE.register(msg.dm);
-		}, ctx.get());
+		}, ctx);
 	}
 
 }

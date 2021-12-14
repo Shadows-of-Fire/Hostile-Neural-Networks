@@ -1,8 +1,8 @@
 package shadows.hostilenetworks.util;
 
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public class Color {
 	public static final int AQUA = 0x62D8FF;
@@ -11,8 +11,8 @@ public class Color {
 	public static final int BRIGHT_LIME = 0x33EFDC;
 	public static final int BRIGHT_PURPLE = 0xC768DB;
 
-	public static ITextComponent withColor(String key, int color) {
-		Style style = Style.EMPTY.withColor(net.minecraft.util.text.Color.fromRgb(color));
-		return new TranslationTextComponent(key).withStyle(style);
+	public static Component withColor(String key, int color) {
+		Style style = Style.EMPTY.withColor(net.minecraft.network.chat.TextColor.fromRgb(color));
+		return new TranslatableComponent(key).withStyle(style);
 	}
 }

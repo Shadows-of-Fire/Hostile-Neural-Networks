@@ -1,52 +1,32 @@
 package shadows.hostilenetworks.gui;
 
-import java.util.function.Predicate;
-
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.items.SlotItemHandler;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import shadows.hostilenetworks.Hostile;
 import shadows.hostilenetworks.item.DataModelItem;
 import shadows.hostilenetworks.tile.SimChamberTileEntity;
 import shadows.hostilenetworks.tile.SimChamberTileEntity.FailureState;
 import shadows.hostilenetworks.tile.SimChamberTileEntity.SimItemHandler;
+import shadows.placebo.container.BlockEntityContainer;
+import shadows.placebo.container.FilteredSlot;
 
-public class SimChamberContainer extends Container {
+public class SimChamberContainer extends BlockEntityContainer<SimChamberTileEntity> {
 
-	protected final BlockPos pos;
-	protected final World level;
-	protected SimChamberTileEntity tile;
-
-	public SimChamberContainer(int id, PlayerInventory pInv, BlockPos pos) {
-		super(Hostile.Containers.SIM_CHAMBER, id);
-		this.pos = pos;
-		this.level = pInv.player.level;
-		this.tile = (SimChamberTileEntity) this.level.getBlockEntity(pos);
+	public SimChamberContainer(int id, Inventory pInv, BlockPos pos) {
+		super(Hostile.Containers.SIM_CHAMBER, id, pInv, pos);
 		SimItemHandler inventory = this.tile.getInventory();
 		this.addSlot(new FilteredSlot(inventory, 0, -13, 1, s -> s.getItem() instanceof DataModelItem));
 		this.addSlot(new FilteredSlot(inventory, 1, 176, 7, s -> DataModelItem.matchesInput(this.getSlot(0).getItem(), s)));
 		this.addSlot(new FilteredSlot(inventory, 2, 196, 7, s -> false));
 		this.addSlot(new FilteredSlot(inventory, 3, 186, 27, s -> false));
-
-		for (int row = 0; row < 9; row++) {
-			this.addSlot(new Slot(pInv, row, 36 + row * 18, 211));
-		}
-
-		for (int row = 0; row < 3; row++) {
-			for (int column = 0; column < 9; column++) {
-				this.addSlot(new Slot(pInv, column + row * 9 + 9, 36 + column * 18, 153 + row * 18));
-			}
-		}
-		this.addDataSlots(this.tile.getRefHolder());
+		this.addPlayerSlots(pInv, 36, 153);
 	}
 
 	@Override
-	public boolean stillValid(PlayerEntity pPlayer) {
+	public boolean stillValid(Player pPlayer) {
 		return pPlayer.level.getBlockState(this.pos).getBlock() == Hostile.Blocks.SIM_CHAMBER;
 	}
 
@@ -67,7 +47,7 @@ public class SimChamberContainer extends Container {
 	}
 
 	@Override
-	public ItemStack quickMoveStack(PlayerEntity pPlayer, int pIndex) {
+	public ItemStack quickMoveStack(Player pPlayer, int pIndex) {
 		ItemStack slotStackCopy = ItemStack.EMPTY;
 		Slot slot = this.slots.get(pIndex);
 		if (slot != null && slot.hasItem()) {
@@ -91,39 +71,6 @@ public class SimChamberContainer extends Container {
 		}
 
 		return slotStackCopy;
-	}
-
-	protected class FilteredSlot extends SlotItemHandler {
-
-		protected final Predicate<ItemStack> filter;
-		protected final int index;
-
-		public FilteredSlot(SimItemHandler handler, int index, int x, int y, Predicate<ItemStack> filter) {
-			super(handler, index, x, y);
-			this.filter = filter;
-			this.index = index;
-		}
-
-		@Override
-		public boolean mayPlace(ItemStack stack) {
-			return this.filter.test(stack);
-		}
-
-		@Override
-		public int getMaxStackSize() {
-			return 64;
-		}
-
-		@Override
-		public boolean mayPickup(PlayerEntity playerIn) {
-			return true;
-		}
-
-		@Override
-		public ItemStack remove(int amount) {
-			return ((SimItemHandler) this.getItemHandler()).extractItemInternal(this.index, amount, false);
-		}
-
 	}
 
 }

@@ -4,7 +4,7 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.IRecipeLayout;
@@ -13,14 +13,14 @@ import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
 import shadows.hostilenetworks.Hostile;
 import shadows.hostilenetworks.HostileNetworks;
 import shadows.hostilenetworks.data.ModelTier;
@@ -32,7 +32,7 @@ public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapp
 
 	private final IDrawable background;
 	private final IDrawable icon;
-	private final String localizedName;
+	private final Component name;
 
 	private int ticks = 0;
 	private long lastTickTime = 0;
@@ -43,7 +43,7 @@ public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapp
 		ResourceLocation location = new ResourceLocation(HostileNetworks.MODID, "textures/jei/sim_chamber.png");
 		this.background = guiHelper.createDrawable(location, 0, 0, 116, 43);
 		this.icon = guiHelper.createDrawableIngredient(new ItemStack(Hostile.Blocks.SIM_CHAMBER));
-		this.localizedName = Translator.translateToLocal(Hostile.Blocks.SIM_CHAMBER.getDescriptionId());
+		this.name = new TranslatableComponent(Hostile.Blocks.SIM_CHAMBER.getDescriptionId());
 	}
 
 	@Override
@@ -62,8 +62,8 @@ public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapp
 	}
 
 	@Override
-	public String getTitle() {
-		return this.localizedName;
+	public Component getTitle() {
+		return this.name;
 	}
 
 	@Override
@@ -88,14 +88,14 @@ public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapp
 	}
 
 	@Override
-	public void draw(TickingDataModelWrapper recipe, MatrixStack matrixStack, double mouseX, double mouseY) {
+	public void draw(TickingDataModelWrapper recipe, PoseStack matrixStack, double mouseX, double mouseY) {
 		Minecraft mc = Minecraft.getInstance();
-		FontRenderer font = mc.font;
+		Font font = mc.font;
 		long time = mc.level.getGameTime();
 
-		int width = MathHelper.ceil(35F * (this.ticks % 40 + mc.getDeltaFrameTime()) / 40);
+		int width = Mth.ceil(35F * (this.ticks % 40 + mc.getDeltaFrameTime()) / 40);
 
-		AbstractGui.blit(matrixStack, 52, 9, 0, 43, width, 6, 256, 256);
+		GuiComponent.blit(matrixStack, 52, 9, 0, 43, width, 6, 256, 256);
 
 		if (time != this.lastTickTime) {
 			if (++this.ticks % 30 == 0) {
@@ -107,7 +107,7 @@ public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapp
 			}
 			this.lastTickTime = time;
 		}
-		ITextComponent comp = recipe.currentTier.getComponent();
+		Component comp = recipe.currentTier.getComponent();
 		width = font.width(comp);
 		font.draw(matrixStack, recipe.currentTier.getComponent(), 33 - width / 2, 30, recipe.currentTier.color.getColor());
 		DecimalFormat fmt = new DecimalFormat("##.##%");

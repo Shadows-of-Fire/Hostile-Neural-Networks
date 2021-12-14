@@ -1,9 +1,9 @@
 package shadows.hostilenetworks;
 
-import net.minecraft.block.Block;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.Item;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.ObjectHolder;
 import shadows.hostilenetworks.gui.DeepLearnerContainer;
 import shadows.hostilenetworks.gui.LootFabContainer;
@@ -32,15 +32,15 @@ public class Hostile {
 
 	@ObjectHolder(HostileNetworks.MODID)
 	public static class TileEntities {
-		public static final TileEntityType<SimChamberTileEntity> SIM_CHAMBER = null;
-		public static final TileEntityType<LootFabTileEntity> LOOT_FABRICATOR = null;
+		public static final BlockEntityType<SimChamberTileEntity> SIM_CHAMBER = null;
+		public static final BlockEntityType<LootFabTileEntity> LOOT_FABRICATOR = null;
 	}
 
 	@ObjectHolder(HostileNetworks.MODID)
 	public static class Containers {
-		public static final ContainerType<DeepLearnerContainer> DEEP_LEARNER = null;
-		public static final ContainerType<SimChamberContainer> SIM_CHAMBER = null;
-		public static final ContainerType<LootFabContainer> LOOT_FABRICATOR = null;
+		public static final MenuType<DeepLearnerContainer> DEEP_LEARNER = null;
+		public static final MenuType<SimChamberContainer> SIM_CHAMBER = null;
+		public static final MenuType<LootFabContainer> LOOT_FABRICATOR = null;
 	}
 
 }

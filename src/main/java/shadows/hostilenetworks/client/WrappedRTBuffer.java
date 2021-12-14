@@ -1,20 +1,20 @@
 package shadows.hostilenetworks.client;
 
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 
-public class WrappedRTBuffer implements IRenderTypeBuffer {
+public class WrappedRTBuffer implements MultiBufferSource {
 
-	private final IRenderTypeBuffer wrapped;
+	private final MultiBufferSource wrapped;
 
-	public WrappedRTBuffer(IRenderTypeBuffer wrapped) {
+	public WrappedRTBuffer(MultiBufferSource wrapped) {
 		this.wrapped = wrapped;
 	}
 
 	@Override
-	public IVertexBuilder getBuffer(RenderType type) {
+	public VertexConsumer getBuffer(RenderType type) {
 		return new GhostVertexBuilder(this.wrapped.getBuffer(type), 0xBB);
 	}
 

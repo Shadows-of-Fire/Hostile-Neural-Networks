@@ -2,13 +2,13 @@ package shadows.hostilenetworks.gui;
 
 import java.util.function.Consumer;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.SlotItemHandler;
@@ -17,15 +17,15 @@ import shadows.hostilenetworks.data.CachedModel;
 import shadows.hostilenetworks.item.DataModelItem;
 import shadows.hostilenetworks.item.DeepLearnerItem;
 
-public class DeepLearnerContainer extends Container {
+public class DeepLearnerContainer extends AbstractContainerMenu {
 
-	protected final Hand hand;
-	protected final PlayerEntity player;
+	protected final InteractionHand hand;
+	protected final Player player;
 	protected final ItemStack deepLearner;
 	protected final ItemStackHandler learnerInv;
 	protected Consumer<Integer> notifyCallback;
 
-	public DeepLearnerContainer(int id, PlayerInventory pInv, Hand hand) {
+	public DeepLearnerContainer(int id, Inventory pInv, InteractionHand hand) {
 		super(Hostile.Containers.DEEP_LEARNER, id);
 		this.hand = hand;
 		this.player = pInv.player;
@@ -39,9 +39,9 @@ public class DeepLearnerContainer extends Container {
 
 		for (int row = 0; row < 9; row++) {
 			int index = row;
-			Slot slot = new Slot(this.player.inventory, index, 89 + row * 18, 211);
-			if (hand == Hand.MAIN_HAND && index == this.player.inventory.selected) {
-				slot = new LockedSlot(this.player.inventory, index, 89 + row * 18, 211);
+			Slot slot = new Slot(this.player.getInventory(), index, 89 + row * 18, 211);
+			if (hand == InteractionHand.MAIN_HAND && index == this.player.getInventory().selected) {
+				slot = new LockedSlot(this.player.getInventory(), index, 89 + row * 18, 211);
 			}
 			this.addSlot(slot);
 		}
@@ -51,7 +51,7 @@ public class DeepLearnerContainer extends Container {
 				int x = 89 + column * 18;
 				int y = 153 + row * 18;
 				int index = column + row * 9 + 9;
-				Slot slot = new Slot(this.player.inventory, index, x, y);
+				Slot slot = new Slot(this.player.getInventory(), index, x, y);
 				this.addSlot(slot);
 			}
 		}
@@ -62,15 +62,15 @@ public class DeepLearnerContainer extends Container {
 	}
 
 	@Override
-	public boolean stillValid(PlayerEntity pPlayer) {
+	public boolean stillValid(Player pPlayer) {
 		return this.deepLearner.getItem() == Hostile.Items.DEEP_LEARNER && this.player.getItemInHand(this.hand) == this.deepLearner;
 	}
 
 	@Override
-	public void removed(PlayerEntity pPlayer) {
+	public void removed(Player pPlayer) {
 		super.removed(pPlayer);
 		DeepLearnerItem.saveItems(this.deepLearner, this.learnerInv);
-		pPlayer.inventory.setChanged();
+		pPlayer.getInventory().setChanged();
 	}
 
 	public boolean hasModels() {
@@ -89,7 +89,7 @@ public class DeepLearnerContainer extends Container {
 	}
 
 	@Override
-	public ItemStack quickMoveStack(PlayerEntity pPlayer, int pIndex) {
+	public ItemStack quickMoveStack(Player pPlayer, int pIndex) {
 		ItemStack itemstack = ItemStack.EMPTY;
 		Slot slot = this.slots.get(pIndex);
 		if (slot != null && slot.hasItem()) {
@@ -140,12 +140,12 @@ public class DeepLearnerContainer extends Container {
 
 	public class LockedSlot extends Slot {
 
-		public LockedSlot(IInventory inv, int index, int x, int y) {
+		public LockedSlot(Container inv, int index, int x, int y) {
 			super(inv, index, x, y);
 		}
 
 		@Override
-		public boolean mayPickup(PlayerEntity player) {
+		public boolean mayPickup(Player player) {
 			return false;
 		}
 

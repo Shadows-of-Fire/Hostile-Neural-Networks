@@ -13,14 +13,14 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.Color;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.Style;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.registries.ForgeRegistries;
 import shadows.hostilenetworks.Hostile;
 import shadows.hostilenetworks.item.MobPredictionItem;
@@ -29,7 +29,7 @@ public class DataModel {
 
 	protected ResourceLocation id;
 	protected final EntityType<?> type;
-	protected final TranslationTextComponent name;
+	protected final TranslatableComponent name;
 	protected final float guiScale;
 	protected final float guiXOff, guiYOff, guiZOff;
 	protected final int simCost;
@@ -38,7 +38,7 @@ public class DataModel {
 	protected final String triviaKey;
 	protected final List<ItemStack> fabDrops;
 
-	public DataModel(EntityType<?> type, TranslationTextComponent name, float guiScale, float guiXOff, float guiYOff, float guiZOff, int simCost, ItemStack input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops) {
+	public DataModel(EntityType<?> type, TranslatableComponent name, float guiScale, float guiXOff, float guiYOff, float guiZOff, int simCost, ItemStack input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops) {
 		this.type = type;
 		this.name = name;
 		this.guiScale = guiScale;
@@ -61,7 +61,7 @@ public class DataModel {
 		return this.id;
 	}
 
-	public TranslationTextComponent getName() {
+	public TranslatableComponent getName() {
 		return this.name;
 	}
 
@@ -130,7 +130,7 @@ public class DataModel {
 		return String.format("DataModel[%s]", this.id);
 	}
 
-	public void write(PacketBuffer buf) {
+	public void write(FriendlyByteBuf buf) {
 		buf.writeUtf(this.id.toString());
 		buf.writeUtf(this.type.getRegistryName().toString());
 		buf.writeUtf(this.name.getKey());
@@ -148,11 +148,11 @@ public class DataModel {
 			buf.writeItem(i);
 	}
 
-	public static DataModel read(PacketBuffer buf) {
+	public static DataModel read(FriendlyByteBuf buf) {
 		ResourceLocation id = new ResourceLocation(buf.readUtf());
 		EntityType<?> type = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(buf.readUtf()));
-		TranslationTextComponent name = new TranslationTextComponent(buf.readUtf());
-		name.withStyle(Style.EMPTY.withColor(Color.parseColor(buf.readUtf())));
+		TranslatableComponent name = new TranslatableComponent(buf.readUtf());
+		name.withStyle(Style.EMPTY.withColor(TextColor.parseColor(buf.readUtf())));
 		float guiScale = buf.readFloat();
 		float guiXOff = buf.readFloat();
 		float guiYOff = buf.readFloat();
@@ -198,9 +198,9 @@ public class DataModel {
 			JsonObject obj = json.getAsJsonObject();
 			EntityType<?> t = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(obj.get("type").getAsString()));
 			if (t == null) throw new JsonParseException("DataModel has invalid entity type " + obj.get("type").getAsString());
-			TranslationTextComponent name = new TranslationTextComponent(obj.get("name").getAsString());
-			if (obj.has("name_color")) name.withStyle(Style.EMPTY.withColor(Color.fromRgb(Integer.decode(obj.get("name_color").getAsString()))));
-			else name.withStyle(Style.EMPTY.withColor(TextFormatting.WHITE));
+			TranslatableComponent name = new TranslatableComponent(obj.get("name").getAsString());
+			if (obj.has("name_color")) name.withStyle(Style.EMPTY.withColor(TextColor.fromRgb(Integer.decode(obj.get("name_color").getAsString()))));
+			else name.withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
 			float guiScale = obj.get("gui_scale").getAsFloat();
 			float guiXOff = obj.get("gui_x_offset").getAsFloat();
 			float guiYOff = obj.get("gui_y_offset").getAsFloat();

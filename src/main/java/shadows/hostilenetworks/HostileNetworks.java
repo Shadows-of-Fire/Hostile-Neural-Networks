@@ -5,27 +5,26 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.ImmutableSet;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.material.Material;
 import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.IContainerFactory;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.fmllegacy.network.IContainerFactory;
+import net.minecraftforge.fmllegacy.network.NetworkRegistry;
+import net.minecraftforge.fmllegacy.network.simple.SimpleChannel;
 import net.minecraftforge.registries.IForgeRegistry;
 import shadows.hostilenetworks.block.LootFabBlock;
 import shadows.hostilenetworks.block.SimChamberBlock;
-import shadows.hostilenetworks.client.DataModelItemStackRenderer;
 import shadows.hostilenetworks.gui.DeepLearnerContainer;
 import shadows.hostilenetworks.gui.LootFabContainer;
 import shadows.hostilenetworks.gui.SimChamberContainer;
@@ -37,7 +36,9 @@ import shadows.hostilenetworks.net.DataModelMessage;
 import shadows.hostilenetworks.net.DataModelResetMessage;
 import shadows.hostilenetworks.tile.LootFabTileEntity;
 import shadows.hostilenetworks.tile.SimChamberTileEntity;
-import shadows.placebo.util.NetworkUtils;
+import shadows.placebo.block_entity.TickingBlockEntityType;
+import shadows.placebo.container.ContainerUtil;
+import shadows.placebo.network.MessageHelper;
 
 @Mod(HostileNetworks.MODID)
 public class HostileNetworks {
@@ -54,7 +55,7 @@ public class HostileNetworks {
             .simpleChannel();
     //Formatter::on
 
-	public static final ItemGroup TAB = new ItemGroup(MODID) {
+	public static final CreativeModeTab TAB = new CreativeModeTab(MODID) {
 
 		@Override
 		public ItemStack makeIcon() {
@@ -65,8 +66,8 @@ public class HostileNetworks {
 
 	public HostileNetworks() {
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
-		NetworkUtils.registerMessage(CHANNEL, 0, new DataModelResetMessage());
-		NetworkUtils.registerMessage(CHANNEL, 1, new DataModelMessage());
+		MessageHelper.registerMessage(CHANNEL, 0, new DataModelResetMessage());
+		MessageHelper.registerMessage(CHANNEL, 1, new DataModelMessage());
 	}
 
 	@SubscribeEvent
@@ -77,10 +78,10 @@ public class HostileNetworks {
 	}
 
 	@SubscribeEvent
-	public void tiles(Register<TileEntityType<?>> e) {
-		IForgeRegistry<TileEntityType<?>> reg = e.getRegistry();
-		reg.register(new TileEntityType<>(SimChamberTileEntity::new, ImmutableSet.of(Hostile.Blocks.SIM_CHAMBER), null).setRegistryName("sim_chamber"));
-		reg.register(new TileEntityType<>(LootFabTileEntity::new, ImmutableSet.of(Hostile.Blocks.LOOT_FABRICATOR), null).setRegistryName("loot_fabricator"));
+	public void tiles(Register<BlockEntityType<?>> e) {
+		IForgeRegistry<BlockEntityType<?>> reg = e.getRegistry();
+		reg.register(new TickingBlockEntityType<>(SimChamberTileEntity::new, ImmutableSet.of(Hostile.Blocks.SIM_CHAMBER), false, true).setRegistryName("sim_chamber"));
+		reg.register(new TickingBlockEntityType<>(LootFabTileEntity::new, ImmutableSet.of(Hostile.Blocks.LOOT_FABRICATOR), false, true).setRegistryName("loot_fabricator"));
 	}
 
 	@SubscribeEvent
@@ -94,16 +95,16 @@ public class HostileNetworks {
 		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("end_prediction"));
 		reg.register(new BlockItem(Hostile.Blocks.SIM_CHAMBER, new Item.Properties().tab(TAB)).setRegistryName("sim_chamber"));
 		reg.register(new BlockItem(Hostile.Blocks.LOOT_FABRICATOR, new Item.Properties().tab(TAB)).setRegistryName("loot_fabricator"));
-		reg.register(new DataModelItem(new Item.Properties().stacksTo(1).tab(TAB).setISTER(() -> DataModelItemStackRenderer::new)).setRegistryName("data_model"));
+		reg.register(new DataModelItem(new Item.Properties().stacksTo(1).tab(TAB)).setRegistryName("data_model"));
 		reg.register(new MobPredictionItem(new Item.Properties().tab(TAB)).setRegistryName("prediction"));
 	}
 
 	@SubscribeEvent
-	public void containers(Register<ContainerType<?>> e) {
-		IForgeRegistry<ContainerType<?>> reg = e.getRegistry();
-		reg.register(new ContainerType<>((IContainerFactory<DeepLearnerContainer>) (id, inv, buf) -> new DeepLearnerContainer(id, inv, buf.readBoolean() ? Hand.MAIN_HAND : Hand.OFF_HAND)).setRegistryName("deep_learner"));
-		reg.register(new ContainerType<>((IContainerFactory<SimChamberContainer>) (id, inv, buf) -> new SimChamberContainer(id, inv, buf.readBlockPos())).setRegistryName("sim_chamber"));
-		reg.register(new ContainerType<>((IContainerFactory<LootFabContainer>) (id, inv, buf) -> new LootFabContainer(id, inv, buf.readBlockPos())).setRegistryName("loot_fabricator"));
+	public void containers(Register<MenuType<?>> e) {
+		IForgeRegistry<MenuType<?>> reg = e.getRegistry();
+		reg.register(new MenuType<>((IContainerFactory<DeepLearnerContainer>) (id, inv, buf) -> new DeepLearnerContainer(id, inv, buf.readBoolean() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND)).setRegistryName("deep_learner"));
+		reg.register(ContainerUtil.makeType(SimChamberContainer::new).setRegistryName("sim_chamber"));
+		reg.register(ContainerUtil.makeType(LootFabContainer::new).setRegistryName("loot_fabricator"));
 	}
 
 }

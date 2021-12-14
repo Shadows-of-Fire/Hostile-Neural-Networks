@@ -2,91 +2,56 @@ package shadows.hostilenetworks.tile;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.IIntArray;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import shadows.hostilenetworks.Hostile;
 import shadows.hostilenetworks.HostileConfig;
 import shadows.hostilenetworks.data.CachedModel;
 import shadows.hostilenetworks.data.DataModel;
 import shadows.hostilenetworks.data.ModelTier;
 import shadows.hostilenetworks.item.DataModelItem;
-import shadows.hostilenetworks.util.ModifiableEnergyStorage;
+import shadows.placebo.block_entity.TickingBlockEntity;
+import shadows.placebo.cap.InternalItemHandler;
+import shadows.placebo.cap.ModifiableEnergyStorage;
+import shadows.placebo.container.EasyContainerData;
+import shadows.placebo.container.EasyContainerData.IDataAutoRegister;
 
-public class SimChamberTileEntity extends TileEntity implements ITickableTileEntity {
+public class SimChamberTileEntity extends BlockEntity implements TickingBlockEntity, IDataAutoRegister {
 
 	protected final SimItemHandler inventory = new SimItemHandler();
 	protected final ModifiableEnergyStorage energy = new ModifiableEnergyStorage(HostileConfig.simPowerCap, HostileConfig.simPowerCap);
+	protected final EasyContainerData data = new EasyContainerData();
 
 	protected CachedModel currentModel = null;
 	protected int runtime = 0;
 	protected boolean predictionSuccess = false;
 	protected FailureState failState = FailureState.NONE;
 
-	protected IIntArray references = new IIntArray() {
-
-		@Override
-		public int get(int pIndex) {
-			switch (pIndex) {
-			case 0:
-				return SimChamberTileEntity.this.runtime;
-			case 1:
-				return SimChamberTileEntity.this.predictionSuccess ? 1 : 0;
-			case 2:
-				return SimChamberTileEntity.this.failState.ordinal();
-			case 3:
-				return SimChamberTileEntity.this.energy.getEnergyStored() & 0xFFFF;
-			case 4:
-				return SimChamberTileEntity.this.energy.getEnergyStored() >> 16;
-			}
-			return -1;
-		}
-
-		@Override
-		public void set(int pIndex, int pValue) {
-			switch (pIndex) {
-			case 0:
-				SimChamberTileEntity.this.runtime = pValue;
-				return;
-			case 1:
-				SimChamberTileEntity.this.predictionSuccess = pValue == 1;
-				return;
-			case 2:
-				SimChamberTileEntity.this.failState = FailureState.values()[pValue];
-				return;
-			case 3:
-				pValue = (short) pValue & 0xFFFF;
-				SimChamberTileEntity.this.energy.setEnergy(SimChamberTileEntity.this.energy.getEnergyStored() & 0xFFFF0000 | pValue);
-				return;
-			case 4:
-				pValue = (short) pValue & 0xFFFF;
-				SimChamberTileEntity.this.energy.setEnergy(SimChamberTileEntity.this.energy.getEnergyStored() & 0x0000FFFF | pValue << 16);
-				return;
-			}
-		}
-
-		@Override
-		public int getCount() {
-			return 6;
-		}
-
-	};
-
-	public SimChamberTileEntity() {
-		super(Hostile.TileEntities.SIM_CHAMBER);
+	public SimChamberTileEntity(BlockPos pos, BlockState state) {
+		super(Hostile.TileEntities.SIM_CHAMBER, pos, state);
+		this.data.addData(() -> this.runtime, v -> this.runtime = v);
+		this.data.addData(() -> this.predictionSuccess, v -> this.predictionSuccess = v);
+		this.data.addData(() -> this.failState.ordinal(), v -> this.failState = FailureState.values()[v]);
+		this.data.addEnergy(this.energy);
 	}
 
 	@Override
-	public CompoundNBT save(CompoundNBT tag) {
+	public ContainerData getData() {
+		return data;
+	}
+
+	@Override
+	public CompoundTag save(CompoundTag tag) {
 		tag = super.save(tag);
 		tag.put("inventory", this.inventory.serializeNBT());
 		tag.putInt("energy", this.energy.getEnergyStored());
@@ -98,8 +63,8 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 	}
 
 	@Override
-	public void load(BlockState state, CompoundNBT tag) {
-		super.load(state, tag);
+	public void load(CompoundTag tag) {
+		super.load(tag);
 		this.inventory.deserializeNBT(tag.getCompound("inventory"));
 		this.energy.setEnergy(tag.getInt("energy"));
 		ItemStack model = this.inventory.getStackInSlot(0);
@@ -114,8 +79,7 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 	}
 
 	@Override
-	public void tick() {
-		if (this.level.isClientSide) return;
+	public void serverTick(Level level, BlockPos pos, BlockState state) {
 		ItemStack model = this.inventory.getStackInSlot(0);
 		if (!model.isEmpty()) {
 			CachedModel oldModel = this.currentModel;
@@ -218,10 +182,6 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 		return this.inventory;
 	}
 
-	public IIntArray getRefHolder() {
-		return this.references;
-	}
-
 	public int getEnergyStored() {
 		return this.energy.getEnergyStored();
 	}
@@ -238,7 +198,7 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 		return this.failState;
 	}
 
-	public class SimItemHandler extends ItemStackHandler {
+	public class SimItemHandler extends InternalItemHandler {
 
 		public SimItemHandler() {
 			super(4);
@@ -260,10 +220,6 @@ public class SimChamberTileEntity extends TileEntity implements ITickableTileEnt
 		@Override
 		public ItemStack extractItem(int slot, int amount, boolean simulate) {
 			if (slot <= 1) return ItemStack.EMPTY;
-			return super.extractItem(slot, amount, simulate);
-		}
-
-		public ItemStack extractItemInternal(int slot, int amount, boolean simulate) {
 			return super.extractItem(slot, amount, simulate);
 		}
 
