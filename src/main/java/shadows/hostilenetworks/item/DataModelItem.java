@@ -88,7 +88,7 @@ public class DataModelItem extends Item {
 
 			@Override
 			public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
-				return dmisr;
+				return this.dmisr;
 			}
 		});
 	}

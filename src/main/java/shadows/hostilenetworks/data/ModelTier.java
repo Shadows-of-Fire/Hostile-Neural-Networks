@@ -1,7 +1,7 @@
 package shadows.hostilenetworks.data;
 
-import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 
 public enum ModelTier {

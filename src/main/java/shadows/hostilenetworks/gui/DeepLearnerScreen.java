@@ -75,11 +75,11 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 	@Override
 	public void init() {
 		super.init();
-		btnLeft = this.addRenderableWidget(new ImageButton(this.getGuiLeft() - 27, this.getGuiTop() + 105, 24, 24, 84, 140, 24, BASE, btn -> {
+		this.btnLeft = this.addRenderableWidget(new ImageButton(this.getGuiLeft() - 27, this.getGuiTop() + 105, 24, 24, 84, 140, 24, BASE, btn -> {
 			this.selectLeft();
 		}));
 
-		btnRight = this.addRenderableWidget(new ImageButton(this.getGuiLeft() - 1, this.getGuiTop() + 105, 24, 24, 108, 140, 24, BASE, btn -> {
+		this.btnRight = this.addRenderableWidget(new ImageButton(this.getGuiLeft() - 1, this.getGuiTop() + 105, 24, 24, 108, 140, 24, BASE, btn -> {
 			this.selectRight();
 		}));
 	}
@@ -138,11 +138,11 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 		RenderSystem.setShaderTexture(0, PLAYER);
 		this.blit(matrix, left + 81, top + 145, 0, 0, 176, 90);
 		if (this.numModels <= 1) {
-			btnLeft.visible = false;
-			btnRight.visible = false;
+			this.btnLeft.visible = false;
+			this.btnRight.visible = false;
 		} else {
-			btnLeft.visible = true;
-			btnRight.visible = true;
+			this.btnLeft.visible = true;
+			this.btnRight.visible = true;
 		}
 	}
 

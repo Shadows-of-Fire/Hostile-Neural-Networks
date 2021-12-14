@@ -47,7 +47,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 
 	@Override
 	public ContainerData getData() {
-		return data;
+		return this.data;
 	}
 
 	@Override

@@ -46,11 +46,11 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> {
 		this.model = MobPredictionItem.getStoredModel(this.menu.getSlot(0).getItem());
 
 		if (this.model != null) {
-			btnLeft.visible = this.currentPage > 0;
-			btnRight.visible = this.currentPage < this.model.getFabDrops().size() / 9;
+			this.btnLeft.visible = this.currentPage > 0;
+			this.btnRight.visible = this.currentPage < this.model.getFabDrops().size() / 9;
 		} else {
-			btnLeft.visible = false;
-			btnRight.visible = false;
+			this.btnLeft.visible = false;
+			this.btnRight.visible = false;
 		}
 
 		super.render(stack, pMouseX, pMouseY, pPartialTicks);
@@ -59,11 +59,11 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> {
 	@Override
 	public void init() {
 		super.init();
-		btnLeft = this.addRenderableWidget(new ImageButton(this.getGuiLeft() + 13, this.getGuiTop() + 68, 29, 12, 49, 83, 12, BASE, btn -> {
+		this.btnLeft = this.addRenderableWidget(new ImageButton(this.getGuiLeft() + 13, this.getGuiTop() + 68, 29, 12, 49, 83, 12, BASE, btn -> {
 			if (this.model != null && this.currentPage > 0) this.currentPage--;
 		}));
 
-		btnRight = this.addRenderableWidget(new ImageButton(this.getGuiLeft() + 46, this.getGuiTop() + 68, 29, 12, 78, 83, 12, BASE, btn -> {
+		this.btnRight = this.addRenderableWidget(new ImageButton(this.getGuiLeft() + 46, this.getGuiTop() + 68, 29, 12, 78, 83, 12, BASE, btn -> {
 			if (this.model != null && this.currentPage < this.model.getFabDrops().size() / 9) this.currentPage++;
 		}));
 	}

@@ -1,8 +1,8 @@
 package shadows.hostilenetworks;
 
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.ObjectHolder;
 import shadows.hostilenetworks.gui.DeepLearnerContainer;

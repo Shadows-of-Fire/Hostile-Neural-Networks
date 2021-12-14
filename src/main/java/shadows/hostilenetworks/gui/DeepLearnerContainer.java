@@ -58,7 +58,7 @@ public class DeepLearnerContainer extends PlaceboContainerMenu {
 			this.addSlot(slot);
 		}
 
-		this.mover.registerRule((stack, slot) -> slot < 4, 4, slots.size());
+		this.mover.registerRule((stack, slot) -> slot < 4, 4, this.slots.size());
 		this.mover.registerRule((stack, slot) -> stack.getItem() instanceof DataModelItem, 0, 4);
 		this.registerInvShuffleRules();
 	}

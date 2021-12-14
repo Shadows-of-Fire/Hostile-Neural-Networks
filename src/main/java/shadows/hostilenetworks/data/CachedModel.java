@@ -1,9 +1,9 @@
 package shadows.hostilenetworks.data;
 
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import shadows.hostilenetworks.item.DataModelItem;
 

@@ -23,9 +23,9 @@ public class LootFabContainer extends BlockEntityContainer<LootFabTileEntity> {
 			}
 		}
 		this.addPlayerSlots(pInv, 8, 96);
-		this.mover.registerRule((stack, slot) -> slot == 0, 17, slots.size());
+		this.mover.registerRule((stack, slot) -> slot == 0, 17, this.slots.size());
 		this.mover.registerRule((stack, slot) -> stack.getItem() instanceof MobPredictionItem, 0, 1);
-		this.mover.registerRule((stack, slot) -> slot < 17, 17, slots.size());
+		this.mover.registerRule((stack, slot) -> slot < 17, 17, this.slots.size());
 		this.registerInvShuffleRules();
 	}
 
@@ -37,7 +37,7 @@ public class LootFabContainer extends BlockEntityContainer<LootFabTileEntity> {
 	@Override
 	public boolean clickMenuButton(Player pPlayer, int pId) {
 		DataModel model = MobPredictionItem.getStoredModel(this.getSlot(0).getItem());
-		if ((model == null) || (pId >= model.getFabDrops().size())) return false;
+		if (model == null || pId >= model.getFabDrops().size()) return false;
 		this.tile.setSelection(model, pId);
 		return true;
 	}
