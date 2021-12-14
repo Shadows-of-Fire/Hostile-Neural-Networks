@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraftforge.network.NetworkHooks;
 import shadows.hostilenetworks.gui.SimChamberContainer;
 import shadows.hostilenetworks.tile.SimChamberTileEntity;
 import shadows.placebo.block_entity.TickingEntityBlock;

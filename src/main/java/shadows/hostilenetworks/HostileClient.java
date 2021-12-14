@@ -5,7 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ForgeModelBakery;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
@@ -36,7 +36,7 @@ public class HostileClient {
 
 	@SubscribeEvent
 	public static void mrl(ModelRegistryEvent e) {
-		ModelLoader.addSpecialModel(new ResourceLocation(HostileNetworks.MODID, "item/data_model_base"));
+		ForgeModelBakery.addSpecialModel(new ResourceLocation(HostileNetworks.MODID, "item/data_model_base"));
 	}
 
 	@SubscribeEvent

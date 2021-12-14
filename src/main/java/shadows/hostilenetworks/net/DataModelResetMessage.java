@@ -3,7 +3,7 @@ package shadows.hostilenetworks.net;
 import java.util.function.Supplier;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fmllegacy.network.NetworkEvent.Context;
+import net.minecraftforge.network.NetworkEvent.Context;
 import shadows.hostilenetworks.data.DataModelManager;
 import shadows.placebo.network.MessageHelper;
 import shadows.placebo.network.MessageProvider;

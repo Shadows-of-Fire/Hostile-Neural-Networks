@@ -126,9 +126,13 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
 
 	@Override
 	public ClientboundBlockEntityDataPacket getUpdatePacket() {
+		return ClientboundBlockEntityDataPacket.create(this, t -> ((LootFabTileEntity) t).writeSync());
+	}
+
+	private CompoundTag writeSync() {
 		CompoundTag tag = new CompoundTag();
 		tag.put("saved_selections", this.writeSelections(new CompoundTag()));
-		return new ClientboundBlockEntityDataPacket(this.getBlockPos(), 0, tag);
+		return tag;
 	}
 
 	@Override
