@@ -3,8 +3,6 @@ package shadows.hostilenetworks.gui;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
 import shadows.hostilenetworks.Hostile;
 import shadows.hostilenetworks.item.DataModelItem;
 import shadows.hostilenetworks.tile.SimChamberTileEntity;
@@ -23,6 +21,10 @@ public class SimChamberContainer extends BlockEntityContainer<SimChamberTileEnti
 		this.addSlot(new FilteredSlot(inventory, 2, 196, 7, s -> false));
 		this.addSlot(new FilteredSlot(inventory, 3, 186, 27, s -> false));
 		this.addPlayerSlots(pInv, 36, 153);
+		this.mover.registerRule((stack, slot) -> slot < 4, 4, this.slots.size());
+		this.mover.registerRule((stack, slot) -> stack.getItem() instanceof DataModelItem, 0, 1);
+		this.mover.registerRule((stack, slot) -> DataModelItem.matchesInput(this.getSlot(0).getItem(), stack), 1, 2);
+		this.registerInvShuffleRules();
 	}
 
 	@Override
@@ -44,33 +46,6 @@ public class SimChamberContainer extends BlockEntityContainer<SimChamberTileEnti
 
 	public FailureState getFailState() {
 		return this.tile.getFailState();
-	}
-
-	@Override
-	public ItemStack quickMoveStack(Player pPlayer, int pIndex) {
-		ItemStack slotStackCopy = ItemStack.EMPTY;
-		Slot slot = this.slots.get(pIndex);
-		if (slot != null && slot.hasItem()) {
-			ItemStack slotStack = slot.getItem();
-			slotStackCopy = slotStack.copy();
-			if (pIndex < 4) {
-				if (!this.moveItemStackTo(slotStack, 4, this.slots.size(), false)) return ItemStack.EMPTY;
-			} else if (slotStack.getItem() instanceof DataModelItem) {
-				if (!this.moveItemStackTo(slotStack, 0, 1, false)) return ItemStack.EMPTY;
-			} else if (DataModelItem.matchesInput(this.getSlot(0).getItem(), slotStack)) {
-				if (!this.moveItemStackTo(slotStack, 1, 2, false)) return ItemStack.EMPTY;
-			} else if (pIndex < 4 + 9) {
-				if (!this.moveItemStackTo(slotStack, 4 + 9, this.slots.size(), false)) return ItemStack.EMPTY;
-			} else if (!this.moveItemStackTo(slotStack, 4, 13, false)) return ItemStack.EMPTY;
-
-			if (slotStack.isEmpty()) {
-				slot.set(ItemStack.EMPTY);
-			} else {
-				slot.setChanged();
-			}
-		}
-
-		return slotStackCopy;
 	}
 
 }

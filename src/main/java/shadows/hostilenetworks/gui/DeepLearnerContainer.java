@@ -6,7 +6,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
@@ -16,8 +15,9 @@ import shadows.hostilenetworks.Hostile;
 import shadows.hostilenetworks.data.CachedModel;
 import shadows.hostilenetworks.item.DataModelItem;
 import shadows.hostilenetworks.item.DeepLearnerItem;
+import shadows.placebo.container.PlaceboContainerMenu;
 
-public class DeepLearnerContainer extends AbstractContainerMenu {
+public class DeepLearnerContainer extends PlaceboContainerMenu {
 
 	protected final InteractionHand hand;
 	protected final Player player;
@@ -26,7 +26,7 @@ public class DeepLearnerContainer extends AbstractContainerMenu {
 	protected Consumer<Integer> notifyCallback;
 
 	public DeepLearnerContainer(int id, Inventory pInv, InteractionHand hand) {
-		super(Hostile.Containers.DEEP_LEARNER, id);
+		super(Hostile.Containers.DEEP_LEARNER, id, pInv);
 		this.hand = hand;
 		this.player = pInv.player;
 		this.deepLearner = this.player.getItemInHand(hand);
@@ -37,15 +37,7 @@ public class DeepLearnerContainer extends AbstractContainerMenu {
 		this.addSlot(new DataModelSlot(this.learnerInv, 2, 256, 117));
 		this.addSlot(new DataModelSlot(this.learnerInv, 3, 274, 117));
 
-		for (int row = 0; row < 9; row++) {
-			int index = row;
-			Slot slot = new Slot(this.player.getInventory(), index, 89 + row * 18, 211);
-			if (hand == InteractionHand.MAIN_HAND && index == this.player.getInventory().selected) {
-				slot = new LockedSlot(this.player.getInventory(), index, 89 + row * 18, 211);
-			}
-			this.addSlot(slot);
-		}
-
+		this.playerInvStart = this.slots.size();
 		for (int row = 0; row < 3; row++) {
 			for (int column = 0; column < 9; column++) {
 				int x = 89 + column * 18;
@@ -55,6 +47,20 @@ public class DeepLearnerContainer extends AbstractContainerMenu {
 				this.addSlot(slot);
 			}
 		}
+
+		this.hotbarStart = this.slots.size();
+		for (int row = 0; row < 9; row++) {
+			int index = row;
+			Slot slot = new Slot(this.player.getInventory(), index, 89 + row * 18, 211);
+			if (hand == InteractionHand.MAIN_HAND && index == this.player.getInventory().selected) {
+				slot = new LockedSlot(this.player.getInventory(), index, 89 + row * 18, 211);
+			}
+			this.addSlot(slot);
+		}
+
+		this.mover.registerRule((stack, slot) -> slot < 4, 4, slots.size());
+		this.mover.registerRule((stack, slot) -> stack.getItem() instanceof DataModelItem, 0, 4);
+		this.registerInvShuffleRules();
 	}
 
 	public void setNotifyCallback(Consumer<Integer> r) {
@@ -86,31 +92,6 @@ public class DeepLearnerContainer extends AbstractContainerMenu {
 			ItemStack stack = this.learnerInv.getStackInSlot(i);
 			models[i] = stack.isEmpty() ? null : new CachedModel(stack, i);
 		}
-	}
-
-	@Override
-	public ItemStack quickMoveStack(Player pPlayer, int pIndex) {
-		ItemStack itemstack = ItemStack.EMPTY;
-		Slot slot = this.slots.get(pIndex);
-		if (slot != null && slot.hasItem()) {
-			ItemStack itemstack1 = slot.getItem();
-			itemstack = itemstack1.copy();
-			if (pIndex < 4) {
-				if (!this.moveItemStackTo(itemstack1, 4, this.slots.size(), false)) return ItemStack.EMPTY;
-			} else if (itemstack1.getItem() instanceof DataModelItem) {
-				if (!this.moveItemStackTo(itemstack1, 0, 4, false)) return ItemStack.EMPTY;
-			} else if (pIndex < 4 + 9) {
-				if (!this.moveItemStackTo(itemstack1, 4 + 9, this.slots.size(), false)) return ItemStack.EMPTY;
-			} else if (!this.moveItemStackTo(itemstack1, 4, 13, false)) return ItemStack.EMPTY;
-
-			if (itemstack1.isEmpty()) {
-				slot.set(ItemStack.EMPTY);
-			} else {
-				slot.setChanged();
-			}
-		}
-
-		return itemstack;
 	}
 
 	public class DataModelSlot extends SlotItemHandler {

@@ -1,3 +1,6 @@
+## 2.0.1
+* Fixed shift-click movement in containers.
+
 ## 2.0.0
 * Updated to 1.17.1
 
