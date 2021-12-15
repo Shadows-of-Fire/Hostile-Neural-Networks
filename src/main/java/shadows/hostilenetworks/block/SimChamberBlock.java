@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -18,6 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraftforge.items.wrapper.RecipeWrapper;
 import shadows.hostilenetworks.gui.SimChamberContainer;
 import shadows.hostilenetworks.tile.SimChamberTileEntity;
 import shadows.placebo.block_entity.TickingEntityBlock;
@@ -52,6 +54,18 @@ public class SimChamberBlock extends HorizontalDirectionalBlock implements Ticki
 	@Override
 	public MenuProvider getMenuProvider(BlockState pState, Level pLevel, BlockPos pPos) {
 		return new SimpleMenuProvider((id, inv, player) -> new SimChamberContainer(id, inv, pPos), new TranslatableComponent(this.getDescriptionId()));
+	}
+	
+	@Override
+	@Deprecated
+	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
+		if (!pState.is(pNewState.getBlock())) {
+			BlockEntity te = pLevel.getBlockEntity(pPos);
+			if (te instanceof SimChamberTileEntity sim) {
+				Containers.dropContents(pLevel, pPos, new RecipeWrapper(sim.getInventory()));
+			}
+			super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
+		}
 	}
 
 	@Override

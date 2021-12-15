@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -18,6 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraftforge.items.wrapper.RecipeWrapper;
 import shadows.hostilenetworks.gui.LootFabContainer;
 import shadows.hostilenetworks.tile.LootFabTileEntity;
 import shadows.placebo.block_entity.TickingEntityBlock;
@@ -51,6 +53,18 @@ public class LootFabBlock extends HorizontalDirectionalBlock implements TickingE
 		} else {
 			NetworkHooks.openGui((ServerPlayer) pPlayer, this.getMenuProvider(pState, pLevel, pPos), pPos);
 			return InteractionResult.CONSUME;
+		}
+	}
+
+	@Override
+	@Deprecated
+	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
+		if (!pState.is(pNewState.getBlock())) {
+			BlockEntity te = pLevel.getBlockEntity(pPos);
+			if (te instanceof LootFabTileEntity fab) {
+				Containers.dropContents(pLevel, pPos, new RecipeWrapper(fab.getInventory()));
+			}
+			super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
 		}
 	}
 
