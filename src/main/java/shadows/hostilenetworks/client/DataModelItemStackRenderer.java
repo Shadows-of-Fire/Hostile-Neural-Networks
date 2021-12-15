@@ -1,5 +1,7 @@
 package shadows.hostilenetworks.client;
 
+import java.util.WeakHashMap;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -28,12 +30,12 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
 	}
 
 	private static final MultiBufferSource.BufferSource GHOST_ENTITY_BUF = MultiBufferSource.immediate(new BufferBuilder(256));
-
 	private static final ResourceLocation DATA_MODEL_BASE = new ResourceLocation(HostileNetworks.MODID, "item/data_model_base");
+	private static final WeakHashMap<ItemStack, CachedModel> CACHE = new WeakHashMap<>();
 
 	@Override
 	public void renderByItem(ItemStack stack, TransformType type, PoseStack matrix, MultiBufferSource buf, int light, int overlay) {
-		CachedModel model = new CachedModel(stack, 0);
+		CachedModel model = CACHE.computeIfAbsent(stack, s -> new CachedModel(s, 0));
 		ItemRenderer irenderer = Minecraft.getInstance().getItemRenderer();
 		BakedModel base = irenderer.getItemModelShaper().getModelManager().getModel(DATA_MODEL_BASE);
 		matrix.pushPose();
