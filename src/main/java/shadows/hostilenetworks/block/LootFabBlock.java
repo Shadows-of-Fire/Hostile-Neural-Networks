@@ -5,6 +5,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.inventory.container.SimpleNamedContainerProvider;
 import net.minecraft.item.BlockItemUseContext;
@@ -19,6 +20,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.items.wrapper.RecipeWrapper;
 import shadows.hostilenetworks.gui.LootFabContainer;
 import shadows.hostilenetworks.tile.LootFabTileEntity;
 
@@ -51,6 +53,18 @@ public class LootFabBlock extends HorizontalBlock {
 		} else {
 			NetworkHooks.openGui((ServerPlayerEntity) pPlayer, this.getMenuProvider(pState, pLevel, pPos), pPos);
 			return ActionResultType.CONSUME;
+		}
+	}
+
+	@Override
+	@Deprecated
+	public void onRemove(BlockState pState, World pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
+		if (!pState.is(pNewState.getBlock())) {
+			TileEntity te = pLevel.getBlockEntity(pPos);
+			if (te instanceof LootFabTileEntity) {
+				InventoryHelper.dropContents(pLevel, pPos, new RecipeWrapper(((LootFabTileEntity) te).getInventory()));
+			}
+			super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
 		}
 	}
 

@@ -18,6 +18,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.IContainerFactory;
 import net.minecraftforge.fml.network.NetworkRegistry;
@@ -37,6 +38,7 @@ import shadows.hostilenetworks.net.DataModelMessage;
 import shadows.hostilenetworks.net.DataModelResetMessage;
 import shadows.hostilenetworks.tile.LootFabTileEntity;
 import shadows.hostilenetworks.tile.SimChamberTileEntity;
+import shadows.placebo.loot.LootSystem;
 import shadows.placebo.util.NetworkUtils;
 
 @Mod(HostileNetworks.MODID)
@@ -104,6 +106,12 @@ public class HostileNetworks {
 		reg.register(new ContainerType<>((IContainerFactory<DeepLearnerContainer>) (id, inv, buf) -> new DeepLearnerContainer(id, inv, buf.readBoolean() ? Hand.MAIN_HAND : Hand.OFF_HAND)).setRegistryName("deep_learner"));
 		reg.register(new ContainerType<>((IContainerFactory<SimChamberContainer>) (id, inv, buf) -> new SimChamberContainer(id, inv, buf.readBlockPos())).setRegistryName("sim_chamber"));
 		reg.register(new ContainerType<>((IContainerFactory<LootFabContainer>) (id, inv, buf) -> new LootFabContainer(id, inv, buf.readBlockPos())).setRegistryName("loot_fabricator"));
+	}
+
+	@SubscribeEvent
+	public void setup(FMLCommonSetupEvent e) {
+		LootSystem.defaultBlockTable(Hostile.Blocks.LOOT_FABRICATOR);
+		LootSystem.defaultBlockTable(Hostile.Blocks.SIM_CHAMBER);
 	}
 
 }
