@@ -58,7 +58,9 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
 			CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
 			if (cModel.getModel() != null) {
 				List<Component> txt = new ArrayList<>(1);
-				txt.add(new TranslatableComponent("hostilenetworks.gui.data", cModel.getData() - cModel.getTier().data, cModel.getTier().next().data - cModel.getTier().data));
+				if (cModel.getTier() != cModel.getTier().next()) {
+					txt.add(new TranslatableComponent("hostilenetworks.gui.data", cModel.getData() - cModel.getTier().data, cModel.getTier().next().data - cModel.getTier().data));
+				} else txt.add(new TranslatableComponent("hostilenetworks.gui.max_data").withStyle(ChatFormatting.RED));
 				this.renderComponentTooltip(pPoseStack, txt, pX, pY, this.font);
 			}
 		} else super.renderTooltip(pPoseStack, pX, pY);

@@ -35,6 +35,8 @@
 	"hostilenetworks.gui.cost": "Model energy cost: %s FE/t",
 	"hostilenetworks.gui.fab_cost": "Energy cost: %s FE/t",
 	"hostilenetworks.gui.clear": "Click to clear selection",
+	"hostilenetworks.gui.max_tier": "You cannot improve me further",
+	"hostilenetworks.gui.max_data": "I am at maximum potential",
 	
 	"hostilenetworks.hud.model": " Model",
 	"hostilenetworks.hud.kills": "%s Remaining",
@@ -91,7 +93,7 @@
 	"hostilenetworks.trivia.ender_dragon": "Lord of The End, yet keeps no hoard.\nDestroy the crystals, break the cycle.",
 	"hostilenetworks.trivia.enderman": "Friendly unless provoked.\nFooled by pumpkins.\nTeleports short distances.",
 	"hostilenetworks.trivia.ghast": "If you hear something that sounds\nlike a crying llama, you're probably\nhearing a ghast.",
-	"hostilenetworks.trivia.skeleton": "A formidable archer, but may be running\n some sort ofcheat engine.\nA shield would be useful.",
+	"hostilenetworks.trivia.skeleton": "A formidable archer, but may be\nrunning some sort of cheat engine.\nA shield would be useful.",
 	"hostilenetworks.trivia.slime": "\"A Slime Haiku\"\nThe bounce\nbounce his bounce\nsquish",
 	"hostilenetworks.trivia.spider": "Nocturnal douchebags.\nDrops strands of string for some reason.",
 	"hostilenetworks.trivia.witch": "Affinity with potions and concoctions.\nMaybe you should develop an antidote.",

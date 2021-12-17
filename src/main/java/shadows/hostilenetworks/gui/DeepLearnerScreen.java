@@ -10,6 +10,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.renderer.GameRenderer;
@@ -234,7 +235,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 			this.addText(I18n.get("hostilenetworks.gui.next_tier2", cache.getKillsNeeded()), Color.WHITE, false);
 			this.addText(I18n.get("hostilenetworks.gui.kill" + (cache.getKillsNeeded() > 1 ? "s" : "")), Color.WHITE);
 		} else {
-			this.addText(I18n.get("hostilenetworks.gui.max_tier"), Color.WHITE);
+			this.addText(I18n.get("hostilenetworks.gui.max_tier"), ChatFormatting.RED.getColor());
 		}
 
 		LivingEntity ent = cache.getEntity(this.minecraft.level);

@@ -52,6 +52,7 @@ public class CachedModel {
 
 	public float getAccuracy() {
 		ModelTier next = this.tier.next();
+		if (this.tier == next) return next.accuracy;
 		int diff = next.data - this.tier.data;
 		float tDiff = next.accuracy - this.tier.accuracy;
 		return this.tier.accuracy + tDiff * (diff - (next.data - this.data)) / diff;

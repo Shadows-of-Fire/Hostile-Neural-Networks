@@ -1,3 +1,8 @@
+## 3.0.3
+* Fixed a typo in skeleton trivia.
+* Added config file.
+* Fixed Self-Aware model accuracy showing as NaN
+
 ## 3.0.2
 * Actually apply the first change from 1.0.2
 
