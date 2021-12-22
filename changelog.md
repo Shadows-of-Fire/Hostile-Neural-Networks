@@ -1,3 +1,8 @@
+## 1.0.3
+* Fixed a typo in skeleton trivia.
+* Added config file.
+* Fixed Self-Aware model accuracy showing as NaN
+
 ## 1.0.2
 * Fixed certain entities being "spazzy" when rendered on data models.
 * Fixed the Loot Fabricator and Sim Chamber not dropping any items.

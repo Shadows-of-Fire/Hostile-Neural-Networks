@@ -45,7 +45,7 @@ import shadows.placebo.util.NetworkUtils;
 public class HostileNetworks {
 
 	public static final String MODID = "hostilenetworks";
-	public static final String VERSION = "1.0.1";
+	public static final String VERSION = "1.0.3";
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
 	//Formatter::off
     public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
@@ -69,6 +69,7 @@ public class HostileNetworks {
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
 		NetworkUtils.registerMessage(CHANNEL, 0, new DataModelResetMessage());
 		NetworkUtils.registerMessage(CHANNEL, 1, new DataModelMessage());
+		HostileConfig.load();
 	}
 
 	@SubscribeEvent

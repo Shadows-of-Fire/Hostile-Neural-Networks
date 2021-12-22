@@ -21,6 +21,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import shadows.hostilenetworks.HostileNetworks;
 import shadows.hostilenetworks.client.WeirdRenderThings;
 import shadows.hostilenetworks.client.WrappedRTBuffer;
@@ -238,7 +239,7 @@ public class DeepLearnerScreen extends ContainerScreen<DeepLearnerContainer> {
 			this.addText(I18n.get("hostilenetworks.gui.next_tier2", cache.getKillsNeeded()), Color.WHITE, false);
 			this.addText(I18n.get("hostilenetworks.gui.kill" + (cache.getKillsNeeded() > 1 ? "s" : "")), Color.WHITE);
 		} else {
-			this.addText(I18n.get("hostilenetworks.gui.max_tier"), Color.WHITE);
+			this.addText(I18n.get("hostilenetworks.gui.max_tier"), TextFormatting.RED.getColor());
 		}
 
 		LivingEntity ent = cache.getEntity(this.minecraft.level);
