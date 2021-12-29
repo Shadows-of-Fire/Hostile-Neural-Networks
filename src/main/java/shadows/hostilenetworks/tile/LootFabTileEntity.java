@@ -104,14 +104,13 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
 	}
 
 	@Override
-	public CompoundTag save(CompoundTag tag) {
-		tag = super.save(tag);
+	public void saveAdditional(CompoundTag tag) {
+		super.saveAdditional(tag);
 		tag.put("saved_selections", this.writeSelections(new CompoundTag()));
 		tag.put("inventory", this.inventory.serializeNBT());
 		tag.putInt("energy", this.energy.getEnergyStored());
 		tag.putInt("runtime", this.runtime);
 		tag.putInt("selection", this.currentSel);
-		return tag;
 	}
 
 	@Override

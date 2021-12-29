@@ -51,15 +51,14 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 	}
 
 	@Override
-	public CompoundTag save(CompoundTag tag) {
-		tag = super.save(tag);
+	public void saveAdditional(CompoundTag tag) {
+		super.saveAdditional(tag);
 		tag.put("inventory", this.inventory.serializeNBT());
 		tag.putInt("energy", this.energy.getEnergyStored());
 		tag.putString("model", this.currentModel == null ? "null" : this.currentModel.getModel().getId().toString());
 		tag.putInt("runtime", this.runtime);
 		tag.putBoolean("predSuccess", this.predictionSuccess);
 		tag.putInt("failState", this.failState.ordinal());
-		return tag;
 	}
 
 	@Override
