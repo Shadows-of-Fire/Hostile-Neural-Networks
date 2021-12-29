@@ -211,6 +211,7 @@ public class DataModel {
 			String triviaKey = obj.has("trivia") ? obj.get("trivia").getAsString() : "hostilenetworks.trivia.nothing";
 			List<ItemStack> fabDrops = context.deserialize(obj.get("fabricator_drops"), new TypeToken<List<ItemStack>>() {
 			}.getType());
+			fabDrops.removeIf(ItemStack::isEmpty);
 			return new DataModel(t, name, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops);
 		}
 
