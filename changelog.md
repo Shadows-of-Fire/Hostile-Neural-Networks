@@ -1,3 +1,6 @@
+## 1.0.4
+* N-Wither: Added simplified chinese translation.
+
 ## 1.0.3
 * Fixed a typo in skeleton trivia.
 * Added config file.
