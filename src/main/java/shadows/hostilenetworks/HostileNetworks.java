@@ -46,7 +46,7 @@ import shadows.placebo.network.MessageHelper;
 public class HostileNetworks {
 
 	public static final String MODID = "hostilenetworks";
-	public static final String VERSION = "3.0.3";
+	public static final String VERSION = "3.0.5";
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
 	//Formatter::off
     public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
@@ -90,7 +90,7 @@ public class HostileNetworks {
 	@SubscribeEvent
 	public void registerItems(Register<Item> e) {
 		IForgeRegistry<Item> reg = e.getRegistry();
-		reg.register(new DeepLearnerItem(new Item.Properties().tab(TAB)).setRegistryName("deep_learner"));
+		reg.register(new DeepLearnerItem(new Item.Properties().stacksTo(1).tab(TAB)).setRegistryName("deep_learner"));
 		reg.register(new BlankDataModelItem(new Item.Properties().stacksTo(1).tab(TAB)).setRegistryName("blank_data_model"));
 		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("empty_prediction"));
 		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("overworld_prediction"));

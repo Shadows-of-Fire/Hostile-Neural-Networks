@@ -1,3 +1,6 @@
+## 3.0.5
+* Fixed a dupe bug.
+
 ## 3.0.4
 * N-Wither: Added Simplified Chinese translation.
 * Added the ability to specify optional fabricator drops that will not error if not present.
