@@ -1,3 +1,6 @@
+## 1.0.5
+* Fixed a dupe bug.
+
 ## 1.0.4
 * N-Wither: Added simplified chinese translation.
 
