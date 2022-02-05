@@ -1,3 +1,6 @@
+## 1.0.6
+* Potential fix for deep learners on servers.
+
 ## 1.0.5
 * Fixed a dupe bug.
 

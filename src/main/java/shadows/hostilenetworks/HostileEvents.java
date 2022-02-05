@@ -78,6 +78,7 @@ public class HostileEvents {
 				DataModelItem.setData(model, data + tier.dataPerKill + bonus);
 			}
 		}
+		DeepLearnerItem.saveItems(learner, handler);
 	}
 
 	@SubscribeEvent
