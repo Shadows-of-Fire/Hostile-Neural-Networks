@@ -59,8 +59,7 @@ public class HostileEvents {
 	@SubscribeEvent
 	public static void kill(LivingDeathEvent e) {
 		Entity src = e.getSource().getEntity();
-		if (src instanceof ServerPlayer) {
-			ServerPlayer p = (ServerPlayer) src;
+		if (src instanceof ServerPlayer p) {
 			p.getInventory().items.stream().filter(s -> s.getItem() == Items.DEEP_LEARNER).forEach(dl -> updateModels(dl, e.getEntityLiving().getType(), 0));
 			if (p.getOffhandItem().getItem() == Items.DEEP_LEARNER) updateModels(p.getOffhandItem(), e.getEntityLiving().getType(), 0);
 		}
@@ -78,6 +77,7 @@ public class HostileEvents {
 				DataModelItem.setData(model, data + tier.dataPerKill + bonus);
 			}
 		}
+		DeepLearnerItem.saveItems(learner, handler);
 	}
 
 	@SubscribeEvent
