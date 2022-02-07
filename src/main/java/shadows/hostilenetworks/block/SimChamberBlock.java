@@ -55,7 +55,7 @@ public class SimChamberBlock extends HorizontalDirectionalBlock implements Ticki
 	public MenuProvider getMenuProvider(BlockState pState, Level pLevel, BlockPos pPos) {
 		return new SimpleMenuProvider((id, inv, player) -> new SimChamberContainer(id, inv, pPos), new TranslatableComponent(this.getDescriptionId()));
 	}
-	
+
 	@Override
 	@Deprecated
 	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {

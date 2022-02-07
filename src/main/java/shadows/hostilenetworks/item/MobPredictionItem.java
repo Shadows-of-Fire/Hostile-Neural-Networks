@@ -34,7 +34,7 @@ public class MobPredictionItem extends Item {
 	@Override
 	public void fillItemCategory(CreativeModeTab pGroup, NonNullList<ItemStack> pItems) {
 		if (this.allowdedIn(pGroup)) {
-			for (DataModel model : DataModelManager.INSTANCE.getAllModels()) {
+			for (DataModel model : DataModelManager.INSTANCE.getValues()) {
 				ItemStack s = new ItemStack(this);
 				setStoredModel(s, model);
 				pItems.add(s);

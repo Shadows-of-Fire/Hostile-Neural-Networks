@@ -1,3 +1,7 @@
+## 3.0.7
+* Upgraded to new Placebo AutoSync and Container Data systems.
+  * Should fix power displaying as negative in some cases.
+
 ## 3.0.6
 * Potential fix for deep learners on servers.
 

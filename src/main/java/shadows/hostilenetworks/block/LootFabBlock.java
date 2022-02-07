@@ -55,7 +55,7 @@ public class LootFabBlock extends HorizontalDirectionalBlock implements TickingE
 			return InteractionResult.CONSUME;
 		}
 	}
-	
+
 	@Override
 	@Deprecated
 	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
@@ -67,7 +67,6 @@ public class LootFabBlock extends HorizontalDirectionalBlock implements TickingE
 			super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
 		}
 	}
-
 
 	@Override
 	public MenuProvider getMenuProvider(BlockState pState, Level pLevel, BlockPos pPos) {

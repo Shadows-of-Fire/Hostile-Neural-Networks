@@ -1,5 +1,7 @@
 package shadows.hostilenetworks.tile;
 
+import java.util.function.Consumer;
+
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
@@ -9,7 +11,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -48,8 +50,8 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
 	}
 
 	@Override
-	public ContainerData getData() {
-		return this.data;
+	public void registerSlots(Consumer<DataSlot> consumer) {
+		this.data.register(consumer);
 	}
 
 	@Override
@@ -156,7 +158,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
 	private void readSelections(CompoundTag tag) {
 		this.savedSelections.clear();
 		for (String s : tag.getAllKeys()) {
-			DataModel dm = DataModelManager.INSTANCE.getModel(new ResourceLocation(s));
+			DataModel dm = DataModelManager.INSTANCE.getValue(new ResourceLocation(s));
 			this.savedSelections.put(dm, Mth.clamp(tag.getInt(s), 0, dm.getFabDrops().size() - 1));
 		}
 	}

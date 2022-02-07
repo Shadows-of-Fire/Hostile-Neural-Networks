@@ -42,7 +42,7 @@ public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapp
 	public SimChamberCategory(IGuiHelper guiHelper) {
 		ResourceLocation location = new ResourceLocation(HostileNetworks.MODID, "textures/jei/sim_chamber.png");
 		this.background = guiHelper.createDrawable(location, 0, 0, 116, 43);
-		this.icon = guiHelper.createDrawableIngredient(new ItemStack(Hostile.Blocks.SIM_CHAMBER));
+		this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM, new ItemStack(Hostile.Blocks.SIM_CHAMBER));
 		this.name = new TranslatableComponent(Hostile.Blocks.SIM_CHAMBER.getDescriptionId());
 	}
 

@@ -33,14 +33,11 @@ import shadows.hostilenetworks.item.BlankDataModelItem;
 import shadows.hostilenetworks.item.DataModelItem;
 import shadows.hostilenetworks.item.DeepLearnerItem;
 import shadows.hostilenetworks.item.MobPredictionItem;
-import shadows.hostilenetworks.net.DataModelMessage;
-import shadows.hostilenetworks.net.DataModelResetMessage;
 import shadows.hostilenetworks.tile.LootFabTileEntity;
 import shadows.hostilenetworks.tile.SimChamberTileEntity;
 import shadows.placebo.block_entity.TickingBlockEntityType;
 import shadows.placebo.container.ContainerUtil;
 import shadows.placebo.loot.LootSystem;
-import shadows.placebo.network.MessageHelper;
 
 @Mod(HostileNetworks.MODID)
 public class HostileNetworks {
@@ -68,8 +65,6 @@ public class HostileNetworks {
 
 	public HostileNetworks() {
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
-		MessageHelper.registerMessage(CHANNEL, 0, new DataModelResetMessage());
-		MessageHelper.registerMessage(CHANNEL, 1, new DataModelMessage());
 		HostileConfig.load();
 	}
 

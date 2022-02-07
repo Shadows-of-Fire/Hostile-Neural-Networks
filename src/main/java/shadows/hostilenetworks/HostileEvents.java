@@ -10,7 +10,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
 import net.minecraftforge.eventbus.api.Event.Result;
@@ -33,7 +32,7 @@ public class HostileEvents {
 		ItemStack stack = player.getItemInHand(e.getHand());
 		if (stack.getItem() == Hostile.Items.BLANK_DATA_MODEL) {
 			if (!player.level.isClientSide) {
-				DataModel model = DataModelManager.INSTANCE.getModel(e.getTarget().getType());
+				DataModel model = DataModelManager.INSTANCE.getForEntity(e.getTarget().getType());
 				if (model == null) {
 					Component msg = new TranslatableComponent("hostilenetworks.msg.no_model").withStyle(ChatFormatting.RED);
 					player.sendMessage(msg, Util.NIL_UUID);
@@ -79,16 +78,4 @@ public class HostileEvents {
 		}
 		DeepLearnerItem.saveItems(learner, handler);
 	}
-
-	@SubscribeEvent
-	public static void sync(OnDatapackSyncEvent e) {
-		Player p = e.getPlayer();
-		if (p == null) {
-			for (Player pe : e.getPlayerList().getPlayers())
-				DataModelManager.dispatch(pe);
-		} else if (!p.level.isClientSide) {
-			DataModelManager.dispatch(p);
-		}
-	}
-
 }

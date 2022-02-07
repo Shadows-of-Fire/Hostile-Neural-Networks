@@ -37,10 +37,10 @@ public class HostileJeiPlugin implements IModPlugin {
 
 	@Override
 	public void registerRecipes(IRecipeRegistration reg) {
-		SimChamberCategory.recipes = DataModelManager.INSTANCE.getAllModels().stream().map(TickingDataModelWrapper::new).collect(Collectors.toList());
+		SimChamberCategory.recipes = DataModelManager.INSTANCE.getValues().stream().map(TickingDataModelWrapper::new).collect(Collectors.toList());
 		reg.addRecipes(SimChamberCategory.recipes, SimChamberCategory.UID);
 		List<LootFabRecipe> fabRecipes = new ArrayList<>();
-		for (DataModel dm : DataModelManager.INSTANCE.getAllModels()) {
+		for (DataModel dm : DataModelManager.INSTANCE.getValues()) {
 			for (int i = 0; i < dm.getFabDrops().size(); i++) {
 				fabRecipes.add(new LootFabRecipe(dm, i));
 			}

@@ -33,7 +33,7 @@ public class LootFabCategory implements IRecipeCategory<LootFabRecipe> {
 	public LootFabCategory(IGuiHelper guiHelper) {
 		ResourceLocation location = new ResourceLocation(HostileNetworks.MODID, "textures/jei/loot_fabricator.png");
 		this.background = guiHelper.createDrawable(location, 0, 0, 103, 30);
-		this.icon = guiHelper.createDrawableIngredient(new ItemStack(Hostile.Blocks.LOOT_FABRICATOR));
+		this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM, new ItemStack(Hostile.Blocks.LOOT_FABRICATOR));
 		this.name = new TranslatableComponent(Hostile.Blocks.LOOT_FABRICATOR.getDescriptionId());
 	}
 

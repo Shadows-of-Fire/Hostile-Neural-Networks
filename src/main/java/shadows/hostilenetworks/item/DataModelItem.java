@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -24,7 +25,6 @@ import shadows.hostilenetworks.data.DataModel;
 import shadows.hostilenetworks.data.DataModelManager;
 import shadows.hostilenetworks.data.ModelTier;
 import shadows.hostilenetworks.util.Color;
-import shadows.placebo.util.ClientUtil;
 
 public class DataModelItem extends Item {
 
@@ -39,7 +39,7 @@ public class DataModelItem extends Item {
 
 	@Override
 	public void appendHoverText(ItemStack pStack, Level pLevel, List<Component> list, TooltipFlag pFlag) {
-		if (ClientUtil.isHoldingShift()) {
+		if (Screen.hasShiftDown()) {
 			DataModel model = getStoredModel(pStack);
 			if (model == null) {
 				list.add(new TranslatableComponent("Error: %s", new TextComponent("Broke_AF").withStyle(ChatFormatting.OBFUSCATED, ChatFormatting.GRAY)));
@@ -63,7 +63,7 @@ public class DataModelItem extends Item {
 	@Override
 	public void fillItemCategory(CreativeModeTab pGroup, NonNullList<ItemStack> pItems) {
 		if (this.allowdedIn(pGroup)) {
-			for (DataModel model : DataModelManager.INSTANCE.getAllModels()) {
+			for (DataModel model : DataModelManager.INSTANCE.getValues()) {
 				ItemStack s = new ItemStack(this);
 				setStoredModel(s, model);
 				pItems.add(s);
@@ -101,7 +101,7 @@ public class DataModelItem extends Item {
 	public static DataModel getStoredModel(ItemStack stack) {
 		if (!stack.hasTag()) return null;
 		String dmKey = stack.getOrCreateTagElement(DATA_MODEL).getString(ID);
-		return DataModelManager.INSTANCE.getModel(new ResourceLocation(dmKey));
+		return DataModelManager.INSTANCE.getValue(new ResourceLocation(dmKey));
 	}
 
 	public static void setStoredModel(ItemStack stack, DataModel model) {

@@ -1,11 +1,13 @@
 package shadows.hostilenetworks.tile;
 
+import java.util.function.Consumer;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -46,8 +48,8 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 	}
 
 	@Override
-	public ContainerData getData() {
-		return this.data;
+	public void registerSlots(Consumer<DataSlot> consumer) {
+		this.data.register(consumer);
 	}
 
 	@Override

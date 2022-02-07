@@ -3,6 +3,7 @@ package shadows.hostilenetworks.item;
 import java.util.List;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,7 +26,6 @@ import net.minecraftforge.network.NetworkHooks;
 import shadows.hostilenetworks.data.CachedModel;
 import shadows.hostilenetworks.gui.DeepLearnerContainer;
 import shadows.hostilenetworks.util.Color;
-import shadows.placebo.util.ClientUtil;
 
 public class DeepLearnerItem extends Item {
 
@@ -49,7 +49,7 @@ public class DeepLearnerItem extends Item {
 	@OnlyIn(Dist.CLIENT)
 	public void appendHoverText(ItemStack pStack, Level pLevel, List<Component> list, TooltipFlag pFlag) {
 		list.add(new TranslatableComponent("hostilenetworks.info.deep_learner", Color.withColor("hostilenetworks.color_text.hud", Color.WHITE)).withStyle(ChatFormatting.GRAY));
-		if (ClientUtil.isHoldingShift()) {
+		if (Screen.hasShiftDown()) {
 			ItemStackHandler inv = getItemHandler(pStack);
 			boolean empty = true;
 			for (int i = 0; i < 4; i++)
