@@ -6,10 +6,10 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
-import com.ibm.icu.impl.locale.XCldrStub.ImmutableMap;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Style;

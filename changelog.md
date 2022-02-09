@@ -1,3 +1,6 @@
+## 3.0.8
+* Fixed a server crash caused by wrong ImmutableMap import.
+
 ## 3.0.7
 * Upgraded to new Placebo AutoSync and Container Data systems.
   * Should fix power displaying as negative in some cases.
