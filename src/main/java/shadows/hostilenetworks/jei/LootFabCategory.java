@@ -3,11 +3,12 @@ package shadows.hostilenetworks.jei;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.gui.IRecipeLayout;
+import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
-import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.ingredients.IIngredients;
+import mezz.jei.api.recipe.IFocusGroup;
+import mezz.jei.api.recipe.RecipeIngredientRole;
+import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -22,6 +23,7 @@ import shadows.hostilenetworks.HostileNetworks;
 public class LootFabCategory implements IRecipeCategory<LootFabRecipe> {
 
 	public static final ResourceLocation UID = new ResourceLocation(HostileNetworks.MODID, "loot_fabricator");
+	public static final RecipeType<LootFabRecipe> TYPE = RecipeType.create(HostileNetworks.MODID, "loot_fabricator", LootFabRecipe.class);
 
 	private final IDrawable background;
 	private final IDrawable icon;
@@ -63,17 +65,14 @@ public class LootFabCategory implements IRecipeCategory<LootFabRecipe> {
 	}
 
 	@Override
-	public void setIngredients(LootFabRecipe recipe, IIngredients ing) {
-		ing.setInput(VanillaTypes.ITEM, recipe.input);
-		ing.setOutput(VanillaTypes.ITEM, recipe.output);
+	public RecipeType<LootFabRecipe> getRecipeType() {
+		return TYPE;
 	}
 
 	@Override
-	public void setRecipe(IRecipeLayout layout, LootFabRecipe recipe, IIngredients ing) {
-		IGuiItemStackGroup stacks = layout.getItemStacks();
-		stacks.init(0, true, 8, 6);
-		stacks.init(1, false, 78, 6);
-		stacks.set(ing);
+	public void setRecipe(IRecipeLayoutBuilder builder, LootFabRecipe recipe, IFocusGroup focuses) {
+		builder.addSlot(RecipeIngredientRole.INPUT, 9, 7).addIngredient(VanillaTypes.ITEM, recipe.input);
+		builder.addSlot(RecipeIngredientRole.OUTPUT, 79, 7).addIngredient(VanillaTypes.ITEM, recipe.output);
 	}
 
 	@Override

@@ -1,3 +1,7 @@
+## 3.0.9
+* Updated to 1.18.2
+* Updated to new JEI API.
+
 ## 3.0.8
 * Fixed a server crash caused by wrong ImmutableMap import.
 

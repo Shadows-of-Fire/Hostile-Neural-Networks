@@ -1,17 +1,17 @@
 package shadows.hostilenetworks.jei;
 
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.List;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.gui.IRecipeLayout;
+import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
-import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.ingredients.IIngredients;
+import mezz.jei.api.recipe.IFocusGroup;
+import mezz.jei.api.recipe.RecipeIngredientRole;
+import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -29,6 +29,7 @@ import shadows.hostilenetworks.util.Color;
 public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapper> {
 
 	public static final ResourceLocation UID = new ResourceLocation(HostileNetworks.MODID, "sim_chamber");
+	public static final RecipeType<TickingDataModelWrapper> TYPE = RecipeType.create(HostileNetworks.MODID, "sim_chamber", TickingDataModelWrapper.class);
 
 	private final IDrawable background;
 	private final IDrawable icon;
@@ -72,19 +73,16 @@ public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapp
 	}
 
 	@Override
-	public void setIngredients(TickingDataModelWrapper recipe, IIngredients ing) {
-		ing.setInputs(VanillaTypes.ITEM, Arrays.asList(recipe.model, recipe.input));
-		ing.setOutputs(VanillaTypes.ITEM, Arrays.asList(recipe.baseDrop, recipe.prediction));
+	public RecipeType<TickingDataModelWrapper> getRecipeType() {
+		return TYPE;
 	}
 
 	@Override
-	public void setRecipe(IRecipeLayout layout, TickingDataModelWrapper recipe, IIngredients ing) {
-		IGuiItemStackGroup stacks = layout.getItemStacks();
-		stacks.init(0, true, 3, 3);
-		stacks.init(1, true, 27, 3);
-		stacks.init(2, false, 95, 3);
-		stacks.init(3, false, 65, 25);
-		stacks.set(ing);
+	public void setRecipe(IRecipeLayoutBuilder builder, TickingDataModelWrapper recipe, IFocusGroup focuses) {
+		builder.addSlot(RecipeIngredientRole.INPUT, 4, 4).addIngredient(VanillaTypes.ITEM, recipe.model);
+		builder.addSlot(RecipeIngredientRole.INPUT, 28, 4).addIngredient(VanillaTypes.ITEM, recipe.input);
+		builder.addSlot(RecipeIngredientRole.OUTPUT, 96, 4).addIngredient(VanillaTypes.ITEM, recipe.baseDrop);
+		builder.addSlot(RecipeIngredientRole.OUTPUT, 66, 26).addIngredient(VanillaTypes.ITEM, recipe.prediction);
 	}
 
 	@Override

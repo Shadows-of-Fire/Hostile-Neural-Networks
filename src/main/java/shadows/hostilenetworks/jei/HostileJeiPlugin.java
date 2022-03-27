@@ -23,6 +23,8 @@ import shadows.hostilenetworks.item.DataModelItem;
 @JeiPlugin
 public class HostileJeiPlugin implements IModPlugin {
 
+	public static final ResourceLocation UID = new ResourceLocation(HostileNetworks.MODID, "plugin");
+
 	@Override
 	public void registerItemSubtypes(ISubtypeRegistration reg) {
 		reg.registerSubtypeInterpreter(Hostile.Items.DATA_MODEL, new ModelSubtypes());
@@ -38,20 +40,20 @@ public class HostileJeiPlugin implements IModPlugin {
 	@Override
 	public void registerRecipes(IRecipeRegistration reg) {
 		SimChamberCategory.recipes = DataModelManager.INSTANCE.getValues().stream().map(TickingDataModelWrapper::new).collect(Collectors.toList());
-		reg.addRecipes(SimChamberCategory.recipes, SimChamberCategory.UID);
+		reg.addRecipes(SimChamberCategory.TYPE, SimChamberCategory.recipes);
 		List<LootFabRecipe> fabRecipes = new ArrayList<>();
 		for (DataModel dm : DataModelManager.INSTANCE.getValues()) {
 			for (int i = 0; i < dm.getFabDrops().size(); i++) {
 				fabRecipes.add(new LootFabRecipe(dm, i));
 			}
 		}
-		reg.addRecipes(fabRecipes, LootFabCategory.UID);
+		reg.addRecipes(LootFabCategory.TYPE, fabRecipes);
 	}
 
 	@Override
 	public void registerRecipeCatalysts(IRecipeCatalystRegistration reg) {
-		reg.addRecipeCatalyst(new ItemStack(Hostile.Blocks.SIM_CHAMBER), SimChamberCategory.UID);
-		reg.addRecipeCatalyst(new ItemStack(Hostile.Blocks.LOOT_FABRICATOR), LootFabCategory.UID);
+		reg.addRecipeCatalyst(new ItemStack(Hostile.Blocks.SIM_CHAMBER), SimChamberCategory.TYPE);
+		reg.addRecipeCatalyst(new ItemStack(Hostile.Blocks.LOOT_FABRICATOR), LootFabCategory.TYPE);
 	}
 
 	private class ModelSubtypes implements IIngredientSubtypeInterpreter<ItemStack> {
@@ -67,7 +69,7 @@ public class HostileJeiPlugin implements IModPlugin {
 
 	@Override
 	public ResourceLocation getPluginUid() {
-		return new ResourceLocation(HostileNetworks.MODID, "plugin");
+		return UID;
 	}
 
 }
