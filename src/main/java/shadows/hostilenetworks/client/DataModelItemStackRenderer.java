@@ -1,5 +1,6 @@
 package shadows.hostilenetworks.client;
 
+import java.util.Map;
 import java.util.WeakHashMap;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -14,25 +15,31 @@ import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3f;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import shadows.hostilenetworks.HostileClient;
 import shadows.hostilenetworks.HostileNetworks;
-import shadows.hostilenetworks.data.CachedModel;
 import shadows.hostilenetworks.data.DataModel;
+import shadows.hostilenetworks.item.DataModelItem;
 
+@EventBusSubscriber(bus = Bus.FORGE, value = Dist.CLIENT, modid = HostileNetworks.MODID)
 public class DataModelItemStackRenderer extends ItemStackTileEntityRenderer {
 
 	private static final IRenderTypeBuffer.Impl GHOST_ENTITY_BUF = IRenderTypeBuffer.immediate(new BufferBuilder(256));
-	private static final WeakHashMap<ItemStack, CachedModel> CACHE = new WeakHashMap<>();
+	private static final Map<EntityType<?>, LivingEntity> CACHE = new WeakHashMap<>();
 
 	private static final ResourceLocation DATA_MODEL_BASE = new ResourceLocation(HostileNetworks.MODID, "item/data_model_base");
 
 	@Override
 	public void renderByItem(ItemStack stack, TransformType type, MatrixStack matrix, IRenderTypeBuffer buf, int light, int overlay) {
-		CachedModel model = CACHE.computeIfAbsent(stack, s -> new CachedModel(s, 0));
 		ItemRenderer irenderer = Minecraft.getInstance().getItemRenderer();
 		IBakedModel base = irenderer.getItemModelShaper().getModelManager().getModel(DATA_MODEL_BASE);
 		matrix.pushPose();
@@ -61,10 +68,12 @@ public class DataModelItemStackRenderer extends ItemStackTileEntityRenderer {
 		irenderer.renderModelLists(base, stack, light, overlay, matrix, ItemRenderer.getFoilBufferDirect(GHOST_ENTITY_BUF, RenderTypeLookup.getRenderType(stack, true), true, false));
 		GHOST_ENTITY_BUF.endBatch();
 		matrix.popPose();
-		if (model.getModel() != null) {
-			LivingEntity ent = model.getEntity(Minecraft.getInstance().level);
+		DataModel model = DataModelItem.getStoredModel(stack);
+		if (model != null) {
+			LivingEntity ent = CACHE.computeIfAbsent(model.getType(), t -> (LivingEntity) t.create(Minecraft.getInstance().level));
+			if (Minecraft.getInstance().player != null) ent.tickCount = Minecraft.getInstance().player.tickCount;
 			if (ent != null) {
-				this.renderEntityInInventory(matrix, type, ent, model.getModel());
+				this.renderEntityInInventory(matrix, type, ent, model);
 			}
 		}
 	}
@@ -109,7 +118,7 @@ public class DataModelItemStackRenderer extends ItemStackTileEntityRenderer {
 		WeirdRenderThings.fullbright = true;
 		WeirdRenderThings.translucent = true;
 		RenderSystem.runAsFancy(() -> {
-			entityrenderermanager.render(pLivingEntity, model.getXOffset(), model.getYOffset(), model.getZOffset(), 0.0F, 1, matrix, new WrappedRTBuffer(rtBuffer), 15728880);
+			entityrenderermanager.render(pLivingEntity, model.getXOffset(), model.getYOffset(), model.getZOffset(), 0.0F, Minecraft.getInstance().getDeltaFrameTime(), matrix, new WrappedRTBuffer(rtBuffer), 15728880);
 		});
 		rtBuffer.endBatch();
 		WeirdRenderThings.translucent = false;
@@ -117,6 +126,11 @@ public class DataModelItemStackRenderer extends ItemStackTileEntityRenderer {
 		entityrenderermanager.setRenderShadow(true);
 		RenderSystem.popMatrix();
 		matrix.popPose();
+	}
+
+	@SubscribeEvent
+	public static void join(EntityJoinWorldEvent e) {
+		if (e.getEntity() == Minecraft.getInstance().player) CACHE.clear();
 	}
 
 }
