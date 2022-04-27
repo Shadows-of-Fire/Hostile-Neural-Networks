@@ -1,5 +1,6 @@
 package shadows.hostilenetworks.client;
 
+import java.util.Map;
 import java.util.WeakHashMap;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -16,13 +17,20 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import shadows.hostilenetworks.HostileClient;
 import shadows.hostilenetworks.HostileNetworks;
-import shadows.hostilenetworks.data.CachedModel;
 import shadows.hostilenetworks.data.DataModel;
+import shadows.hostilenetworks.item.DataModelItem;
 
+@EventBusSubscriber(bus = Bus.FORGE, value = Dist.CLIENT, modid = HostileNetworks.MODID)
 public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer {
 
 	public DataModelItemStackRenderer() {
@@ -31,11 +39,10 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
 
 	private static final MultiBufferSource.BufferSource GHOST_ENTITY_BUF = MultiBufferSource.immediate(new BufferBuilder(256));
 	private static final ResourceLocation DATA_MODEL_BASE = new ResourceLocation(HostileNetworks.MODID, "item/data_model_base");
-	private static final WeakHashMap<ItemStack, CachedModel> CACHE = new WeakHashMap<>();
+	private static final Map<EntityType<?>, LivingEntity> CACHE = new WeakHashMap<>();
 
 	@Override
 	public void renderByItem(ItemStack stack, TransformType type, PoseStack matrix, MultiBufferSource buf, int light, int overlay) {
-		CachedModel model = CACHE.computeIfAbsent(stack, s -> new CachedModel(s, 0));
 		ItemRenderer irenderer = Minecraft.getInstance().getItemRenderer();
 		BakedModel base = irenderer.getItemModelShaper().getModelManager().getModel(DATA_MODEL_BASE);
 		matrix.pushPose();
@@ -64,10 +71,12 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
 		irenderer.renderModelLists(base, stack, light, overlay, matrix, ItemRenderer.getFoilBufferDirect(GHOST_ENTITY_BUF, ItemBlockRenderTypes.getRenderType(stack, true), true, false));
 		GHOST_ENTITY_BUF.endBatch();
 		matrix.popPose();
-		if (model.getModel() != null) {
-			LivingEntity ent = model.getEntity(Minecraft.getInstance().level);
+		DataModel model = DataModelItem.getStoredModel(stack);
+		if (model != null) {
+			LivingEntity ent = CACHE.computeIfAbsent(model.getType(), t -> (LivingEntity) t.create(Minecraft.getInstance().level));
+			if (Minecraft.getInstance().player != null) ent.tickCount = Minecraft.getInstance().player.tickCount;
 			if (ent != null) {
-				this.renderEntityInInventory(matrix, type, ent, model.getModel());
+				this.renderEntityInInventory(matrix, type, ent, model);
 			}
 		}
 	}
@@ -111,13 +120,18 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
 		WeirdRenderThings.fullbright_tesr = true;
 		WeirdRenderThings.translucent = true;
 		RenderSystem.runAsFancy(() -> {
-			entityrenderermanager.render(pLivingEntity, model.getXOffset(), model.getYOffset(), model.getZOffset(), 0.0F, 1, matrix, new WrappedRTBuffer(rtBuffer), 15728880);
+			entityrenderermanager.render(pLivingEntity, model.getXOffset(), model.getYOffset(), model.getZOffset(), 0.0F, Minecraft.getInstance().getDeltaFrameTime(), matrix, new WrappedRTBuffer(rtBuffer), 15728880);
 		});
 		rtBuffer.endBatch();
 		WeirdRenderThings.translucent = false;
 		WeirdRenderThings.fullbright_tesr = false;
 		entityrenderermanager.setRenderShadow(true);
 		matrix.popPose();
+	}
+
+	@SubscribeEvent
+	public static void join(EntityJoinWorldEvent e) {
+		if (e.getEntity() == Minecraft.getInstance().player) CACHE.clear();
 	}
 
 }

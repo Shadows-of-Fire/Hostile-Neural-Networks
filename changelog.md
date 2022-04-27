@@ -1,3 +1,9 @@
+## 3.0.10
+* Fixed a memory leak that was happening while the Deep Learner HUD was being rendered.
+* Certain entity data models will now be animated properly.
+  * Some, like the Guardians and Ender Dragon, don't use tickCount-based animations, and won't work
+* gjeodnd12165: Added Korean Translation
+
 ## 3.0.9
 * Updated to 1.18.2
 * Updated to new JEI API.
