@@ -26,6 +26,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 import net.minecraftforge.registries.IForgeRegistry;
 import shadows.hostilenetworks.block.LootFabBlock;
 import shadows.hostilenetworks.block.SimChamberBlock;
+import shadows.hostilenetworks.data.DataModelManager;
 import shadows.hostilenetworks.gui.DeepLearnerContainer;
 import shadows.hostilenetworks.gui.LootFabContainer;
 import shadows.hostilenetworks.gui.SimChamberContainer;
@@ -109,6 +110,7 @@ public class HostileNetworks {
 	public void setup(FMLCommonSetupEvent e) {
 		LootSystem.defaultBlockTable(Hostile.Blocks.LOOT_FABRICATOR);
 		LootSystem.defaultBlockTable(Hostile.Blocks.SIM_CHAMBER);
+		DataModelManager.INSTANCE.registerToBus();
 	}
 
 }

@@ -1,3 +1,6 @@
+## 3.0.11
+* Updated to Placebo 6.4.0 to account for menu changes.
+
 ## 3.0.10
 * Fixed a memory leak that was happening while the Deep Learner HUD was being rendered.
 * Certain entity data models will now be animated properly.

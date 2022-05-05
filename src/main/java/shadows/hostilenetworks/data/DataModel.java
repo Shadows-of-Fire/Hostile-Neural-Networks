@@ -3,6 +3,11 @@ package shadows.hostilenetworks.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.reflect.TypeToken;
+
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
@@ -13,6 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
 import shadows.hostilenetworks.Hostile;
 import shadows.hostilenetworks.item.MobPredictionItem;
+import shadows.placebo.json.ItemAdapter;
 import shadows.placebo.json.PlaceboJsonReloadListener.TypeKeyedBase;
 
 public class DataModel extends TypeKeyedBase<DataModel> {
@@ -146,6 +152,43 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		}
 		DataModel model = new DataModel(type, name, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops);
 		return model;
+	}
+
+	public JsonObject write() {
+		JsonObject obj = new JsonObject();
+		obj.addProperty("type", this.type.getRegistryName().toString());
+		obj.addProperty("name", this.name.getKey());
+		obj.addProperty("name_color", this.getNameColor());
+		obj.addProperty("gui_scale", this.guiScale);
+		obj.addProperty("gui_x_offset", this.guiXOff);
+		obj.addProperty("gui_y_offset", this.guiYOff);
+		obj.addProperty("gui_z_offset", this.guiZOff);
+		obj.addProperty("sim_cost", this.simCost);
+		obj.add("input", ItemAdapter.ITEM_READER.toJsonTree(this.input));
+		obj.add("base_drop", ItemAdapter.ITEM_READER.toJsonTree(this.baseDrop));
+		obj.addProperty("trivia", this.triviaKey);
+		obj.add("fabricator_drops", ItemAdapter.ITEM_READER.toJsonTree(this.fabDrops));
+		return obj;
+	}
+
+	public static DataModel read(JsonObject obj) {
+		EntityType<?> t = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(obj.get("type").getAsString()));
+		if (t == null) throw new JsonParseException("DataModel has invalid entity type " + obj.get("type").getAsString());
+		TranslatableComponent name = new TranslatableComponent(obj.get("name").getAsString());
+		if (obj.has("name_color")) name.withStyle(Style.EMPTY.withColor(TextColor.fromRgb(Integer.decode(obj.get("name_color").getAsString()))));
+		else name.withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
+		float guiScale = obj.get("gui_scale").getAsFloat();
+		float guiXOff = obj.get("gui_x_offset").getAsFloat();
+		float guiYOff = obj.get("gui_y_offset").getAsFloat();
+		float guiZOff = obj.get("gui_z_offset").getAsFloat();
+		int simCost = obj.get("sim_cost").getAsInt();
+		ItemStack input = ItemAdapter.ITEM_READER.fromJson(obj.get("input"), ItemStack.class);
+		ItemStack baseDrop = ItemAdapter.ITEM_READER.fromJson(obj.get("base_drop"), ItemStack.class);
+		String triviaKey = obj.has("trivia") ? obj.get("trivia").getAsString() : "hostilenetworks.trivia.nothing";
+		List<ItemStack> fabDrops = ItemAdapter.ITEM_READER.fromJson(obj.get("fabricator_drops"), new TypeToken<List<ItemStack>>() {
+		}.getType());
+		fabDrops.removeIf(ItemStack::isEmpty);
+		return new DataModel(t, name, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops);
 	}
 
 }

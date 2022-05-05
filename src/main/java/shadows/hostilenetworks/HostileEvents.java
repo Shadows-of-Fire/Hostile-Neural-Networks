@@ -9,7 +9,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
 import net.minecraftforge.eventbus.api.Event.Result;
@@ -48,11 +47,6 @@ public class HostileEvents {
 			}
 			e.setResult(Result.DENY);
 		}
-	}
-
-	@SubscribeEvent
-	public static void reloads(AddReloadListenerEvent e) {
-		e.addListener(DataModelManager.INSTANCE);
 	}
 
 	@SubscribeEvent
