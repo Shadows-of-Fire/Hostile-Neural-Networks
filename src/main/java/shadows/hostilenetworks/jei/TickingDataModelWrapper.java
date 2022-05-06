@@ -18,7 +18,7 @@ public class TickingDataModelWrapper {
 	public TickingDataModelWrapper(DataModel src) {
 		this.model = new ItemStack(Hostile.Items.DATA_MODEL);
 		DataModelItem.setStoredModel(this.model, src);
-		DataModelItem.setData(this.model, ModelTier.BASIC.data);
+		DataModelItem.setData(this.model, src.getTierData(ModelTier.BASIC));
 		this.input = src.getInput().copy();
 		this.baseDrop = src.getBaseDrop().copy();
 		this.prediction = src.getPredictionDrop();
@@ -26,7 +26,7 @@ public class TickingDataModelWrapper {
 
 	void setTier(ModelTier tier) {
 		if (this.currentTier == tier) return;
-		DataModelItem.setData(this.model, tier.data);
+		DataModelItem.setData(this.model, DataModelItem.getStoredModel(this.model).getTierData(tier));
 		this.currentTier = tier;
 	}
 

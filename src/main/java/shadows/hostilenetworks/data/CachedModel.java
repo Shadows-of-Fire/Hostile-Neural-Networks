@@ -25,7 +25,7 @@ public class CachedModel {
 		this.slot = slot;
 		this.model = DataModelItem.getStoredModel(stack);
 		this.data = DataModelItem.getData(stack);
-		this.tier = ModelTier.getByData(this.data);
+		this.tier = ModelTier.getByData(this.model, this.data);
 	}
 
 	public DataModel getModel() {
@@ -40,9 +40,25 @@ public class CachedModel {
 		return this.tier;
 	}
 
+	public int getDataPerKill() {
+		return this.model.getDataPerKill(this.tier);
+	}
+
+	public int getTierData() {
+		return this.model.getTierData(this.tier);
+	}
+
+	public int getNextDataPerKill() {
+		return this.model.getDataPerKill(this.tier.next());
+	}
+
+	public int getNextTierData() {
+		return this.model.getTierData(this.tier.next());
+	}
+
 	public void setData(int data) {
 		this.data = data;
-		if (this.data > this.tier.next().data) this.tier = this.tier.next();
+		if (this.data > this.getNextTierData()) this.tier = this.tier.next();
 		DataModelItem.setData(this.stack, data);
 	}
 
@@ -53,14 +69,13 @@ public class CachedModel {
 	public float getAccuracy() {
 		ModelTier next = this.tier.next();
 		if (this.tier == next) return next.accuracy;
-		int diff = next.data - this.tier.data;
+		int diff = this.getNextTierData() - this.getTierData();
 		float tDiff = next.accuracy - this.tier.accuracy;
-		return this.tier.accuracy + tDiff * (diff - (next.data - this.data)) / diff;
+		return this.tier.accuracy + tDiff * (diff - (this.getNextTierData() - this.data)) / diff;
 	}
 
 	public int getKillsNeeded() {
-		ModelTier next = this.tier.next();
-		return Mth.ceil((next.data - this.data) / (float) this.tier.dataPerKill);
+		return Mth.ceil((this.getNextTierData() - this.data) / (float) this.getDataPerKill());
 	}
 
 	public LivingEntity getEntity(Level world) {

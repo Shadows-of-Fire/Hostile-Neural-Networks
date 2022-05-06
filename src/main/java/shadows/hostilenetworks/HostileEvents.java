@@ -66,8 +66,8 @@ public class HostileEvents {
 			DataModel dModel = DataModelItem.getStoredModel(model);
 			if (dModel.getType() == type) {
 				int data = DataModelItem.getData(model);
-				ModelTier tier = ModelTier.getByData(data);
-				DataModelItem.setData(model, data + tier.dataPerKill + bonus);
+				ModelTier tier = ModelTier.getByData(dModel, data);
+				DataModelItem.setData(model, data + dModel.getDataPerKill(tier) + bonus);
 			}
 		}
 		DeepLearnerItem.saveItems(learner, handler);

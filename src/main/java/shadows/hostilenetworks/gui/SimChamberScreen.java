@@ -59,7 +59,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
 			if (cModel.getModel() != null) {
 				List<Component> txt = new ArrayList<>(1);
 				if (cModel.getTier() != cModel.getTier().next()) {
-					txt.add(new TranslatableComponent("hostilenetworks.gui.data", cModel.getData() - cModel.getTier().data, cModel.getTier().next().data - cModel.getTier().data));
+					txt.add(new TranslatableComponent("hostilenetworks.gui.data", cModel.getData() - cModel.getTierData(), cModel.getNextTierData() - cModel.getTierData()));
 				} else txt.add(new TranslatableComponent("hostilenetworks.gui.max_data").withStyle(ChatFormatting.RED));
 				this.renderComponentTooltip(pPoseStack, txt, pX, pY, this.font);
 			}
@@ -134,7 +134,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
 			ModelTier tier = cModel.getTier();
 			ModelTier next = tier.next();
 			if (tier == next) dataHeight = 0;
-			else dataHeight = 87 - Mth.ceil(87F * (data - tier.data) / (next.data - tier.data));
+			else dataHeight = 87 - Mth.ceil(87F * (data - cModel.getTierData()) / (cModel.getNextTierData() - cModel.getTierData()));
 		}
 
 		GuiComponent.blit(stack, left + 14, top + 48, 18, 141, 7, dataHeight, 256, 256);

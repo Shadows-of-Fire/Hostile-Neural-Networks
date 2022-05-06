@@ -74,8 +74,8 @@ public class DeepLearnerHudRenderer {
 			GuiComponent.blit(e.getMatrixStack(), x + 18, y + i * spacing + 10, 0, 0, 89, 12, 256, 256);
 			int width = 87;
 			if (cModel.getTier() != ModelTier.SELF_AWARE) {
-				int prev = cModel.getTier().data;
-				width = Mth.ceil(width * (cModel.getData() - prev) / (float) (cModel.getTier().next().data - prev));
+				int prev = cModel.getTierData();
+				width = Mth.ceil(width * (cModel.getData() - prev) / (float) (cModel.getNextTierData() - prev));
 			}
 			GuiComponent.blit(e.getMatrixStack(), x + 19, y + i * spacing + 11, 0, 12, width, 10, 256, 256);
 		}
@@ -108,7 +108,7 @@ public class DeepLearnerHudRenderer {
 		GuiComponent.blit(matrix, x + 18, y + 10, 0, 0, 89, 12, 256, 256);
 		int width = 87;
 		if (model.getTier() != ModelTier.SELF_AWARE) {
-			width = Mth.ceil(width * model.getData() / (float) model.getTier().next().data);
+			width = Mth.ceil(width * model.getData() / (float) model.getNextTierData());
 		}
 		GuiComponent.blit(matrix, x + 19, y + 11, 0, 12, width, 10, 256, 256);
 	}

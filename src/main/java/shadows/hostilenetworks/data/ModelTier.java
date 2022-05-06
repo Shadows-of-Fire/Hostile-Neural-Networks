@@ -1,5 +1,7 @@
 package shadows.hostilenetworks.data;
 
+import java.util.Arrays;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -13,7 +15,7 @@ public enum ModelTier {
 
 	private static final ModelTier[] VALUES = ModelTier.values();
 
-	public final int data, dataPerKill;
+	private final int data, dataPerKill;
 	public final String name;
 	public final ChatFormatting color;
 	public final float accuracy;
@@ -40,11 +42,19 @@ public enum ModelTier {
 		return new TranslatableComponent("hostilenetworks.tier." + this.name).withStyle(this.color);
 	}
 
-	public static ModelTier getByData(int data) {
+	public static ModelTier getByData(DataModel model, int data) {
 		for (int i = 4; i >= 0; i--) {
-			if (data >= VALUES[i].data) return VALUES[i];
+			if (data >= model.getTierData(VALUES[i])) return VALUES[i];
 		}
 		return FAULTY;
+	}
+
+	public static int[] defaultData() {
+		return Arrays.stream(VALUES).mapToInt(t -> t.data).toArray();
+	}
+
+	public static int[] defaultDataPerKill() {
+		return Arrays.stream(VALUES).mapToInt(t -> t.dataPerKill).toArray();
 	}
 
 }

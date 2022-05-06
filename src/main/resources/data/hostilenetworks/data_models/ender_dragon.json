@@ -23,5 +23,8 @@
 			"item": "minecraft:dragon_egg",
 			"count": 1
 		}
+	],
+	"data_per_kill": [
+		3, 12, 30, 45
 	]
 }

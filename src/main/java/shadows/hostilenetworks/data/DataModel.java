@@ -2,9 +2,14 @@ package shadows.hostilenetworks.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
+import com.google.common.base.Preconditions;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
 
 import net.minecraft.ChatFormatting;
@@ -32,8 +37,9 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 	protected final ItemStack baseDrop;
 	protected final String triviaKey;
 	protected final List<ItemStack> fabDrops;
+	protected final int[] tierData, dataPerKill;
 
-	public DataModel(EntityType<?> type, TranslatableComponent name, float guiScale, float guiXOff, float guiYOff, float guiZOff, int simCost, ItemStack input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops) {
+	public DataModel(EntityType<?> type, TranslatableComponent name, float guiScale, float guiXOff, float guiYOff, float guiZOff, int simCost, ItemStack input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops, int[] tierData, int[] dataPerKill) {
 		this.type = type;
 		this.name = name;
 		this.guiScale = guiScale;
@@ -45,6 +51,8 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		this.baseDrop = baseDrop;
 		this.triviaKey = triviaKey;
 		this.fabDrops = fabDrops;
+		this.tierData = tierData;
+		this.dataPerKill = dataPerKill;
 	}
 
 	public TranslatableComponent getName() {
@@ -91,6 +99,14 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		return this.fabDrops;
 	}
 
+	public int getTierData(ModelTier tier) {
+		return this.tierData[tier.ordinal()];
+	}
+
+	public int getDataPerKill(ModelTier tier) {
+		return this.dataPerKill[tier.ordinal()];
+	}
+
 	public ItemStack getPredictionDrop() {
 		ItemStack stk = new ItemStack(Hostile.Items.PREDICTION);
 		MobPredictionItem.setStoredModel(stk, this);
@@ -116,6 +132,25 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		return String.format("DataModel[%s]", this.id);
 	}
 
+	public DataModel validate() {
+		Preconditions.checkNotNull(type, "Invalid entity type!");
+		Preconditions.checkNotNull(name, "Invalid entity name!");
+		Preconditions.checkArgument(guiScale > 0, "Invalid gui scale!");
+		Preconditions.checkArgument(simCost > 0, "Invalid simulation cost!");
+		Preconditions.checkArgument(input != null && !input.isEmpty(), "Invalid input item!");
+		Preconditions.checkArgument(baseDrop != null && !baseDrop.isEmpty(), "Invalid base drop!");
+		Preconditions.checkNotNull(triviaKey, "Invalid trivia key!");
+		Preconditions.checkNotNull(fabDrops, "Missing fabricator drops!");
+		fabDrops.forEach(t -> Preconditions.checkArgument(t != null && !t.isEmpty(), "Invalid fabricator drop!"));
+		Preconditions.checkArgument(tierData != null && tierData.length == 5, "Invalid tier data!");
+		Preconditions.checkArgument(dataPerKill != null && dataPerKill.length == 5, "Invalid data per kill!");
+		for (int i = 0; i < 4; i++) {
+			if (dataPerKill[i] <= 0) throw new IllegalArgumentException("Data per kill may not be zero or negative!");
+			if (tierData[i] >= tierData[i + 1]) throw new IllegalArgumentException("Malformed tier data, all values must be ascending!");
+		}
+		return this;
+	}
+
 	public void write(FriendlyByteBuf buf) {
 		buf.writeUtf(this.type.getRegistryName().toString());
 		buf.writeUtf(this.name.getKey());
@@ -131,6 +166,10 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		buf.writeVarInt(this.fabDrops.size());
 		for (ItemStack i : this.fabDrops)
 			buf.writeItem(i);
+		for (int i = 0; i < 5; i++) {
+			buf.writeShort(this.tierData[i]);
+			buf.writeShort(this.dataPerKill[i]);
+		}
 	}
 
 	public static DataModel read(FriendlyByteBuf buf) {
@@ -150,7 +189,13 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		for (int i = 0; i < dropSize; i++) {
 			fabDrops.add(buf.readItem());
 		}
-		DataModel model = new DataModel(type, name, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops);
+		int[] tierData = new int[5], dataPerKill = new int[5];
+		for (int i = 0; i < 5; i++) {
+			tierData[i] = buf.readShort();
+			dataPerKill[i] = buf.readShort();
+		}
+
+		DataModel model = new DataModel(type, name, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops, tierData, dataPerKill);
 		return model;
 	}
 
@@ -168,6 +213,8 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		obj.add("base_drop", ItemAdapter.ITEM_READER.toJsonTree(this.baseDrop));
 		obj.addProperty("trivia", this.triviaKey);
 		obj.add("fabricator_drops", ItemAdapter.ITEM_READER.toJsonTree(this.fabDrops));
+		obj.add("tier_data", ItemAdapter.ITEM_READER.toJsonTree(this.tierData));
+		obj.add("data_per_kill", ItemAdapter.ITEM_READER.toJsonTree(this.dataPerKill));
 		return obj;
 	}
 
@@ -188,7 +235,19 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		List<ItemStack> fabDrops = ItemAdapter.ITEM_READER.fromJson(obj.get("fabricator_drops"), new TypeToken<List<ItemStack>>() {
 		}.getType());
 		fabDrops.removeIf(ItemStack::isEmpty);
-		return new DataModel(t, name, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops);
+
+		int[] tierData = ModelTier.defaultData();
+		if (obj.has("tier_data")) {
+			JsonArray arr = obj.get("tier_data").getAsJsonArray();
+			tierData = Stream.of(new JsonPrimitive(0), arr.get(0), arr.get(1), arr.get(2), arr.get(3)).mapToInt(JsonElement::getAsShort).toArray();
+		}
+		int[] dataPerKill = ModelTier.defaultDataPerKill();
+		if (obj.has("data_per_kill")) {
+			JsonArray arr = obj.get("data_per_kill").getAsJsonArray();
+			dataPerKill = Stream.of(arr.get(0), arr.get(1), arr.get(2), arr.get(3), new JsonPrimitive(0)).mapToInt(JsonElement::getAsShort).toArray();
+		}
+
+		return new DataModel(t, name, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops, tierData, dataPerKill).validate();
 	}
 
 }

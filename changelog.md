@@ -1,5 +1,9 @@
-## 3.0.11
+## 3.1.0
+* Made Tier Data and Data Per Kill configurable on a per-model basis.
+  * For more information, [see this document](https://gist.github.com/Shadows-of-Fire/2e83a68a6822f9cf9f64b1fb30210b71).
+  * Also buffed the Ender Dragon data per kill from 1/4/10/18 to 3/12/30/45.
 * Updated to Placebo 6.4.0 to account for menu changes.
+* PixVoxel: Updated Korean Translation.
 
 ## 3.0.10
 * Fixed a memory leak that was happening while the Deep Learner HUD was being rendered.
