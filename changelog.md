@@ -1,3 +1,6 @@
+## 3.1.1
+* Fixed a crash in the simulation chamber.
+
 ## 3.1.0
 * Made Tier Data and Data Per Kill configurable on a per-model basis.
   * For more information, [see this document](https://gist.github.com/Shadows-of-Fire/2e83a68a6822f9cf9f64b1fb30210b71).

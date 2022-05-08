@@ -2,6 +2,8 @@ package shadows.hostilenetworks.data;
 
 import java.util.Arrays;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -42,7 +44,8 @@ public enum ModelTier {
 		return new TranslatableComponent("hostilenetworks.tier." + this.name).withStyle(this.color);
 	}
 
-	public static ModelTier getByData(DataModel model, int data) {
+	public static ModelTier getByData(@Nullable DataModel model, int data) {
+		if (model == null) return FAULTY;
 		for (int i = 4; i >= 0; i--) {
 			if (data >= model.getTierData(VALUES[i])) return VALUES[i];
 		}
