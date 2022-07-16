@@ -45,7 +45,7 @@ import shadows.placebo.loot.LootSystem;
 public class HostileNetworks {
 
 	public static final String MODID = "hostilenetworks";
-	public static final String VERSION = ModList.get().getModContainerById(MODID).get().getModInfo().getVersion().toString().substring(1);
+	public static final String VERSION = ModList.get().getModContainerById(MODID).get().getModInfo().getVersion().toString();
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
 	//Formatter::off
     public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder

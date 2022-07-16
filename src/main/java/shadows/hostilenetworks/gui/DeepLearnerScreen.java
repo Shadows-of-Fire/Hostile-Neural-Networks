@@ -205,6 +205,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 
 	private void nextVariant() {
 		CachedModel current = this.models[this.selectedModel];
+		if (current == null) return;
 		int variants = current.getModel().getSubtypes().size();
 		if (variants == 0) return;
 
