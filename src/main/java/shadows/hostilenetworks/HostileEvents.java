@@ -64,7 +64,7 @@ public class HostileEvents {
 			ItemStack model = handler.getStackInSlot(i);
 			if (model.isEmpty()) continue;
 			DataModel dModel = DataModelItem.getStoredModel(model);
-			if (dModel.getType() == type) {
+			if (dModel.getType() == type || dModel.getSubtypes().contains(type)) {
 				int data = DataModelItem.getData(model);
 				ModelTier tier = ModelTier.getByData(dModel, data);
 				DataModelItem.setData(model, data + dModel.getDataPerKill(tier) + bonus);

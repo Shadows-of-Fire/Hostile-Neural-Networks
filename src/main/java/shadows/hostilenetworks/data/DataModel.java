@@ -21,6 +21,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.ForgeRegistry;
 import shadows.hostilenetworks.Hostile;
 import shadows.hostilenetworks.item.MobPredictionItem;
 import shadows.placebo.json.ItemAdapter;
@@ -29,6 +30,7 @@ import shadows.placebo.json.PlaceboJsonReloadListener.TypeKeyedBase;
 public class DataModel extends TypeKeyedBase<DataModel> {
 
 	protected final EntityType<?> type;
+	protected final List<EntityType<?>> subtypes;
 	protected final TranslatableComponent name;
 	protected final float guiScale;
 	protected final float guiXOff, guiYOff, guiZOff;
@@ -39,8 +41,9 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 	protected final List<ItemStack> fabDrops;
 	protected final int[] tierData, dataPerKill;
 
-	public DataModel(EntityType<?> type, TranslatableComponent name, float guiScale, float guiXOff, float guiYOff, float guiZOff, int simCost, ItemStack input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops, int[] tierData, int[] dataPerKill) {
+	public DataModel(EntityType<?> type, List<EntityType<?>> subtypes, TranslatableComponent name, float guiScale, float guiXOff, float guiYOff, float guiZOff, int simCost, ItemStack input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops, int[] tierData, int[] dataPerKill) {
 		this.type = type;
+		this.subtypes = subtypes;
 		this.name = name;
 		this.guiScale = guiScale;
 		this.guiYOff = guiYOff;
@@ -85,6 +88,10 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 
 	public EntityType<?> getType() {
 		return this.type;
+	}
+
+	public List<EntityType<?>> getSubtypes() {
+		return this.subtypes;
 	}
 
 	public ItemStack getInput() {
@@ -152,7 +159,11 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 	}
 
 	public void write(FriendlyByteBuf buf) {
-		buf.writeUtf(this.type.getRegistryName().toString());
+		buf.writeVarInt(getId(this.type));
+		buf.writeByte(this.subtypes.size());
+		for (EntityType<?> t : this.subtypes) {
+			buf.writeVarInt(getId(t));
+		}
 		buf.writeUtf(this.name.getKey());
 		buf.writeUtf(this.name.getStyle().getColor().serialize());
 		buf.writeFloat(this.guiScale);
@@ -172,8 +183,21 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		}
 	}
 
+	private static int getId(EntityType<?> type) {
+		return ((ForgeRegistry<EntityType<?>>) ForgeRegistries.ENTITIES).getID(type);
+	}
+
+	private static EntityType<?> byId(int id) {
+		return ((ForgeRegistry<EntityType<?>>) ForgeRegistries.ENTITIES).getValue(id);
+	}
+
 	public static DataModel read(FriendlyByteBuf buf) {
-		EntityType<?> type = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(buf.readUtf()));
+		EntityType<?> type = byId(buf.readVarInt());
+		int size = buf.readByte();
+		List<EntityType<?>> subtypes = new ArrayList<>(size);
+		for (int i = 0; i < size; i++) {
+			subtypes.add(byId(buf.readVarInt()));
+		}
 		TranslatableComponent name = new TranslatableComponent(buf.readUtf());
 		name.withStyle(Style.EMPTY.withColor(TextColor.parseColor(buf.readUtf())));
 		float guiScale = buf.readFloat();
@@ -195,13 +219,14 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 			dataPerKill[i] = buf.readShort();
 		}
 
-		DataModel model = new DataModel(type, name, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops, tierData, dataPerKill);
+		DataModel model = new DataModel(type, subtypes, name, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops, tierData, dataPerKill);
 		return model;
 	}
 
 	public JsonObject write() {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", this.type.getRegistryName().toString());
+		obj.add("subtypes", ItemAdapter.ITEM_READER.toJsonTree(this.subtypes.stream().map(EntityType::getRegistryName).toList()));
 		obj.addProperty("name", this.name.getKey());
 		obj.addProperty("name_color", this.getNameColor());
 		obj.addProperty("gui_scale", this.guiScale);
@@ -220,7 +245,14 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 
 	public static DataModel read(JsonObject obj) {
 		EntityType<?> t = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(obj.get("type").getAsString()));
-		if (t == null) throw new JsonParseException("DataModel has invalid entity type " + obj.get("type").getAsString());
+		if (t == EntityType.PIG && !"minecraft:pig".equals(obj.get("type").getAsString())) throw new JsonParseException("DataModel has invalid entity type " + obj.get("type").getAsString());
+		List<EntityType<?>> subtypes = new ArrayList<>();
+		if (obj.has("subtypes")) {
+			for (JsonElement json : obj.get("subtypes").getAsJsonArray()) {
+				EntityType<?> st = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(json.getAsString()));
+				if (st != EntityType.PIG || "minecraft:pig".equals(json.getAsString())) subtypes.add(st);
+			}
+		}
 		TranslatableComponent name = new TranslatableComponent(obj.get("name").getAsString());
 		if (obj.has("name_color")) name.withStyle(Style.EMPTY.withColor(TextColor.fromRgb(Integer.decode(obj.get("name_color").getAsString()))));
 		else name.withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
@@ -247,7 +279,7 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 			dataPerKill = Stream.of(arr.get(0), arr.get(1), arr.get(2), arr.get(3), new JsonPrimitive(0)).mapToInt(JsonElement::getAsShort).toArray();
 		}
 
-		return new DataModel(t, name, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops, tierData, dataPerKill).validate();
+		return new DataModel(t, subtypes, name, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops, tierData, dataPerKill).validate();
 	}
 
 }

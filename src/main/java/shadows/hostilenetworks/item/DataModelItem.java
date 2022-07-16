@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -56,6 +57,13 @@ public class DataModelItem extends Item {
 				list.add(new TranslatableComponent("hostilenetworks.info.dpk", new TextComponent("" + cModel.getDataPerKill()).withStyle(ChatFormatting.GRAY)));
 			}
 			list.add(new TranslatableComponent("hostilenetworks.info.sim_cost", new TranslatableComponent("hostilenetworks.info.rft", cModel.getModel().getSimCost()).withStyle(ChatFormatting.GRAY)));
+			List<EntityType<?>> subtypes = cModel.getModel().getSubtypes();
+			if (!subtypes.isEmpty()) {
+				list.add(new TranslatableComponent("hostilenetworks.info.subtypes"));
+				for (EntityType<?> t : subtypes) {
+					list.add(new TranslatableComponent("hostilenetworks.info.sub_list", t.getDescription()).withStyle(ChatFormatting.GRAY));
+				}
+			}
 		} else {
 			list.add(new TranslatableComponent("hostilenetworks.info.hold_shift", Color.withColor("hostilenetworks.color_text.shift", ChatFormatting.WHITE.getColor())).withStyle(ChatFormatting.GRAY));
 		}

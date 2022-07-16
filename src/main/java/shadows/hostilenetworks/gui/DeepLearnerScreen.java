@@ -50,6 +50,8 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 	private int spin = 0;
 	private int selectedModel = 0;
 	private ImageButton btnLeft, btnRight;
+	private int variant = 0;
+	private int ticksShown = 0;
 
 	public DeepLearnerScreen(DeepLearnerContainer pMenu, Inventory pPlayerInventory, Component pTitle) {
 		super(pMenu, pPlayerInventory, pTitle);
@@ -125,7 +127,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 
 			this.blit(matrix, left - 41, top, 9, 140, 75, 101);
 
-			LivingEntity ent = this.models[this.selectedModel].getEntity(this.minecraft.level);
+			LivingEntity ent = this.models[this.selectedModel].getEntity(this.minecraft.level, this.variant);
 
 			ent.yBodyRot = this.spin % 360;
 			this.renderEntityInInventory(left - 4, top + 90, 40, 0, 0, ent);
@@ -198,6 +200,22 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 		this.stats.tick();
 
 		this.spin++;
+		if (++this.ticksShown % 80 == 0) nextVariant();
+	}
+
+	private void nextVariant() {
+		CachedModel current = this.models[this.selectedModel];
+		int variants = current.getModel().getSubtypes().size();
+		if (variants == 0) return;
+
+		this.variant = (this.variant + 1) % (variants + 1);
+
+		LivingEntity entity = current.getEntity(this.minecraft.level, this.variant);
+		if (this.variant == 0) {
+			this.texts.set(1, new TickableText(current.getModel().getName().getString(), Color.WHITE, true, 2).setTicks(9999));
+		} else {
+			this.texts.set(1, new TickableText(I18n.get("hostilenetworks.gui.variant", entity.getDisplayName().getString()), Color.LIME, true, 2).setTicks(9999));
+		}
 	}
 
 	private void setupEmptyText() {
@@ -212,6 +230,8 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 	private void setupModel(CachedModel cache) {
 		DataModel model = cache.getModel();
 		if (model == null) return;
+		this.ticksShown = 0;
+		this.variant = 0;
 		this.resetText();
 		this.addText(I18n.get("hostilenetworks.gui.name"), Color.AQUA);
 		this.addText(model.getName().getString(), Color.WHITE);

@@ -1,0 +1,7 @@
+{
+	"replace": false,
+	"values": [
+		"hostilenetworks:sim_chamber",
+		"hostilenetworks:loot_fabricator"
+	]
+}

@@ -1,5 +1,8 @@
 {
 	"type": "minecraft:skeleton",
+	"subtypes": [
+		"minecraft:stray"
+	],
 	"name": "entity.minecraft.skeleton",
 	"name_color": "0xBCBCBC",
 	"gui_scale": 1,

@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -44,7 +45,7 @@ import shadows.placebo.loot.LootSystem;
 public class HostileNetworks {
 
 	public static final String MODID = "hostilenetworks";
-	public static final String VERSION = "3.0.5";
+	public static final String VERSION = ModList.get().getModContainerById(MODID).get().getModInfo().getVersion().toString().substring(1);
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
 	//Formatter::off
     public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder

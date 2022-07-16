@@ -1,3 +1,12 @@
+## 3.2.0
+* Added Data Model Subtypes!
+  * Subtypes are entities that will count towards the specific type, but are a different entity.
+  * Default subtypes include strays counting towards skeletons, and husks/drowned counting towards zombies.
+* Fixed version number becoming outdated.
+  * Version is now pulled from mod info, which uses the actual version.
+* Fixed HNN BE's not marking themselves as changed.
+* Fixed Loot Fab and Sim Chamber mining slowly.
+
 ## 3.1.1
 * Fixed a crash in the simulation chamber.
 

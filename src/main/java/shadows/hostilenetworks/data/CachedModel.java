@@ -2,6 +2,7 @@ package shadows.hostilenetworks.data;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -15,15 +16,16 @@ public class CachedModel {
 	protected final ItemStack stack;
 	protected final int slot;
 	protected final DataModel model;
+	private final Entity[] cachedEntities;
 
 	protected int data;
 	protected ModelTier tier;
-	private Entity cachedEntity;
 
 	public CachedModel(ItemStack stack, int slot) {
 		this.stack = stack;
 		this.slot = slot;
 		this.model = DataModelItem.getStoredModel(stack);
+		this.cachedEntities = model == null ? null : new Entity[this.model.subtypes.size() + 1];
 		this.data = DataModelItem.getData(stack);
 		this.tier = ModelTier.getByData(this.model, this.data);
 	}
@@ -77,12 +79,17 @@ public class CachedModel {
 	public int getKillsNeeded() {
 		return Mth.ceil((this.getNextTierData() - this.data) / (float) this.getDataPerKill());
 	}
-
+	
 	public LivingEntity getEntity(Level world) {
-		if (this.cachedEntity == null) {
-			this.cachedEntity = this.model.type.create(world);
+		return getEntity(world, 0);
+	}
+
+	public LivingEntity getEntity(Level world, int variant) {
+		if (this.cachedEntities[variant] == null) {
+			EntityType<?> type = variant == 0 ? this.model.type : this.model.subtypes.get(variant - 1);
+			this.cachedEntities[variant] = type.create(world);
 		}
-		return this.cachedEntity instanceof LivingEntity ? (LivingEntity) this.cachedEntity : null;
+		return this.cachedEntities[variant] instanceof LivingEntity le ? le : null;
 	}
 
 	public ItemStack getPredictionDrop() {

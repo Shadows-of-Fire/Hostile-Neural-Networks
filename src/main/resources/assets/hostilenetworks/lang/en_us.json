@@ -37,7 +37,8 @@
 	"hostilenetworks.gui.clear": "Click to clear selection",
 	"hostilenetworks.gui.max_tier": "You cannot improve me further",
 	"hostilenetworks.gui.max_data": "I am at maximum potential",
-	
+	"hostilenetworks.gui.variant": "%s (Variant)",
+
 	"hostilenetworks.hud.model": " Model",
 	"hostilenetworks.hud.kills": "%s Remaining",
 	
@@ -75,6 +76,8 @@
 	"hostilenetworks.info.player": "Player Drops: %s",
 	"hostilenetworks.info.exp": "Generates Experience: %s",
 	"hostilenetworks.info.looting": "Looting Level: %s",
+	"hostilenetworks.info.subtypes": "Variants:",
+	"hostilenetworks.info.sub_list": "  - %s",
 	
 	"hostilenetworks.color_text.build": "Build a Data Model",
 	"hostilenetworks.color_text.shift": "SHIFT",

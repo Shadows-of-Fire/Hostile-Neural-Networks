@@ -1,5 +1,10 @@
 {
 	"type": "minecraft:zombie",
+	"subtypes": [
+		"minecraft:husk",
+		"minecraft:drowned",
+		"minecraft:zombie_villager"
+	],
 	"name": "entity.minecraft.zombie",
 	"name_color": "0x3B622F",
 	"gui_scale": 1,

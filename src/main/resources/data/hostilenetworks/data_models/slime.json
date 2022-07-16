@@ -1,5 +1,8 @@
 {
 	"type": "minecraft:slime",
+	"subtypes": [
+		"tconstruct:earth_slime"
+	],
 	"name": "entity.minecraft.slime",
 	"name_color": "0x7BCA62",
 	"gui_scale": 2,

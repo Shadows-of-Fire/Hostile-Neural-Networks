@@ -75,6 +75,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
 						this.insertInOutput(dm.getFabDrops().get(selection).copy(), false);
 						this.inventory.getStackInSlot(0).shrink(1);
 					}
+					this.setChanged();
 				}
 			} else this.runtime = 0;
 		} else this.runtime = 0;
@@ -197,6 +198,11 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
 		public ItemStack extractItem(int slot, int amount, boolean simulate) {
 			if (slot == 0) return ItemStack.EMPTY;
 			return super.extractItem(slot, amount, simulate);
+		}
+
+		@Override
+		protected void onContentsChanged(int slot) {
+			LootFabTileEntity.this.setChanged();
 		}
 	}
 

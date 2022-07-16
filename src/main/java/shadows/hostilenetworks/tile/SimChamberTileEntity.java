@@ -99,6 +99,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 						this.runtime = 300;
 						this.predictionSuccess = this.level.random.nextFloat() <= this.currentModel.getAccuracy();
 						this.inventory.getStackInSlot(1).shrink(1);
+						this.setChanged();
 					}
 				} else if (--this.runtime == 0) {
 					ItemStack stk = this.inventory.getStackInSlot(2);
@@ -114,8 +115,10 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 						this.currentModel.setData(this.currentModel.getData() + 1);
 					}
 					DataModelItem.setIters(model, DataModelItem.getIters(model) + 1);
+					this.setChanged();
 				} else if (this.runtime != 0) {
 					this.energy.setEnergy(this.energy.getEnergyStored() - this.currentModel.getModel().getSimCost());
+					this.setChanged();
 				}
 				return;
 			}
@@ -222,6 +225,11 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 		public ItemStack extractItem(int slot, int amount, boolean simulate) {
 			if (slot <= 1) return ItemStack.EMPTY;
 			return super.extractItem(slot, amount, simulate);
+		}
+
+		@Override
+		protected void onContentsChanged(int slot) {
+			SimChamberTileEntity.this.setChanged();
 		}
 
 	}
