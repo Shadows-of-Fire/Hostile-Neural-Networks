@@ -1,3 +1,6 @@
+## 3.2.1
+* Updated to Placebo 6.6.0
+
 ## 3.2.0
 * Added Data Model Subtypes!
   * Subtypes are entities that will count towards the specific type, but are a different entity.
