@@ -112,6 +112,8 @@
 	"hostilenetworks.trivia.shulker": "A reinforced, teleporting cannon.\nMakes a nice chest when slain.",
 	"hostilenetworks.trivia.vindicator": "An axe-wielding maniac.\nProbably advisable to keep a\nsafe distance.",
 	"hostilenetworks.trivia.zombified_piglin": "A poor nether-dweller turned\ninto a zombie. Has a lot of gold, though.",
-	
+
+	"hostilenetworks.info.no_base_drop": "No Base Drop Produced",
+
 	"enchantment.level.0": "0"
 }

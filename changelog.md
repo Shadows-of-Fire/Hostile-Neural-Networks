@@ -1,6 +1,7 @@
 ## 3.2.2
 * Changed Simulation Chambers so that they start a cycle as soon as they have enough power for the first tick.
   * This should resolve problems where modpacks set a model's sim cost >= 6667 FE/t without changing the chamber's max power.
+* Allowed Data Models to specify nothing as their base drop. You must specify minecraft:air to not receive an error.
 
 ## 3.2.1
 * Updated to Placebo 6.6.0

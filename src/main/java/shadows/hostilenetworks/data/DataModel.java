@@ -20,6 +20,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ForgeRegistry;
 import shadows.hostilenetworks.Hostile;
@@ -145,7 +146,7 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		Preconditions.checkArgument(guiScale > 0, "Invalid gui scale!");
 		Preconditions.checkArgument(simCost > 0, "Invalid simulation cost!");
 		Preconditions.checkArgument(input != null && !input.isEmpty(), "Invalid input item!");
-		Preconditions.checkArgument(baseDrop != null && !baseDrop.isEmpty(), "Invalid base drop!");
+		Preconditions.checkNotNull(baseDrop, "Invalid base drop!");
 		Preconditions.checkNotNull(triviaKey, "Invalid trivia key!");
 		Preconditions.checkNotNull(fabDrops, "Missing fabricator drops!");
 		fabDrops.forEach(t -> Preconditions.checkArgument(t != null && !t.isEmpty(), "Invalid fabricator drop!"));
@@ -263,6 +264,10 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		int simCost = obj.get("sim_cost").getAsInt();
 		ItemStack input = ItemAdapter.ITEM_READER.fromJson(obj.get("input"), ItemStack.class);
 		ItemStack baseDrop = ItemAdapter.ITEM_READER.fromJson(obj.get("base_drop"), ItemStack.class);
+		if(baseDrop.isEmpty()) {
+			baseDrop = new ItemStack(Items.BARRIER);
+			baseDrop.setHoverName(new TranslatableComponent("hostilenetworks.info.no_base_drop"));
+		}
 		String triviaKey = obj.has("trivia") ? obj.get("trivia").getAsString() : "hostilenetworks.trivia.nothing";
 		List<ItemStack> fabDrops = ItemAdapter.ITEM_READER.fromJson(obj.get("fabricator_drops"), new TypeToken<List<ItemStack>>() {
 		}.getType());
