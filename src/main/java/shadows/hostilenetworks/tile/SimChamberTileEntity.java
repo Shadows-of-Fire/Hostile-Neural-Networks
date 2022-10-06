@@ -101,24 +101,29 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 						this.inventory.getStackInSlot(1).shrink(1);
 						this.setChanged();
 					}
-				} else if (--this.runtime == 0) {
-					ItemStack stk = this.inventory.getStackInSlot(2);
-					if (stk.isEmpty()) this.inventory.setStackInSlot(2, this.currentModel.getModel().getBaseDrop().copy());
-					else stk.grow(1);
-					if (this.predictionSuccess) {
-						stk = this.inventory.getStackInSlot(3);
-						if (stk.isEmpty()) this.inventory.setStackInSlot(3, this.currentModel.getPredictionDrop());
+				} else if (hasPowerFor(this.currentModel.getModel())) {
+					this.failState = FailureState.NONE;
+					if (--this.runtime == 0) {
+						ItemStack stk = this.inventory.getStackInSlot(2);
+						if (stk.isEmpty()) this.inventory.setStackInSlot(2, this.currentModel.getModel().getBaseDrop().copy());
 						else stk.grow(1);
+						if (this.predictionSuccess) {
+							stk = this.inventory.getStackInSlot(3);
+							if (stk.isEmpty()) this.inventory.setStackInSlot(3, this.currentModel.getPredictionDrop());
+							else stk.grow(1);
+						}
+						ModelTier tier = this.currentModel.getTier();
+						if (tier != tier.next()) {
+							this.currentModel.setData(this.currentModel.getData() + 1);
+						}
+						DataModelItem.setIters(model, DataModelItem.getIters(model) + 1);
+						this.setChanged();
+					} else if (this.runtime != 0) {
+						this.energy.setEnergy(this.energy.getEnergyStored() - this.currentModel.getModel().getSimCost());
+						this.setChanged();
 					}
-					ModelTier tier = this.currentModel.getTier();
-					if (tier != tier.next()) {
-						this.currentModel.setData(this.currentModel.getData() + 1);
-					}
-					DataModelItem.setIters(model, DataModelItem.getIters(model) + 1);
-					this.setChanged();
-				} else if (this.runtime != 0) {
-					this.energy.setEnergy(this.energy.getEnergyStored() - this.currentModel.getModel().getSimCost());
-					this.setChanged();
+				} else {
+					this.failState = FailureState.ENERGY_MID_CYCLE;
 				}
 				return;
 			}
@@ -161,8 +166,13 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 		return a.getItem() == b.getItem() && ItemStack.tagMatches(a, b) && a.getCount() < a.getMaxStackSize();
 	}
 
+	/**
+	 * Checks if the system has the power required for the tick cost of a model.
+	 * @param model The model being checked.
+	 * @return If the chamber has more power than the sim cost of the model.
+	 */
 	public boolean hasPowerFor(DataModel model) {
-		return this.energy.getEnergyStored() >= model.getSimCost() * 300;
+		return this.energy.getEnergyStored() >= model.getSimCost();
 	}
 
 	@Nullable
@@ -240,7 +250,8 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 		ENERGY("energy"),
 		INPUT("input"),
 		MODEL("model"),
-		FAULTY("faulty");
+		FAULTY("faulty"),
+		ENERGY_MID_CYCLE("energy_mid_cycle");
 
 		private final String name;
 

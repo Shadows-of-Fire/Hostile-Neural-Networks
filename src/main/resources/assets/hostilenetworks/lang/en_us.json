@@ -53,6 +53,7 @@
 	"hostilenetworks.fail.input": "Cannot begin simulation\nMissing input: %s",
 	"hostilenetworks.fail.model": "Please insert a Data Model\nto begin the simulation",
 	"hostilenetworks.fail.faulty": "Insufficient data in model\nplease insert a basic model\nor better",
+	"hostilenetworks.fail.energy_mid_cycle": "Simulation progress paused\nSystem energy levels critical",
 	
 	"hostilenetworks.run.0": "> Launching runtime ",
 	"hostilenetworks.run.1": "> Iteration #%s started",
