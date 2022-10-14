@@ -14,12 +14,12 @@ import shadows.hostilenetworks.client.WeirdRenderThings;
 @Mixin(RenderType.class)
 public abstract class MixinRenderType {
 
-	@Inject(method = "end", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/BufferUploader;end(Lcom/mojang/blaze3d/vertex/BufferBuilder;)V"), require = 1)
+	@Inject(method = "end", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/BufferUploader;drawWithShader(Lcom/mojang/blaze3d/vertex/BufferBuilder$RenderedBuffer;)V"), require = 1)
 	public void setupNoLighting(BufferBuilder pBuffer, int pCameraX, int pCameraY, int pCameraZ, CallbackInfo ci) {
 		WeirdRenderThings.setup();
 	}
 
-	@Inject(method = "end", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/BufferUploader;end(Lcom/mojang/blaze3d/vertex/BufferBuilder;)V", shift = Shift.AFTER), require = 1)
+	@Inject(method = "end", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/BufferUploader;drawWithShader(Lcom/mojang/blaze3d/vertex/BufferBuilder$RenderedBuffer;)V", shift = Shift.AFTER), require = 1)
 	public void cleanNoLighting(BufferBuilder pBuffer, int pCameraX, int pCameraY, int pCameraZ, CallbackInfo ci) {
 		WeirdRenderThings.cleanup();
 	}

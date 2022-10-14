@@ -26,7 +26,7 @@ public class DeepLearnerContainer extends PlaceboContainerMenu {
 	protected Consumer<Integer> notifyCallback;
 
 	public DeepLearnerContainer(int id, Inventory pInv, InteractionHand hand) {
-		super(Hostile.Containers.DEEP_LEARNER, id, pInv);
+		super(Hostile.Containers.DEEP_LEARNER.get(), id, pInv);
 		this.hand = hand;
 		this.player = pInv.player;
 		this.deepLearner = this.player.getItemInHand(hand);
@@ -69,7 +69,7 @@ public class DeepLearnerContainer extends PlaceboContainerMenu {
 
 	@Override
 	public boolean stillValid(Player pPlayer) {
-		return this.deepLearner.getItem() == Hostile.Items.DEEP_LEARNER && this.player.getItemInHand(this.hand) == this.deepLearner;
+		return this.deepLearner.getItem() == Hostile.Items.DEEP_LEARNER.get() && this.player.getItemInHand(this.hand) == this.deepLearner;
 	}
 
 	@Override

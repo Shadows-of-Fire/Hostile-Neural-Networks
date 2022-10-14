@@ -268,7 +268,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 
 		this.statArray[0] = String.valueOf((int) (ent.getAttribute(Attributes.MAX_HEALTH).getBaseValue() / 2));
 		this.statArray[1] = String.valueOf((int) (ent.getAttribute(Attributes.ARMOR).getBaseValue() / 2));
-		this.statArray[2] = String.valueOf(ReflectionThings.getExperienceReward(ent, this.menu.player));
+		this.statArray[2] = String.valueOf(ReflectionThings.getExperienceReward(ent));
 	}
 
 	private void addText(String msg, int color) {

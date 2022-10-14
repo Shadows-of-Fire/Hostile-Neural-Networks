@@ -14,9 +14,11 @@ import com.google.gson.reflect.TypeToken;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
@@ -32,7 +34,7 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 
 	protected final EntityType<?> type;
 	protected final List<EntityType<?>> subtypes;
-	protected final TranslatableComponent name;
+	protected final MutableComponent name;
 	protected final float guiScale;
 	protected final float guiXOff, guiYOff, guiZOff;
 	protected final int simCost;
@@ -42,7 +44,7 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 	protected final List<ItemStack> fabDrops;
 	protected final int[] tierData, dataPerKill;
 
-	public DataModel(EntityType<?> type, List<EntityType<?>> subtypes, TranslatableComponent name, float guiScale, float guiXOff, float guiYOff, float guiZOff, int simCost, ItemStack input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops, int[] tierData, int[] dataPerKill) {
+	public DataModel(EntityType<?> type, List<EntityType<?>> subtypes, MutableComponent name, float guiScale, float guiXOff, float guiYOff, float guiZOff, int simCost, ItemStack input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops, int[] tierData, int[] dataPerKill) {
 		this.type = type;
 		this.subtypes = subtypes;
 		this.name = name;
@@ -59,7 +61,7 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		this.dataPerKill = dataPerKill;
 	}
 
-	public TranslatableComponent getName() {
+	public MutableComponent getName() {
 		return this.name;
 	}
 
@@ -116,7 +118,7 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 	}
 
 	public ItemStack getPredictionDrop() {
-		ItemStack stk = new ItemStack(Hostile.Items.PREDICTION);
+		ItemStack stk = new ItemStack(Hostile.Items.PREDICTION.get());
 		MobPredictionItem.setStoredModel(stk, this);
 		return stk;
 	}
@@ -165,7 +167,7 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		for (EntityType<?> t : this.subtypes) {
 			buf.writeVarInt(getId(t));
 		}
-		buf.writeUtf(this.name.getKey());
+		buf.writeUtf(((TranslatableContents) this.name.getContents()).getKey());
 		buf.writeUtf(this.name.getStyle().getColor().serialize());
 		buf.writeFloat(this.guiScale);
 		buf.writeFloat(this.guiXOff);
@@ -185,11 +187,11 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 	}
 
 	private static int getId(EntityType<?> type) {
-		return ((ForgeRegistry<EntityType<?>>) ForgeRegistries.ENTITIES).getID(type);
+		return ((ForgeRegistry<EntityType<?>>) ForgeRegistries.ENTITY_TYPES).getID(type);
 	}
 
 	private static EntityType<?> byId(int id) {
-		return ((ForgeRegistry<EntityType<?>>) ForgeRegistries.ENTITIES).getValue(id);
+		return ((ForgeRegistry<EntityType<?>>) ForgeRegistries.ENTITY_TYPES).getValue(id);
 	}
 
 	public static DataModel read(FriendlyByteBuf buf) {
@@ -199,7 +201,7 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		for (int i = 0; i < size; i++) {
 			subtypes.add(byId(buf.readVarInt()));
 		}
-		TranslatableComponent name = new TranslatableComponent(buf.readUtf());
+		MutableComponent name = Component.translatable(buf.readUtf());
 		name.withStyle(Style.EMPTY.withColor(TextColor.parseColor(buf.readUtf())));
 		float guiScale = buf.readFloat();
 		float guiXOff = buf.readFloat();
@@ -226,9 +228,9 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 
 	public JsonObject write() {
 		JsonObject obj = new JsonObject();
-		obj.addProperty("type", this.type.getRegistryName().toString());
-		obj.add("subtypes", ItemAdapter.ITEM_READER.toJsonTree(this.subtypes.stream().map(EntityType::getRegistryName).toList()));
-		obj.addProperty("name", this.name.getKey());
+		obj.addProperty("type", EntityType.getKey(this.type).toString());
+		obj.add("subtypes", ItemAdapter.ITEM_READER.toJsonTree(this.subtypes.stream().map(EntityType::getKey).toList()));
+		obj.addProperty("name", ((TranslatableContents) this.name.getContents()).getKey());
 		obj.addProperty("name_color", this.getNameColor());
 		obj.addProperty("gui_scale", this.guiScale);
 		obj.addProperty("gui_x_offset", this.guiXOff);
@@ -245,16 +247,16 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 	}
 
 	public static DataModel read(JsonObject obj) {
-		EntityType<?> t = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(obj.get("type").getAsString()));
+		EntityType<?> t = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(obj.get("type").getAsString()));
 		if (t == EntityType.PIG && !"minecraft:pig".equals(obj.get("type").getAsString())) throw new JsonParseException("DataModel has invalid entity type " + obj.get("type").getAsString());
 		List<EntityType<?>> subtypes = new ArrayList<>();
 		if (obj.has("subtypes")) {
 			for (JsonElement json : obj.get("subtypes").getAsJsonArray()) {
-				EntityType<?> st = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(json.getAsString()));
+				EntityType<?> st = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(json.getAsString()));
 				if (st != EntityType.PIG || "minecraft:pig".equals(json.getAsString())) subtypes.add(st);
 			}
 		}
-		TranslatableComponent name = new TranslatableComponent(obj.get("name").getAsString());
+		MutableComponent name = Component.translatable(obj.get("name").getAsString());
 		if (obj.has("name_color")) name.withStyle(Style.EMPTY.withColor(TextColor.fromRgb(Integer.decode(obj.get("name_color").getAsString()))));
 		else name.withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
 		float guiScale = obj.get("gui_scale").getAsFloat();
@@ -264,9 +266,9 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		int simCost = obj.get("sim_cost").getAsInt();
 		ItemStack input = ItemAdapter.ITEM_READER.fromJson(obj.get("input"), ItemStack.class);
 		ItemStack baseDrop = ItemAdapter.ITEM_READER.fromJson(obj.get("base_drop"), ItemStack.class);
-		if(baseDrop.isEmpty()) {
+		if (baseDrop.isEmpty()) {
 			baseDrop = new ItemStack(Items.BARRIER);
-			baseDrop.setHoverName(new TranslatableComponent("hostilenetworks.info.no_base_drop"));
+			baseDrop.setHoverName(Component.translatable("hostilenetworks.info.no_base_drop"));
 		}
 		String triviaKey = obj.has("trivia") ? obj.get("trivia").getAsString() : "hostilenetworks.trivia.nothing";
 		List<ItemStack> fabDrops = ItemAdapter.ITEM_READER.fromJson(obj.get("fabricator_drops"), new TypeToken<List<ItemStack>>() {

@@ -5,7 +5,6 @@ import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -35,33 +34,33 @@ public class DeepLearnerItem extends Item {
 
 	@Override
 	public InteractionResult useOn(UseOnContext ctx) {
-		if (!ctx.getLevel().isClientSide) NetworkHooks.openGui((ServerPlayer) ctx.getPlayer(), new Provider(ctx.getHand()), buf -> buf.writeBoolean(ctx.getHand() == InteractionHand.MAIN_HAND));
+		if (!ctx.getLevel().isClientSide) NetworkHooks.openScreen((ServerPlayer) ctx.getPlayer(), new Provider(ctx.getHand()), buf -> buf.writeBoolean(ctx.getHand() == InteractionHand.MAIN_HAND));
 		return InteractionResult.CONSUME;
 	}
 
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand) {
-		if (!pPlayer.level.isClientSide) NetworkHooks.openGui((ServerPlayer) pPlayer, new Provider(pHand), buf -> buf.writeBoolean(pHand == InteractionHand.MAIN_HAND));
+		if (!pPlayer.level.isClientSide) NetworkHooks.openScreen((ServerPlayer) pPlayer, new Provider(pHand), buf -> buf.writeBoolean(pHand == InteractionHand.MAIN_HAND));
 		return InteractionResultHolder.consume(pPlayer.getItemInHand(pHand));
 	}
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void appendHoverText(ItemStack pStack, Level pLevel, List<Component> list, TooltipFlag pFlag) {
-		list.add(new TranslatableComponent("hostilenetworks.info.deep_learner", Color.withColor("hostilenetworks.color_text.hud", Color.WHITE)).withStyle(ChatFormatting.GRAY));
+		list.add(Component.translatable("hostilenetworks.info.deep_learner", Color.withColor("hostilenetworks.color_text.hud", Color.WHITE)).withStyle(ChatFormatting.GRAY));
 		if (Screen.hasShiftDown()) {
 			ItemStackHandler inv = getItemHandler(pStack);
 			boolean empty = true;
 			for (int i = 0; i < 4; i++)
 				if (!inv.getStackInSlot(i).isEmpty()) empty = false;
 			if (empty) return;
-			list.add(new TranslatableComponent("hostilenetworks.info.dl_contains").withStyle(ChatFormatting.GRAY));
+			list.add(Component.translatable("hostilenetworks.info.dl_contains").withStyle(ChatFormatting.GRAY));
 			for (int i = 0; i < 4; i++) {
 				ItemStack stack = inv.getStackInSlot(i);
 				if (stack.isEmpty()) continue;
 				CachedModel model = new CachedModel(stack, 0);
 				if (model.getModel() == null) continue;
-				list.add(new TranslatableComponent("- %s %s", model.getTier().getComponent(), stack.getItem().getName(stack)).withStyle(ChatFormatting.GRAY));
+				list.add(Component.translatable("- %s %s", model.getTier().getComponent(), stack.getItem().getName(stack)).withStyle(ChatFormatting.GRAY));
 			}
 		} else {
 			ItemStackHandler inv = getItemHandler(pStack);
@@ -69,7 +68,7 @@ public class DeepLearnerItem extends Item {
 			for (int i = 0; i < 4; i++)
 				if (!inv.getStackInSlot(i).isEmpty()) empty = false;
 			if (empty) return;
-			list.add(new TranslatableComponent("hostilenetworks.info.hold_shift", Color.withColor("hostilenetworks.color_text.shift", Color.WHITE)).withStyle(ChatFormatting.GRAY));
+			list.add(Component.translatable("hostilenetworks.info.hold_shift", Color.withColor("hostilenetworks.color_text.shift", Color.WHITE)).withStyle(ChatFormatting.GRAY));
 		}
 	}
 
@@ -104,7 +103,7 @@ public class DeepLearnerItem extends Item {
 
 		@Override
 		public Component getDisplayName() {
-			return new TranslatableComponent("hostilenetworks.title.deep_learner");
+			return Component.translatable("hostilenetworks.title.deep_learner");
 		}
 	}
 }

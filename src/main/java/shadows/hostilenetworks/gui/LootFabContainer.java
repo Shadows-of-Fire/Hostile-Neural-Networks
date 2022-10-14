@@ -14,9 +14,9 @@ import shadows.placebo.container.FilteredSlot;
 public class LootFabContainer extends BlockEntityContainer<LootFabTileEntity> {
 
 	public LootFabContainer(int id, Inventory pInv, BlockPos pos) {
-		super(Hostile.Containers.LOOT_FABRICATOR, id, pInv, pos);
+		super(Hostile.Containers.LOOT_FABRICATOR.get(), id, pInv, pos);
 		FabItemHandler inv = this.tile.getInventory();
-		this.addSlot(new FilteredSlot(inv, 0, 79, 62, s -> s.getItem() == Hostile.Items.PREDICTION));
+		this.addSlot(new FilteredSlot(inv, 0, 79, 62, s -> s.getItem() == Hostile.Items.PREDICTION.get()));
 		for (int y = 0; y < 4; y++) {
 			for (int x = 0; x < 4; x++) {
 				this.addSlot(new FilteredSlot(inv, 1 + y * 4 + x, 100 + x * 18, 7 + y * 18, s -> false));
@@ -31,7 +31,7 @@ public class LootFabContainer extends BlockEntityContainer<LootFabTileEntity> {
 
 	@Override
 	public boolean stillValid(Player pPlayer) {
-		return pPlayer.level.getBlockState(this.pos).getBlock() == Hostile.Blocks.LOOT_FABRICATOR;
+		return pPlayer.level.getBlockState(this.pos).getBlock() == Hostile.Blocks.LOOT_FABRICATOR.get();
 	}
 
 	@Override

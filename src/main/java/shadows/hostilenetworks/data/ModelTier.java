@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public enum ModelTier {
 	FAULTY(0, 1, "faulty", ChatFormatting.DARK_GRAY, 0.01F),
@@ -41,7 +40,7 @@ public enum ModelTier {
 	}
 
 	public Component getComponent() {
-		return new TranslatableComponent("hostilenetworks.tier." + this.name).withStyle(this.color);
+		return Component.translatable("hostilenetworks.tier." + this.name).withStyle(this.color);
 	}
 
 	public static ModelTier getByData(@Nullable DataModel model, int data) {

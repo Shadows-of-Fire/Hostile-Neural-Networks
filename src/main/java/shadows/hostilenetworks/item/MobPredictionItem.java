@@ -5,8 +5,6 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -26,14 +24,14 @@ public class MobPredictionItem extends Item {
 		DataModel model = getStoredModel(pStack);
 		Component modelName;
 		if (model == null) {
-			modelName = new TextComponent("BROKEN").withStyle(ChatFormatting.OBFUSCATED);
+			modelName = Component.literal("BROKEN").withStyle(ChatFormatting.OBFUSCATED);
 		} else modelName = model.getName();
-		return new TranslatableComponent(this.getDescriptionId(pStack), modelName);
+		return Component.translatable(this.getDescriptionId(pStack), modelName);
 	}
 
 	@Override
 	public void fillItemCategory(CreativeModeTab pGroup, NonNullList<ItemStack> pItems) {
-		if (this.allowdedIn(pGroup)) {
+		if (this.allowedIn(pGroup)) {
 			for (DataModel model : DataModelManager.INSTANCE.getValues()) {
 				ItemStack s = new ItemStack(this);
 				setStoredModel(s, model);

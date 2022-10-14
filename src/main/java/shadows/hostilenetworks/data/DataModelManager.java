@@ -10,8 +10,8 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import shadows.hostilenetworks.HostileNetworks;
+import shadows.placebo.json.PSerializer;
 import shadows.placebo.json.PlaceboJsonReloadListener;
-import shadows.placebo.json.SerializerBuilder;
 
 public class DataModelManager extends PlaceboJsonReloadListener<DataModel> {
 
@@ -25,7 +25,7 @@ public class DataModelManager extends PlaceboJsonReloadListener<DataModel> {
 
 	@Override
 	protected void registerBuiltinSerializers() {
-		this.registerSerializer(DEFAULT, new SerializerBuilder<DataModel>("Data Model").json(DataModel::read, DataModel::write).net(DataModel::read, DataModel::write));
+		this.registerSerializer(DEFAULT, PSerializer.autoRegister("Data Model", DataModel.class));
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public class DataModelManager extends PlaceboJsonReloadListener<DataModel> {
 		super.register(key, model);
 		if (this.modelsByType.containsKey(model.type)) {
 			String msg = "Attempted to register two models (%s and %s) for Entity Type %s!";
-			throw new UnsupportedOperationException(String.format(msg, key, this.modelsByType.get(model.type).getId(), model.type.getRegistryName()));
+			throw new UnsupportedOperationException(String.format(msg, key, this.modelsByType.get(model.type).getId(), EntityType.getKey(model.type)));
 		}
 		this.modelsByType.put(model.type, model);
 	}

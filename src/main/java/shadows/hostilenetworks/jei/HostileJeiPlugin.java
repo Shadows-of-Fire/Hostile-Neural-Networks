@@ -27,8 +27,8 @@ public class HostileJeiPlugin implements IModPlugin {
 
 	@Override
 	public void registerItemSubtypes(ISubtypeRegistration reg) {
-		reg.registerSubtypeInterpreter(Hostile.Items.DATA_MODEL, new ModelSubtypes());
-		reg.registerSubtypeInterpreter(Hostile.Items.PREDICTION, new ModelSubtypes());
+		reg.registerSubtypeInterpreter(Hostile.Items.DATA_MODEL.get(), new ModelSubtypes());
+		reg.registerSubtypeInterpreter(Hostile.Items.PREDICTION.get(), new ModelSubtypes());
 	}
 
 	@Override
@@ -52,8 +52,8 @@ public class HostileJeiPlugin implements IModPlugin {
 
 	@Override
 	public void registerRecipeCatalysts(IRecipeCatalystRegistration reg) {
-		reg.addRecipeCatalyst(new ItemStack(Hostile.Blocks.SIM_CHAMBER), SimChamberCategory.TYPE);
-		reg.addRecipeCatalyst(new ItemStack(Hostile.Blocks.LOOT_FABRICATOR), LootFabCategory.TYPE);
+		reg.addRecipeCatalyst(new ItemStack(Hostile.Blocks.SIM_CHAMBER.get()), SimChamberCategory.TYPE);
+		reg.addRecipeCatalyst(new ItemStack(Hostile.Blocks.LOOT_FABRICATOR.get()), LootFabCategory.TYPE);
 	}
 
 	private class ModelSubtypes implements IIngredientSubtypeInterpreter<ItemStack> {

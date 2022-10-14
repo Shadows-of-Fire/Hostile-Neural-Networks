@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
@@ -13,7 +14,6 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -35,8 +35,8 @@ public class LootFabCategory implements IRecipeCategory<LootFabRecipe> {
 	public LootFabCategory(IGuiHelper guiHelper) {
 		ResourceLocation location = new ResourceLocation(HostileNetworks.MODID, "textures/jei/loot_fabricator.png");
 		this.background = guiHelper.createDrawable(location, 0, 0, 103, 30);
-		this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM, new ItemStack(Hostile.Blocks.LOOT_FABRICATOR));
-		this.name = new TranslatableComponent(Hostile.Blocks.LOOT_FABRICATOR.getDescriptionId());
+		this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Hostile.Blocks.LOOT_FABRICATOR.get()));
+		this.name = Component.translatable(Hostile.Blocks.LOOT_FABRICATOR.get().getDescriptionId());
 	}
 
 	@Override
@@ -50,18 +50,8 @@ public class LootFabCategory implements IRecipeCategory<LootFabRecipe> {
 	}
 
 	@Override
-	public Class<LootFabRecipe> getRecipeClass() {
-		return LootFabRecipe.class;
-	}
-
-	@Override
 	public Component getTitle() {
 		return this.name;
-	}
-
-	@Override
-	public ResourceLocation getUid() {
-		return UID;
 	}
 
 	@Override
@@ -71,16 +61,16 @@ public class LootFabCategory implements IRecipeCategory<LootFabRecipe> {
 
 	@Override
 	public void setRecipe(IRecipeLayoutBuilder builder, LootFabRecipe recipe, IFocusGroup focuses) {
-		builder.addSlot(RecipeIngredientRole.INPUT, 9, 7).addIngredient(VanillaTypes.ITEM, recipe.input);
-		builder.addSlot(RecipeIngredientRole.OUTPUT, 79, 7).addIngredient(VanillaTypes.ITEM, recipe.output);
+		builder.addSlot(RecipeIngredientRole.INPUT, 9, 7).addIngredient(VanillaTypes.ITEM_STACK, recipe.input);
+		builder.addSlot(RecipeIngredientRole.OUTPUT, 79, 7).addIngredient(VanillaTypes.ITEM_STACK, recipe.output);
 	}
 
 	@Override
-	public void draw(LootFabRecipe recipe, PoseStack matrixStack, double mouseX, double mouseY) {
+	public void draw(LootFabRecipe recipe, IRecipeSlotsView recipeSlotsView, PoseStack stack, double mouseX, double mouseY) {
 		Minecraft mc = Minecraft.getInstance();
 		long time = mc.level.getGameTime();
 		int width = Mth.ceil(36F * (this.ticks % 40 + mc.getDeltaFrameTime()) / 40);
-		GuiComponent.blit(matrixStack, 34, 12, 0, 30, width, 6, 256, 256);
+		GuiComponent.blit(stack, 34, 12, 0, 30, width, 6, 256, 256);
 		if (time != this.lastTickTime) {
 			++this.ticks;
 			this.lastTickTime = time;

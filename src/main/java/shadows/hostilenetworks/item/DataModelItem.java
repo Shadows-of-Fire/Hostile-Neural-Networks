@@ -11,8 +11,7 @@ import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTab;
@@ -20,7 +19,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.client.IItemRenderProperties;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import shadows.hostilenetworks.client.DataModelItemStackRenderer;
 import shadows.hostilenetworks.data.CachedModel;
 import shadows.hostilenetworks.data.DataModel;
@@ -44,34 +43,34 @@ public class DataModelItem extends Item {
 		if (Screen.hasShiftDown()) {
 			CachedModel cModel = new CachedModel(pStack, 0);
 			if (cModel.getModel() == null) {
-				list.add(new TranslatableComponent("Error: %s", new TextComponent("Broke_AF").withStyle(ChatFormatting.OBFUSCATED, ChatFormatting.GRAY)));
+				list.add(Component.translatable("Error: %s", Component.literal("Broke_AF").withStyle(ChatFormatting.OBFUSCATED, ChatFormatting.GRAY)));
 				return;
 			}
 			int data = getData(pStack);
 			ModelTier tier = ModelTier.getByData(cModel.getModel(), data);
-			list.add(new TranslatableComponent("hostilenetworks.info.tier", tier.getComponent()));
+			list.add(Component.translatable("hostilenetworks.info.tier", tier.getComponent()));
 			int dProg = data - cModel.getTierData();
 			int dMax = cModel.getNextTierData() - cModel.getTierData();
 			if (tier != ModelTier.SELF_AWARE) {
-				list.add(new TranslatableComponent("hostilenetworks.info.data", new TranslatableComponent("hostilenetworks.info.dprog", dProg, dMax).withStyle(ChatFormatting.GRAY)));
-				list.add(new TranslatableComponent("hostilenetworks.info.dpk", new TextComponent("" + cModel.getDataPerKill()).withStyle(ChatFormatting.GRAY)));
+				list.add(Component.translatable("hostilenetworks.info.data", Component.translatable("hostilenetworks.info.dprog", dProg, dMax).withStyle(ChatFormatting.GRAY)));
+				list.add(Component.translatable("hostilenetworks.info.dpk", Component.literal("" + cModel.getDataPerKill()).withStyle(ChatFormatting.GRAY)));
 			}
-			list.add(new TranslatableComponent("hostilenetworks.info.sim_cost", new TranslatableComponent("hostilenetworks.info.rft", cModel.getModel().getSimCost()).withStyle(ChatFormatting.GRAY)));
+			list.add(Component.translatable("hostilenetworks.info.sim_cost", Component.translatable("hostilenetworks.info.rft", cModel.getModel().getSimCost()).withStyle(ChatFormatting.GRAY)));
 			List<EntityType<?>> subtypes = cModel.getModel().getSubtypes();
 			if (!subtypes.isEmpty()) {
-				list.add(new TranslatableComponent("hostilenetworks.info.subtypes"));
+				list.add(Component.translatable("hostilenetworks.info.subtypes"));
 				for (EntityType<?> t : subtypes) {
-					list.add(new TranslatableComponent("hostilenetworks.info.sub_list", t.getDescription()).withStyle(ChatFormatting.GRAY));
+					list.add(Component.translatable("hostilenetworks.info.sub_list", t.getDescription()).withStyle(Style.EMPTY.withColor(Color.LIME)));
 				}
 			}
 		} else {
-			list.add(new TranslatableComponent("hostilenetworks.info.hold_shift", Color.withColor("hostilenetworks.color_text.shift", ChatFormatting.WHITE.getColor())).withStyle(ChatFormatting.GRAY));
+			list.add(Component.translatable("hostilenetworks.info.hold_shift", Color.withColor("hostilenetworks.color_text.shift", ChatFormatting.WHITE.getColor())).withStyle(ChatFormatting.GRAY));
 		}
 	}
 
 	@Override
 	public void fillItemCategory(CreativeModeTab pGroup, NonNullList<ItemStack> pItems) {
-		if (this.allowdedIn(pGroup)) {
+		if (this.allowedIn(pGroup)) {
 			for (DataModel model : DataModelManager.INSTANCE.getValues()) {
 				ItemStack s = new ItemStack(this);
 				setStoredModel(s, model);
@@ -85,18 +84,18 @@ public class DataModelItem extends Item {
 		DataModel model = getStoredModel(pStack);
 		Component modelName;
 		if (model == null) {
-			modelName = new TextComponent("BROKEN").withStyle(ChatFormatting.OBFUSCATED);
+			modelName = Component.literal("BROKEN").withStyle(ChatFormatting.OBFUSCATED);
 		} else modelName = model.getName();
-		return new TranslatableComponent(this.getDescriptionId(pStack), modelName);
+		return Component.translatable(this.getDescriptionId(pStack), modelName);
 	}
 
 	@Override
-	public void initializeClient(Consumer<IItemRenderProperties> consumer) {
-		consumer.accept(new IItemRenderProperties() {
+	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+		consumer.accept(new IClientItemExtensions() {
 			DataModelItemStackRenderer dmisr = new DataModelItemStackRenderer();
 
 			@Override
-			public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
+			public BlockEntityWithoutLevelRenderer getCustomRenderer() {
 				return this.dmisr;
 			}
 		});

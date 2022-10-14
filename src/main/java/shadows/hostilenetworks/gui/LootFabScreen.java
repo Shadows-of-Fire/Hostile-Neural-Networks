@@ -13,7 +13,6 @@ import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -77,11 +76,11 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> {
 	protected void renderTooltip(PoseStack pPoseStack, int pX, int pY) {
 		int selection = this.menu.getSelectedDrop(this.model);
 		if (selection != -1 && this.isHovering(79, 5, 16, 16, pX, pY)) {
-			this.renderComponentTooltip(pPoseStack, Arrays.asList(new TranslatableComponent("hostilenetworks.gui.clear")), pX, pY, this.font);
+			this.renderComponentTooltip(pPoseStack, Arrays.asList(Component.translatable("hostilenetworks.gui.clear")), pX, pY, this.font);
 		} else if (this.isHovering(6, 10, 7, 53, pX, pY)) {
 			List<Component> txt = new ArrayList<>(2);
-			txt.add(new TranslatableComponent("hostilenetworks.gui.energy", this.menu.getEnergyStored(), HostileConfig.fabPowerCap));
-			txt.add(new TranslatableComponent("hostilenetworks.gui.fab_cost", HostileConfig.fabPowerCost));
+			txt.add(Component.translatable("hostilenetworks.gui.energy", this.menu.getEnergyStored(), HostileConfig.fabPowerCap));
+			txt.add(Component.translatable("hostilenetworks.gui.fab_cost", HostileConfig.fabPowerCost));
 			this.renderComponentTooltip(pPoseStack, txt, pX, pY, this.font);
 		}
 		super.renderTooltip(pPoseStack, pX, pY);

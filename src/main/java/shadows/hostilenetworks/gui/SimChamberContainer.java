@@ -14,7 +14,7 @@ import shadows.placebo.container.FilteredSlot;
 public class SimChamberContainer extends BlockEntityContainer<SimChamberTileEntity> {
 
 	public SimChamberContainer(int id, Inventory pInv, BlockPos pos) {
-		super(Hostile.Containers.SIM_CHAMBER, id, pInv, pos);
+		super(Hostile.Containers.SIM_CHAMBER.get(), id, pInv, pos);
 		SimItemHandler inventory = this.tile.getInventory();
 		this.addSlot(new FilteredSlot(inventory, 0, -13, 1, s -> s.getItem() instanceof DataModelItem));
 		this.addSlot(new FilteredSlot(inventory, 1, 176, 7, s -> DataModelItem.matchesInput(this.getSlot(0).getItem(), s)));
@@ -29,7 +29,7 @@ public class SimChamberContainer extends BlockEntityContainer<SimChamberTileEnti
 
 	@Override
 	public boolean stillValid(Player pPlayer) {
-		return pPlayer.level.getBlockState(this.pos).getBlock() == Hostile.Blocks.SIM_CHAMBER;
+		return pPlayer.level.getBlockState(this.pos).getBlock() == Hostile.Blocks.SIM_CHAMBER.get();
 	}
 
 	public int getEnergyStored() {

@@ -21,7 +21,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
@@ -42,6 +42,7 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
 	private static final Map<EntityType<?>, LivingEntity> CACHE = new WeakHashMap<>();
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public void renderByItem(ItemStack stack, TransformType type, PoseStack matrix, MultiBufferSource buf, int light, int overlay) {
 		ItemRenderer irenderer = Minecraft.getInstance().getItemRenderer();
 		BakedModel base = irenderer.getItemModelShaper().getModelManager().getModel(DATA_MODEL_BASE);
@@ -130,7 +131,7 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
 	}
 
 	@SubscribeEvent
-	public static void join(EntityJoinWorldEvent e) {
+	public static void join(EntityJoinLevelEvent e) {
 		if (e.getEntity() == Minecraft.getInstance().player) CACHE.clear();
 	}
 

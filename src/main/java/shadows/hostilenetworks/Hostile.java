@@ -4,7 +4,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.registries.ObjectHolder;
+import net.minecraftforge.registries.RegistryObject;
 import shadows.hostilenetworks.gui.DeepLearnerContainer;
 import shadows.hostilenetworks.gui.LootFabContainer;
 import shadows.hostilenetworks.gui.SimChamberContainer;
@@ -12,35 +12,34 @@ import shadows.hostilenetworks.item.DataModelItem;
 import shadows.hostilenetworks.item.MobPredictionItem;
 import shadows.hostilenetworks.tile.LootFabTileEntity;
 import shadows.hostilenetworks.tile.SimChamberTileEntity;
+import shadows.placebo.util.RegObjHelper;
 
 public class Hostile {
 
-	@ObjectHolder(HostileNetworks.MODID)
+	private static final RegObjHelper R = new RegObjHelper(HostileNetworks.MODID);
+
 	public static class Items {
-		public static final Item BLANK_DATA_MODEL = null;
-		public static final Item EMPTY_PREDICTION = null;
-		public static final Item DEEP_LEARNER = null;
-		public static final DataModelItem DATA_MODEL = null;
-		public static final MobPredictionItem PREDICTION = null;
+		public static final RegistryObject<Item> BLANK_DATA_MODEL = R.item("BLANK_DATA_MODEL");
+		public static final RegistryObject<Item> EMPTY_PREDICTION = R.item("EMPTY_PREDICTION");
+		public static final RegistryObject<Item> DEEP_LEARNER = R.item("DEEP_LEARNER");
+		public static final RegistryObject<DataModelItem> DATA_MODEL = R.item("DATA_MODEL");
+		public static final RegistryObject<MobPredictionItem> PREDICTION = R.item("PREDICTION");
 	}
 
-	@ObjectHolder(HostileNetworks.MODID)
 	public static class Blocks {
-		public static final Block SIM_CHAMBER = null;
-		public static final Block LOOT_FABRICATOR = null;
+		public static final RegistryObject<Block> SIM_CHAMBER = R.block("SIM_CHAMBER");
+		public static final RegistryObject<Block> LOOT_FABRICATOR = R.block("LOOT_FABRICATOR");
 	}
 
-	@ObjectHolder(HostileNetworks.MODID)
 	public static class TileEntities {
-		public static final BlockEntityType<SimChamberTileEntity> SIM_CHAMBER = null;
-		public static final BlockEntityType<LootFabTileEntity> LOOT_FABRICATOR = null;
+		public static final RegistryObject<BlockEntityType<SimChamberTileEntity>> SIM_CHAMBER = R.blockEntity("SIM_CHAMBER");
+		public static final RegistryObject<BlockEntityType<LootFabTileEntity>> LOOT_FABRICATOR = R.blockEntity("LOOT_FABRICATOR");
 	}
 
-	@ObjectHolder(HostileNetworks.MODID)
 	public static class Containers {
-		public static final MenuType<DeepLearnerContainer> DEEP_LEARNER = null;
-		public static final MenuType<SimChamberContainer> SIM_CHAMBER = null;
-		public static final MenuType<LootFabContainer> LOOT_FABRICATOR = null;
+		public static final RegistryObject<MenuType<DeepLearnerContainer>> DEEP_LEARNER = R.menu("DEEP_LEARNER");
+		public static final RegistryObject<MenuType<SimChamberContainer>> SIM_CHAMBER = R.menu("SIM_CHAMBER");
+		public static final RegistryObject<MenuType<LootFabContainer>> LOOT_FABRICATOR = R.menu("LOOT_FABRICATOR");
 	}
 
 }

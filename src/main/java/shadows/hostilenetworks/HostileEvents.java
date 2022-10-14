@@ -1,9 +1,7 @@
 package shadows.hostilenetworks;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -27,21 +25,21 @@ public class HostileEvents {
 
 	@SubscribeEvent
 	public static void modelAttunement(EntityInteractSpecific e) {
-		Player player = e.getPlayer();
+		Player player = e.getEntity();
 		ItemStack stack = player.getItemInHand(e.getHand());
-		if (stack.getItem() == Hostile.Items.BLANK_DATA_MODEL) {
+		if (stack.getItem() == Hostile.Items.BLANK_DATA_MODEL.get()) {
 			if (!player.level.isClientSide) {
 				DataModel model = DataModelManager.INSTANCE.getForEntity(e.getTarget().getType());
 				if (model == null) {
-					Component msg = new TranslatableComponent("hostilenetworks.msg.no_model").withStyle(ChatFormatting.RED);
-					player.sendMessage(msg, Util.NIL_UUID);
+					Component msg = Component.translatable("hostilenetworks.msg.no_model").withStyle(ChatFormatting.RED);
+					player.sendSystemMessage(msg);
 					return;
 				}
 
-				Component msg = new TranslatableComponent("hostilenetworks.msg.built", model.getName()).withStyle(ChatFormatting.GOLD);
-				player.sendMessage(msg, Util.NIL_UUID);
+				Component msg = Component.translatable("hostilenetworks.msg.built", model.getName()).withStyle(ChatFormatting.GOLD);
+				player.sendSystemMessage(msg);
 
-				ItemStack modelStack = new ItemStack(Hostile.Items.DATA_MODEL);
+				ItemStack modelStack = new ItemStack(Hostile.Items.DATA_MODEL.get());
 				DataModelItem.setStoredModel(modelStack, model);
 				player.setItemInHand(e.getHand(), modelStack);
 			}
@@ -53,8 +51,8 @@ public class HostileEvents {
 	public static void kill(LivingDeathEvent e) {
 		Entity src = e.getSource().getEntity();
 		if (src instanceof ServerPlayer p) {
-			p.getInventory().items.stream().filter(s -> s.getItem() == Items.DEEP_LEARNER).forEach(dl -> updateModels(dl, e.getEntityLiving().getType(), 0));
-			if (p.getOffhandItem().getItem() == Items.DEEP_LEARNER) updateModels(p.getOffhandItem(), e.getEntityLiving().getType(), 0);
+			p.getInventory().items.stream().filter(s -> s.getItem() == Items.DEEP_LEARNER.get()).forEach(dl -> updateModels(dl, e.getEntity().getType(), 0));
+			if (p.getOffhandItem().getItem() == Items.DEEP_LEARNER.get()) updateModels(p.getOffhandItem(), e.getEntity().getType(), 0);
 		}
 	}
 

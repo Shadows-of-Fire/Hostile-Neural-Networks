@@ -5,7 +5,6 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.coremod.api.ASMAPI;
 
 public class ReflectionThings {
@@ -14,7 +13,7 @@ public class ReflectionThings {
 
 	static {
 		try {
-			Method getXPReward = LivingEntity.class.getDeclaredMethod(ASMAPI.mapMethod("m_6552_"), Player.class);
+			Method getXPReward = LivingEntity.class.getDeclaredMethod(ASMAPI.mapMethod("m_213860_"));
 			getXPReward.setAccessible(true);
 			getExperienceReward = MethodHandles.lookup().unreflect(getXPReward);
 		} catch (Exception e) {
@@ -22,9 +21,9 @@ public class ReflectionThings {
 		}
 	}
 
-	public static int getExperienceReward(LivingEntity ent, Player player) {
+	public static int getExperienceReward(LivingEntity ent) {
 		try {
-			return (int) getExperienceReward.invoke(ent, player);
+			return (int) getExperienceReward.invoke(ent);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}

@@ -17,9 +17,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.items.CapabilityItemHandler;
 import shadows.hostilenetworks.Hostile;
 import shadows.hostilenetworks.HostileConfig;
 import shadows.hostilenetworks.data.DataModel;
@@ -43,7 +42,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
 	protected int currentSel = -1;
 
 	public LootFabTileEntity(BlockPos pos, BlockState state) {
-		super(Hostile.TileEntities.LOOT_FABRICATOR, pos, state);
+		super(Hostile.TileEntities.LOOT_FABRICATOR.get(), pos, state);
 		this.savedSelections.defaultReturnValue(-1);
 		this.data.addData(() -> this.runtime, v -> this.runtime = v);
 		this.data.addEnergy(this.energy);
@@ -101,8 +100,8 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-		if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return LazyOptional.of(() -> this.inventory).cast();
-		if (cap == CapabilityEnergy.ENERGY) return LazyOptional.of(() -> this.energy).cast();
+		if (cap == ForgeCapabilities.ITEM_HANDLER) return LazyOptional.of(() -> this.inventory).cast();
+		if (cap == ForgeCapabilities.ENERGY) return LazyOptional.of(() -> this.energy).cast();
 		return super.getCapability(cap, side);
 	}
 
@@ -184,7 +183,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
 
 		@Override
 		public boolean isItemValid(int slot, ItemStack stack) {
-			if (slot == 0) return stack.getItem() == Hostile.Items.PREDICTION;
+			if (slot == 0) return stack.getItem() == Hostile.Items.PREDICTION.get();
 			return true;
 		}
 

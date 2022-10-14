@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
@@ -17,7 +18,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -43,8 +43,8 @@ public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapp
 	public SimChamberCategory(IGuiHelper guiHelper) {
 		ResourceLocation location = new ResourceLocation(HostileNetworks.MODID, "textures/jei/sim_chamber.png");
 		this.background = guiHelper.createDrawable(location, 0, 0, 116, 43);
-		this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM, new ItemStack(Hostile.Blocks.SIM_CHAMBER));
-		this.name = new TranslatableComponent(Hostile.Blocks.SIM_CHAMBER.getDescriptionId());
+		this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Hostile.Blocks.SIM_CHAMBER.get()));
+		this.name = Component.translatable(Hostile.Blocks.SIM_CHAMBER.get().getDescriptionId());
 	}
 
 	@Override
@@ -58,18 +58,8 @@ public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapp
 	}
 
 	@Override
-	public Class<TickingDataModelWrapper> getRecipeClass() {
-		return TickingDataModelWrapper.class;
-	}
-
-	@Override
 	public Component getTitle() {
 		return this.name;
-	}
-
-	@Override
-	public ResourceLocation getUid() {
-		return UID;
 	}
 
 	@Override
@@ -79,21 +69,21 @@ public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapp
 
 	@Override
 	public void setRecipe(IRecipeLayoutBuilder builder, TickingDataModelWrapper recipe, IFocusGroup focuses) {
-		builder.addSlot(RecipeIngredientRole.INPUT, 4, 4).addIngredient(VanillaTypes.ITEM, recipe.model);
-		builder.addSlot(RecipeIngredientRole.INPUT, 28, 4).addIngredient(VanillaTypes.ITEM, recipe.input);
-		builder.addSlot(RecipeIngredientRole.OUTPUT, 96, 4).addIngredient(VanillaTypes.ITEM, recipe.baseDrop);
-		builder.addSlot(RecipeIngredientRole.OUTPUT, 66, 26).addIngredient(VanillaTypes.ITEM, recipe.prediction);
+		builder.addSlot(RecipeIngredientRole.INPUT, 4, 4).addIngredient(VanillaTypes.ITEM_STACK, recipe.model);
+		builder.addSlot(RecipeIngredientRole.INPUT, 28, 4).addIngredient(VanillaTypes.ITEM_STACK, recipe.input);
+		builder.addSlot(RecipeIngredientRole.OUTPUT, 96, 4).addIngredient(VanillaTypes.ITEM_STACK, recipe.baseDrop);
+		builder.addSlot(RecipeIngredientRole.OUTPUT, 66, 26).addIngredient(VanillaTypes.ITEM_STACK, recipe.prediction);
 	}
 
 	@Override
-	public void draw(TickingDataModelWrapper recipe, PoseStack matrixStack, double mouseX, double mouseY) {
+	public void draw(TickingDataModelWrapper recipe, IRecipeSlotsView recipeSlotsView, PoseStack stack, double mouseX, double mouseY) {
 		Minecraft mc = Minecraft.getInstance();
 		Font font = mc.font;
 		long time = mc.level.getGameTime();
 
 		int width = Mth.ceil(35F * (this.ticks % 40 + mc.getDeltaFrameTime()) / 40);
 
-		GuiComponent.blit(matrixStack, 52, 9, 0, 43, width, 6, 256, 256);
+		GuiComponent.blit(stack, 52, 9, 0, 43, width, 6, 256, 256);
 
 		if (time != this.lastTickTime) {
 			if (++this.ticks % 30 == 0) {
@@ -107,11 +97,11 @@ public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapp
 		}
 		Component comp = recipe.currentTier.getComponent();
 		width = font.width(comp);
-		font.draw(matrixStack, recipe.currentTier.getComponent(), 33 - width / 2, 30, recipe.currentTier.color.getColor());
+		font.draw(stack, recipe.currentTier.getComponent(), 33 - width / 2, 30, recipe.currentTier.color.getColor());
 		DecimalFormat fmt = new DecimalFormat("##.##%");
 		String msg = fmt.format(recipe.currentTier.accuracy);
 		width = font.width(msg);
-		font.drawShadow(matrixStack, msg, 114 - width, 30, Color.WHITE);
+		font.drawShadow(stack, msg, 114 - width, 30, Color.WHITE);
 	}
 
 }

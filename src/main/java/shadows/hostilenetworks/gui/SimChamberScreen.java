@@ -12,8 +12,6 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
@@ -48,10 +46,10 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
 	protected void renderTooltip(PoseStack pPoseStack, int pX, int pY) {
 		if (this.isHovering(211, 48, 7, 87, pX, pY)) {
 			List<Component> txt = new ArrayList<>(2);
-			txt.add(new TranslatableComponent("hostilenetworks.gui.energy", this.menu.getEnergyStored(), HostileConfig.simPowerCap));
+			txt.add(Component.translatable("hostilenetworks.gui.energy", this.menu.getEnergyStored(), HostileConfig.simPowerCap));
 			CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
 			if (cModel.getModel() != null) {
-				txt.add(new TranslatableComponent("hostilenetworks.gui.cost", cModel.getModel().getSimCost()));
+				txt.add(Component.translatable("hostilenetworks.gui.cost", cModel.getModel().getSimCost()));
 			}
 			this.renderComponentTooltip(pPoseStack, txt, pX, pY, this.font);
 		} else if (this.isHovering(14, 48, 7, 87, pX, pY)) {
@@ -59,8 +57,8 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
 			if (cModel.getModel() != null) {
 				List<Component> txt = new ArrayList<>(1);
 				if (cModel.getTier() != cModel.getTier().next()) {
-					txt.add(new TranslatableComponent("hostilenetworks.gui.data", cModel.getData() - cModel.getTierData(), cModel.getNextTierData() - cModel.getTierData()));
-				} else txt.add(new TranslatableComponent("hostilenetworks.gui.max_data").withStyle(ChatFormatting.RED));
+					txt.add(Component.translatable("hostilenetworks.gui.data", cModel.getData() - cModel.getTierData(), cModel.getNextTierData() - cModel.getTierData()));
+				} else txt.add(Component.translatable("hostilenetworks.gui.max_data").withStyle(ChatFormatting.RED));
 				this.renderComponentTooltip(pPoseStack, txt, pX, pY, this.font);
 			}
 		} else super.renderTooltip(pPoseStack, pX, pY);
@@ -143,7 +141,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
 		GuiComponent.blit(stack, left + 28, top + 145, 0, 0, 176, 90, 256, 256);
 	}
 
-	private static final Component ERROR = new TextComponent("ERROR").withStyle(ChatFormatting.OBFUSCATED);
+	private static final Component ERROR = Component.literal("ERROR").withStyle(ChatFormatting.OBFUSCATED);
 
 	@Override
 	public void containerTick() {

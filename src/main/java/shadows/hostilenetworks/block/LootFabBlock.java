@@ -2,7 +2,7 @@ package shadows.hostilenetworks.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
@@ -51,7 +51,7 @@ public class LootFabBlock extends HorizontalDirectionalBlock implements TickingE
 		if (pLevel.isClientSide) {
 			return InteractionResult.SUCCESS;
 		} else {
-			NetworkHooks.openGui((ServerPlayer) pPlayer, this.getMenuProvider(pState, pLevel, pPos), pPos);
+			NetworkHooks.openScreen((ServerPlayer) pPlayer, this.getMenuProvider(pState, pLevel, pPos), pPos);
 			return InteractionResult.CONSUME;
 		}
 	}
@@ -70,7 +70,7 @@ public class LootFabBlock extends HorizontalDirectionalBlock implements TickingE
 
 	@Override
 	public MenuProvider getMenuProvider(BlockState pState, Level pLevel, BlockPos pPos) {
-		return new SimpleMenuProvider((id, inv, player) -> new LootFabContainer(id, inv, pPos), new TranslatableComponent(this.getDescriptionId()));
+		return new SimpleMenuProvider((id, inv, player) -> new LootFabContainer(id, inv, pPos), Component.translatable(this.getDescriptionId()));
 	}
 
 }

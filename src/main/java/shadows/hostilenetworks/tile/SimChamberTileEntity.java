@@ -13,9 +13,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.items.CapabilityItemHandler;
 import shadows.hostilenetworks.Hostile;
 import shadows.hostilenetworks.HostileConfig;
 import shadows.hostilenetworks.data.CachedModel;
@@ -40,7 +39,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 	protected FailureState failState = FailureState.NONE;
 
 	public SimChamberTileEntity(BlockPos pos, BlockState state) {
-		super(Hostile.TileEntities.SIM_CHAMBER, pos, state);
+		super(Hostile.TileEntities.SIM_CHAMBER.get(), pos, state);
 		this.data.addData(() -> this.runtime, v -> this.runtime = v);
 		this.data.addData(() -> this.predictionSuccess, v -> this.predictionSuccess = v);
 		this.data.addData(() -> this.failState.ordinal(), v -> this.failState = FailureState.values()[v]);
@@ -187,8 +186,8 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-		if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return LazyOptional.of(() -> this.inventory).cast();
-		if (cap == CapabilityEnergy.ENERGY) return LazyOptional.of(() -> this.energy).cast();
+		if (cap == ForgeCapabilities.ITEM_HANDLER) return LazyOptional.of(() -> this.inventory).cast();
+		if (cap == ForgeCapabilities.ENERGY) return LazyOptional.of(() -> this.energy).cast();
 		return super.getCapability(cap, side);
 	}
 

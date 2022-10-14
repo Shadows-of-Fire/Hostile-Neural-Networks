@@ -16,7 +16,7 @@ public class TickingDataModelWrapper {
 	ModelTier currentTier = ModelTier.BASIC;
 
 	public TickingDataModelWrapper(DataModel src) {
-		this.model = new ItemStack(Hostile.Items.DATA_MODEL);
+		this.model = new ItemStack(Hostile.Items.DATA_MODEL.get());
 		DataModelItem.setStoredModel(this.model, src);
 		DataModelItem.setData(this.model, src.getTierData(ModelTier.BASIC));
 		this.input = src.getInput().copy();
