@@ -115,5 +115,7 @@
 
 	"hostilenetworks.info.no_base_drop": "No Base Drop Produced",
 
-	"enchantment.level.0": "0"
+	"enchantment.level.0": "0",
+	
+	"curios.identifier.deep_learner": "Deep Learner"
 }

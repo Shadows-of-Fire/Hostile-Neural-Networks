@@ -19,6 +19,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.IContainerFactory;
 import net.minecraftforge.network.NetworkRegistry;
@@ -28,6 +29,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegisterEvent;
 import shadows.hostilenetworks.block.LootFabBlock;
 import shadows.hostilenetworks.block.SimChamberBlock;
+import shadows.hostilenetworks.curios.CuriosCompat;
 import shadows.hostilenetworks.data.DataModelManager;
 import shadows.hostilenetworks.gui.DeepLearnerContainer;
 import shadows.hostilenetworks.gui.LootFabContainer;
@@ -119,4 +121,8 @@ public class HostileNetworks {
 		DataModelManager.INSTANCE.registerToBus();
 	}
 
+	@SubscribeEvent
+	public void imcEvent(InterModEnqueueEvent e) {
+		if (ModList.get().isLoaded("curios")) CuriosCompat.sendIMC();
+	}
 }

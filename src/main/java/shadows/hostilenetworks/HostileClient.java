@@ -6,6 +6,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
@@ -19,11 +20,10 @@ import shadows.hostilenetworks.gui.DeepLearnerScreen;
 import shadows.hostilenetworks.gui.LootFabScreen;
 import shadows.hostilenetworks.gui.SimChamberScreen;
 import shadows.hostilenetworks.item.MobPredictionItem;
+import shadows.hostilenetworks.util.ClientEntityCache;
 
 @EventBusSubscriber(bus = Bus.MOD, value = Dist.CLIENT, modid = HostileNetworks.MODID)
 public class HostileClient {
-
-	public static int clientTicks = 0;
 
 	@SubscribeEvent
 	public static void init(FMLClientSetupEvent e) {
@@ -57,8 +57,13 @@ public class HostileClient {
 		e.registerAboveAll("deep_learner", new DeepLearnerHudRenderer());
 	}
 
+	@SubscribeEvent
+	public static void stitch(TextureStitchEvent.Pre e) {
+		e.addSprite(new ResourceLocation(HostileNetworks.MODID, "item/empty_learner_slot"));
+	}
+
 	public static void tick(ClientTickEvent e) {
-		if (e.phase == Phase.START) clientTicks++;
+		if (e.phase == Phase.START) ClientEntityCache.tick();
 	}
 
 }

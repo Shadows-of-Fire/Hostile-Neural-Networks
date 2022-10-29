@@ -1,3 +1,8 @@
+## 4.0.1
+* Added Curios Support!  The Deep Learner now has special Curios slot and will show the HUD when in this slot.
+* Fixed Deep Learner GUI not ticking entities (which meant some entities did not perform animations).
+* Slightly altered Deep Learner GUI rotations so that mobs start facing forwards instead of backwards.
+
 ## 4.0.0
 * Updated to 1.19.2
 

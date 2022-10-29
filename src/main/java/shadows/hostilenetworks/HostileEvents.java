@@ -11,9 +11,11 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
 import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.items.ItemStackHandler;
 import shadows.hostilenetworks.Hostile.Items;
+import shadows.hostilenetworks.curios.CuriosCompat;
 import shadows.hostilenetworks.data.DataModel;
 import shadows.hostilenetworks.data.DataModelManager;
 import shadows.hostilenetworks.data.ModelTier;
@@ -53,6 +55,10 @@ public class HostileEvents {
 		if (src instanceof ServerPlayer p) {
 			p.getInventory().items.stream().filter(s -> s.getItem() == Items.DEEP_LEARNER.get()).forEach(dl -> updateModels(dl, e.getEntity().getType(), 0));
 			if (p.getOffhandItem().getItem() == Items.DEEP_LEARNER.get()) updateModels(p.getOffhandItem(), e.getEntity().getType(), 0);
+			if (ModList.get().isLoaded("curios")) {
+				ItemStack curioStack = CuriosCompat.getDeepLearner(p);
+				if (curioStack.getItem() == Items.DEEP_LEARNER.get()) updateModels(curioStack, e.getEntity().getType(), 0);
+			}
 		}
 	}
 

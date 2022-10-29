@@ -1,8 +1,5 @@
 package shadows.hostilenetworks.client;
 
-import java.util.Map;
-import java.util.WeakHashMap;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -17,18 +14,15 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
-import shadows.hostilenetworks.HostileClient;
 import shadows.hostilenetworks.HostileNetworks;
 import shadows.hostilenetworks.data.DataModel;
 import shadows.hostilenetworks.item.DataModelItem;
+import shadows.hostilenetworks.util.ClientEntityCache;
 
 @EventBusSubscriber(bus = Bus.FORGE, value = Dist.CLIENT, modid = HostileNetworks.MODID)
 public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer {
@@ -39,7 +33,6 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
 
 	private static final MultiBufferSource.BufferSource GHOST_ENTITY_BUF = MultiBufferSource.immediate(new BufferBuilder(256));
 	private static final ResourceLocation DATA_MODEL_BASE = new ResourceLocation(HostileNetworks.MODID, "item/data_model_base");
-	private static final Map<EntityType<?>, LivingEntity> CACHE = new WeakHashMap<>();
 
 	@Override
 	@SuppressWarnings("deprecation")
@@ -74,7 +67,7 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
 		matrix.popPose();
 		DataModel model = DataModelItem.getStoredModel(stack);
 		if (model != null) {
-			LivingEntity ent = CACHE.computeIfAbsent(model.getType(), t -> (LivingEntity) t.create(Minecraft.getInstance().level));
+			LivingEntity ent = ClientEntityCache.computeIfAbsent(model.getType(), Minecraft.getInstance().level);
 			if (Minecraft.getInstance().player != null) ent.tickCount = Minecraft.getInstance().player.tickCount;
 			if (ent != null) {
 				this.renderEntityInInventory(matrix, type, ent, model);
@@ -104,7 +97,7 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
 			float scale = 0.25F;
 			scale *= model.getScale();
 			matrix.scale(scale, scale, scale);
-			matrix.translate(0, 0.12 + 0.05 * Math.sin((HostileClient.clientTicks + Minecraft.getInstance().getDeltaFrameTime()) / 12), 0);
+			matrix.translate(0, 0.12 + 0.05 * Math.sin((pLivingEntity.tickCount + Minecraft.getInstance().getDeltaFrameTime()) / 12), 0);
 		}
 
 		float rotation = -30;
@@ -128,11 +121,6 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
 		WeirdRenderThings.fullbright_tesr = false;
 		entityrenderermanager.setRenderShadow(true);
 		matrix.popPose();
-	}
-
-	@SubscribeEvent
-	public static void join(EntityJoinLevelEvent e) {
-		if (e.getEntity() == Minecraft.getInstance().player) CACHE.clear();
 	}
 
 }

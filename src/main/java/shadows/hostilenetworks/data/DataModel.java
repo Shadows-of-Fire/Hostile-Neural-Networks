@@ -21,6 +21,7 @@ import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -32,8 +33,8 @@ import shadows.placebo.json.PlaceboJsonReloadListener.TypeKeyedBase;
 
 public class DataModel extends TypeKeyedBase<DataModel> {
 
-	protected final EntityType<?> type;
-	protected final List<EntityType<?>> subtypes;
+	protected final EntityType<? extends LivingEntity> type;
+	protected final List<EntityType<? extends LivingEntity>> subtypes;
 	protected final MutableComponent name;
 	protected final float guiScale;
 	protected final float guiXOff, guiYOff, guiZOff;
@@ -44,7 +45,7 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 	protected final List<ItemStack> fabDrops;
 	protected final int[] tierData, dataPerKill;
 
-	public DataModel(EntityType<?> type, List<EntityType<?>> subtypes, MutableComponent name, float guiScale, float guiXOff, float guiYOff, float guiZOff, int simCost, ItemStack input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops, int[] tierData, int[] dataPerKill) {
+	public DataModel(EntityType<? extends LivingEntity> type, List<EntityType<? extends LivingEntity>> subtypes, MutableComponent name, float guiScale, float guiXOff, float guiYOff, float guiZOff, int simCost, ItemStack input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops, int[] tierData, int[] dataPerKill) {
 		this.type = type;
 		this.subtypes = subtypes;
 		this.name = name;
@@ -89,11 +90,11 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		return this.simCost;
 	}
 
-	public EntityType<?> getType() {
+	public EntityType<? extends LivingEntity> getType() {
 		return this.type;
 	}
 
-	public List<EntityType<?>> getSubtypes() {
+	public List<EntityType<? extends LivingEntity>> getSubtypes() {
 		return this.subtypes;
 	}
 
@@ -190,14 +191,15 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		return ((ForgeRegistry<EntityType<?>>) ForgeRegistries.ENTITY_TYPES).getID(type);
 	}
 
-	private static EntityType<?> byId(int id) {
-		return ((ForgeRegistry<EntityType<?>>) ForgeRegistries.ENTITY_TYPES).getValue(id);
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static EntityType<? extends LivingEntity> byId(int id) {
+		return (EntityType) ((ForgeRegistry<EntityType<?>>) ForgeRegistries.ENTITY_TYPES).getValue(id);
 	}
 
 	public static DataModel read(FriendlyByteBuf buf) {
-		EntityType<?> type = byId(buf.readVarInt());
+		EntityType<? extends LivingEntity> type = byId(buf.readVarInt());
 		int size = buf.readByte();
-		List<EntityType<?>> subtypes = new ArrayList<>(size);
+		List<EntityType<? extends LivingEntity>> subtypes = new ArrayList<>(size);
 		for (int i = 0; i < size; i++) {
 			subtypes.add(byId(buf.readVarInt()));
 		}
@@ -246,13 +248,14 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		return obj;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static DataModel read(JsonObject obj) {
-		EntityType<?> t = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(obj.get("type").getAsString()));
+		EntityType<? extends LivingEntity> t = (EntityType) ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(obj.get("type").getAsString()));
 		if (t == EntityType.PIG && !"minecraft:pig".equals(obj.get("type").getAsString())) throw new JsonParseException("DataModel has invalid entity type " + obj.get("type").getAsString());
-		List<EntityType<?>> subtypes = new ArrayList<>();
+		List<EntityType<? extends LivingEntity>> subtypes = new ArrayList<>();
 		if (obj.has("subtypes")) {
 			for (JsonElement json : obj.get("subtypes").getAsJsonArray()) {
-				EntityType<?> st = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(json.getAsString()));
+				EntityType<? extends LivingEntity> st = (EntityType) ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(json.getAsString()));
 				if (st != EntityType.PIG || "minecraft:pig".equals(json.getAsString())) subtypes.add(st);
 			}
 		}

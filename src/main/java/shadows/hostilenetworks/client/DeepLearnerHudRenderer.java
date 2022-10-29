@@ -20,9 +20,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.items.ItemStackHandler;
 import shadows.hostilenetworks.Hostile;
 import shadows.hostilenetworks.HostileNetworks;
+import shadows.hostilenetworks.curios.CuriosCompat;
 import shadows.hostilenetworks.data.CachedModel;
 import shadows.hostilenetworks.data.ModelTier;
 import shadows.hostilenetworks.item.DeepLearnerItem;
@@ -39,6 +41,7 @@ public class DeepLearnerHudRenderer implements IGuiOverlay {
 
 		ItemStack stack = player.getMainHandItem();
 		if (stack.getItem() != Hostile.Items.DEEP_LEARNER.get()) stack = player.getOffhandItem();
+		if (stack.getItem() != Hostile.Items.DEEP_LEARNER.get() && ModList.get().isLoaded("curios")) stack = CuriosCompat.getDeepLearner(player);
 		if (stack.getItem() != Hostile.Items.DEEP_LEARNER.get()) return;
 
 		ItemStackHandler inv = DeepLearnerItem.getItemHandler(stack);

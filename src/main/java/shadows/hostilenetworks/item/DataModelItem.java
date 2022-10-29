@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -56,7 +57,7 @@ public class DataModelItem extends Item {
 				list.add(Component.translatable("hostilenetworks.info.dpk", Component.literal("" + cModel.getDataPerKill()).withStyle(ChatFormatting.GRAY)));
 			}
 			list.add(Component.translatable("hostilenetworks.info.sim_cost", Component.translatable("hostilenetworks.info.rft", cModel.getModel().getSimCost()).withStyle(ChatFormatting.GRAY)));
-			List<EntityType<?>> subtypes = cModel.getModel().getSubtypes();
+			List<EntityType<? extends LivingEntity>> subtypes = cModel.getModel().getSubtypes();
 			if (!subtypes.isEmpty()) {
 				list.add(Component.translatable("hostilenetworks.info.subtypes"));
 				for (EntityType<?> t : subtypes) {

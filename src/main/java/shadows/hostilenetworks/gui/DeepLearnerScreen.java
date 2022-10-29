@@ -47,7 +47,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 	private int numModels = 0;
 	private boolean emptyText = true;
 	private CachedModel[] models = new CachedModel[4];
-	private int spin = 0;
+	private int spin = 65;
 	private int selectedModel = 0;
 	private ImageButton btnLeft, btnRight;
 	private int variant = 0;
