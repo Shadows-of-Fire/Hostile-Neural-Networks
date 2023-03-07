@@ -11,7 +11,7 @@
 	"item.hostilenetworks.nether_prediction": "通用下界预测产物",
 	"item.hostilenetworks.end_prediction": "通用末地预测产物",
 	
-	"itemGroup.hostilenetworks": "Hostile Neural Networks",
+	"itemGroup.hostilenetworks": "敌对神经网络",
 	
 	"hostilenetworks.gui.learner_empty.0": "找不到数据模型，",
 	"hostilenetworks.gui.learner_empty.1": "请插入数据模型！",
@@ -37,6 +37,7 @@
 	"hostilenetworks.gui.clear": "点击清除选择",
 	"hostilenetworks.gui.max_tier": "无法进一步升级",
 	"hostilenetworks.gui.max_data": "数据量达到最大",
+	"hostilenetworks.gui.variant": "%s (变体)",
 	
 	"hostilenetworks.hud.model": " 模型",
 	"hostilenetworks.hud.kills": "%s 剩余",
@@ -52,6 +53,7 @@
 	"hostilenetworks.fail.input": "无法开始模拟\n缺少输入：%s",
 	"hostilenetworks.fail.model": "请插入数据模型\n来开始模拟",
 	"hostilenetworks.fail.faulty": "模型中的数据无效\n请插入等级为基础或以上\n的数据模型",
+	"hostilenetworks.fail.energy_mid_cycle": "模拟进度暂停\n系统能量等级低",
 	
 	"hostilenetworks.run.0": "> 启动运行时 ",
 	"hostilenetworks.run.1": "> 开始第 %s 次迭代",
@@ -75,7 +77,9 @@
 	"hostilenetworks.info.player": "玩家掉落: %s",
 	"hostilenetworks.info.exp": "生成经验: %s",
 	"hostilenetworks.info.looting": "抢夺等级: %s",
-	
+	"hostilenetworks.info.subtypes": "变体:",
+	"hostilenetworks.info.sub_list": "  - %s",
+
 	"hostilenetworks.color_text.build": "创建数据模型",
 	"hostilenetworks.color_text.shift": "SHIFT",
 	"hostilenetworks.color_text.rclick": "鼠标右键",
@@ -109,5 +113,9 @@
 	"hostilenetworks.trivia.vindicator": "手持斧头的疯子。\n建议保持安全距离。",
 	"hostilenetworks.trivia.zombified_piglin": "一个僵尸化的可怜下界居民，\n但还是有很多金子。",
 	
-	"enchantment.level.0": "0"
+	"hostilenetworks.info.no_base_drop": "无基础预测产物掉落",
+
+	"enchantment.level.0": "0",
+
+	"curios.identifier.deep_learner": "深度学习器"
 }
