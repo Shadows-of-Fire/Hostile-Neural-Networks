@@ -13,7 +13,6 @@ import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -84,6 +83,18 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> {
 			txt.add(new TranslatableComponent("hostilenetworks.gui.fab_cost", HostileConfig.fabPowerCost));
 			this.renderComponentTooltip(pPoseStack, txt, pX, pY, this.font);
 		}
+
+		if (this.model != null) {
+			List<ItemStack> drops = this.model.getFabDrops();
+			for (int y = 0; y < 3; y++) {
+				for (int x = 0; x < 3; x++) {
+					if (y * 3 + x < Math.min(drops.size() - this.currentPage * 9, 9) && this.isHovering(18 + 18 * x, 10 + 18 * y, 16, 16, pX, pY)) {
+						drawOnLeft(pPoseStack, this.getTooltipFromItem(drops.get(this.currentPage * 9 + y * 3 + x)), this.getGuiTop() + 15);
+					}
+				}
+			}
+		}
+
 		super.renderTooltip(pPoseStack, pX, pY);
 	}
 
@@ -170,6 +181,24 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> {
 			}
 		}
 
+	}
+
+	public void drawOnLeft(PoseStack stack, List<Component> list, int y) {
+		if (list.isEmpty()) return;
+		int xPos = this.getGuiLeft() - 16 - list.stream().map(this.font::width).max(Integer::compare).get();
+		int maxWidth = 9999;
+		if (xPos < 0) {
+			maxWidth = this.getGuiLeft() - 6;
+			xPos = -8;
+		}
+
+		List<FormattedText> split = new ArrayList<>();
+		int lambdastupid = maxWidth;
+		list.forEach(comp -> split.addAll(this.font.getSplitter().splitLines(comp, lambdastupid, comp.getStyle())));
+
+		this.renderComponentTooltip(stack, split, xPos, y, this.font);
+
+		//GuiUtils.drawHoveringText(stack, list, xPos, y, width, height, maxWidth, this.font);
 	}
 
 }

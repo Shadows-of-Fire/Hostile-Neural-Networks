@@ -1,6 +1,7 @@
 ## 3.3.0
 * Added a missing setChanged call in LootFabTileEntity#setSelection which may have been preventing selection saving.
 * Blackwithking: Updated chinese translation.
+* Hovering an item in the Loot Fabricator will now show the item's tooltip.
 
 ## 3.2.2
 * Changed Simulation Chambers so that they start a cycle as soon as they have enough power for the first tick.
