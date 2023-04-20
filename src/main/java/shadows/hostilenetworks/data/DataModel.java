@@ -1,6 +1,7 @@
 package shadows.hostilenetworks.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -60,6 +61,23 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		this.fabDrops = fabDrops;
 		this.tierData = tierData;
 		this.dataPerKill = dataPerKill;
+	}
+
+	public DataModel(DataModel other, List<ItemStack> newResults) {
+		this.type = other.type;
+		this.subtypes = other.subtypes;
+		this.name = other.name;
+		this.guiScale = other.guiScale;
+		this.guiYOff = other.guiYOff;
+		this.guiXOff = other.guiXOff;
+		this.guiZOff = other.guiZOff;
+		this.simCost = other.simCost;
+		this.input = other.input;
+		this.baseDrop = other.baseDrop;
+		this.triviaKey = other.triviaKey;
+		this.fabDrops = newResults;
+		this.tierData = other.tierData;
+		this.dataPerKill = other.dataPerKill;
 	}
 
 	public MutableComponent getName() {
@@ -243,8 +261,8 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		obj.add("base_drop", ItemAdapter.ITEM_READER.toJsonTree(this.baseDrop));
 		obj.addProperty("trivia", this.triviaKey);
 		obj.add("fabricator_drops", ItemAdapter.ITEM_READER.toJsonTree(this.fabDrops));
-		obj.add("tier_data", ItemAdapter.ITEM_READER.toJsonTree(this.tierData));
-		obj.add("data_per_kill", ItemAdapter.ITEM_READER.toJsonTree(this.dataPerKill));
+		obj.add("tier_data", ItemAdapter.ITEM_READER.toJsonTree(Arrays.copyOfRange(this.tierData, 1, 5)));
+		obj.add("data_per_kill", ItemAdapter.ITEM_READER.toJsonTree(Arrays.copyOfRange(this.dataPerKill, 0, 4)));
 		return obj;
 	}
 

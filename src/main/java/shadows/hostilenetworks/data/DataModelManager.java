@@ -57,4 +57,8 @@ public class DataModelManager extends PlaceboJsonReloadListener<DataModel> {
 		return this.modelsByType.get(type);
 	}
 
+	public PSerializer<DataModel> getSerializer() {
+		return this.serializers.get(DEFAULT);
+	}
+
 }

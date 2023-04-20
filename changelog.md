@@ -1,3 +1,10 @@
+## 4.0.3
+* Added the /hostilenetworks command with three subcommands.
+  * The first subcommand, generate_model_json, can be used to generate a Data Model JSON by simulating the death of the entity.
+  * The second subcommand, update_model_json, can be used to update the fabricator drops of an existing data model based on the current context.
+  * The final subcommand, generate_all, will generate a model json for every possible loaded entity.
+  * All subcommands use the executing player as the context point, and will use any enchantments or looting that the player has to determine the drops.
+
 ## 4.0.2
 * Added a missing setChanged call in LootFabTileEntity#setSelection which may have been preventing selection saving.
 

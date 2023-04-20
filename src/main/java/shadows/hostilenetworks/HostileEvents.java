@@ -1,12 +1,14 @@
 package shadows.hostilenetworks;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
 import net.minecraftforge.eventbus.api.Event.Result;
@@ -15,6 +17,7 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.items.ItemStackHandler;
 import shadows.hostilenetworks.Hostile.Items;
+import shadows.hostilenetworks.command.GenerateModelCommand;
 import shadows.hostilenetworks.curios.CuriosCompat;
 import shadows.hostilenetworks.data.DataModel;
 import shadows.hostilenetworks.data.DataModelManager;
@@ -24,6 +27,13 @@ import shadows.hostilenetworks.item.DeepLearnerItem;
 
 @EventBusSubscriber(modid = HostileNetworks.MODID)
 public class HostileEvents {
+
+	@SubscribeEvent
+	public static void cmds(RegisterCommandsEvent e) {
+		var builder = Commands.literal("hostilenetworks");
+		GenerateModelCommand.register(builder);
+		e.getDispatcher().register(builder);
+	}
 
 	@SubscribeEvent
 	public static void modelAttunement(EntityInteractSpecific e) {
