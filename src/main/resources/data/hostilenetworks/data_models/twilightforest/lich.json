@@ -1,0 +1,72 @@
+{
+  "conditions": [
+    {
+      "modid": "twilightforest",
+      "type": "forge:mod_loaded"
+    }
+  ],
+  "type": "twilightforest:lich",
+  "subtypes": [],
+  "name": "entity.twilightforest.lich",
+  "name_color": "0x34125E",
+  "gui_scale": 1.0,
+  "gui_x_offset": 0.0,
+  "gui_y_offset": 0.0,
+  "gui_z_offset": 0.0,
+  "sim_cost": 1024,
+  "input": {
+    "item": "hostilenetworks:empty_prediction",
+    "count": 1
+  },
+  "base_drop": {
+    "item": "hostilenetworks:twilight_prediction",
+    "count": 1
+  },
+  "trivia": "hostilenetworks.trivia.lich",
+  "fabricator_drops": [
+    {
+      "item": "twilightforest:lich_trophy",
+      "count": 4
+    },
+    {
+      "item": "minecraft:ender_pearl",
+      "count": 24
+    },
+    {
+      "item": "minecraft:bone",
+      "count": 32
+    },
+    {
+      "item": "twilightforest:lifedrain_scepter",
+      "count": 1,
+      "nbt": "{Damage:0}"
+    },
+    {
+      "item": "twilightforest:fortification_scepter",
+      "count": 1,
+      "nbt": "{Damage:0}"
+    },
+    {
+      "item": "twilightforest:zombie_scepter",
+      "count": 1,
+      "nbt": "{Damage:0}"
+    },
+    {
+      "item": "twilightforest:twilight_scepter",
+      "count": 1,
+      "nbt": "{Damage:0}"
+    }
+  ],
+  "tier_data": [
+    6,
+    54,
+    354,
+    1254
+  ],
+  "data_per_kill": [
+    1,
+    4,
+    10,
+    18
+  ]
+}

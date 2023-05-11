@@ -1,0 +1,52 @@
+{
+  "conditions": [
+    {
+      "modid": "twilightforest",
+      "type": "forge:mod_loaded"
+    }
+  ],
+  "type": "twilightforest:alpha_yeti",
+  "subtypes": [],
+  "name": "entity.twilightforest.alpha_yeti",
+  "name_color": "0xE1E1E1",
+  "gui_scale": 0.33,
+  "gui_x_offset": 0.0,
+  "gui_y_offset": 0.0,
+  "gui_z_offset": 0.0,
+  "sim_cost": 4096,
+  "input": {
+    "item": "hostilenetworks:empty_prediction",
+    "count": 1
+  },
+  "base_drop": {
+    "item": "hostilenetworks:twilight_prediction",
+    "count": 1
+  },
+  "trivia": "hostilenetworks.trivia.alpha_yeti",
+  "fabricator_drops": [
+    {
+      "item": "twilightforest:ice_bomb",
+      "count": 32
+    },
+    {
+      "item": "twilightforest:alpha_yeti_trophy",
+      "count": 4
+    },
+    {
+      "item": "twilightforest:alpha_yeti_fur",
+      "count": 16
+    }
+  ],
+  "tier_data": [
+    6,
+    54,
+    354,
+    1254
+  ],
+  "data_per_kill": [
+    1,
+    4,
+    10,
+    18
+  ]
+}

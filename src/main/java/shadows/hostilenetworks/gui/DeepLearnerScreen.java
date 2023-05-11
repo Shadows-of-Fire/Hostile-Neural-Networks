@@ -65,7 +65,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 			if (old == null && this.models[slotId] != null) {
 				if (++this.numModels == 1) {
 					this.selectedModel = slotId;
-					this.setupModel(this.models[this.selectedModel]);
+					this.setupModel(this.getCurrentModel());
 					this.emptyText = false;
 				}
 			} else if (old != null && this.models[slotId] == null) {
@@ -73,6 +73,10 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 				if (this.numModels > 0 && slotId == this.selectedModel) this.selectLeft();
 			} else if (slotId == this.selectedModel && this.models[this.selectedModel] != null) this.setupModel(this.models[this.selectedModel]);
 		});
+	}
+
+	protected CachedModel getCurrentModel() {
+		return this.models[this.selectedModel];
 	}
 
 	@Override
@@ -127,10 +131,13 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 
 			this.blit(matrix, left - 41, top, 9, 140, 75, 101);
 
-			LivingEntity ent = this.models[this.selectedModel].getEntity(this.minecraft.level, this.variant);
+			CachedModel model = this.getCurrentModel();
 
-			ent.yBodyRot = this.spin % 360;
-			this.renderEntityInInventory(left - 4, top + 90, 40, 0, 0, ent);
+			if (model != null && model.isValid()) {
+				LivingEntity ent = model.getEntity(this.minecraft.level, this.variant);
+				ent.yBodyRot = this.spin % 360;
+				this.renderEntityInInventory(left - 4, top + 90, 40, 0, 0, ent);
+			}
 
 			for (int i = 0; i < 3; i++) {
 				this.font.draw(matrix, this.statArray[i], left + WIDTH - 36 - this.stats.getWidth(this.font), top + 9 + this.font.lineHeight + (this.font.lineHeight + 2) * i, Color.WHITE);
@@ -204,8 +211,8 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 	}
 
 	private void nextVariant() {
-		CachedModel current = this.models[this.selectedModel];
-		if (current == null) return;
+		CachedModel current = this.getCurrentModel();
+		if (current == null || !current.isValid()) return;
 		int variants = current.getModel().getSubtypes().size();
 		if (variants == 0) return;
 
@@ -213,9 +220,9 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 
 		LivingEntity entity = current.getEntity(this.minecraft.level, this.variant);
 		if (this.variant == 0) {
-			this.texts.set(1, new TickableText(current.getModel().getName().getString(), Color.WHITE, true, 2).setTicks(9999));
+			this.texts.set(1, new TickableText(entity.getType().getDescription().getString(), Color.WHITE, true, 2).setTicks(9999));
 		} else {
-			this.texts.set(1, new TickableText(I18n.get("hostilenetworks.gui.variant", entity.getDisplayName().getString()), Color.LIME, true, 2).setTicks(9999));
+			this.texts.set(1, new TickableText(I18n.get("hostilenetworks.gui.variant", entity.getType().getDescription().getString()), Color.LIME, true, 2).setTicks(9999));
 		}
 	}
 
@@ -229,13 +236,13 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 	private static DecimalFormat fmt = new DecimalFormat("##.##%");
 
 	private void setupModel(CachedModel cache) {
+		if (cache == null || !cache.isValid()) return;
 		DataModel model = cache.getModel();
-		if (model == null) return;
 		this.ticksShown = 0;
 		this.variant = 0;
 		this.resetText();
 		this.addText(I18n.get("hostilenetworks.gui.name"), Color.AQUA);
-		this.addText(model.getName().getString(), Color.WHITE);
+		this.addText(cache.getEntity(this.minecraft.level).getType().getDescription().getString(), Color.WHITE);
 		this.addText(I18n.get("hostilenetworks.gui.info"), Color.AQUA);
 		String[] trivia = I18n.get(model.getTriviaKey()).split("\\n");
 		for (int i = 0; i < Math.min(4, trivia.length); i++) {
@@ -294,7 +301,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 		RenderSystem.applyModelViewMatrix();
 		PoseStack matrixstack = new PoseStack();
 		matrixstack.translate(0.0D, 0.0D, 1000.0D);
-		DataModel model = this.models[this.selectedModel].getModel();
+		DataModel model = this.getCurrentModel().getModel();
 
 		pScale *= model.getScale();
 

@@ -1,10 +1,17 @@
-## 4.0.3
+## 4.1.0
+* Updated to Placebo 7.2.0
 * Added the /hostilenetworks command with three subcommands.
   * The first subcommand, generate_model_json, can be used to generate a Data Model JSON by simulating the death of the entity.
   * The second subcommand, update_model_json, can be used to update the fabricator drops of an existing data model based on the current context.
   * The final subcommand, generate_all, will generate a model json for every possible loaded entity.
   * All subcommands use the executing player as the context point, and will use any enchantments or looting that the player has to determine the drops.
 * Hovering an item in the Loot Fabricator will now show the item's tooltip.
+* Uses of Lapis in the Model Framework and Prediction Matrix has been replaced with Clay Balls, making them fully renewable in most modpacks.
+* Some recipes that were incorrectly in recipes/living_matter have been moved to recipes/.
+* The Deep Learner will no longer crash if an invalid data model is placed inside it.
+* Data Models and Mob Predictions will be sorted in JEI.
+* Added native support for Vanilla passive/neutral mobs, Thermal mobs, Twilight Forest mobs, and AllTheModium's Piglich.
+* Also added support for reliquary, hexerei, and naturalist drops to relevant models.
 
 ## 4.0.2
 * Added a missing setChanged call in LootFabTileEntity#setSelection which may have been preventing selection saving.

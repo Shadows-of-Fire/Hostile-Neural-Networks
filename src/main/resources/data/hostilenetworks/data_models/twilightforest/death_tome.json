@@ -1,0 +1,56 @@
+{
+  "conditions": [
+    {
+      "modid": "twilightforest",
+      "type": "forge:mod_loaded"
+    }
+  ],
+  "type": "twilightforest:death_tome",
+  "subtypes": [],
+  "name": "entity.twilightforest.death_tome",
+  "name_color": "0x72381B",
+  "gui_scale": 1.0,
+  "gui_x_offset": 0.0,
+  "gui_y_offset": 0.0,
+  "gui_z_offset": 0.0,
+  "sim_cost": 256,
+  "input": {
+    "item": "hostilenetworks:empty_prediction",
+    "count": 1
+  },
+  "base_drop": {
+    "item": "hostilenetworks:twilight_prediction",
+    "count": 1
+  },
+  "trivia": "hostilenetworks.trivia.death_tome",
+  "fabricator_drops": [
+    {
+      "item": "minecraft:paper",
+      "count": 32
+    },
+    {
+      "item": "minecraft:book",
+      "count": 16
+    },
+    {
+      "item": "minecraft:writable_book",
+      "count": 4
+    },
+    {
+      "item": "twilightforest:magic_map_focus",
+      "count": 1
+    }
+  ],
+  "tier_data": [
+    6,
+    54,
+    354,
+    1254
+  ],
+  "data_per_kill": [
+    1,
+    4,
+    10,
+    18
+  ]
+}

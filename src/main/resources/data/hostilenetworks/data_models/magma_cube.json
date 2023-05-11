@@ -6,7 +6,7 @@
 	"gui_x_offset": 0,
 	"gui_y_offset": 0,
 	"gui_z_offset": 0,
-	"sim_cost": 160,
+	"sim_cost": 256,
 	"input": {
 		"item": "hostilenetworks:empty_prediction"
 	},
@@ -17,7 +17,12 @@
 	"fabricator_drops": [
 		{
 			"item": "minecraft:magma_cream",
-			"count": 16
+			"count": 32
+		},
+		{
+			"optional": true,
+			"item": "reliquary:molten_core",
+			"count": 2
 		}
 	]
 }

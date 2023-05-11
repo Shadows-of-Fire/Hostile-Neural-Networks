@@ -22,12 +22,14 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -70,8 +72,9 @@ public class GenerateModelCommand {
 			var results = runSimulation(type, p, 7500, c.getArgument("max_stack_size", Integer.class));
 
 			//Formatter::off
-			DataModel model = new DataModel((EntityType) type, Collections.emptyList(), 
-					Component.translatable(type.getDescriptionId()).withStyle(ChatFormatting.GREEN),
+			DataModel model = new DataModel((EntityType) type, Collections.emptyList(),
+					Component.translatable(type.getDescriptionId()).withStyle(Style.EMPTY.withColor(TextColor.fromRgb(p.getRandom().nextInt(0xFFFFFF)))),
+					new CompoundTag(),
 					1, 0, 0, 0, 256, new ItemStack(Hostile.Items.EMPTY_PREDICTION.get()),
 					new ItemStack(Items.STICK),
 					"hostilenetworks.trivia." + name.getPath(),
@@ -111,8 +114,9 @@ public class GenerateModelCommand {
 
 				if (!results.isEmpty()) {
 					//Formatter::off
-					DataModel model = new DataModel((EntityType) type, Collections.emptyList(), 
-							Component.translatable(type.getDescriptionId()).withStyle(ChatFormatting.GREEN),
+					DataModel model = new DataModel((EntityType) type, Collections.emptyList(),
+							Component.translatable(type.getDescriptionId()).withStyle(Style.EMPTY.withColor(TextColor.fromRgb(p.getRandom().nextInt(0xFFFFFF)))),
+							new CompoundTag(),
 							1, 0, 0, 0, 256, new ItemStack(Hostile.Items.EMPTY_PREDICTION.get()),
 							new ItemStack(Items.STICK),
 							"hostilenetworks.trivia." + name.getPath(),
@@ -175,10 +179,10 @@ public class GenerateModelCommand {
 	private static Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
 	private static void write(String namespace, String path, DataModel model) {
-		File file = new File(FMLPaths.GAMEDIR.get().toFile(), "datagen/data_models/" + namespace + "/" + path + ".json");
+		File file = new File(FMLPaths.GAMEDIR.get().toFile(), "datagen/data/" + namespace + "/data_models/" + path + ".json");
 		file.getParentFile().mkdirs();
 		try (FileWriter writer = new FileWriter(file)) {
-			JsonElement json = DataModelManager.INSTANCE.getSerializer().write(model);
+			JsonElement json = DataModel.SERIALIZER.write(model);
 
 			if (!namespace.equals("minecraft")) {
 				var condition = new ModLoadedCondition(namespace);

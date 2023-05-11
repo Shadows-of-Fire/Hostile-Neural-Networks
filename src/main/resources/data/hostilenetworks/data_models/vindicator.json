@@ -17,7 +17,7 @@
 	"fabricator_drops": [
 		{
 			"item": "minecraft:emerald",
-			"count": 4
+			"count": 8
 		},
 		{
 			"item": "minecraft:iron_axe",

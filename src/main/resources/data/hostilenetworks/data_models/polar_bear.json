@@ -1,0 +1,47 @@
+{
+  "type": "minecraft:polar_bear",
+  "subtypes": [],
+  "name": "entity.minecraft.polar_bear",
+  "name_color": "0xCCCCCC",
+  "gui_scale": 1.0,
+  "gui_x_offset": 0.0,
+  "gui_y_offset": 0.0,
+  "gui_z_offset": 0.0,
+  "sim_cost": 64,
+  "input": {
+    "item": "hostilenetworks:empty_prediction",
+    "count": 1
+  },
+  "base_drop": {
+	"item": "hostilenetworks:overworld_prediction",
+    "count": 1
+  },
+  "trivia": "hostilenetworks.trivia.polar_bear",
+  "fabricator_drops": [
+    {
+      "item": "minecraft:cod",
+      "count": 32
+    },
+    {
+	  "optional": true,
+      "item": "potionsmaster:gallbladder",
+      "count": 16
+    },
+    {
+      "item": "minecraft:salmon",
+      "count": 8
+    }
+  ],
+  "tier_data": [
+    6,
+    54,
+    354,
+    1254
+  ],
+  "data_per_kill": [
+    1,
+    4,
+    10,
+    18
+  ]
+}

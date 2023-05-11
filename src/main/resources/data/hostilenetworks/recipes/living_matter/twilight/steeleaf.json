@@ -1,0 +1,18 @@
+{
+  "conditions": [{
+    "type": "forge:mod_loaded",
+	"modid": "twilightforest"
+  }],
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "hostilenetworks:twilight_prediction" },
+    { "item": "hostilenetworks:twilight_prediction" },
+    { "item": "hostilenetworks:twilight_prediction" },
+    { "item": "hostilenetworks:twilight_prediction" },
+    { "tag": "minecraft:leaves" }
+  ],
+  "result": {
+    "item": "twilightforest:steeleaf_ingot",
+    "count": 8
+  }
+}

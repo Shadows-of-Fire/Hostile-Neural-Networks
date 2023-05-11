@@ -1,0 +1,52 @@
+{
+  "conditions": [
+    {
+      "modid": "twilightforest",
+      "type": "forge:mod_loaded"
+    }
+  ],
+  "type": "twilightforest:minoshroom",
+  "subtypes": [],
+  "name": "entity.twilightforest.minoshroom",
+  "name_color": "0xA81012",
+  "gui_scale": 1.0,
+  "gui_x_offset": 0.0,
+  "gui_y_offset": 0.0,
+  "gui_z_offset": 0.0,
+  "sim_cost": 2560,
+  "input": {
+    "item": "hostilenetworks:empty_prediction",
+    "count": 1
+  },
+  "base_drop": {
+    "item": "hostilenetworks:twilight_prediction",
+    "count": 1
+  },
+  "trivia": "hostilenetworks.trivia.minoshroom",
+  "fabricator_drops": [
+    {
+      "item": "twilightforest:meef_stroganoff",
+      "count": 16
+    },
+    {
+      "item": "twilightforest:minoshroom_trophy",
+      "count": 4
+    },
+    {
+      "item": "twilightforest:diamond_minotaur_axe",
+      "count": 1
+    }
+  ],
+  "tier_data": [
+    6,
+    54,
+    354,
+    1254
+  ],
+  "data_per_kill": [
+    1,
+    4,
+    10,
+    18
+  ]
+}

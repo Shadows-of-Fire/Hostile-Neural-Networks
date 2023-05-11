@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import shadows.hostilenetworks.HostileNetworks;
-import shadows.placebo.json.PSerializer;
 import shadows.placebo.json.PlaceboJsonReloadListener;
 
 public class DataModelManager extends PlaceboJsonReloadListener<DataModel> {
@@ -25,7 +24,7 @@ public class DataModelManager extends PlaceboJsonReloadListener<DataModel> {
 
 	@Override
 	protected void registerBuiltinSerializers() {
-		this.registerSerializer(DEFAULT, PSerializer.autoRegister("Data Model", DataModel.class));
+		this.registerSerializer(DEFAULT, DataModel.SERIALIZER);
 	}
 
 	@Override
@@ -52,13 +51,15 @@ public class DataModelManager extends PlaceboJsonReloadListener<DataModel> {
 		this.modelsByType = ImmutableMap.copyOf(this.modelsByType);
 	}
 
+	@Override
+	protected <T extends DataModel> void validateItem(T item) {
+		super.validateItem(item);
+		item.validate();
+	}
+
 	@Nullable
 	public DataModel getForEntity(EntityType<?> type) {
 		return this.modelsByType.get(type);
-	}
-
-	public PSerializer<DataModel> getSerializer() {
-		return this.serializers.get(DEFAULT);
 	}
 
 }

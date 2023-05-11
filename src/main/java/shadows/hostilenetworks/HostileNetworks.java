@@ -101,6 +101,7 @@ public class HostileNetworks {
 		reg.register("overworld_prediction", new Item(new Item.Properties().tab(TAB)));
 		reg.register("nether_prediction", new Item(new Item.Properties().tab(TAB)));
 		reg.register("end_prediction", new Item(new Item.Properties().tab(TAB)));
+		reg.register("twilight_prediction", new Item(new Item.Properties().tab(TAB)));
 		reg.register("sim_chamber", new BlockItem(Hostile.Blocks.SIM_CHAMBER.get(), new Item.Properties().tab(TAB)));
 		reg.register("loot_fabricator", new BlockItem(Hostile.Blocks.LOOT_FABRICATOR.get(), new Item.Properties().tab(TAB)));
 		reg.register("data_model", new DataModelItem(new Item.Properties().stacksTo(1).tab(TAB)));

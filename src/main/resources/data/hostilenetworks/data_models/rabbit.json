@@ -1,0 +1,48 @@
+{
+  "type": "minecraft:rabbit",
+  "subtypes": [
+	"twilightforest:dwarf_rabbit"
+  ],
+  "name": "entity.minecraft.rabbit",
+  "name_color": "0x947D62",
+  "gui_scale": 1.0,
+  "gui_x_offset": 0.0,
+  "gui_y_offset": 0.0,
+  "gui_z_offset": 0.0,
+  "sim_cost": 64,
+  "input": {
+    "item": "hostilenetworks:empty_prediction",
+    "count": 1
+  },
+  "base_drop": {
+	"item": "hostilenetworks:overworld_prediction",
+    "count": 1
+  },
+  "trivia": "hostilenetworks.trivia.rabbit",
+  "fabricator_drops": [
+    {
+      "item": "minecraft:rabbit_hide",
+      "count": 32
+    },
+    {
+      "item": "minecraft:rabbit",
+      "count": 32
+    },
+    {
+      "item": "minecraft:rabbit_foot",
+      "count": 8
+    }
+  ],
+  "tier_data": [
+    6,
+    54,
+    354,
+    1254
+  ],
+  "data_per_kill": [
+    1,
+    4,
+    10,
+    18
+  ]
+}

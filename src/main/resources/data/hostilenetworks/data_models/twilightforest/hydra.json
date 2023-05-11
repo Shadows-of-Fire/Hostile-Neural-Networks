@@ -1,0 +1,52 @@
+{
+  "conditions": [
+    {
+      "modid": "twilightforest",
+      "type": "forge:mod_loaded"
+    }
+  ],
+  "type": "twilightforest:hydra",
+  "subtypes": [],
+  "name": "entity.twilightforest.hydra",
+  "name_color": "0x0F253E",
+  "gui_scale": 0.15,
+  "gui_x_offset": 0.0,
+  "gui_y_offset": 1.10,
+  "gui_z_offset": 0.0,
+  "sim_cost": 2560,
+  "input": {
+    "item": "hostilenetworks:empty_prediction",
+    "count": 1
+  },
+  "base_drop": {
+    "item": "hostilenetworks:twilight_prediction",
+    "count": 1
+  },
+  "trivia": "hostilenetworks.trivia.hydra",
+  "fabricator_drops": [
+    {
+      "item": "twilightforest:hydra_trophy",
+      "count": 4
+    },
+    {
+      "item": "twilightforest:hydra_chop",
+      "count": 24
+    },
+    {
+      "item": "twilightforest:fiery_blood",
+      "count": 16
+    }
+  ],
+  "tier_data": [
+    6,
+    54,
+    354,
+    1254
+  ],
+  "data_per_kill": [
+    1,
+    4,
+    10,
+    18
+  ]
+}

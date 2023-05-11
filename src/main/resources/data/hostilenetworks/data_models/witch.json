@@ -6,7 +6,7 @@
 	"gui_x_offset": 0,
 	"gui_y_offset": 0,
 	"gui_z_offset": 0,
-	"sim_cost": 160,
+	"sim_cost": 256,
 	"input": {
 		"item": "hostilenetworks:empty_prediction"
 	},
@@ -26,6 +26,23 @@
 		{
 			"item": "minecraft:sugar",
 			"count": 32
+		},
+		{
+			"item": "minecraft:stick",
+			"count": 32
+		},
+		{
+			"item": "minecraft:spider_eye",
+			"count": 16
+		},
+		{
+			"item": "minecraft:glass_bottle",
+			"count": 16
+		},
+		{
+			"optional": true,
+			"item": "reliquary:witch_hat",
+			"count": 2
 		}
 	]
 }

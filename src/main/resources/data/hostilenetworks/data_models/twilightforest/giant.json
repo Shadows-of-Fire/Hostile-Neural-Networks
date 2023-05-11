@@ -1,0 +1,66 @@
+{
+  "conditions": [
+    {
+      "modid": "twilightforest",
+      "type": "forge:mod_loaded"
+    }
+  ],
+  "type": "twilightforest:giant_miner",
+  "subtypes": [
+    "twilightforest:armored_giant"
+  ],
+  "name": "name.hostilenetworks.twilight_giant",
+  "name_color": "0x444444",
+  "gui_scale": 0.25,
+  "gui_x_offset": 0.0,
+  "gui_y_offset": 0.0,
+  "gui_z_offset": 0.0,
+  "sim_cost": 1024,
+  "input": {
+    "item": "hostilenetworks:empty_prediction",
+    "count": 1
+  },
+  "base_drop": {
+    "item": "hostilenetworks:twilight_prediction",
+    "count": 1
+  },
+  "trivia": "hostilenetworks.trivia.twilight_giant",
+  "fabricator_drops": [
+    {
+      "item": "twilightforest:giant_sword",
+      "count": 1
+    },
+	{
+      "item": "twilightforest:giant_pickaxe",
+      "count": 1
+    },
+	{
+      "item": "twilightforest:giant_cobblestone",
+      "count": 16
+    },
+	{
+      "item": "twilightforest:giant_log",
+      "count": 16
+    },
+	{
+      "item": "twilightforest:giant_leaves",
+      "count": 16
+    },
+	{
+      "item": "twilightforest:giant_obsidian",
+      "count": 16
+    }
+  ],
+  "tier_data": [
+    6,
+    54,
+    354,
+    1254
+  ],
+  "data_per_kill": [
+    1,
+    4,
+    10,
+    18
+  ]
+}
