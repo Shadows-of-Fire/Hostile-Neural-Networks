@@ -1,0 +1,184 @@
+{
+  "conditions": [
+    {
+      "modid": "artifacts",
+      "type": "forge:mod_loaded"
+    }
+  ],
+  "type": "artifacts:mimic",
+  "subtypes": [],
+  "name": "entity.artifacts.mimic",
+  "name_color": 5635925,
+  "gui_scale": 1.0,
+  "gui_x_offset": 0.0,
+  "gui_y_offset": 0.0,
+  "gui_z_offset": 0.0,
+  "sim_cost": 2560,
+  "input": {
+    "item": "hostilenetworks:empty_prediction",
+    "count": 1
+  },
+  "base_drop": {
+    "item": "hostilenetworks:end_prediction",
+    "count": 1
+  },
+  "trivia": "hostilenetworks.trivia.mimic",
+  "fabricator_drops": [
+    {
+      "item": "artifacts:steadfast_spikes",
+      "count": 1
+    },
+    {
+      "item": "artifacts:shock_pendant",
+      "count": 1
+    },
+    {
+      "item": "artifacts:crystal_heart",
+      "count": 1
+    },
+    {
+      "item": "artifacts:superstitious_hat",
+      "count": 1
+    },
+    {
+      "item": "artifacts:power_glove",
+      "count": 1
+    },
+    {
+      "item": "artifacts:night_vision_goggles",
+      "count": 1
+    },
+    {
+      "item": "artifacts:kitty_slippers",
+      "count": 1
+    },
+    {
+      "item": "artifacts:flame_pendant",
+      "count": 1
+    },
+    {
+      "item": "artifacts:charm_of_sinking",
+      "count": 1
+    },
+    {
+      "item": "artifacts:villager_hat",
+      "count": 1
+    },
+    {
+      "item": "artifacts:lucky_scarf",
+      "count": 1
+    },
+    {
+      "item": "artifacts:fire_gauntlet",
+      "count": 1
+    },
+    {
+      "item": "artifacts:feral_claws",
+      "count": 1
+    },
+    {
+      "item": "artifacts:cloud_in_a_bottle",
+      "count": 1
+    },
+    {
+      "item": "artifacts:aqua_dashers",
+      "count": 1
+    },
+    {
+      "item": "artifacts:scarf_of_invisibility",
+      "count": 1
+    },
+    {
+      "item": "artifacts:thorn_pendant",
+      "count": 1
+    },
+    {
+      "item": "artifacts:pocket_piston",
+      "count": 1
+    },
+    {
+      "item": "artifacts:obsidian_skull",
+      "count": 1
+    },
+    {
+      "item": "artifacts:antidote_vessel",
+      "count": 1
+    },
+    {
+      "item": "artifacts:flippers",
+      "count": 1
+    },
+    {
+      "item": "artifacts:panic_necklace",
+      "count": 1
+    },
+    {
+      "item": "artifacts:digging_claws",
+      "count": 1
+    },
+    {
+      "item": "artifacts:bunny_hoppers",
+      "count": 1
+    },
+    {
+      "item": "artifacts:universal_attractor",
+      "count": 1
+    },
+    {
+      "item": "artifacts:whoopee_cushion",
+      "count": 1
+    },
+    {
+      "item": "artifacts:golden_hook",
+      "count": 1
+    },
+    {
+      "item": "artifacts:cross_necklace",
+      "count": 1
+    },
+    {
+      "item": "artifacts:vampiric_glove",
+      "count": 1
+    },
+    {
+      "item": "artifacts:snorkel",
+      "count": 1
+    },
+    {
+      "item": "artifacts:running_shoes",
+      "count": 1
+    },
+    {
+      "item": "artifacts:plastic_drinking_hat",
+      "count": 1
+    },
+    {
+      "item": "artifacts:helium_flamingo",
+      "count": 1
+    },
+    {
+      "item": "artifacts:novelty_drinking_hat",
+      "count": 1
+    },
+    {
+      "item": "artifacts:everlasting_beef",
+      "count": 1
+    },
+    {
+      "item": "artifacts:umbrella",
+      "count": 1
+    }
+  ],
+  "tier_data": [
+    30,
+    330,
+    930,
+    2000
+  ],
+  "data_per_kill": [
+    1,
+    10,
+    20,
+    30
+  ]
+}

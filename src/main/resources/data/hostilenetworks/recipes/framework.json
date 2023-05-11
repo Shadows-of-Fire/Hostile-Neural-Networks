@@ -7,7 +7,7 @@
   ],
   "key": {
     "L": {
-      "tag": "forge:gems/lapis"
+      "item": "minecraft:clay_ball"
     },
 	"P": {
       "item": "minecraft:repeater"

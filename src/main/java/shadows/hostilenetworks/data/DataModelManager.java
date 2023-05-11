@@ -25,7 +25,7 @@ public class DataModelManager extends PlaceboJsonReloadListener<DataModel> {
 
 	@Override
 	protected void registerBuiltinSerializers() {
-		this.registerSerializer(DEFAULT, new SerializerBuilder<DataModel>("Data Model").json(DataModel::read, DataModel::write).net(DataModel::read, DataModel::write));
+		this.registerSerializer(DEFAULT, DataModel.SERIALIZER);
 	}
 
 	@Override
@@ -50,6 +50,12 @@ public class DataModelManager extends PlaceboJsonReloadListener<DataModel> {
 		this.modelsByType.clear();
 		this.registry.values().forEach(model -> this.modelsByType.put(model.getType(), model));
 		this.modelsByType = ImmutableMap.copyOf(this.modelsByType);
+	}
+
+	@Override
+	protected <T extends DataModel> void validateItem(T item) {
+		super.validateItem(item);
+		item.validate();
 	}
 
 	@Nullable

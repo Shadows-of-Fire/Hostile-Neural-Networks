@@ -33,15 +33,15 @@
 		},
 		{
 			"item": "minecraft:prismarine_crystals",
-			"count": 12
-		},
-		{
-			"item": "minecraft:prismarine_shard",
 			"count": 8
 		},
 		{
+			"item": "minecraft:prismarine_shard",
+			"count": 24
+		},
+		{
 			"item": "minecraft:wet_sponge",
-			"count": 1
+			"count": 32
 		}
 	]
 }

@@ -1,27 +1,42 @@
 {
-	"type": "minecraft:evoker",
-	"name": "entity.minecraft.evoker",
-	"name_color": "0xCEC987",
-	"gui_scale": 1,
-	"gui_x_offset": 0,
-	"gui_y_offset": 0,
-	"gui_z_offset": 0,
-	"sim_cost": 1024,
-	"input": {
-		"item": "hostilenetworks:empty_prediction"
-	},
-	"base_drop": {
-		"item": "hostilenetworks:overworld_prediction"
-	},
-	"trivia": "hostilenetworks.trivia.evoker",
-	"fabricator_drops": [
-		{
-			"item": "minecraft:emerald",
-			"count": 4
-		},
-		{
-			"item": "minecraft:totem_of_undying",
-			"count": 1
-		}
-	]
+  "type": "minecraft:evoker",
+  "subtypes": [],
+  "name": "entity.minecraft.evoker",
+  "name_color": "0xBCA341",
+  "gui_scale": 1.0,
+  "gui_x_offset": 0.0,
+  "gui_y_offset": 0.0,
+  "gui_z_offset": 0.0,
+  "sim_cost": 1024,
+  "input": {
+    "item": "hostilenetworks:empty_prediction",
+    "count": 1
+  },
+  "base_drop": {
+	"item": "hostilenetworks:overworld_prediction",
+    "count": 1
+  },
+  "trivia": "hostilenetworks.trivia.evoker",
+  "fabricator_drops": [
+    {
+      "item": "minecraft:totem_of_undying",
+      "count": 2
+    },
+    {
+      "item": "minecraft:emerald",
+      "count": 16
+    }
+  ],
+  "tier_data": [
+    6,
+    54,
+    354,
+    1254
+  ],
+  "data_per_kill": [
+    1,
+    4,
+    10,
+    18
+  ]
 }

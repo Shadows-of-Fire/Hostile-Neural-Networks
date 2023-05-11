@@ -1,0 +1,18 @@
+{
+  "conditions": [{
+    "type": "forge:mod_loaded",
+	"modid": "twilightforest"
+  }],
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "hostilenetworks:twilight_prediction" },
+    { "item": "hostilenetworks:twilight_prediction" },
+    { "item": "hostilenetworks:twilight_prediction" },
+    { "item": "hostilenetworks:twilight_prediction" },
+    { "item": "minecraft:stick" }
+  ],
+  "result": {
+    "item": "twilightforest:liveroot",
+    "count": 8
+  }
+}

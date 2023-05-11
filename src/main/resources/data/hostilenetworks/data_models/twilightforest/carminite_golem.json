@@ -1,0 +1,48 @@
+{
+  "conditions": [
+    {
+      "modid": "twilightforest",
+      "type": "forge:mod_loaded"
+    }
+  ],
+  "type": "twilightforest:carminite_golem",
+  "subtypes": [],
+  "name": "entity.twilightforest.carminite_golem",
+  "name_color": "0xD3C4BA",
+  "gui_scale": 0.9,
+  "gui_x_offset": 0.0,
+  "gui_y_offset": 0.0,
+  "gui_z_offset": 0.0,
+  "sim_cost": 512,
+  "input": {
+    "item": "hostilenetworks:empty_prediction",
+    "count": 1
+  },
+  "base_drop": {
+    "item": "hostilenetworks:twilight_prediction",
+    "count": 1
+  },
+  "trivia": "hostilenetworks.trivia.carminite_golem",
+  "fabricator_drops": [
+    {
+      "item": "twilightforest:towerwood",
+      "count": 32
+    },
+    {
+      "item": "minecraft:iron_ingot",
+      "count": 16
+    }
+  ],
+  "tier_data": [
+    6,
+    54,
+    354,
+    1254
+  ],
+  "data_per_kill": [
+    1,
+    4,
+    10,
+    18
+  ]
+}

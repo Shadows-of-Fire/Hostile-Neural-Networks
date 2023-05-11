@@ -1,0 +1,44 @@
+{
+  "conditions": [
+    {
+      "modid": "twilightforest",
+      "type": "forge:mod_loaded"
+    }
+  ],
+  "type": "twilightforest:yeti",
+  "subtypes": [],
+  "name": "entity.twilightforest.yeti",
+  "name_color": "0x4570B6",
+  "gui_scale": 0.85,
+  "gui_x_offset": 0.0,
+  "gui_y_offset": 0.0,
+  "gui_z_offset": 0.0,
+  "sim_cost": 1024,
+  "input": {
+    "item": "hostilenetworks:empty_prediction",
+    "count": 1
+  },
+  "base_drop": {
+    "item": "hostilenetworks:twilight_prediction",
+    "count": 1
+  },
+  "trivia": "hostilenetworks.trivia.yeti",
+  "fabricator_drops": [
+    {
+      "item": "twilightforest:arctic_fur",
+      "count": 32
+    }
+  ],
+  "tier_data": [
+    6,
+    54,
+    354,
+    1254
+  ],
+  "data_per_kill": [
+    1,
+    4,
+    10,
+    18
+  ]
+}

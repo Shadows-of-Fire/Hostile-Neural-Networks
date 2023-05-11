@@ -1,0 +1,57 @@
+{
+  "conditions": [
+    {
+      "modid": "twilightforest",
+      "type": "forge:mod_loaded"
+    }
+  ],
+  "type": "twilightforest:skeleton_druid",
+  "subtypes": [],
+  "name": "entity.twilightforest.skeleton_druid",
+  "name_color": "0x415329",
+  "gui_scale": 1.0,
+  "gui_x_offset": 0.0,
+  "gui_y_offset": 0.0,
+  "gui_z_offset": 0.0,
+  "sim_cost": 512,
+  "input": {
+    "item": "hostilenetworks:empty_prediction",
+    "count": 1
+  },
+  "base_drop": {
+    "item": "hostilenetworks:twilight_prediction",
+    "count": 1
+  },
+  "trivia": "hostilenetworks.trivia.skeleton_druid",
+  "fabricator_drops": [
+    {
+      "item": "twilightforest:torchberries",
+      "count": 32
+    },
+    {
+      "item": "minecraft:bone",
+      "count": 32
+    },
+	{
+		"item": "minecraft:skeleton_skull",
+		"count": 4
+	},
+	{
+		"optional": true,
+		"item": "reliquary:rib_bone",
+		"count": 2
+	}
+  ],
+  "tier_data": [
+    6,
+    54,
+    354,
+    1254
+  ],
+  "data_per_kill": [
+    1,
+    4,
+    10,
+    18
+  ]
+}

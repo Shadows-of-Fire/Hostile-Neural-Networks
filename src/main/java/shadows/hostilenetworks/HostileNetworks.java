@@ -93,11 +93,11 @@ public class HostileNetworks {
 		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("overworld_prediction"));
 		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("nether_prediction"));
 		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("end_prediction"));
+		reg.register(new Item(new Item.Properties().tab(TAB)).setRegistryName("twilight_prediction"));
 		reg.register(new BlockItem(Hostile.Blocks.SIM_CHAMBER, new Item.Properties().tab(TAB)).setRegistryName("sim_chamber"));
 		reg.register(new BlockItem(Hostile.Blocks.LOOT_FABRICATOR, new Item.Properties().tab(TAB)).setRegistryName("loot_fabricator"));
 		reg.register(new DataModelItem(new Item.Properties().stacksTo(1).tab(TAB)).setRegistryName("data_model"));
 		reg.register(new MobPredictionItem(new Item.Properties().tab(TAB)).setRegistryName("prediction"));
-	}
 
 	@SubscribeEvent
 	public void containers(Register<MenuType<?>> e) {

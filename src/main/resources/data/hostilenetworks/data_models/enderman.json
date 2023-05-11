@@ -17,11 +17,21 @@
 	"fabricator_drops": [
 		{
 			"item": "minecraft:ender_pearl",
-			"count": 4
+			"count": 16
 		},
 		{
 			"item": "minecraft:end_crystal",
 			"count": 1
+		},
+		{
+			"optional": true,
+			"item": "evilcraft:ender_tear",
+			"count": 4
+		},
+		{
+			"optional": true,
+			"item": "reliquary:nebulous_heart",
+			"count": 2
 		}
 	]
 }

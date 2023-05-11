@@ -9,7 +9,7 @@
 	"gui_x_offset": 0,
 	"gui_y_offset": 0,
 	"gui_z_offset": 0,
-	"sim_cost": 80,
+	"sim_cost": 128,
 	"input": {
 		"item": "hostilenetworks:empty_prediction"
 	},
@@ -29,6 +29,11 @@
 		{
 			"item": "minecraft:skeleton_skull",
 			"count": 4
+		},
+		{
+			"optional": true,
+			"item": "reliquary:rib_bone",
+			"count": 2
 		}
 	]
 }

@@ -73,7 +73,7 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
 		matrix.popPose();
 		DataModel model = DataModelItem.getStoredModel(stack);
 		if (model != null) {
-			LivingEntity ent = CACHE.computeIfAbsent(model.getType(), t -> (LivingEntity) t.create(Minecraft.getInstance().level));
+			LivingEntity ent = ClientEntityCache.computeIfAbsent(model.getType(), Minecraft.getInstance().level, model.getDisplayNbt());
 			if (Minecraft.getInstance().player != null) ent.tickCount = Minecraft.getInstance().player.tickCount;
 			if (ent != null) {
 				this.renderEntityInInventory(matrix, type, ent, model);

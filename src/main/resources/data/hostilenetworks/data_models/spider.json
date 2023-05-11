@@ -1,7 +1,11 @@
 {
 	"type": "minecraft:spider",
 	"subtypes": [
-		"minecraft:cave_spider"
+		"minecraft:cave_spider",
+		"twilightforest:hedge_spider",
+		"twilightforest:king_spider",
+		"twilightforest:swarm_spider",
+		"twilightforest:carminite_broodling"
 	],
 	"name": "entity.minecraft.spider",
 	"name_color": "0x322B26",
@@ -9,7 +13,7 @@
 	"gui_x_offset": 0,
 	"gui_y_offset": 0,
 	"gui_z_offset": 0,
-	"sim_cost": 80,
+	"sim_cost": 128,
 	"input": {
 		"item": "hostilenetworks:empty_prediction"
 	},
@@ -24,11 +28,21 @@
 		},
 		{
 			"item": "minecraft:spider_eye",
-			"count": 8
+			"count": 16
 		},
 		{
 			"item": "minecraft:cobweb",
 			"count": 4
+		},
+		{
+			"optional": "true",
+			"item": "silentgear:fine_silk",
+			"count": 3
+		},
+		{
+			"optional": "true",
+			"item": "reliquary:chelicerae",
+			"count": 2
 		}
 	]
 }

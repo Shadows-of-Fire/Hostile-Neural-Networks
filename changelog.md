@@ -2,6 +2,12 @@
 * Added a missing setChanged call in LootFabTileEntity#setSelection which may have been preventing selection saving.
 * Blackwithking: Updated chinese translation.
 * Hovering an item in the Loot Fabricator will now show the item's tooltip.
+* Uses of Lapis in the Model Framework and Prediction Matrix has been replaced with Clay Balls, making them fully renewable in most modpacks.
+* Some recipes that were incorrectly in recipes/living_matter have been moved to recipes/.
+* The Deep Learner will no longer crash if an invalid data model is placed inside it.
+* Data Models and Mob Predictions will be sorted in JEI.
+* Added native support for Vanilla passive/neutral mobs, Thermal mobs, Twilight Forest mobs, and AllTheModium's Piglich.
+* Also added support for reliquary, hexerei, and naturalist drops to relevant models.
 
 ## 3.2.2
 * Changed Simulation Chambers so that they start a cycle as soon as they have enough power for the first tick.

@@ -2,6 +2,7 @@ package shadows.hostilenetworks.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 import com.google.common.base.Preconditions;
@@ -11,8 +12,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
+import com.mojang.serialization.JsonOps;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
@@ -26,13 +29,18 @@ import net.minecraftforge.registries.ForgeRegistry;
 import shadows.hostilenetworks.Hostile;
 import shadows.hostilenetworks.item.MobPredictionItem;
 import shadows.placebo.json.ItemAdapter;
-import shadows.placebo.json.PlaceboJsonReloadListener.TypeKeyedBase;
+import shadows.placebo.json.NBTAdapter;
+import shadows.placebo.json.PSerializer;
+import shadows.placebo.json.TypeKeyed.TypeKeyedBase;
 
 public class DataModel extends TypeKeyedBase<DataModel> {
 
-	protected final EntityType<?> type;
-	protected final List<EntityType<?>> subtypes;
+	public static final PSerializer<DataModel> SERIALIZER = PSerializer.builder("Data Model", DataModel::read).toJson(DataModel::write).networked(DataModel::read, DataModel::write).build();
+
+	protected final EntityType<? extends LivingEntity> type;
+	protected final List<EntityType<? extends LivingEntity>> subtypes;
 	protected final TranslatableComponent name;
+	protected final CompoundTag displayNbt;
 	protected final float guiScale;
 	protected final float guiXOff, guiYOff, guiZOff;
 	protected final int simCost;
@@ -42,10 +50,11 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 	protected final List<ItemStack> fabDrops;
 	protected final int[] tierData, dataPerKill;
 
-	public DataModel(EntityType<?> type, List<EntityType<?>> subtypes, TranslatableComponent name, float guiScale, float guiXOff, float guiYOff, float guiZOff, int simCost, ItemStack input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops, int[] tierData, int[] dataPerKill) {
+	public DataModel(EntityType<?> type, List<EntityType<?>> subtypes, TranslatableComponent name, CompoundTag displayNbt, float guiScale, float guiXOff, float guiYOff, float guiZOff, int simCost, ItemStack input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops, int[] tierData, int[] dataPerKill) {
 		this.type = type;
 		this.subtypes = subtypes;
 		this.name = name;
+		this.displayNbt = displayNbt;
 		this.guiScale = guiScale;
 		this.guiYOff = guiYOff;
 		this.guiXOff = guiXOff;
@@ -57,6 +66,11 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		this.fabDrops = fabDrops;
 		this.tierData = tierData;
 		this.dataPerKill = dataPerKill;
+	}
+
+	@Override
+	public PSerializer<DataModel> getSerializer() {
+		return SERIALIZER;
 	}
 
 	public TranslatableComponent getName() {
@@ -125,6 +139,10 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		return this.name.getStyle().getColor().getValue();
 	}
 
+	public CompoundTag getDisplayNbt() {
+		return this.displayNbt;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		return obj instanceof DataModel && ((DataModel) obj).id.equals(this.id);
@@ -167,6 +185,7 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		}
 		buf.writeUtf(this.name.getKey());
 		buf.writeUtf(this.name.getStyle().getColor().serialize());
+		buf.writeNbt(this.displayNbt);
 		buf.writeFloat(this.guiScale);
 		buf.writeFloat(this.guiXOff);
 		buf.writeFloat(this.guiYOff);
@@ -201,6 +220,7 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		}
 		TranslatableComponent name = new TranslatableComponent(buf.readUtf());
 		name.withStyle(Style.EMPTY.withColor(TextColor.parseColor(buf.readUtf())));
+		CompoundTag displayNbt = buf.readNbt();
 		float guiScale = buf.readFloat();
 		float guiXOff = buf.readFloat();
 		float guiYOff = buf.readFloat();
@@ -220,16 +240,18 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 			dataPerKill[i] = buf.readShort();
 		}
 
-		DataModel model = new DataModel(type, subtypes, name, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops, tierData, dataPerKill);
+		DataModel model = new DataModel(type, subtypes, name, displayNbt, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops, tierData, dataPerKill);
 		return model;
 	}
 
 	public JsonObject write() {
 		JsonObject obj = new JsonObject();
-		obj.addProperty("type", this.type.getRegistryName().toString());
-		obj.add("subtypes", ItemAdapter.ITEM_READER.toJsonTree(this.subtypes.stream().map(EntityType::getRegistryName).toList()));
+		ResourceLocation key = EntityType.getKey(this.type);
+		obj.addProperty("type", key.toString());
+		obj.add("subtypes", ItemAdapter.ITEM_READER.toJsonTree(this.subtypes.stream().map(EntityType::getKey).toList()));
 		obj.addProperty("name", this.name.getKey());
-		obj.addProperty("name_color", this.getNameColor());
+		obj.addProperty("name_color", "0x" + Integer.toHexString(this.getNameColor()).toUpperCase(Locale.ROOT));
+		obj.add("display_nbt", NBTAdapter.EITHER_CODEC.encodeStart(JsonOps.INSTANCE, this.displayNbt).get().left().get());
 		obj.addProperty("gui_scale", this.guiScale);
 		obj.addProperty("gui_x_offset", this.guiXOff);
 		obj.addProperty("gui_y_offset", this.guiYOff);
@@ -238,9 +260,17 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		obj.add("input", ItemAdapter.ITEM_READER.toJsonTree(this.input));
 		obj.add("base_drop", ItemAdapter.ITEM_READER.toJsonTree(this.baseDrop));
 		obj.addProperty("trivia", this.triviaKey);
-		obj.add("fabricator_drops", ItemAdapter.ITEM_READER.toJsonTree(this.fabDrops));
-		obj.add("tier_data", ItemAdapter.ITEM_READER.toJsonTree(this.tierData));
-		obj.add("data_per_kill", ItemAdapter.ITEM_READER.toJsonTree(this.dataPerKill));
+		JsonArray fabDrops = ItemAdapter.ITEM_READER.toJsonTree(this.fabDrops).getAsJsonArray();
+		for (JsonElement e : fabDrops) {
+			JsonObject drop = e.getAsJsonObject();
+			ResourceLocation itemName = new ResourceLocation(drop.get("item").getAsString());
+			if (!"minecraft".equals(itemName.getNamespace()) && !key.getNamespace().equals(itemName.getNamespace())) {
+				drop.addProperty("optional", true);
+			}
+		}
+		obj.add("fabricator_drops", fabDrops);
+		obj.add("tier_data", ItemAdapter.ITEM_READER.toJsonTree(Arrays.copyOfRange(this.tierData, 1, 5)));
+		obj.add("data_per_kill", ItemAdapter.ITEM_READER.toJsonTree(Arrays.copyOfRange(this.dataPerKill, 0, 4)));
 		return obj;
 	}
 
@@ -252,11 +282,27 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 			for (JsonElement json : obj.get("subtypes").getAsJsonArray()) {
 				EntityType<?> st = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(json.getAsString()));
 				if (st != EntityType.PIG || "minecraft:pig".equals(json.getAsString())) subtypes.add(st);
+				// Intentionally ignore invalid entries here, so that modded entities can be added as subtypes without hard deps.
 			}
 		}
+
 		TranslatableComponent name = new TranslatableComponent(obj.get("name").getAsString());
-		if (obj.has("name_color")) name.withStyle(Style.EMPTY.withColor(TextColor.fromRgb(Integer.decode(obj.get("name_color").getAsString()))));
-		else name.withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
+		if (obj.has("name_color")) {
+			var colorJson = obj.get("name_color").getAsJsonPrimitive();
+			TextColor color;
+			if (colorJson.isNumber()) {
+				color = TextColor.fromRgb(colorJson.getAsInt());
+			} else {
+				String str = colorJson.getAsString();
+				if (str.startsWith("0x")) {
+					color = TextColor.fromRgb(Integer.decode(str));
+				} else {
+					color = TextColor.parseColor(str);
+				}
+			}
+			name = name.withStyle(Style.EMPTY.withColor(color));
+		} else name.withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
+
 		float guiScale = obj.get("gui_scale").getAsFloat();
 		float guiXOff = obj.get("gui_x_offset").getAsFloat();
 		float guiYOff = obj.get("gui_y_offset").getAsFloat();
@@ -283,8 +329,12 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 			JsonArray arr = obj.get("data_per_kill").getAsJsonArray();
 			dataPerKill = Stream.of(arr.get(0), arr.get(1), arr.get(2), arr.get(3), new JsonPrimitive(0)).mapToInt(JsonElement::getAsShort).toArray();
 		}
+		CompoundTag displayNbt = new CompoundTag();
+		if (obj.has("display_nbt")) {
+			displayNbt = NBTAdapter.EITHER_CODEC.decode(JsonOps.INSTANCE, obj.get("display_nbt")).result().get().getFirst();
+		}
 
-		return new DataModel(t, subtypes, name, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops, tierData, dataPerKill).validate();
+		return new DataModel(t, subtypes, name, displayNbt, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops, tierData, dataPerKill).validate();
 	}
 
 }

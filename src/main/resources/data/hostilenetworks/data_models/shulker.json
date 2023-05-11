@@ -17,7 +17,7 @@
 	"fabricator_drops": [
 		{
 			"item": "minecraft:shulker_shell",
-			"count": 6
+			"count": 8
 		},
 		{
 			"item": "minecraft:end_rod",

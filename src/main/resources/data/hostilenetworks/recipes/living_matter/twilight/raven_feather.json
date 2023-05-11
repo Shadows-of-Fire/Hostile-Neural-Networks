@@ -1,0 +1,15 @@
+{
+  "conditions": [{
+    "type": "forge:mod_loaded",
+	"modid": "twilightforest"
+  }],
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "hostilenetworks:twilight_prediction" },
+    { "item": "minecraft:feather" }
+  ],
+  "result": {
+    "item": "twilightforest:raven_feather",
+    "count": 4
+  }
+}

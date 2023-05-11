@@ -17,11 +17,16 @@
 	"fabricator_drops": [
 		{
 			"item": "minecraft:cod",
-			"count": 6
+			"count": 24
 		},
 		{
 			"item": "minecraft:prismarine_crystals",
-			"count": 6
+			"count": 16
+		},
+		{
+			"optional": true,
+			"item": "reliquary:guardian_spike",
+			"count": 2
 		}
 	]
 }
