@@ -97,6 +97,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
 		if (pId == -1) this.savedSelections.removeInt(model);
 		else this.savedSelections.put(model, Mth.clamp(pId, 0, model.getFabDrops().size() - 1));
 		VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
+		this.setChanged();
 	}
 
 	@Override
