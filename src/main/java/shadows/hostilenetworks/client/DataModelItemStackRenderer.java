@@ -29,6 +29,7 @@ import shadows.hostilenetworks.HostileClient;
 import shadows.hostilenetworks.HostileNetworks;
 import shadows.hostilenetworks.data.DataModel;
 import shadows.hostilenetworks.item.DataModelItem;
+import shadows.hostilenetworks.util.ClientEntityCache;
 
 @EventBusSubscriber(bus = Bus.FORGE, value = Dist.CLIENT, modid = HostileNetworks.MODID)
 public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer {

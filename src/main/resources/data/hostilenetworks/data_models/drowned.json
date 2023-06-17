@@ -1,13 +1,6 @@
 {
 	"type": "minecraft:drowned",
 	"subtypes": [],
-	"display_nbt": {
-		"HandItems": [{
-				"id": "minecraft:trident"
-			},
-			{}
-		]
-	},
 	"name": "entity.minecraft.drowned",
 	"name_color": "0x3B6269",
 	"gui_scale": 1,

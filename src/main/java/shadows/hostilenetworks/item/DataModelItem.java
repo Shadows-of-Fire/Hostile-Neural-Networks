@@ -15,6 +15,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -57,7 +58,7 @@ public class DataModelItem extends Item {
 				list.add(new TranslatableComponent("hostilenetworks.info.dpk", new TextComponent("" + cModel.getDataPerKill()).withStyle(ChatFormatting.GRAY)));
 			}
 			list.add(new TranslatableComponent("hostilenetworks.info.sim_cost", new TranslatableComponent("hostilenetworks.info.rft", cModel.getModel().getSimCost()).withStyle(ChatFormatting.GRAY)));
-			List<EntityType<?>> subtypes = cModel.getModel().getSubtypes();
+			List<EntityType<? extends LivingEntity>> subtypes = cModel.getModel().getSubtypes();
 			if (!subtypes.isEmpty()) {
 				list.add(new TranslatableComponent("hostilenetworks.info.subtypes"));
 				for (EntityType<?> t : subtypes) {
@@ -71,7 +72,7 @@ public class DataModelItem extends Item {
 
 	@Override
 	public void fillItemCategory(CreativeModeTab pGroup, NonNullList<ItemStack> pItems) {
-		if (this.allowedIn(pGroup)) {
+		if (this.allowdedIn(pGroup)) {
 			DataModelManager.INSTANCE.getValues().stream().sorted((m1, m2) -> m1.getId().compareTo(m2.getId())).forEach(model -> {
 				ItemStack s = new ItemStack(this);
 				setStoredModel(s, model);

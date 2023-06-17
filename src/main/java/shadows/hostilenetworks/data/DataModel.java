@@ -1,6 +1,7 @@
 package shadows.hostilenetworks.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
@@ -12,7 +13,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
-import com.mojang.serialization.JsonOps;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -22,6 +22,7 @@ import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -29,13 +30,9 @@ import net.minecraftforge.registries.ForgeRegistry;
 import shadows.hostilenetworks.Hostile;
 import shadows.hostilenetworks.item.MobPredictionItem;
 import shadows.placebo.json.ItemAdapter;
-import shadows.placebo.json.NBTAdapter;
-import shadows.placebo.json.PSerializer;
-import shadows.placebo.json.TypeKeyed.TypeKeyedBase;
+import shadows.placebo.json.PlaceboJsonReloadListener.TypeKeyedBase;
 
 public class DataModel extends TypeKeyedBase<DataModel> {
-
-	public static final PSerializer<DataModel> SERIALIZER = PSerializer.builder("Data Model", DataModel::read).toJson(DataModel::write).networked(DataModel::read, DataModel::write).build();
 
 	protected final EntityType<? extends LivingEntity> type;
 	protected final List<EntityType<? extends LivingEntity>> subtypes;
@@ -50,7 +47,7 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 	protected final List<ItemStack> fabDrops;
 	protected final int[] tierData, dataPerKill;
 
-	public DataModel(EntityType<?> type, List<EntityType<?>> subtypes, TranslatableComponent name, CompoundTag displayNbt, float guiScale, float guiXOff, float guiYOff, float guiZOff, int simCost, ItemStack input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops, int[] tierData, int[] dataPerKill) {
+	public DataModel(EntityType<? extends LivingEntity> type, List<EntityType<? extends LivingEntity>> subtypes, TranslatableComponent name, CompoundTag displayNbt, float guiScale, float guiXOff, float guiYOff, float guiZOff, int simCost, ItemStack input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops, int[] tierData, int[] dataPerKill) {
 		this.type = type;
 		this.subtypes = subtypes;
 		this.name = name;
@@ -66,11 +63,6 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		this.fabDrops = fabDrops;
 		this.tierData = tierData;
 		this.dataPerKill = dataPerKill;
-	}
-
-	@Override
-	public PSerializer<DataModel> getSerializer() {
-		return SERIALIZER;
 	}
 
 	public TranslatableComponent getName() {
@@ -101,11 +93,11 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		return this.simCost;
 	}
 
-	public EntityType<?> getType() {
+	public EntityType<? extends LivingEntity> getType() {
 		return this.type;
 	}
 
-	public List<EntityType<?>> getSubtypes() {
+	public List<EntityType<? extends LivingEntity>> getSubtypes() {
 		return this.subtypes;
 	}
 
@@ -207,14 +199,15 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		return ((ForgeRegistry<EntityType<?>>) ForgeRegistries.ENTITIES).getID(type);
 	}
 
-	private static EntityType<?> byId(int id) {
-		return ((ForgeRegistry<EntityType<?>>) ForgeRegistries.ENTITIES).getValue(id);
+	@SuppressWarnings("unchecked")
+	private static EntityType<? extends LivingEntity> byId(int id) {
+		return (EntityType<? extends LivingEntity>) ((ForgeRegistry<EntityType<?>>) ForgeRegistries.ENTITIES).getValue(id);
 	}
 
 	public static DataModel read(FriendlyByteBuf buf) {
-		EntityType<?> type = byId(buf.readVarInt());
+		EntityType<? extends LivingEntity> type = byId(buf.readVarInt());
 		int size = buf.readByte();
-		List<EntityType<?>> subtypes = new ArrayList<>(size);
+		List<EntityType<? extends LivingEntity>> subtypes = new ArrayList<>(size);
 		for (int i = 0; i < size; i++) {
 			subtypes.add(byId(buf.readVarInt()));
 		}
@@ -251,7 +244,7 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		obj.add("subtypes", ItemAdapter.ITEM_READER.toJsonTree(this.subtypes.stream().map(EntityType::getKey).toList()));
 		obj.addProperty("name", this.name.getKey());
 		obj.addProperty("name_color", "0x" + Integer.toHexString(this.getNameColor()).toUpperCase(Locale.ROOT));
-		obj.add("display_nbt", NBTAdapter.EITHER_CODEC.encodeStart(JsonOps.INSTANCE, this.displayNbt).get().left().get());
+		obj.add("display_nbt", ItemAdapter.ITEM_READER.toJsonTree(this.displayNbt));
 		obj.addProperty("gui_scale", this.guiScale);
 		obj.addProperty("gui_x_offset", this.guiXOff);
 		obj.addProperty("gui_y_offset", this.guiYOff);
@@ -274,13 +267,14 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		return obj;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static DataModel read(JsonObject obj) {
-		EntityType<?> t = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(obj.get("type").getAsString()));
+		EntityType<? extends LivingEntity> t = (EntityType) ForgeRegistries.ENTITIES.getValue(new ResourceLocation(obj.get("type").getAsString()));
 		if (t == EntityType.PIG && !"minecraft:pig".equals(obj.get("type").getAsString())) throw new JsonParseException("DataModel has invalid entity type " + obj.get("type").getAsString());
-		List<EntityType<?>> subtypes = new ArrayList<>();
+		List<EntityType<? extends LivingEntity>> subtypes = new ArrayList<>();
 		if (obj.has("subtypes")) {
 			for (JsonElement json : obj.get("subtypes").getAsJsonArray()) {
-				EntityType<?> st = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(json.getAsString()));
+				EntityType<? extends LivingEntity> st = (EntityType) ForgeRegistries.ENTITIES.getValue(new ResourceLocation(json.getAsString()));
 				if (st != EntityType.PIG || "minecraft:pig".equals(json.getAsString())) subtypes.add(st);
 				// Intentionally ignore invalid entries here, so that modded entities can be added as subtypes without hard deps.
 			}
@@ -300,7 +294,7 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 					color = TextColor.parseColor(str);
 				}
 			}
-			name = name.withStyle(Style.EMPTY.withColor(color));
+			name = (TranslatableComponent) name.withStyle(Style.EMPTY.withColor(color));
 		} else name.withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
 
 		float guiScale = obj.get("gui_scale").getAsFloat();
@@ -310,7 +304,7 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		int simCost = obj.get("sim_cost").getAsInt();
 		ItemStack input = ItemAdapter.ITEM_READER.fromJson(obj.get("input"), ItemStack.class);
 		ItemStack baseDrop = ItemAdapter.ITEM_READER.fromJson(obj.get("base_drop"), ItemStack.class);
-		if(baseDrop.isEmpty()) {
+		if (baseDrop.isEmpty()) {
 			baseDrop = new ItemStack(Items.BARRIER);
 			baseDrop.setHoverName(new TranslatableComponent("hostilenetworks.info.no_base_drop"));
 		}
@@ -331,7 +325,7 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 		}
 		CompoundTag displayNbt = new CompoundTag();
 		if (obj.has("display_nbt")) {
-			displayNbt = NBTAdapter.EITHER_CODEC.decode(JsonOps.INSTANCE, obj.get("display_nbt")).result().get().getFirst();
+			displayNbt = ItemAdapter.ITEM_READER.fromJson(obj.get("display_nbt"), CompoundTag.class);
 		}
 
 		return new DataModel(t, subtypes, name, displayNbt, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops, tierData, dataPerKill).validate();

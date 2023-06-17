@@ -1,8 +1,6 @@
 {
   "type": "minecraft:sheep",
-  "display_nbt": {
-    "CustomName": "{\"text\":\"jeb_\"}"
-  },
+  "display_nbt": "{CustomName:'{\"text\":\"_jeb\"}'}",
   "subtypes": [
 	"twilightforest:bighorn_sheep"
   ],

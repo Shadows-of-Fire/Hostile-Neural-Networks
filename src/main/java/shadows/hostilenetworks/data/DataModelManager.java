@@ -25,7 +25,7 @@ public class DataModelManager extends PlaceboJsonReloadListener<DataModel> {
 
 	@Override
 	protected void registerBuiltinSerializers() {
-		this.registerSerializer(DEFAULT, DataModel.SERIALIZER);
+		this.registerSerializer(DEFAULT, new SerializerBuilder<DataModel>("Data Model").json(DataModel::read, DataModel::write).net(DataModel::read, DataModel::write));
 	}
 
 	@Override

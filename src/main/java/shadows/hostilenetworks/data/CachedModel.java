@@ -1,12 +1,12 @@
 package shadows.hostilenetworks.data;
 
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import shadows.hostilenetworks.item.DataModelItem;
+import shadows.hostilenetworks.util.ClientEntityCache;
 
 /**
  * A Cached model is a temporarily-deserialized model. It retains space for a cached entity for rendering.
@@ -16,7 +16,6 @@ public class CachedModel {
 	protected final ItemStack stack;
 	protected final int slot;
 	protected final DataModel model;
-	private final Entity[] cachedEntities;
 
 	protected int data;
 	protected ModelTier tier;
@@ -25,7 +24,6 @@ public class CachedModel {
 		this.stack = stack;
 		this.slot = slot;
 		this.model = DataModelItem.getStoredModel(stack);
-		this.cachedEntities = model == null ? null : new Entity[this.model.subtypes.size() + 1];
 		this.data = DataModelItem.getData(stack);
 		this.tier = ModelTier.getByData(this.model, this.data);
 	}
@@ -79,7 +77,7 @@ public class CachedModel {
 	public int getKillsNeeded() {
 		return Mth.ceil((this.getNextTierData() - this.data) / (float) this.getDataPerKill());
 	}
-	
+
 	public LivingEntity getEntity(Level world) {
 		return getEntity(world, 0);
 	}
