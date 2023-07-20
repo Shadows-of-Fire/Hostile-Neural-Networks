@@ -1,5 +1,7 @@
 package shadows.hostilenetworks.util;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -10,11 +12,12 @@ import net.minecraft.world.level.Level;
 
 public class ClientEntityCache {
 
-	private static final Map<EntityType<?>, LivingEntity> CACHE = new WeakHashMap<>();
+	private static final Map<Level, Map<EntityType<?>, LivingEntity>> CACHE = new WeakHashMap<>();
 
 	@SuppressWarnings("unchecked")
 	public static <T extends LivingEntity> T computeIfAbsent(EntityType<T> type, Level level, CompoundTag displayNbt) {
-		return (T) CACHE.computeIfAbsent(type, k -> {
+		var map = CACHE.computeIfAbsent(level, l -> new HashMap<>());
+		return (T) map.computeIfAbsent(type, k -> {
 			T t = type.create(level);
 			t.load(displayNbt);
 			return t;
@@ -22,7 +25,7 @@ public class ClientEntityCache {
 	}
 
 	public static void tick() {
-		CACHE.values().forEach(e -> {
+		CACHE.values().stream().map(Map::values).flatMap(Collection::stream).forEach(e -> {
 			e.tickCount++;
 		});
 	}

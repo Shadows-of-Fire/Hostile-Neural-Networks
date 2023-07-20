@@ -29,6 +29,11 @@
       "count": 1
     },
     {
+	  "optional": true,
+      "item": "apotheosis:warden_tendril",
+      "count": 1
+    },
+    {
       "item": "minecraft:echo_shard",
       "count": 2
     }

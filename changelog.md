@@ -1,3 +1,6 @@
+## 4.1.1
+* Added support for Apotheosis's Warden Tendril.
+
 ## 4.1.0
 * Updated to Placebo 7.2.0
 * Added the /hostilenetworks command with three subcommands.
