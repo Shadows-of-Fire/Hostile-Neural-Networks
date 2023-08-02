@@ -1,3 +1,6 @@
+## 5.0.0
+* Updated to 1.20.1.
+
 ## 4.1.1
 * Added support for Apotheosis's Warden Tendril.
 

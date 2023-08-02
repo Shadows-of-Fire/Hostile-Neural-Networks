@@ -6,7 +6,7 @@
 	"item.hostilenetworks.data_model": "%s数据模型",
 	"item.hostilenetworks.blank_data_model": "空白数据模型",
 	"item.hostilenetworks.prediction": "%s预测产物",
-	"item.hostilenetworks.empty_prediction": "预测矩阵",
+	"item.hostilenetworks.prediction_matrix": "预测矩阵",
 	"item.hostilenetworks.overworld_prediction": "通用主世界预测产物",
 	"item.hostilenetworks.nether_prediction": "通用下界预测产物",
 	"item.hostilenetworks.end_prediction": "通用末地预测产物",

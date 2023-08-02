@@ -8,7 +8,7 @@
 	"gui_z_offset": 0,
 	"sim_cost": 768,
 	"input": {
-		"item": "hostilenetworks:empty_prediction"
+		"item": "hostilenetworks:prediction_matrix"
 	},
 	"base_drop": {
 		"item": "hostilenetworks:nether_prediction"

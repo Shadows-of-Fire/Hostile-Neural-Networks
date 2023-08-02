@@ -6,7 +6,7 @@
 	"item.hostilenetworks.data_model": "%s 데이터 모델",
 	"item.hostilenetworks.blank_data_model": "모델 프레임워크",
 	"item.hostilenetworks.prediction": "%s 예측",
-	"item.hostilenetworks.empty_prediction": "예측 모형",
+	"item.hostilenetworks.prediction_matrix": "예측 모형",
 	"item.hostilenetworks.overworld_prediction": "일반화된 오버월드 예측",
 	"item.hostilenetworks.nether_prediction": "일반화된 네더 예측",
 	"item.hostilenetworks.end_prediction": "일반화된 엔드 예측",

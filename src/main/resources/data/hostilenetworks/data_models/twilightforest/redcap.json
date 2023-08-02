@@ -17,7 +17,7 @@
   "gui_z_offset": 0.0,
   "sim_cost": 512,
   "input": {
-    "item": "hostilenetworks:empty_prediction",
+    "item": "hostilenetworks:prediction_matrix",
     "count": 1
   },
   "base_drop": {
