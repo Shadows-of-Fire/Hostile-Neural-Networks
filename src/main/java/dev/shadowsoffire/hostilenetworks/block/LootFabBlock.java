@@ -3,15 +3,14 @@ package dev.shadowsoffire.hostilenetworks.block;
 import dev.shadowsoffire.hostilenetworks.gui.LootFabContainer;
 import dev.shadowsoffire.hostilenetworks.tile.LootFabTileEntity;
 import dev.shadowsoffire.placebo.block_entity.TickingEntityBlock;
+import dev.shadowsoffire.placebo.menu.SimplerMenuProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
@@ -71,7 +70,7 @@ public class LootFabBlock extends HorizontalDirectionalBlock implements TickingE
 
     @Override
     public MenuProvider getMenuProvider(BlockState pState, Level pLevel, BlockPos pPos) {
-        return new SimpleMenuProvider((id, inv, player) -> new LootFabContainer(id, inv, pPos), Component.translatable(this.getDescriptionId()));
+        return new SimplerMenuProvider<>(pLevel, pPos, LootFabContainer::new);
     }
 
 }

@@ -6,7 +6,7 @@ import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.data.CachedModel;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
-import dev.shadowsoffire.placebo.container.PlaceboContainerMenu;
+import dev.shadowsoffire.placebo.menu.PlaceboContainerMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;

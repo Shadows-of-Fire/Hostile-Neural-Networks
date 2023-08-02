@@ -20,7 +20,7 @@ import dev.shadowsoffire.hostilenetworks.item.MobPredictionItem;
 import dev.shadowsoffire.placebo.json.ItemAdapter;
 import dev.shadowsoffire.placebo.json.NBTAdapter;
 import dev.shadowsoffire.placebo.json.PSerializer;
-import dev.shadowsoffire.placebo.json.TypeKeyed.TypeKeyedBase;
+import dev.shadowsoffire.placebo.reload.TypeKeyed.TypeKeyedBase;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;

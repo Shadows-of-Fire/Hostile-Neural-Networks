@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 
 import dev.shadowsoffire.hostilenetworks.Hostile.Items;
 import dev.shadowsoffire.hostilenetworks.Hostile.Tabs;
-import dev.shadowsoffire.hostilenetworks.curios.CuriosCompat;
 import dev.shadowsoffire.hostilenetworks.data.DataModelManager;
 import dev.shadowsoffire.placebo.loot.LootSystem;
 import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
@@ -17,7 +16,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -54,10 +52,5 @@ public class HostileNetworks {
                 Items.END_PREDICTION, Items.TWILIGHT_PREDICTION, Items.DATA_MODEL, Items.PREDICTION);
         });
         DataModelManager.INSTANCE.registerToBus();
-    }
-
-    @SubscribeEvent
-    public void imcEvent(InterModEnqueueEvent e) {
-        if (ModList.get().isLoaded("curios")) CuriosCompat.sendIMC();
     }
 }

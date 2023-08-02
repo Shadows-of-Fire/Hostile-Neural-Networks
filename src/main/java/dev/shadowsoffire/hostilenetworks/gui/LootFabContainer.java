@@ -5,13 +5,13 @@ import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.item.MobPredictionItem;
 import dev.shadowsoffire.hostilenetworks.tile.LootFabTileEntity;
 import dev.shadowsoffire.hostilenetworks.tile.LootFabTileEntity.FabItemHandler;
-import dev.shadowsoffire.placebo.container.BlockEntityContainer;
-import dev.shadowsoffire.placebo.container.FilteredSlot;
+import dev.shadowsoffire.placebo.menu.BlockEntityMenu;
+import dev.shadowsoffire.placebo.menu.FilteredSlot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 
-public class LootFabContainer extends BlockEntityContainer<LootFabTileEntity> {
+public class LootFabContainer extends BlockEntityMenu<LootFabTileEntity> {
 
     public LootFabContainer(int id, Inventory pInv, BlockPos pos) {
         super(Hostile.Containers.LOOT_FABRICATOR.get(), id, pInv, pos);

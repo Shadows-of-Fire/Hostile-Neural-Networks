@@ -14,7 +14,7 @@ import dev.shadowsoffire.hostilenetworks.item.MobPredictionItem;
 import dev.shadowsoffire.hostilenetworks.tile.LootFabTileEntity;
 import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity;
 import dev.shadowsoffire.placebo.block_entity.TickingBlockEntityType;
-import dev.shadowsoffire.placebo.container.ContainerUtil;
+import dev.shadowsoffire.placebo.menu.MenuUtil;
 import dev.shadowsoffire.placebo.registry.DeferredHelper;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -66,9 +66,9 @@ public class Hostile {
     }
 
     public static class Containers {
-        public static final RegistryObject<MenuType<DeepLearnerContainer>> DEEP_LEARNER = R.menu("deep_learner", () -> ContainerUtil.type(DeepLearnerContainer::new));
-        public static final RegistryObject<MenuType<SimChamberContainer>> SIM_CHAMBER = R.menu("sim_chamber", () -> ContainerUtil.posType(SimChamberContainer::new));
-        public static final RegistryObject<MenuType<LootFabContainer>> LOOT_FABRICATOR = R.menu("loot_fabricator", () -> ContainerUtil.posType(LootFabContainer::new));
+        public static final RegistryObject<MenuType<DeepLearnerContainer>> DEEP_LEARNER = R.menu("deep_learner", () -> MenuUtil.type(DeepLearnerContainer::new));
+        public static final RegistryObject<MenuType<SimChamberContainer>> SIM_CHAMBER = R.menu("sim_chamber", () -> MenuUtil.posType(SimChamberContainer::new));
+        public static final RegistryObject<MenuType<LootFabContainer>> LOOT_FABRICATOR = R.menu("loot_fabricator", () -> MenuUtil.posType(LootFabContainer::new));
 
         private static void bootstrap() {}
     }

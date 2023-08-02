@@ -3,7 +3,7 @@ package dev.shadowsoffire.hostilenetworks.block;
 import dev.shadowsoffire.hostilenetworks.gui.SimChamberContainer;
 import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity;
 import dev.shadowsoffire.placebo.block_entity.TickingEntityBlock;
-import dev.shadowsoffire.placebo.container.ContainerUtil;
+import dev.shadowsoffire.placebo.menu.MenuUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Containers;
@@ -39,7 +39,7 @@ public class SimChamberBlock extends HorizontalDirectionalBlock implements Ticki
 
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
-        return ContainerUtil.openGui(pPlayer, pPos, SimChamberContainer::new);
+        return MenuUtil.openGui(pPlayer, pPos, SimChamberContainer::new);
     }
 
     @Override

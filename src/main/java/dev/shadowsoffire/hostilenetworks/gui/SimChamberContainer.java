@@ -5,13 +5,13 @@ import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity;
 import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity.FailureState;
 import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity.SimItemHandler;
-import dev.shadowsoffire.placebo.container.BlockEntityContainer;
-import dev.shadowsoffire.placebo.container.FilteredSlot;
+import dev.shadowsoffire.placebo.menu.BlockEntityMenu;
+import dev.shadowsoffire.placebo.menu.FilteredSlot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 
-public class SimChamberContainer extends BlockEntityContainer<SimChamberTileEntity> {
+public class SimChamberContainer extends BlockEntityMenu<SimChamberTileEntity> {
 
     public SimChamberContainer(int id, Inventory pInv, BlockPos pos) {
         super(Hostile.Containers.SIM_CHAMBER.get(), id, pInv, pos);

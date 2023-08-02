@@ -10,8 +10,8 @@ import dev.shadowsoffire.hostilenetworks.item.MobPredictionItem;
 import dev.shadowsoffire.placebo.block_entity.TickingBlockEntity;
 import dev.shadowsoffire.placebo.cap.InternalItemHandler;
 import dev.shadowsoffire.placebo.cap.ModifiableEnergyStorage;
-import dev.shadowsoffire.placebo.container.EasyContainerData;
-import dev.shadowsoffire.placebo.container.EasyContainerData.IDataAutoRegister;
+import dev.shadowsoffire.placebo.menu.SimpleDataSlots;
+import dev.shadowsoffire.placebo.menu.SimpleDataSlots.IDataAutoRegister;
 import dev.shadowsoffire.placebo.recipe.VanillaPacketDispatcher;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -36,7 +36,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
     protected final FabItemHandler inventory = new FabItemHandler();
     protected final ModifiableEnergyStorage energy = new ModifiableEnergyStorage(HostileConfig.fabPowerCap, HostileConfig.fabPowerCap);
     protected final Object2IntMap<DataModel> savedSelections = new Object2IntOpenHashMap<>();
-    protected final EasyContainerData data = new EasyContainerData();
+    protected final SimpleDataSlots data = new SimpleDataSlots();
 
     protected int runtime = 0;
     protected int currentSel = -1;

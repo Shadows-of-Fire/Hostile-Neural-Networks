@@ -13,8 +13,8 @@ import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.placebo.block_entity.TickingBlockEntity;
 import dev.shadowsoffire.placebo.cap.InternalItemHandler;
 import dev.shadowsoffire.placebo.cap.ModifiableEnergyStorage;
-import dev.shadowsoffire.placebo.container.EasyContainerData;
-import dev.shadowsoffire.placebo.container.EasyContainerData.IDataAutoRegister;
+import dev.shadowsoffire.placebo.menu.SimpleDataSlots;
+import dev.shadowsoffire.placebo.menu.SimpleDataSlots.IDataAutoRegister;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -31,7 +31,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 
     protected final SimItemHandler inventory = new SimItemHandler();
     protected final ModifiableEnergyStorage energy = new ModifiableEnergyStorage(HostileConfig.simPowerCap, HostileConfig.simPowerCap);
-    protected final EasyContainerData data = new EasyContainerData();
+    protected final SimpleDataSlots data = new SimpleDataSlots();
 
     protected CachedModel currentModel = null;
     protected int runtime = 0;

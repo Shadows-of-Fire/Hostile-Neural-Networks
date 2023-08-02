@@ -1,3 +1,6 @@
+## 5.0.2
+* Updated to placebo 8.2.0.
+
 ## 5.0.1
 * Fixed the HNN Creative Tab not having a name.
 
