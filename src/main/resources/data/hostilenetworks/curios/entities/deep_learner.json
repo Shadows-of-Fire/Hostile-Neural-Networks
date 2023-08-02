@@ -1,0 +1,4 @@
+{
+  "entities": [ "player" ],
+  "slots": [ "hostilenetworks:deep_learner" ]
+}

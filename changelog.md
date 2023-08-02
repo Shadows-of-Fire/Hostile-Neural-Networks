@@ -1,3 +1,6 @@
+## 5.0.1
+* Fixed the HNN Creative Tab not having a name.
+
 ## 5.0.0
 * Updated to 1.20.1.
 

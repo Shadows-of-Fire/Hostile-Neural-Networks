@@ -12,7 +12,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
-import dev.shadowsoffire.hostilenetworks.client.WeirdRenderThings;
 import dev.shadowsoffire.hostilenetworks.client.WrappedRTBuffer;
 import dev.shadowsoffire.hostilenetworks.data.CachedModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;

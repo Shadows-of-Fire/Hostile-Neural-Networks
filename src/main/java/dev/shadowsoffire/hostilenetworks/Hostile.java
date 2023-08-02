@@ -17,6 +17,7 @@ import dev.shadowsoffire.placebo.block_entity.TickingBlockEntityType;
 import dev.shadowsoffire.placebo.container.ContainerUtil;
 import dev.shadowsoffire.placebo.registry.DeferredHelper;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.MenuType;
@@ -75,7 +76,8 @@ public class Hostile {
     public static class Tabs {
         public static final ResourceKey<CreativeModeTab> HNN_TAB_KEY = ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(HostileNetworks.MODID, "tab"));
 
-        public static final RegistryObject<CreativeModeTab> HNN_TAB = R.tab("tab", () -> CreativeModeTab.builder().icon(() -> Items.SIM_CHAMBER.get().getDefaultInstance()).build());
+        public static final RegistryObject<CreativeModeTab> HNN_TAB = R.tab("tab",
+            () -> CreativeModeTab.builder().title(Component.translatable("itemGroup.hostilenetworks")).icon(() -> Items.SIM_CHAMBER.get().getDefaultInstance()).build());
 
         private static void bootstrap() {};
     }
