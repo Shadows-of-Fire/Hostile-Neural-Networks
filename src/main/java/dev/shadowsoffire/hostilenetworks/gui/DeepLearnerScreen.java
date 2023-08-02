@@ -208,7 +208,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         this.stats.tick();
 
         this.spin++;
-        if (++this.ticksShown % 80 == 0) nextVariant();
+        if (++this.ticksShown % 80 == 0) this.nextVariant();
     }
 
     private void nextVariant() {

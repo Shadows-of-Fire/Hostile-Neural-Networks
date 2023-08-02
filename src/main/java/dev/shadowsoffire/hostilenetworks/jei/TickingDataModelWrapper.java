@@ -8,26 +8,26 @@ import net.minecraft.world.item.ItemStack;
 
 public class TickingDataModelWrapper {
 
-	final ItemStack model;
-	final ItemStack input;
-	final ItemStack baseDrop;
-	final ItemStack prediction;
+    final ItemStack model;
+    final ItemStack input;
+    final ItemStack baseDrop;
+    final ItemStack prediction;
 
-	ModelTier currentTier = ModelTier.BASIC;
+    ModelTier currentTier = ModelTier.BASIC;
 
-	public TickingDataModelWrapper(DataModel src) {
-		this.model = new ItemStack(Hostile.Items.DATA_MODEL.get());
-		DataModelItem.setStoredModel(this.model, src);
-		DataModelItem.setData(this.model, src.getTierData(ModelTier.BASIC));
-		this.input = src.getInput().copy();
-		this.baseDrop = src.getBaseDrop().copy();
-		this.prediction = src.getPredictionDrop();
-	}
+    public TickingDataModelWrapper(DataModel src) {
+        this.model = new ItemStack(Hostile.Items.DATA_MODEL.get());
+        DataModelItem.setStoredModel(this.model, src);
+        DataModelItem.setData(this.model, src.getTierData(ModelTier.BASIC));
+        this.input = src.getInput().copy();
+        this.baseDrop = src.getBaseDrop().copy();
+        this.prediction = src.getPredictionDrop();
+    }
 
-	void setTier(ModelTier tier) {
-		if (this.currentTier == tier) return;
-		DataModelItem.setData(this.model, DataModelItem.getStoredModel(this.model).getTierData(tier));
-		this.currentTier = tier;
-	}
+    void setTier(ModelTier tier) {
+        if (this.currentTier == tier) return;
+        DataModelItem.setData(this.model, DataModelItem.getStoredModel(this.model).getTierData(tier));
+        this.currentTier = tier;
+    }
 
 }

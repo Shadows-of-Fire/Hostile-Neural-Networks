@@ -12,21 +12,21 @@ import net.minecraft.world.level.Level;
 
 public class ClientEntityCache {
 
-	private static final Map<Level, Map<EntityType<?>, LivingEntity>> CACHE = new WeakHashMap<>();
+    private static final Map<Level, Map<EntityType<?>, LivingEntity>> CACHE = new WeakHashMap<>();
 
-	@SuppressWarnings("unchecked")
-	public static <T extends LivingEntity> T computeIfAbsent(EntityType<T> type, Level level, CompoundTag displayNbt) {
-		var map = CACHE.computeIfAbsent(level, l -> new HashMap<>());
-		return (T) map.computeIfAbsent(type, k -> {
-			T t = type.create(level);
-			t.load(displayNbt);
-			return t;
-		});
-	}
+    @SuppressWarnings("unchecked")
+    public static <T extends LivingEntity> T computeIfAbsent(EntityType<T> type, Level level, CompoundTag displayNbt) {
+        var map = CACHE.computeIfAbsent(level, l -> new HashMap<>());
+        return (T) map.computeIfAbsent(type, k -> {
+            T t = type.create(level);
+            t.load(displayNbt);
+            return t;
+        });
+    }
 
-	public static void tick() {
-		CACHE.values().stream().map(Map::values).flatMap(Collection::stream).forEach(e -> {
-			e.tickCount++;
-		});
-	}
+    public static void tick() {
+        CACHE.values().stream().map(Map::values).flatMap(Collection::stream).forEach(e -> {
+            e.tickCount++;
+        });
+    }
 }

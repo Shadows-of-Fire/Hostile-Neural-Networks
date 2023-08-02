@@ -26,51 +26,52 @@ import net.minecraftforge.network.NetworkHooks;
 
 public class LootFabBlock extends HorizontalDirectionalBlock implements TickingEntityBlock {
 
-	public LootFabBlock(Properties props) {
-		super(props);
-		this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH));
-	}
+    public LootFabBlock(Properties props) {
+        super(props);
+        this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH));
+    }
 
-	@Override
-	protected void createBlockStateDefinition(Builder<Block, BlockState> pBuilder) {
-		pBuilder.add(FACING);
-	}
+    @Override
+    protected void createBlockStateDefinition(Builder<Block, BlockState> pBuilder) {
+        pBuilder.add(FACING);
+    }
 
-	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext pContext) {
-		return this.defaultBlockState().setValue(FACING, pContext.getHorizontalDirection().getOpposite());
-	}
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext pContext) {
+        return this.defaultBlockState().setValue(FACING, pContext.getHorizontalDirection().getOpposite());
+    }
 
-	@Override
-	public BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
-		return new LootFabTileEntity(pPos, pState);
-	}
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
+        return new LootFabTileEntity(pPos, pState);
+    }
 
-	@Override
-	public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
-		if (pLevel.isClientSide) {
-			return InteractionResult.SUCCESS;
-		} else {
-			NetworkHooks.openScreen((ServerPlayer) pPlayer, this.getMenuProvider(pState, pLevel, pPos), pPos);
-			return InteractionResult.CONSUME;
-		}
-	}
+    @Override
+    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
+        if (pLevel.isClientSide) {
+            return InteractionResult.SUCCESS;
+        }
+        else {
+            NetworkHooks.openScreen((ServerPlayer) pPlayer, this.getMenuProvider(pState, pLevel, pPos), pPos);
+            return InteractionResult.CONSUME;
+        }
+    }
 
-	@Override
-	@Deprecated
-	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
-		if (!pState.is(pNewState.getBlock())) {
-			BlockEntity te = pLevel.getBlockEntity(pPos);
-			if (te instanceof LootFabTileEntity fab) {
-				Containers.dropContents(pLevel, pPos, new RecipeWrapper(fab.getInventory()));
-			}
-			super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
-		}
-	}
+    @Override
+    @Deprecated
+    public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
+        if (!pState.is(pNewState.getBlock())) {
+            BlockEntity te = pLevel.getBlockEntity(pPos);
+            if (te instanceof LootFabTileEntity fab) {
+                Containers.dropContents(pLevel, pPos, new RecipeWrapper(fab.getInventory()));
+            }
+            super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
+        }
+    }
 
-	@Override
-	public MenuProvider getMenuProvider(BlockState pState, Level pLevel, BlockPos pPos) {
-		return new SimpleMenuProvider((id, inv, player) -> new LootFabContainer(id, inv, pPos), Component.translatable(this.getDescriptionId()));
-	}
+    @Override
+    public MenuProvider getMenuProvider(BlockState pState, Level pLevel, BlockPos pPos) {
+        return new SimpleMenuProvider((id, inv, player) -> new LootFabContainer(id, inv, pPos), Component.translatable(this.getDescriptionId()));
+    }
 
 }

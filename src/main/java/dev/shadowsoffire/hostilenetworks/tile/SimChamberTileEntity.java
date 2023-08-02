@@ -101,7 +101,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                         this.setChanged();
                     }
                 }
-                else if (hasPowerFor(this.currentModel.getModel())) {
+                else if (this.hasPowerFor(this.currentModel.getModel())) {
                     this.failState = FailureState.NONE;
                     if (--this.runtime == 0) {
                         ItemStack stk = this.inventory.getStackInSlot(2);
@@ -172,7 +172,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 
     /**
      * Checks if the system has the power required for the tick cost of a model.
-     * 
+     *
      * @param model The model being checked.
      * @return If the chamber has more power than the sim cost of the model.
      */

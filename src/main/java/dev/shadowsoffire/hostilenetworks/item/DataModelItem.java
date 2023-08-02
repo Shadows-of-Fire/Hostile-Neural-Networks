@@ -1,5 +1,6 @@
 package dev.shadowsoffire.hostilenetworks.item;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -72,7 +73,7 @@ public class DataModelItem extends Item implements ITabFiller {
 
     @Override
     public void fillItemCategory(CreativeModeTab tab, CreativeModeTab.Output output) {
-        DataModelManager.INSTANCE.getValues().stream().sorted((m1, m2) -> m1.getId().compareTo(m2.getId())).forEach(model -> {
+        DataModelManager.INSTANCE.getValues().stream().sorted(Comparator.comparing(DataModel::getId)).forEach(model -> {
             ItemStack s = new ItemStack(this);
             setStoredModel(s, model);
             output.accept(s);
@@ -104,7 +105,7 @@ public class DataModelItem extends Item implements ITabFiller {
 
     /**
      * Retrieves the data model from a data model itemstack.
-     * 
+     *
      * @return The contained data model. Realisitcally should never be null.
      */
     @Nullable

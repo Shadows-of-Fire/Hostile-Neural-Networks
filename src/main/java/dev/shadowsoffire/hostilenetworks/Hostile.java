@@ -36,7 +36,7 @@ public class Hostile {
         public static final RegistryObject<Block> SIM_CHAMBER = R.block("sim_chamber", () -> new SimChamberBlock(Block.Properties.of().lightLevel(s -> 1).strength(4, 3000).noOcclusion()));
         public static final RegistryObject<Block> LOOT_FABRICATOR = R.block("loot_fabricator", () -> new LootFabBlock(Block.Properties.of().lightLevel(s -> 1).strength(4, 3000).noOcclusion()));
 
-        private static void bootstrap() {};
+        private static void bootstrap() {}
     }
 
     public static class Items {
@@ -52,7 +52,7 @@ public class Hostile {
         public static final RegistryObject<BlockItem> SIM_CHAMBER = R.item("sim_chamber", () -> new BlockItem(Hostile.Blocks.SIM_CHAMBER.get(), new Item.Properties()));
         public static final RegistryObject<BlockItem> LOOT_FABRICATOR = R.item("loot_fabricator", () -> new BlockItem(Hostile.Blocks.LOOT_FABRICATOR.get(), new Item.Properties()));
 
-        private static void bootstrap() {};
+        private static void bootstrap() {}
     }
 
     public static class TileEntities {
@@ -62,7 +62,7 @@ public class Hostile {
         public static final RegistryObject<BlockEntityType<LootFabTileEntity>> LOOT_FABRICATOR = R.blockEntity("loot_fabricator",
             () -> new TickingBlockEntityType<>(LootFabTileEntity::new, ImmutableSet.of(Hostile.Blocks.LOOT_FABRICATOR.get()), false, true));
 
-        private static void bootstrap() {};
+        private static void bootstrap() {}
     }
 
     public static class Containers {
@@ -70,7 +70,7 @@ public class Hostile {
         public static final RegistryObject<MenuType<SimChamberContainer>> SIM_CHAMBER = R.menu("sim_chamber", () -> ContainerUtil.posType(SimChamberContainer::new));
         public static final RegistryObject<MenuType<LootFabContainer>> LOOT_FABRICATOR = R.menu("loot_fabricator", () -> ContainerUtil.posType(LootFabContainer::new));
 
-        private static void bootstrap() {};
+        private static void bootstrap() {}
     }
 
     public static class Tabs {
@@ -79,7 +79,7 @@ public class Hostile {
         public static final RegistryObject<CreativeModeTab> HNN_TAB = R.tab("tab",
             () -> CreativeModeTab.builder().title(Component.translatable("itemGroup.hostilenetworks")).icon(() -> Items.SIM_CHAMBER.get().getDefaultInstance()).build());
 
-        private static void bootstrap() {};
+        private static void bootstrap() {}
     }
 
     static void bootstrap() {

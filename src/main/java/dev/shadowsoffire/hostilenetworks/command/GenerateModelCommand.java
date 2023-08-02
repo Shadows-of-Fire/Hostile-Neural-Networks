@@ -169,14 +169,12 @@ public class GenerateModelCommand {
 
         var avgs = count.stream().map(cs -> Pair.of(cs.stack, cs.count.get() / 2500F)).toList();
         float factor = avgs.stream().map(Pair::getRight).max(Float::compareTo).orElse(0F) / maxStackSize;
-        var results = avgs.stream().map(pair -> {
+        return avgs.stream().map(pair -> {
             ItemStack s = pair.getLeft();
             s.setCount(Mth.ceil(pair.getRight() / factor));
             return s;
         }).sorted((s1, s2) -> Integer.compare(s1.getCount(), s2.getCount()) == 0 ? -ForgeRegistries.ITEMS.getKey(s1.getItem()).compareTo(ForgeRegistries.ITEMS.getKey(s2.getItem())) : -Integer.compare(s1.getCount(), s2.getCount()))
             .toList();
-
-        return results;
     }
 
     private static Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -187,7 +185,7 @@ public class GenerateModelCommand {
         try (FileWriter writer = new FileWriter(file)) {
             JsonElement json = DataModel.SERIALIZER.write(model);
 
-            if (!namespace.equals("minecraft")) {
+            if (!"minecraft".equals(namespace)) {
                 var condition = new ModLoadedCondition(namespace);
                 var arr = new JsonArray();
                 arr.add(CraftingHelper.serialize(condition));
@@ -202,7 +200,7 @@ public class GenerateModelCommand {
         catch (IOException ex) {
 
         }
-    };
+    }
 
     private static MethodHandle lootMethodHandle() {
         dropFromLootTable.setAccessible(true);

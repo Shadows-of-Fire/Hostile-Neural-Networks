@@ -7,15 +7,15 @@ import net.minecraft.client.renderer.RenderType;
 
 public class WrappedRTBuffer implements MultiBufferSource {
 
-	private final MultiBufferSource wrapped;
+    private final MultiBufferSource wrapped;
 
-	public WrappedRTBuffer(MultiBufferSource wrapped) {
-		this.wrapped = wrapped;
-	}
+    public WrappedRTBuffer(MultiBufferSource wrapped) {
+        this.wrapped = wrapped;
+    }
 
-	@Override
-	public VertexConsumer getBuffer(RenderType type) {
-		return new GhostVertexBuilder(this.wrapped.getBuffer(type), 0xBB);
-	}
+    @Override
+    public VertexConsumer getBuffer(RenderType type) {
+        return new GhostVertexBuilder(this.wrapped.getBuffer(type), 0xBB);
+    }
 
 }

@@ -88,7 +88,7 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> {
             for (int y = 0; y < 3; y++) {
                 for (int x = 0; x < 3; x++) {
                     if (y * 3 + x < Math.min(drops.size() - this.currentPage * 9, 9) && this.isHovering(18 + 18 * x, 10 + 18 * y, 16, 16, pX, pY)) {
-                        drawOnLeft(gfx, getTooltipFromItem(this.minecraft, drops.get(this.currentPage * 9 + y * 3 + x)), this.getGuiTop() + 15);
+                        this.drawOnLeft(gfx, getTooltipFromItem(this.minecraft, drops.get(this.currentPage * 9 + y * 3 + x)), this.getGuiTop() + 15);
                     }
                 }
             }
@@ -190,7 +190,7 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> {
         int lambdastupid = maxWidth;
         list.forEach(comp -> split.addAll(this.font.getSplitter().splitLines(comp, lambdastupid, comp.getStyle())));
 
-        gfx.renderComponentTooltip(font, split, xPos, y, ItemStack.EMPTY);
+        gfx.renderComponentTooltip(this.font, split, xPos, y, ItemStack.EMPTY);
 
         // GuiUtils.drawHoveringText(stack, list, xPos, y, width, height, maxWidth, this.font);
     }

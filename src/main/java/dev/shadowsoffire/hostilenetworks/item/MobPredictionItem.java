@@ -1,5 +1,7 @@
 package dev.shadowsoffire.hostilenetworks.item;
 
+import java.util.Comparator;
+
 import javax.annotation.Nullable;
 
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
@@ -32,7 +34,7 @@ public class MobPredictionItem extends Item implements ITabFiller {
 
     @Override
     public void fillItemCategory(CreativeModeTab tab, CreativeModeTab.Output output) {
-        DataModelManager.INSTANCE.getValues().stream().sorted((m1, m2) -> m1.getId().compareTo(m2.getId())).forEach(model -> {
+        DataModelManager.INSTANCE.getValues().stream().sorted(Comparator.comparing(DataModel::getId)).forEach(model -> {
             ItemStack s = new ItemStack(this);
             setStoredModel(s, model);
             output.accept(s);
