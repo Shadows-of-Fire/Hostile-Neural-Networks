@@ -44,14 +44,14 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
             List<Component> txt = new ArrayList<>(2);
             txt.add(Component.translatable("hostilenetworks.gui.energy", this.menu.getEnergyStored(), HostileConfig.simPowerCap));
             CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
-            if (cModel.getModel() != null) {
+            if (cModel.isValid()) {
                 txt.add(Component.translatable("hostilenetworks.gui.cost", cModel.getModel().getSimCost()));
             }
             gfx.renderComponentTooltip(this.font, txt, pX, pY);
         }
         else if (this.isHovering(14, 48, 7, 87, pX, pY)) {
             CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
-            if (cModel.getModel() != null) {
+            if (cModel.isValid()) {
                 List<Component> txt = new ArrayList<>(1);
                 if (cModel.getTier() != cModel.getTier().next()) {
                     txt.add(Component.translatable("hostilenetworks.gui.data", cModel.getData() - cModel.getTierData(), cModel.getNextTierData() - cModel.getTierData()));
@@ -71,7 +71,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
             gfx.drawString(this.font, rTime + "%", 184, 123, Color.AQUA, true);
         }
         CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
-        if (cModel.getModel() != null) {
+        if (cModel.isValid()) {
             int xOff = 18;
             String msg = I18n.get("hostilenetworks.gui.target");
             gfx.drawString(this.font, msg, xOff, 9, Color.WHITE);
@@ -123,7 +123,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
 
         int dataHeight = 87;
         CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
-        if (cModel.getModel() != null) {
+        if (cModel.isValid()) {
             int data = cModel.getData();
             ModelTier tier = cModel.getTier();
             ModelTier next = tier.next();
@@ -148,7 +148,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
                 if (this.lastFailState == FailureState.INPUT) {
                     CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
                     Component name = ERROR;
-                    if (cModel.getModel() != null) name = cModel.getModel().getInput().getHoverName();
+                    if (cModel.isValid()) name = cModel.getModel().getInput().getHoverName();
                     msg = I18n.get(this.lastFailState.getKey(), name.getString()).split("\\n");
                 }
                 for (String s : msg)

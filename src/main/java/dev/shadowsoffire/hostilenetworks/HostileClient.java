@@ -5,8 +5,9 @@ import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerScreen;
 import dev.shadowsoffire.hostilenetworks.gui.LootFabScreen;
 import dev.shadowsoffire.hostilenetworks.gui.SimChamberScreen;
-import dev.shadowsoffire.hostilenetworks.item.MobPredictionItem;
+import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.util.ClientEntityCache;
+import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -42,10 +43,10 @@ public class HostileClient {
     @SubscribeEvent
     public static void colors(RegisterColorHandlersEvent.Item e) {
         e.register((stack, tint) -> {
-            DataModel model = MobPredictionItem.getStoredModel(stack);
+            DynamicHolder<DataModel> model = DataModelItem.getStoredModel(stack);
             int color = 0xFFFFFF;
-            if (model != null) {
-                color = model.getNameColor();
+            if (model.isBound()) {
+                color = model.get().getNameColor();
             }
             return color;
         }, Hostile.Items.PREDICTION.get());

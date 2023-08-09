@@ -8,16 +8,16 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableMap;
 
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
-import dev.shadowsoffire.placebo.reload.PlaceboJsonReloadListener;
+import dev.shadowsoffire.placebo.reload.DynamicRegistry;
 import net.minecraft.world.entity.EntityType;
 
-public class DataModelManager extends PlaceboJsonReloadListener<DataModel> {
+public class DataModelRegistry extends DynamicRegistry<DataModel> {
 
-    public static final DataModelManager INSTANCE = new DataModelManager();
+    public static final DataModelRegistry INSTANCE = new DataModelRegistry();
 
     private Map<EntityType<?>, DataModel> modelsByType = new HashMap<>();
 
-    public DataModelManager() {
+    public DataModelRegistry() {
         super(HostileNetworks.LOGGER, "data_models", true, false);
     }
 

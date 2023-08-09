@@ -16,7 +16,7 @@ import com.google.gson.reflect.TypeToken;
 import com.mojang.serialization.JsonOps;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
-import dev.shadowsoffire.hostilenetworks.item.MobPredictionItem;
+import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.placebo.json.ItemAdapter;
 import dev.shadowsoffire.placebo.json.NBTAdapter;
 import dev.shadowsoffire.placebo.json.PSerializer;
@@ -154,7 +154,7 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 
     public ItemStack getPredictionDrop() {
         ItemStack stk = new ItemStack(Hostile.Items.PREDICTION.get());
-        MobPredictionItem.setStoredModel(stk, this);
+        DataModelItem.setStoredModel(stk, this);
         return stk;
     }
 

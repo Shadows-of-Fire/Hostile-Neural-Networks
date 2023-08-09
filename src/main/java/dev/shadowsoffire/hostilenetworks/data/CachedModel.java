@@ -2,6 +2,7 @@ package dev.shadowsoffire.hostilenetworks.data;
 
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.util.ClientEntityCache;
+import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -13,9 +14,11 @@ import net.minecraft.world.level.Level;
  */
 public class CachedModel {
 
+    public static final CachedModel EMPTY = new CachedModel(ItemStack.EMPTY, -1);
+
     protected final ItemStack stack;
     protected final int slot;
-    protected final DataModel model;
+    protected final DynamicHolder<DataModel> model;
 
     protected int data;
     protected ModelTier tier;
@@ -29,7 +32,7 @@ public class CachedModel {
     }
 
     public DataModel getModel() {
-        return this.model;
+        return this.model.get();
     }
 
     public int getData() {
@@ -41,19 +44,19 @@ public class CachedModel {
     }
 
     public int getDataPerKill() {
-        return this.model.getDataPerKill(this.tier);
+        return this.getModel().getDataPerKill(this.tier);
     }
 
     public int getTierData() {
-        return this.model.getTierData(this.tier);
+        return this.getModel().getTierData(this.tier);
     }
 
     public int getNextDataPerKill() {
-        return this.model.getDataPerKill(this.tier.next());
+        return this.getModel().getDataPerKill(this.tier.next());
     }
 
     public int getNextTierData() {
-        return this.model.getTierData(this.tier.next());
+        return this.getModel().getTierData(this.tier.next());
     }
 
     public void setData(int data) {
@@ -83,12 +86,12 @@ public class CachedModel {
     }
 
     public LivingEntity getEntity(Level level, int variant) {
-        EntityType<? extends LivingEntity> type = variant == 0 ? this.model.type : this.model.subtypes.get(variant - 1);
-        return ClientEntityCache.computeIfAbsent(type, level, this.model.displayNbt);
+        EntityType<? extends LivingEntity> type = variant == 0 ? this.getModel().type : this.getModel().subtypes.get(variant - 1);
+        return ClientEntityCache.computeIfAbsent(type, level, this.getModel().displayNbt);
     }
 
     public ItemStack getPredictionDrop() {
-        return this.model.getPredictionDrop();
+        return this.getModel().getPredictionDrop();
     }
 
     public ItemStack getSourceStack() {
@@ -96,7 +99,7 @@ public class CachedModel {
     }
 
     public boolean isValid() {
-        return this.model != null;
+        return this.model.isBound();
     }
 
 }

@@ -24,7 +24,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
-import dev.shadowsoffire.hostilenetworks.data.DataModelManager;
+import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -57,7 +57,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class GenerateModelCommand {
 
     public static final SuggestionProvider<CommandSourceStack> SUGGEST_ENTITY_TYPE = (ctx, builder) -> SharedSuggestionProvider.suggest(ForgeRegistries.ENTITY_TYPES.getKeys().stream().map(ResourceLocation::toString), builder);
-    public static final SuggestionProvider<CommandSourceStack> SUGGEST_DATA_MODEL = (ctx, builder) -> SharedSuggestionProvider.suggest(DataModelManager.INSTANCE.getKeys().stream().map(ResourceLocation::toString), builder);
+    public static final SuggestionProvider<CommandSourceStack> SUGGEST_DATA_MODEL = (ctx, builder) -> SharedSuggestionProvider.suggest(DataModelRegistry.INSTANCE.getKeys().stream().map(ResourceLocation::toString), builder);
 
     public static final Method dropFromLootTable = ObfuscationReflectionHelper.findMethod(LivingEntity.class, "m_7625_", DamageSource.class, boolean.class);
     public static final MethodHandle DROP_LOOT = lootMethodHandle();
@@ -94,7 +94,7 @@ public class GenerateModelCommand {
             .then(Commands.argument("data_model", ResourceLocationArgument.id()).suggests(SUGGEST_DATA_MODEL).then(Commands.argument("max_stack_size", IntegerArgumentType.integer(1, 64)).executes(c -> {
                 Player p = c.getSource().getPlayerOrException();
                 ResourceLocation name = c.getArgument("data_model", ResourceLocation.class);
-                DataModel model = DataModelManager.INSTANCE.getValue(name);
+                DataModel model = DataModelRegistry.INSTANCE.getValue(name);
                 EntityType<? extends LivingEntity> type = model.getType();
                 var results = runSimulation(type, p, 7500, c.getArgument("max_stack_size", Integer.class));
 

@@ -2,10 +2,9 @@ package dev.shadowsoffire.hostilenetworks.item;
 
 import java.util.Comparator;
 
-import javax.annotation.Nullable;
-
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
-import dev.shadowsoffire.hostilenetworks.data.DataModelManager;
+import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
+import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import dev.shadowsoffire.placebo.tabs.ITabFiller;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -23,31 +22,22 @@ public class MobPredictionItem extends Item implements ITabFiller {
 
     @Override
     public Component getName(ItemStack pStack) {
-        DataModel model = getStoredModel(pStack);
+        DynamicHolder<DataModel> model = DataModelItem.getStoredModel(pStack);
         Component modelName;
-        if (model == null) {
+        if (!model.isBound()) {
             modelName = Component.literal("BROKEN").withStyle(ChatFormatting.OBFUSCATED);
         }
-        else modelName = model.getName();
+        else modelName = model.get().getName();
         return Component.translatable(this.getDescriptionId(pStack), modelName);
     }
 
     @Override
     public void fillItemCategory(CreativeModeTab tab, CreativeModeTab.Output output) {
-        DataModelManager.INSTANCE.getValues().stream().sorted(Comparator.comparing(DataModel::getId)).forEach(model -> {
+        DataModelRegistry.INSTANCE.getValues().stream().sorted(Comparator.comparing(DataModel::getId)).forEach(model -> {
             ItemStack s = new ItemStack(this);
-            setStoredModel(s, model);
+            DataModelItem.setStoredModel(s, model);
             output.accept(s);
         });
-    }
-
-    @Nullable
-    public static DataModel getStoredModel(ItemStack stack) {
-        return DataModelItem.getStoredModel(stack);
-    }
-
-    public static void setStoredModel(ItemStack stack, DataModel model) {
-        DataModelItem.setStoredModel(stack, model);
     }
 
 }

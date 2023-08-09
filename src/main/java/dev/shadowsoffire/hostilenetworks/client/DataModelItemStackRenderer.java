@@ -9,6 +9,7 @@ import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.util.ClientEntityCache;
+import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -67,12 +68,12 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
         irenderer.renderModelLists(base, stack, light, overlay, matrix, ItemRenderer.getFoilBufferDirect(GHOST_ENTITY_BUF, ItemBlockRenderTypes.getRenderType(stack, true), true, false));
         GHOST_ENTITY_BUF.endBatch();
         matrix.popPose();
-        DataModel model = DataModelItem.getStoredModel(stack);
-        if (model != null) {
-            LivingEntity ent = ClientEntityCache.computeIfAbsent(model.getType(), Minecraft.getInstance().level, model.getDisplayNbt());
+        DynamicHolder<DataModel> model = DataModelItem.getStoredModel(stack);
+        if (model.isBound()) {
+            LivingEntity ent = ClientEntityCache.computeIfAbsent(model.get().getType(), Minecraft.getInstance().level, model.get().getDisplayNbt());
             if (Minecraft.getInstance().player != null) ent.tickCount = Minecraft.getInstance().player.tickCount;
             if (ent != null) {
-                this.renderEntityInInventory(matrix, type, ent, model);
+                this.renderEntityInInventory(matrix, type, ent, model.get());
             }
         }
     }

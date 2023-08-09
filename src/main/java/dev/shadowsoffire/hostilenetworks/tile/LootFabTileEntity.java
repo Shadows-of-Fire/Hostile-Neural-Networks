@@ -5,14 +5,15 @@ import java.util.function.Consumer;
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.HostileConfig;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
-import dev.shadowsoffire.hostilenetworks.data.DataModelManager;
-import dev.shadowsoffire.hostilenetworks.item.MobPredictionItem;
+import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
+import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.placebo.block_entity.TickingBlockEntity;
 import dev.shadowsoffire.placebo.cap.InternalItemHandler;
 import dev.shadowsoffire.placebo.cap.ModifiableEnergyStorage;
 import dev.shadowsoffire.placebo.menu.SimpleDataSlots;
 import dev.shadowsoffire.placebo.menu.SimpleDataSlots.IDataAutoRegister;
 import dev.shadowsoffire.placebo.recipe.VanillaPacketDispatcher;
+import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
@@ -35,7 +36,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
 
     protected final FabItemHandler inventory = new FabItemHandler();
     protected final ModifiableEnergyStorage energy = new ModifiableEnergyStorage(HostileConfig.fabPowerCap, HostileConfig.fabPowerCap);
-    protected final Object2IntMap<DataModel> savedSelections = new Object2IntOpenHashMap<>();
+    protected final Object2IntMap<DynamicHolder<DataModel>> savedSelections = new Object2IntOpenHashMap<>();
     protected final SimpleDataSlots data = new SimpleDataSlots();
 
     protected int runtime = 0;
@@ -55,9 +56,9 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
 
     @Override
     public void serverTick(Level level, BlockPos pos, BlockState state) {
-        DataModel dm = MobPredictionItem.getStoredModel(this.inventory.getStackInSlot(0));
-        if (dm != null) {
-            int selection = this.savedSelections.getInt(dm);
+        DynamicHolder<DataModel> dm = DataModelItem.getStoredModel(this.inventory.getStackInSlot(0));
+        if (dm.isBound()) {
+            int selection = this.getSelectedDrop(dm.get());
             if (this.currentSel != selection) {
                 this.currentSel = selection;
                 this.runtime = 0;
@@ -65,14 +66,14 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
             }
             if (selection != -1) {
                 if (this.runtime == 0) {
-                    ItemStack out = dm.getFabDrops().get(selection).copy();
+                    ItemStack out = dm.get().getFabDrops().get(selection).copy();
                     if (this.insertInOutput(out, true)) this.runtime = 60;
                 }
                 else {
                     if (this.energy.getEnergyStored() < HostileConfig.fabPowerCost) return;
                     this.energy.setEnergy(this.energy.getEnergyStored() - HostileConfig.fabPowerCost);
                     if (--this.runtime == 0) {
-                        this.insertInOutput(dm.getFabDrops().get(selection).copy(), false);
+                        this.insertInOutput(dm.get().getFabDrops().get(selection).copy(), false);
                         this.inventory.getStackInSlot(0).shrink(1);
                     }
                     this.setChanged();
@@ -95,9 +96,9 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         return this.inventory;
     }
 
-    public void setSelection(DataModel model, int pId) {
-        if (pId == -1) this.savedSelections.removeInt(model);
-        else this.savedSelections.put(model, Mth.clamp(pId, 0, model.getFabDrops().size() - 1));
+    public void setSelection(DynamicHolder<DataModel> model, int selection) {
+        if (selection == -1) this.savedSelections.removeInt(model);
+        else this.savedSelections.put(model, Mth.clamp(selection, 0, model.get().getFabDrops().size() - 1));
         VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
         this.setChanged();
     }
@@ -153,7 +154,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
     }
 
     private CompoundTag writeSelections(CompoundTag tag) {
-        for (Object2IntMap.Entry<DataModel> e : this.savedSelections.object2IntEntrySet()) {
+        for (Object2IntMap.Entry<DynamicHolder<DataModel>> e : this.savedSelections.object2IntEntrySet()) {
             tag.putInt(e.getKey().getId().toString(), e.getIntValue());
         }
         return tag;
@@ -162,8 +163,8 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
     private void readSelections(CompoundTag tag) {
         this.savedSelections.clear();
         for (String s : tag.getAllKeys()) {
-            DataModel dm = DataModelManager.INSTANCE.getValue(new ResourceLocation(s));
-            this.savedSelections.put(dm, Mth.clamp(tag.getInt(s), 0, dm.getFabDrops().size() - 1));
+            DynamicHolder<DataModel> dm = DataModelRegistry.INSTANCE.holder(new ResourceLocation(s));
+            this.savedSelections.put(dm, tag.getInt(s));
         }
     }
 
@@ -176,7 +177,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
     }
 
     public int getSelectedDrop(DataModel model) {
-        return model == null ? -1 : this.savedSelections.getInt(model);
+        return Mth.clamp(this.savedSelections.getInt(model), 0, model.getFabDrops().size() - 1);
     }
 
     public class FabItemHandler extends InternalItemHandler {

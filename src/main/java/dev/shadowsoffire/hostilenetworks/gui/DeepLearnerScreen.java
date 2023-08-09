@@ -2,6 +2,7 @@ package dev.shadowsoffire.hostilenetworks.gui;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.joml.Quaternionf;
@@ -58,22 +59,24 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         this.imageWidth = WIDTH;
         this.imageHeight = HEIGHT;
         this.setupEmptyText();
+        Arrays.fill(models, CachedModel.EMPTY);
+        this.minecraft = Minecraft.getInstance();
         pMenu.setNotifyCallback(slotId -> {
             ItemStack stack = pMenu.getSlot(slotId).getItem();
             CachedModel old = this.models[slotId];
-            this.models[slotId] = stack.isEmpty() ? null : new CachedModel(stack, slotId);
-            if (old == null && this.models[slotId] != null) {
+            this.models[slotId] = new CachedModel(stack, slotId);
+            if (!old.isValid() && this.models[slotId].isValid()) {
                 if (++this.numModels == 1) {
                     this.selectedModel = slotId;
                     this.setupModel(this.getCurrentModel());
                     this.emptyText = false;
                 }
             }
-            else if (old != null && this.models[slotId] == null) {
+            else if (old.isValid() && !this.models[slotId].isValid()) {
                 this.numModels--;
                 if (this.numModels > 0 && slotId == this.selectedModel) this.selectLeft();
             }
-            else if (slotId == this.selectedModel && this.models[this.selectedModel] != null) this.setupModel(this.models[this.selectedModel]);
+            else if (slotId == this.selectedModel && this.models[this.selectedModel].isValid()) this.setupModel(this.models[this.selectedModel]);
         });
     }
 
@@ -97,7 +100,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         if (this.numModels == 0) return;
         int old = this.selectedModel;
         CachedModel model = this.models[this.clamp(this.selectedModel - 1)];
-        while (model == null)
+        while (!model.isValid())
             model = this.models[this.clamp(this.selectedModel - 1)];
         if (model.getSlot() != old) this.setupModel(model);
     }
@@ -106,7 +109,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         if (this.numModels == 0) return;
         int old = this.selectedModel;
         CachedModel model = this.models[this.clamp(this.selectedModel + 1)];
-        while (model == null)
+        while (!model.isValid())
             model = this.models[this.clamp(this.selectedModel + 1)];
         if (model.getSlot() != old) this.setupModel(model);
     }
@@ -132,7 +135,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 
             CachedModel model = this.getCurrentModel();
 
-            if (model != null && model.isValid()) {
+            if (model.isValid()) {
                 LivingEntity ent = model.getEntity(this.minecraft.level, this.variant);
                 ent.yBodyRot = this.spin % 360;
                 this.renderEntityInInventory(left - 4, top + 90, 40, 0, 0, ent);
@@ -187,7 +190,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         else {
             if (this.emptyText) {
                 for (int i = 0; i < 4; i++) {
-                    if (this.models[i] != null) {
+                    if (this.models[i].isValid()) {
                         this.setupModel(this.models[i]);
                         this.selectedModel = i;
                         this.emptyText = false;
@@ -213,7 +216,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 
     private void nextVariant() {
         CachedModel current = this.getCurrentModel();
-        if (current == null || !current.isValid()) return;
+        if (!current.isValid()) return;
         int variants = current.getModel().getSubtypes().size();
         if (variants == 0) return;
 
@@ -238,7 +241,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
     private static DecimalFormat fmt = new DecimalFormat("##.##%");
 
     private void setupModel(CachedModel cache) {
-        if (cache == null || !cache.isValid()) return;
+        if (!cache.isValid()) return;
         DataModel model = cache.getModel();
         this.ticksShown = 0;
         this.variant = 0;

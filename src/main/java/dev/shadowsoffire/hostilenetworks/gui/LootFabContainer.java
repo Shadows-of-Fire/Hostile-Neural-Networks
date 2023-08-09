@@ -2,11 +2,13 @@ package dev.shadowsoffire.hostilenetworks.gui;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
+import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.MobPredictionItem;
 import dev.shadowsoffire.hostilenetworks.tile.LootFabTileEntity;
 import dev.shadowsoffire.hostilenetworks.tile.LootFabTileEntity.FabItemHandler;
 import dev.shadowsoffire.placebo.menu.BlockEntityMenu;
 import dev.shadowsoffire.placebo.menu.FilteredSlot;
+import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -36,8 +38,8 @@ public class LootFabContainer extends BlockEntityMenu<LootFabTileEntity> {
 
     @Override
     public boolean clickMenuButton(Player pPlayer, int pId) {
-        DataModel model = MobPredictionItem.getStoredModel(this.getSlot(0).getItem());
-        if (model == null || pId >= model.getFabDrops().size()) return false;
+        DynamicHolder<DataModel> model = DataModelItem.getStoredModel(this.getSlot(0).getItem());
+        if (!model.isBound() || pId >= model.get().getFabDrops().size()) return false;
         this.tile.setSelection(model, pId);
         return true;
     }

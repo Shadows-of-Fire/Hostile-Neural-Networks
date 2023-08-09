@@ -2,8 +2,7 @@ package dev.shadowsoffire.hostilenetworks.data;
 
 import java.util.Arrays;
 
-import javax.annotation.Nullable;
-
+import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
@@ -43,8 +42,11 @@ public enum ModelTier {
         return Component.translatable("hostilenetworks.tier." + this.name).withStyle(this.color);
     }
 
-    public static ModelTier getByData(@Nullable DataModel model, int data) {
-        if (model == null) return FAULTY;
+    public static ModelTier getByData(DynamicHolder<DataModel> model, int data) {
+        return !model.isBound() ? FAULTY : getByData(model.get(), data);
+    }
+
+    public static ModelTier getByData(DataModel model, int data) {
         for (int i = 4; i >= 0; i--) {
             if (data >= model.getTierData(VALUES[i])) return VALUES[i];
         }

@@ -8,6 +8,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class TickingDataModelWrapper {
 
+    final DataModel src;
     final ItemStack model;
     final ItemStack input;
     final ItemStack baseDrop;
@@ -16,6 +17,7 @@ public class TickingDataModelWrapper {
     ModelTier currentTier = ModelTier.BASIC;
 
     public TickingDataModelWrapper(DataModel src) {
+        this.src = src;
         this.model = new ItemStack(Hostile.Items.DATA_MODEL.get());
         DataModelItem.setStoredModel(this.model, src);
         DataModelItem.setData(this.model, src.getTierData(ModelTier.BASIC));
@@ -26,7 +28,7 @@ public class TickingDataModelWrapper {
 
     void setTier(ModelTier tier) {
         if (this.currentTier == tier) return;
-        DataModelItem.setData(this.model, DataModelItem.getStoredModel(this.model).getTierData(tier));
+        DataModelItem.setData(this.model, src.getTierData(tier));
         this.currentTier = tier;
     }
 

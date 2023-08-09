@@ -3,7 +3,6 @@ package dev.shadowsoffire.hostilenetworks.gui;
 import java.util.function.Consumer;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
-import dev.shadowsoffire.hostilenetworks.data.CachedModel;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
 import dev.shadowsoffire.placebo.menu.PlaceboContainerMenu;
@@ -90,13 +89,6 @@ public class DeepLearnerContainer extends PlaceboContainerMenu {
             if (!this.learnerInv.getStackInSlot(i).isEmpty()) hasModels = true;
         }
         return hasModels;
-    }
-
-    public void fillWithModels(CachedModel[] models) {
-        for (int i = 0; i < 4; i++) {
-            ItemStack stack = this.learnerInv.getStackInSlot(i);
-            models[i] = stack.isEmpty() ? null : new CachedModel(stack, i);
-        }
     }
 
     public class DataModelSlot extends SlotItemHandler {

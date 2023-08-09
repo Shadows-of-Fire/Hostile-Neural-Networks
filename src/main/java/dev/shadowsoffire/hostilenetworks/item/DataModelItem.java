@@ -4,14 +4,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
-import javax.annotation.Nullable;
-
 import dev.shadowsoffire.hostilenetworks.client.DataModelItemStackRenderer;
 import dev.shadowsoffire.hostilenetworks.data.CachedModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
-import dev.shadowsoffire.hostilenetworks.data.DataModelManager;
+import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.util.Color;
+import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import dev.shadowsoffire.placebo.tabs.ITabFiller;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
@@ -44,7 +43,7 @@ public class DataModelItem extends Item implements ITabFiller {
     public void appendHoverText(ItemStack pStack, Level pLevel, List<Component> list, TooltipFlag pFlag) {
         if (Screen.hasShiftDown()) {
             CachedModel cModel = new CachedModel(pStack, 0);
-            if (cModel.getModel() == null) {
+            if (!cModel.isValid()) {
                 list.add(Component.translatable("Error: %s", Component.literal("Broke_AF").withStyle(ChatFormatting.OBFUSCATED, ChatFormatting.GRAY)));
                 return;
             }
@@ -73,7 +72,7 @@ public class DataModelItem extends Item implements ITabFiller {
 
     @Override
     public void fillItemCategory(CreativeModeTab tab, CreativeModeTab.Output output) {
-        DataModelManager.INSTANCE.getValues().stream().sorted(Comparator.comparing(DataModel::getId)).forEach(model -> {
+        DataModelRegistry.INSTANCE.getValues().stream().sorted(Comparator.comparing(DataModel::getId)).forEach(model -> {
             ItemStack s = new ItemStack(this);
             setStoredModel(s, model);
             output.accept(s);
@@ -82,12 +81,12 @@ public class DataModelItem extends Item implements ITabFiller {
 
     @Override
     public Component getName(ItemStack pStack) {
-        DataModel model = getStoredModel(pStack);
+        DynamicHolder<DataModel> model = getStoredModel(pStack);
         Component modelName;
-        if (model == null) {
+        if (!model.isBound()) {
             modelName = Component.literal("BROKEN").withStyle(ChatFormatting.OBFUSCATED);
         }
-        else modelName = model.getName();
+        else modelName = model.get().getName();
         return Component.translatable(this.getDescriptionId(pStack), modelName);
     }
 
@@ -104,15 +103,12 @@ public class DataModelItem extends Item implements ITabFiller {
     }
 
     /**
-     * Retrieves the data model from a data model itemstack.
-     *
-     * @return The contained data model. Realisitcally should never be null.
+     * @return A holder pointing to the nbt-encoded data model.
      */
-    @Nullable
-    public static DataModel getStoredModel(ItemStack stack) {
-        if (!stack.hasTag()) return null;
+    public static DynamicHolder<DataModel> getStoredModel(ItemStack stack) {
+        if (!stack.hasTag()) return DataModelRegistry.INSTANCE.holder(new ResourceLocation("empty", "empty"));
         String dmKey = stack.getOrCreateTagElement(DATA_MODEL).getString(ID);
-        return DataModelManager.INSTANCE.getValue(new ResourceLocation(dmKey));
+        return DataModelRegistry.INSTANCE.holder(new ResourceLocation(dmKey));
     }
 
     public static void setStoredModel(ItemStack stack, DataModel model) {
@@ -137,9 +133,9 @@ public class DataModelItem extends Item implements ITabFiller {
     }
 
     public static boolean matchesInput(ItemStack model, ItemStack stack) {
-        DataModel dModel = getStoredModel(model);
-        if (dModel == null) return false;
-        ItemStack input = dModel.getInput();
+        DynamicHolder<DataModel> dModel = getStoredModel(model);
+        if (!dModel.isBound()) return false;
+        ItemStack input = dModel.get().getInput();
         boolean item = input.getItem() == stack.getItem();
         if (input.hasTag()) {
             if (stack.hasTag()) {

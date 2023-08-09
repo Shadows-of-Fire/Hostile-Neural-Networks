@@ -4,10 +4,11 @@ import dev.shadowsoffire.hostilenetworks.Hostile.Items;
 import dev.shadowsoffire.hostilenetworks.command.GenerateModelCommand;
 import dev.shadowsoffire.hostilenetworks.curios.CuriosCompat;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
-import dev.shadowsoffire.hostilenetworks.data.DataModelManager;
+import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
+import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -41,7 +42,7 @@ public class HostileEvents {
         ItemStack stack = player.getItemInHand(e.getHand());
         if (stack.getItem() == Hostile.Items.BLANK_DATA_MODEL.get()) {
             if (!player.level().isClientSide) {
-                DataModel model = DataModelManager.INSTANCE.getForEntity(e.getTarget().getType());
+                DataModel model = DataModelRegistry.INSTANCE.getForEntity(e.getTarget().getType());
                 if (model == null) {
                     Component msg = Component.translatable("hostilenetworks.msg.no_model").withStyle(ChatFormatting.RED);
                     player.sendSystemMessage(msg);
@@ -77,11 +78,11 @@ public class HostileEvents {
         for (int i = 0; i < 4; i++) {
             ItemStack model = handler.getStackInSlot(i);
             if (model.isEmpty()) continue;
-            DataModel dModel = DataModelItem.getStoredModel(model);
-            if (dModel.getType() == type || dModel.getSubtypes().contains(type)) {
+            DynamicHolder<DataModel> dModel = DataModelItem.getStoredModel(model);
+            if (dModel.isBound() && dModel.get().getType() == type || dModel.get().getSubtypes().contains(type)) {
                 int data = DataModelItem.getData(model);
                 ModelTier tier = ModelTier.getByData(dModel, data);
-                DataModelItem.setData(model, data + dModel.getDataPerKill(tier) + bonus);
+                DataModelItem.setData(model, data + dModel.get().getDataPerKill(tier) + bonus);
             }
         }
         DeepLearnerItem.saveItems(learner, handler);

@@ -2,8 +2,6 @@ package dev.shadowsoffire.hostilenetworks.tile;
 
 import java.util.function.Consumer;
 
-import javax.annotation.Nullable;
-
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.HostileConfig;
 import dev.shadowsoffire.hostilenetworks.data.CachedModel;
@@ -33,7 +31,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
     protected final ModifiableEnergyStorage energy = new ModifiableEnergyStorage(HostileConfig.simPowerCap, HostileConfig.simPowerCap);
     protected final SimpleDataSlots data = new SimpleDataSlots();
 
-    protected CachedModel currentModel = null;
+    protected CachedModel currentModel = CachedModel.EMPTY;
     protected int runtime = 0;
     protected boolean predictionSuccess = false;
     protected FailureState failState = FailureState.NONE;
@@ -56,7 +54,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         super.saveAdditional(tag);
         tag.put("inventory", this.inventory.serializeNBT());
         tag.putInt("energy", this.energy.getEnergyStored());
-        tag.putString("model", this.currentModel == null ? "null" : this.currentModel.getModel().getId().toString());
+        tag.putString("model", !this.currentModel.isValid() ? "null" : this.currentModel.getModel().getId().toString());
         tag.putInt("runtime", this.runtime);
         tag.putBoolean("predSuccess", this.predictionSuccess);
         tag.putInt("failState", this.failState.ordinal());
@@ -70,7 +68,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         ItemStack model = this.inventory.getStackInSlot(0);
         CachedModel cModel = this.getOrLoadModel(model);
         String modelId = tag.getString("model");
-        if (cModel != null && cModel.getModel().getId().toString().equals(modelId)) {
+        if (cModel.isValid() && cModel.getModel().getId().toString().equals(modelId)) {
             this.currentModel = cModel;
         }
         this.runtime = tag.getInt("runtime");
@@ -87,7 +85,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
             if (oldModel != this.currentModel) {
                 this.runtime = 0;
             }
-            if (this.currentModel != null) {
+            if (this.currentModel.isValid()) {
                 if (this.currentModel.getTier() == ModelTier.FAULTY) {
                     this.failState = FailureState.FAULTY;
                     this.runtime = 0;
@@ -180,14 +178,9 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         return this.energy.getEnergyStored() >= model.getSimCost();
     }
 
-    @Nullable
     protected CachedModel getOrLoadModel(ItemStack stack) {
-        if (this.currentModel == null || this.currentModel.getSourceStack() != stack) {
-            CachedModel model = new CachedModel(stack, 0);
-            if (model.getModel() != null) return model;
-            else return null;
-        }
-        return this.currentModel;
+        if (this.currentModel.getSourceStack() == stack) return this.currentModel;
+        else return new CachedModel(stack, 0);
     }
 
     @Override

@@ -7,8 +7,9 @@ import java.util.stream.Collectors;
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
-import dev.shadowsoffire.hostilenetworks.data.DataModelManager;
+import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
+import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter;
@@ -39,10 +40,10 @@ public class HostileJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration reg) {
-        SimChamberCategory.recipes = DataModelManager.INSTANCE.getValues().stream().map(TickingDataModelWrapper::new).collect(Collectors.toList());
+        SimChamberCategory.recipes = DataModelRegistry.INSTANCE.getValues().stream().map(TickingDataModelWrapper::new).collect(Collectors.toList());
         reg.addRecipes(SimChamberCategory.TYPE, SimChamberCategory.recipes);
         List<LootFabRecipe> fabRecipes = new ArrayList<>();
-        for (DataModel dm : DataModelManager.INSTANCE.getValues()) {
+        for (DataModel dm : DataModelRegistry.INSTANCE.getValues()) {
             for (int i = 0; i < dm.getFabDrops().size(); i++) {
                 fabRecipes.add(new LootFabRecipe(dm, i));
             }
@@ -60,8 +61,8 @@ public class HostileJeiPlugin implements IModPlugin {
 
         @Override
         public String apply(ItemStack stack, UidContext context) {
-            DataModel dm = DataModelItem.getStoredModel(stack);
-            if (dm == null) return "NULL";
+            DynamicHolder<DataModel> dm = DataModelItem.getStoredModel(stack);
+            if (!dm.isBound()) return "NULL";
             return dm.getId().toString();
         }
 

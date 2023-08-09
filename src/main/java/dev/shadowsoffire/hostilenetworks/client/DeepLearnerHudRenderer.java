@@ -46,7 +46,7 @@ public class DeepLearnerHudRenderer implements IGuiOverlay {
             ItemStack model = inv.getStackInSlot(i);
             if (model.isEmpty()) continue;
             CachedModel cModel = new CachedModel(model, 0);
-            if (cModel.getModel() == null) continue;
+            if (!cModel.isValid()) continue;
             renderable.add(Pair.of(cModel, model));
         }
 

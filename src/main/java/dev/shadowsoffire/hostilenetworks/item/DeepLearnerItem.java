@@ -59,7 +59,7 @@ public class DeepLearnerItem extends Item {
                 ItemStack stack = inv.getStackInSlot(i);
                 if (stack.isEmpty()) continue;
                 CachedModel model = new CachedModel(stack, 0);
-                if (model.getModel() == null) continue;
+                if (!model.isValid()) continue;
                 list.add(Component.translatable("- %s %s", model.getTier().getComponent(), stack.getItem().getName(stack)).withStyle(ChatFormatting.GRAY));
             }
         }
