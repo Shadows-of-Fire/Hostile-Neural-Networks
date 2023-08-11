@@ -66,7 +66,7 @@ public class Hostile {
     }
 
     public static class Containers {
-        public static final RegistryObject<MenuType<DeepLearnerContainer>> DEEP_LEARNER = R.menu("deep_learner", () -> MenuUtil.type(DeepLearnerContainer::new));
+        public static final RegistryObject<MenuType<DeepLearnerContainer>> DEEP_LEARNER = R.menu("deep_learner", () -> MenuUtil.bufType(DeepLearnerContainer::new));
         public static final RegistryObject<MenuType<SimChamberContainer>> SIM_CHAMBER = R.menu("sim_chamber", () -> MenuUtil.posType(SimChamberContainer::new));
         public static final RegistryObject<MenuType<LootFabContainer>> LOOT_FABRICATOR = R.menu("loot_fabricator", () -> MenuUtil.posType(LootFabContainer::new));
 
