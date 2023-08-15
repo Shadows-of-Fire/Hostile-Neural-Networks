@@ -1,3 +1,6 @@
+## 5.1.2
+* Fixed the Loot Fabricator being an absolute disaster.
+
 ## 5.1.1
 * Updated to Placebo 8.3.2.
 

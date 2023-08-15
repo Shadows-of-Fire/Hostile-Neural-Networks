@@ -65,17 +65,19 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
                 return;
             }
             if (selection != -1) {
-                if (this.runtime == 0) {
+                if (this.runtime >= 60) {
                     ItemStack out = dm.get().getFabDrops().get(selection).copy();
-                    if (this.insertInOutput(out, true)) this.runtime = 60;
+                    if (this.insertInOutput(out, true)) {
+                        this.runtime = 0;
+                        this.insertInOutput(out, false);
+                        this.inventory.getStackInSlot(0).shrink(1);
+                        this.setChanged();
+                    }
                 }
                 else {
                     if (this.energy.getEnergyStored() < HostileConfig.fabPowerCost) return;
                     this.energy.setEnergy(this.energy.getEnergyStored() - HostileConfig.fabPowerCost);
-                    if (--this.runtime == 0) {
-                        this.insertInOutput(dm.get().getFabDrops().get(selection).copy(), false);
-                        this.inventory.getStackInSlot(0).shrink(1);
-                    }
+                    this.runtime++;
                     this.setChanged();
                 }
             }
@@ -177,7 +179,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
     }
 
     public int getSelectedDrop(DataModel model) {
-        return Mth.clamp(this.savedSelections.getInt(model), 0, model.getFabDrops().size() - 1);
+        return model == null ? -1 : this.savedSelections.getInt(DataModelRegistry.INSTANCE.holder(model));
     }
 
     public class FabItemHandler extends InternalItemHandler {

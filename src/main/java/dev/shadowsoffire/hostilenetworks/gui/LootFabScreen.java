@@ -126,14 +126,20 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> {
     protected void renderBg(GuiGraphics gfx, float pPartialTicks, int pX, int pY) {
         int left = this.getGuiLeft();
         int top = this.getGuiTop();
+
+        // Loot Fab Window
         gfx.blit(BASE, left, top, 0, 0, 176, 83, 256, 256);
 
-        int energyHeight = 53 - Mth.ceil(53F * this.menu.getEnergyStored() / HostileConfig.fabPowerCap);
-        gfx.blit(BASE, left + 6, top + 10, 0, 83, 7, energyHeight, 256, 256);
+        // Energy Bar
+        int energyHeight = Mth.floor(53F * this.menu.getEnergyStored() / HostileConfig.fabPowerCap);
+        gfx.blit(BASE, left + 6, top + 10 + 53 - energyHeight, 0, 83, 7, energyHeight, 256, 256);
 
-        int progHeight = Mth.floor(35F * (this.menu.getRuntime() - pPartialTicks) / 60);
-        if (this.menu.getRuntime() == 0) progHeight = 35;
-        gfx.blit(BASE, left + 84, top + 23, 7, 83, 6, progHeight, 256, 256);
+        // Progress Bar
+        int progHeight = Mth.floor(35F * this.menu.getRuntime() / 60F);
+        gfx.blit(BASE, left + 84, top + 23 + 35 - progHeight, 7, 83, 6, progHeight, 256, 256);
+
+        // Player Inventory
+        gfx.blit(PLAYER, left, top + 88, 0, 0, 176, 90, 256, 256);
 
         if (this.model.isBound()) {
             List<ItemStack> drops = this.model.get().getFabDrops();
@@ -171,8 +177,6 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> {
             }
 
         }
-
-        gfx.blit(PLAYER, left, top + 88, 0, 0, 176, 90, 256, 256);
     }
 
     public void drawOnLeft(GuiGraphics gfx, List<Component> list, int y) {
