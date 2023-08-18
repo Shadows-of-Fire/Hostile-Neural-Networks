@@ -34,10 +34,9 @@ minecraft {
         }
 
         client = {
-            args (project.mixin.toBoolean() ? "-mixin.config=${modid}.mixins.json" : "")
         }
         server = {
-            args "--nogui", (project.mixin.toBoolean() ? "-mixin.config=${modid}.mixins.json" : "")
+            args "--nogui"
         }
         data = {
             workingDirectory project.file('run-data')
@@ -54,44 +53,74 @@ repositories {
     maven {
         // JEI
         url "https://dvs1.progwml6.com/files/maven"
+        content {
+            includeGroup "mezz.jei"
+        }
     }
     maven {
         // CurseForge
         url "https://www.cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
     }
     maven {
         // Curios
         url "https://maven.theillusivec4.top"
+        content {
+            includeGroupByRegex "top\\.theillusivec4.*"
+        }
     }
     maven {
         // The One Probe
         url "https://maven.k-4u.nl"
+        content {
+            includeGroup "mcjty.theoneprobe"
+        }
     }
     maven {
         // Patchouli
         url "https://maven.blamejared.com"
+        content {
+            includeGroup "vazkii.patchouli"
+            includeGroupByRegex "net\\.darkhax.*"
+            includeGroupByRegex "com\\.blamejared.*"
+            includeGroup "org.openzen.zencode"
+            includeGroup "mezz.jei"
+        }
     }
     maven {
         // Shadows
         url "https://maven.shadowsoffire.dev/releases"
+        content {
+            includeGroup "dev.shadowsoffire"
+        }
     }
 }
 
 dependencies {
     minecraft "net.neoforged:forge:${mcVersion}-${forgeVersion}"
-    if(project.mixin.toBoolean())               annotationProcessor "org.spongepowered:mixin:${mixinVersion}:processor"
-    if(project.hasProperty('placeboVersion'))   implementation fg.deobf("dev.shadowsoffire:Placebo:${mcVersion}-${placeboVersion}")
-    if(project.hasProperty('jeiVersion'))       implementation fg.deobf("mezz.jei:jei-${mcVersion}-forge:${jeiVersion}")
-    if(project.hasProperty('jadeFileId'))       implementation fg.deobf("curse.maven:jade-324717:${jadeFileId}")
-    if(project.hasProperty('curiosVersion'))    implementation fg.deobf("top.theillusivec4.curios:curios-forge:${curiosVersion}")
-    if(project.hasProperty('patchouliVersion')) implementation fg.deobf("vazkii.patchouli:Patchouli:${patchouliVersion}")
-    if(project.hasProperty('topVersion'))       implementation fg.deobf(project.dependencies.create("mcjty.theoneprobe:theoneprobe:${topVersion}") {
+    if(project.mixin.toBoolean())                   annotationProcessor "org.spongepowered:mixin:${mixinVersion}:processor"
+    if(project.hasProperty('placeboVersion'))       implementation fg.deobf("dev.shadowsoffire:Placebo:${mcVersion}-${placeboVersion}")
+    if(project.hasProperty('jeiVersion'))           implementation fg.deobf("mezz.jei:jei-${mcVersion}-forge:${jeiVersion}")
+    if(project.hasProperty('jadeFileId'))           implementation fg.deobf("curse.maven:jade-324717:${jadeFileId}")
+    if(project.hasProperty('curiosVersion'))        implementation fg.deobf("top.theillusivec4.curios:curios-forge:${curiosVersion}")
+    if(project.hasProperty('patchouliVersion'))     implementation fg.deobf("vazkii.patchouli:Patchouli:${patchouliVersion}")
+    if(project.hasProperty('topVersion'))           implementation fg.deobf(project.dependencies.create("mcjty.theoneprobe:theoneprobe:${topVersion}") {
             transitive = false
     })
+    if(project.hasProperty('bookshelfVersion'))     compileOnly    fg.deobf("net.darkhax.bookshelf:Bookshelf-Forge-${mcVersion}:${bookshelfVersion}")
+    if(project.hasProperty('gamestagesVersion'))    compileOnly    fg.deobf("net.darkhax.gamestages:GameStages-Forge-${mcVersion}:${gamestagesVersion}")
+    if(project.hasProperty('twilightFileId'))       implementation fg.deobf("curse.maven:the-twilight-forest-227639:${twilightFileId}")
+    if(project.hasProperty('gatewaysVersion'))      implementation fg.deobf("dev.shadowsoffire:GatewaysToEternity:${mcVersion}-${gatewaysVersion}")
+    if(project.hasProperty('attributeslibVersion')) implementation fg.deobf("dev.shadowsoffire:ApothicAttributes:${mcVersion}-${attributeslibVersion}")
 }
 
 mixin {
-    if(project.mixin.toBoolean()) add sourceSets.main, "${modid}.refmap.json"
+    if (project.mixin.toBoolean()) {
+        config "${modid}.mixins.json"
+        add sourceSets.main, "${modid}.refmap.json"
+    }
 }
 
 tasks.named('processResources', ProcessResources).configure {
@@ -107,10 +136,11 @@ tasks.named('processResources', ProcessResources).configure {
         forgeVersion: forgeVersion
     ]
 
-    if (project.hasProperty('placeboVersion'))      replaceProperties.put 'placeboVersion', placeboVersion
-    if (project.hasProperty('curiosVersion'))       replaceProperties.put 'curiosVersion', curiosVersion
-    if (project.hasProperty('topVersion'))          replaceProperties.put 'topVersion', topVersion
-    if (project.hasProperty('patchouliVersion'))    replaceProperties.put 'patchouliVersion', patchouliVersion
+    if (project.hasProperty('placeboVersion'))       replaceProperties.put 'placeboVersion', placeboVersion
+    if (project.hasProperty('attributeslibVersion')) replaceProperties.put 'attributeslibVersion', attributeslibVersion
+    if (project.hasProperty('curiosVersion'))        replaceProperties.put 'curiosVersion', curiosVersion
+    if (project.hasProperty('topVersion'))           replaceProperties.put 'topVersion', topVersion
+    if (project.hasProperty('patchouliVersion'))     replaceProperties.put 'patchouliVersion', patchouliVersion
 
     inputs.properties replaceProperties
 
@@ -176,7 +206,9 @@ tasks.named('processResources', ProcessResources).configure {
         fileTree("${project.projectDir}/src/main/resources/coremods").visit { FileVisitDetails details ->
             def name = details.file.path.replace('\\', '/')
             name = name.substring(name.indexOf('coremods'), name.length())
-            names.add(name)
+            if(name.endsWith('.js')) {
+                names.add(name)
+            }
         }
 
         def coremods = ''
@@ -272,35 +304,38 @@ def getChangelogLink() {
     }
 }
 
-def splitDeps(deps) {
-    def split = deps.split(', ')
-    assert split.length == deps.count(',') + 1
+// Splits a list of values separated by ', ' (comma + space).
+def splitList(list) {
+    def split = list.split(', ')
+    assert split.length == list.count(',') + 1
     return split
 }
 
-task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
-    apiToken = getProperty('curseforgeUploadToken')
-    disableVersionDetection()
-
-    def projectId = getProperty('curseforgeProjectId')
-    def mainFile = upload(projectId, jar)
-    mainFile.changelog = getChangelogLink()
-    mainFile.addModLoader('NeoForge')
-    mainFile.addJavaVersion("Java ${javaVersion}")
-    mainFile.addGameVersion("${mcVersion}")
-    mainFile.releaseType = "release"
-
-    if (project.hasProperty('requiredDeps')) {
-        mainFile.addRequirement(splitDeps("${requiredDeps}"))
+tasks.register('publishCurseForge', net.darkhax.curseforgegradle.TaskPublishCurseForge).configure {
+    if (project.hasProperty('curseforgeUploadToken')) {
+        apiToken = getProperty('curseforgeUploadToken')
+        disableVersionDetection()
+    
+        def projectId = getProperty('curseforgeProjectId')
+        def mainFile = upload(projectId, jar)
+        mainFile.changelog = getChangelogLink()
+        mainFile.addModLoader(splitList("${modLoaders}"))
+        mainFile.addJavaVersion("Java ${javaVersion}")
+        mainFile.addGameVersion("${mcVersion}")
+        mainFile.releaseType = "${releaseType}"
+    
+        if (project.hasProperty('requiredDeps')) {
+            mainFile.addRequirement(splitList("${requiredDeps}"))
+        }
+        if (project.hasProperty('optionalDeps')) {
+            mainFile.addOptional(splitList("${optionalDeps}"))
+        }
+        if (project.hasProperty('incompatibleDeps')) {
+            mainFile.addIncompatibility(splitList("${incompatibleDeps}"))
+        }
+    
+        mainFile.withAdditionalFile(sourcesJar)
     }
-    if (project.hasProperty('optionalDeps')) {
-        mainFile.addOptional(splitDeps("${optionalDeps}"))
-    }
-    if (project.hasProperty('incompatibleDeps')) {
-        mainFile.addIncompatibility(splitDeps("${incompatibleDeps}"))
-    }
-
-    mainFile.withAdditionalFile(sourcesJar)
 }
 
 task publishAll() {
