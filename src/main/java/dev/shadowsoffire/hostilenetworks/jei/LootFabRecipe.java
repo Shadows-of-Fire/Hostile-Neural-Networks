@@ -9,7 +9,7 @@ public class LootFabRecipe {
 
     public LootFabRecipe(DataModel model, int idx) {
         this.input = model.getPredictionDrop().copy();
-        this.output = model.getFabDrops().get(idx).copy();
+        this.output = model.fabDrops().get(idx).copy();
     }
 
 }

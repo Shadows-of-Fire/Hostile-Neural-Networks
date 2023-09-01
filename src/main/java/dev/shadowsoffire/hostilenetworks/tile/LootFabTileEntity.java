@@ -66,7 +66,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
             }
             if (selection != -1) {
                 if (this.runtime >= 60) {
-                    ItemStack out = dm.get().getFabDrops().get(selection).copy();
+                    ItemStack out = dm.get().fabDrops().get(selection).copy();
                     if (this.insertInOutput(out, true)) {
                         this.runtime = 0;
                         this.insertInOutput(out, false);
@@ -100,7 +100,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
 
     public void setSelection(DynamicHolder<DataModel> model, int selection) {
         if (selection == -1) this.savedSelections.removeInt(model);
-        else this.savedSelections.put(model, Mth.clamp(selection, 0, model.get().getFabDrops().size() - 1));
+        else this.savedSelections.put(model, Mth.clamp(selection, 0, model.get().fabDrops().size() - 1));
         VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
         this.setChanged();
     }

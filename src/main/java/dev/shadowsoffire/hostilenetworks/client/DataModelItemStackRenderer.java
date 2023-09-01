@@ -70,7 +70,7 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
         matrix.popPose();
         DynamicHolder<DataModel> model = DataModelItem.getStoredModel(stack);
         if (model.isBound()) {
-            LivingEntity ent = ClientEntityCache.computeIfAbsent(model.get().getType(), Minecraft.getInstance().level, model.get().getDisplayNbt());
+            LivingEntity ent = ClientEntityCache.computeIfAbsent(model.get().type(), Minecraft.getInstance().level, model.get().displayNbt());
             if (Minecraft.getInstance().player != null) ent.tickCount = Minecraft.getInstance().player.tickCount;
             if (ent != null) {
                 this.renderEntityInInventory(matrix, type, ent, model.get());
@@ -85,7 +85,7 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
         if (type == ItemDisplayContext.FIXED) {
             matrix.translate(0, -0.5, 0);
             float scale = 0.4F;
-            scale *= model.getScale();
+            scale *= model.guiScale();
             matrix.scale(scale, scale, scale);
             matrix.translate(0, 1.45, 0);
             matrix.mulPose(Axis.XN.rotationDegrees(90));
@@ -94,13 +94,13 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
         else if (type == ItemDisplayContext.GUI) {
             matrix.translate(0, -0.5, 0);
             float scale = 0.4F;
-            scale *= model.getScale();
+            scale *= model.guiScale();
             matrix.scale(scale, scale, scale);
             matrix.translate(0, 0.45, 0);
         }
         else {
             float scale = 0.25F;
-            scale *= model.getScale();
+            scale *= model.guiScale();
             matrix.scale(scale, scale, scale);
             matrix.translate(0, 0.12 + 0.05 * Math.sin((pLivingEntity.tickCount + Minecraft.getInstance().getDeltaFrameTime()) / 12), 0);
         }
@@ -118,7 +118,7 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
         MultiBufferSource.BufferSource rtBuffer = GHOST_ENTITY_BUF;
         WeirdRenderThings.translucent = true;
         RenderSystem.runAsFancy(() -> {
-            entityrenderermanager.render(pLivingEntity, model.getXOffset(), model.getYOffset(), model.getZOffset(), 0.0F, Minecraft.getInstance().getDeltaFrameTime(), matrix, new WrappedRTBuffer(rtBuffer), 15728880);
+            entityrenderermanager.render(pLivingEntity, model.guiXOff(), model.guiYOff(), model.guiZOff(), 0.0F, Minecraft.getInstance().getDeltaFrameTime(), matrix, new WrappedRTBuffer(rtBuffer), 15728880);
         });
         rtBuffer.endBatch();
         WeirdRenderThings.translucent = false;

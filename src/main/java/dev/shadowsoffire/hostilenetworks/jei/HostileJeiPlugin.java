@@ -44,7 +44,7 @@ public class HostileJeiPlugin implements IModPlugin {
         reg.addRecipes(SimChamberCategory.TYPE, SimChamberCategory.recipes);
         List<LootFabRecipe> fabRecipes = new ArrayList<>();
         for (DataModel dm : DataModelRegistry.INSTANCE.getValues()) {
-            for (int i = 0; i < dm.getFabDrops().size(); i++) {
+            for (int i = 0; i < dm.fabDrops().size(); i++) {
                 fabRecipes.add(new LootFabRecipe(dm, i));
             }
         }

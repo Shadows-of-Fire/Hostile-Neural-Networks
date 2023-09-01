@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.placebo.reload.DynamicRegistry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 
 public class DataModelRegistry extends DynamicRegistry<DataModel> {
@@ -39,13 +40,13 @@ public class DataModelRegistry extends DynamicRegistry<DataModel> {
     }
 
     @Override
-    protected void validateItem(DataModel model) {
+    protected void validateItem(ResourceLocation key, DataModel model) {
         model.validate();
-        if (this.modelsByType.containsKey(model.type)) {
+        if (this.modelsByType.containsKey(model.type())) {
             String msg = "Attempted to register two models (%s and %s) for Entity Type %s!";
-            throw new UnsupportedOperationException(String.format(msg, model.getId(), this.modelsByType.get(model.type).getId(), EntityType.getKey(model.type)));
+            throw new UnsupportedOperationException(String.format(msg, key, this.getKey(this.modelsByType.get(model.type())), EntityType.getKey(model.type())));
         }
-        this.modelsByType.put(model.type, model);
+        this.modelsByType.put(model.type(), model);
     }
 
     @Nullable

@@ -49,7 +49,7 @@ public class HostileEvents {
                     return;
                 }
 
-                Component msg = Component.translatable("hostilenetworks.msg.built", model.getName()).withStyle(ChatFormatting.GOLD);
+                Component msg = Component.translatable("hostilenetworks.msg.built", model.name()).withStyle(ChatFormatting.GOLD);
                 player.sendSystemMessage(msg);
 
                 ItemStack modelStack = new ItemStack(Hostile.Items.DATA_MODEL.get());
@@ -79,7 +79,7 @@ public class HostileEvents {
             ItemStack model = handler.getStackInSlot(i);
             if (model.isEmpty()) continue;
             DynamicHolder<DataModel> dModel = DataModelItem.getStoredModel(model);
-            if (dModel.isBound() && dModel.get().getType() == type || dModel.get().getSubtypes().contains(type)) {
+            if (dModel.isBound() && dModel.get().type() == type || dModel.get().subtypes().contains(type)) {
                 int data = DataModelItem.getData(model);
                 ModelTier tier = ModelTier.getByData(dModel, data);
                 DataModelItem.setData(model, data + dModel.get().getDataPerKill(tier) + bonus);

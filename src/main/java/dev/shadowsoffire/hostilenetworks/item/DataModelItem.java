@@ -56,8 +56,8 @@ public class DataModelItem extends Item implements ITabFiller {
                 list.add(Component.translatable("hostilenetworks.info.data", Component.translatable("hostilenetworks.info.dprog", dProg, dMax).withStyle(ChatFormatting.GRAY)));
                 list.add(Component.translatable("hostilenetworks.info.dpk", Component.literal("" + cModel.getDataPerKill()).withStyle(ChatFormatting.GRAY)));
             }
-            list.add(Component.translatable("hostilenetworks.info.sim_cost", Component.translatable("hostilenetworks.info.rft", cModel.getModel().getSimCost()).withStyle(ChatFormatting.GRAY)));
-            List<EntityType<? extends LivingEntity>> subtypes = cModel.getModel().getSubtypes();
+            list.add(Component.translatable("hostilenetworks.info.sim_cost", Component.translatable("hostilenetworks.info.rft", cModel.getModel().simCost()).withStyle(ChatFormatting.GRAY)));
+            List<EntityType<? extends LivingEntity>> subtypes = cModel.getModel().subtypes();
             if (!subtypes.isEmpty()) {
                 list.add(Component.translatable("hostilenetworks.info.subtypes"));
                 for (EntityType<?> t : subtypes) {
@@ -72,7 +72,7 @@ public class DataModelItem extends Item implements ITabFiller {
 
     @Override
     public void fillItemCategory(CreativeModeTab tab, CreativeModeTab.Output output) {
-        DataModelRegistry.INSTANCE.getValues().stream().sorted(Comparator.comparing(DataModel::getId)).forEach(model -> {
+        DataModelRegistry.INSTANCE.getValues().stream().sorted(Comparator.comparing(DataModelRegistry.INSTANCE::getKey)).forEach(model -> {
             ItemStack s = new ItemStack(this);
             setStoredModel(s, model);
             output.accept(s);
@@ -86,7 +86,7 @@ public class DataModelItem extends Item implements ITabFiller {
         if (!model.isBound()) {
             modelName = Component.literal("BROKEN").withStyle(ChatFormatting.OBFUSCATED);
         }
-        else modelName = model.get().getName();
+        else modelName = model.get().name();
         return Component.translatable(this.getDescriptionId(pStack), modelName);
     }
 
@@ -113,7 +113,7 @@ public class DataModelItem extends Item implements ITabFiller {
 
     public static void setStoredModel(ItemStack stack, DataModel model) {
         stack.removeTagKey(DATA_MODEL);
-        stack.getOrCreateTagElement(DATA_MODEL).putString(ID, model.getId().toString());
+        stack.getOrCreateTagElement(DATA_MODEL).putString(ID, DataModelRegistry.INSTANCE.getKey(model).toString());
     }
 
     public static int getData(ItemStack stack) {
@@ -135,7 +135,7 @@ public class DataModelItem extends Item implements ITabFiller {
     public static boolean matchesInput(ItemStack model, ItemStack stack) {
         DynamicHolder<DataModel> dModel = getStoredModel(model);
         if (!dModel.isBound()) return false;
-        ItemStack input = dModel.get().getInput();
+        ItemStack input = dModel.get().input();
         boolean item = input.getItem() == stack.getItem();
         if (input.hasTag()) {
             if (stack.hasTag()) {

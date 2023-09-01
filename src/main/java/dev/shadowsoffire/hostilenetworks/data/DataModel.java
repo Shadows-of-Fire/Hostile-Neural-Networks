@@ -20,7 +20,7 @@ import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.placebo.json.ItemAdapter;
 import dev.shadowsoffire.placebo.json.NBTAdapter;
 import dev.shadowsoffire.placebo.json.PSerializer;
-import dev.shadowsoffire.placebo.reload.TypeKeyed.TypeKeyedBase;
+import dev.shadowsoffire.placebo.json.PSerializer.PSerializable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -37,111 +37,40 @@ import net.minecraft.world.item.Items;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ForgeRegistry;
 
-public class DataModel extends TypeKeyedBase<DataModel> {
+/**
+ * Stores all of the information representing an individual Data Model.
+ * 
+ * @param type        The primary entity type of this model. Must be a valid entity.
+ * @param subtypes    All other entity types that match to this model. Invalid entities may be passed to this list for optional compat.
+ * @param name        The display name of the data model.
+ * @param displayNbt  NBT data applied to the entity when it is being rendered.
+ * @param guiScale    Scale applied to the entity when it is being rendered.
+ * @param guiXOff     X offset applied to the entity when it is being rendered.
+ * @param guiYOff     Y offset applied to the entity when it is being rendered.
+ * @param guiZOff     Z offset applied to the entity when it is being rendered.
+ * @param simCost     FE cost per-tick to run this model in the simulation chamber.
+ * @param input       The input itemstack for simulations. Usually the prediction matrix.
+ * @param baseDrop    The generic item that is always dropped when simulating this model.
+ * @param triviaKey   Lang key for the trivia text shown in the deep learner.
+ * @param fabDrops    List of items produced in the Loot Fabricator when processing Predictions.
+ * @param tierData    The amount of data it takes to reach each tier.
+ * @param dataPerKill The amount of data granted per kill at each tier.
+ */
+public record DataModel(EntityType<? extends LivingEntity> type, List<EntityType<? extends LivingEntity>> subtypes,
+    MutableComponent name, CompoundTag displayNbt, float guiScale, float guiXOff, float guiYOff, float guiZOff,
+    int simCost, ItemStack input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops, int[] tierData,
+    int[] dataPerKill) implements PSerializable<DataModel> {
 
     public static final PSerializer<DataModel> SERIALIZER = PSerializer.builder("Data Model", DataModel::read).toJson(DataModel::write).networked(DataModel::read, DataModel::write).build();
 
-    protected final EntityType<? extends LivingEntity> type;
-    protected final List<EntityType<? extends LivingEntity>> subtypes;
-    protected final MutableComponent name;
-    protected final CompoundTag displayNbt;
-    protected final float guiScale;
-    protected final float guiXOff, guiYOff, guiZOff;
-    protected final int simCost;
-    protected final ItemStack input;
-    protected final ItemStack baseDrop;
-    protected final String triviaKey;
-    protected final List<ItemStack> fabDrops;
-    protected final int[] tierData, dataPerKill;
-
-    public DataModel(EntityType<? extends LivingEntity> type, List<EntityType<? extends LivingEntity>> subtypes, MutableComponent name, CompoundTag displayNbt, float guiScale, float guiXOff, float guiYOff, float guiZOff, int simCost,
-        ItemStack input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops, int[] tierData, int[] dataPerKill) {
-        this.type = type;
-        this.subtypes = subtypes;
-        this.name = name;
-        this.displayNbt = displayNbt;
-        this.guiScale = guiScale;
-        this.guiYOff = guiYOff;
-        this.guiXOff = guiXOff;
-        this.guiZOff = guiZOff;
-        this.simCost = simCost;
-        this.input = input;
-        this.baseDrop = baseDrop;
-        this.triviaKey = triviaKey;
-        this.fabDrops = fabDrops;
-        this.tierData = tierData;
-        this.dataPerKill = dataPerKill;
-    }
-
     public DataModel(DataModel other, List<ItemStack> newResults) {
-        this.type = other.type;
-        this.subtypes = other.subtypes;
-        this.name = other.name;
-        this.displayNbt = other.displayNbt;
-        this.guiScale = other.guiScale;
-        this.guiYOff = other.guiYOff;
-        this.guiXOff = other.guiXOff;
-        this.guiZOff = other.guiZOff;
-        this.simCost = other.simCost;
-        this.input = other.input;
-        this.baseDrop = other.baseDrop;
-        this.triviaKey = other.triviaKey;
-        this.fabDrops = newResults;
-        this.tierData = other.tierData;
-        this.dataPerKill = other.dataPerKill;
+        this(other.type, other.subtypes, other.name, other.displayNbt, other.guiScale, other.guiYOff, other.guiXOff, other.guiZOff, other.simCost, other.input, other.baseDrop, other.triviaKey, newResults, other.tierData,
+            other.dataPerKill);
     }
 
     @Override
     public PSerializer<DataModel> getSerializer() {
         return SERIALIZER;
-    }
-
-    public MutableComponent getName() {
-        return this.name;
-    }
-
-    public String getTriviaKey() {
-        return this.triviaKey;
-    }
-
-    public float getScale() {
-        return this.guiScale;
-    }
-
-    public float getYOffset() {
-        return this.guiYOff;
-    }
-
-    public float getXOffset() {
-        return this.guiXOff;
-    }
-
-    public float getZOffset() {
-        return this.guiZOff;
-    }
-
-    public int getSimCost() {
-        return this.simCost;
-    }
-
-    public EntityType<? extends LivingEntity> getType() {
-        return this.type;
-    }
-
-    public List<EntityType<? extends LivingEntity>> getSubtypes() {
-        return this.subtypes;
-    }
-
-    public ItemStack getInput() {
-        return this.input;
-    }
-
-    public ItemStack getBaseDrop() {
-        return this.baseDrop;
-    }
-
-    public List<ItemStack> getFabDrops() {
-        return this.fabDrops;
     }
 
     public int getTierData(ModelTier tier) {
@@ -160,25 +89,6 @@ public class DataModel extends TypeKeyedBase<DataModel> {
 
     public int getNameColor() {
         return this.name.getStyle().getColor().getValue();
-    }
-
-    public CompoundTag getDisplayNbt() {
-        return this.displayNbt;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof DataModel && ((DataModel) obj).id.equals(this.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return this.id.hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return String.format("DataModel[%s]", this.id);
     }
 
     public DataModel validate() {

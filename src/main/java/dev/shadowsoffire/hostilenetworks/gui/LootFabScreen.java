@@ -45,7 +45,7 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> {
 
         if (this.model.isBound()) {
             this.btnLeft.visible = this.currentPage > 0;
-            this.btnRight.visible = this.currentPage < this.model.get().getFabDrops().size() / 9;
+            this.btnRight.visible = this.currentPage < this.model.get().fabDrops().size() / 9;
         }
         else {
             this.btnLeft.visible = false;
@@ -63,7 +63,7 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> {
         }));
 
         this.btnRight = this.addRenderableWidget(new ImageButton(this.getGuiLeft() + 46, this.getGuiTop() + 68, 29, 12, 78, 83, 12, BASE, btn -> {
-            if (this.model.isBound() && this.currentPage < this.model.get().getFabDrops().size() / 9) this.currentPage++;
+            if (this.model.isBound() && this.currentPage < this.model.get().fabDrops().size() / 9) this.currentPage++;
         }));
     }
 
@@ -86,7 +86,7 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> {
                 gfx.renderComponentTooltip(this.font, Arrays.asList(Component.translatable("hostilenetworks.gui.clear")), pX, pY);
             }
 
-            List<ItemStack> drops = this.model.get().getFabDrops();
+            List<ItemStack> drops = this.model.get().fabDrops();
             for (int y = 0; y < 3; y++) {
                 for (int x = 0; x < 3; x++) {
                     if (y * 3 + x < Math.min(drops.size() - this.currentPage * 9, 9) && this.isHovering(18 + 18 * x, 10 + 18 * y, 16, 16, pX, pY)) {
@@ -102,7 +102,7 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> {
     @Override
     public boolean mouseClicked(double pX, double pY, int pButton) {
         if (this.model.isBound()) {
-            List<ItemStack> drops = this.model.get().getFabDrops();
+            List<ItemStack> drops = this.model.get().fabDrops();
             int selection = this.menu.getSelectedDrop(this.model.get());
             for (int y = 0; y < 3; y++) {
                 for (int x = 0; x < 3; x++) {
@@ -142,7 +142,7 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> {
         gfx.blit(PLAYER, left, top + 88, 0, 0, 176, 90, 256, 256);
 
         if (this.model.isBound()) {
-            List<ItemStack> drops = this.model.get().getFabDrops();
+            List<ItemStack> drops = this.model.get().fabDrops();
             for (int y = 0; y < 3; y++) {
                 for (int x = 0; x < 3; x++) {
                     if (y * 3 + x < Math.min(drops.size() - this.currentPage * 9, 9) && this.isHovering(18 + 18 * x, 10 + 18 * y, 16, 16, pX, pY)) {

@@ -217,7 +217,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
     private void nextVariant() {
         CachedModel current = this.getCurrentModel();
         if (!current.isValid()) return;
-        int variants = current.getModel().getSubtypes().size();
+        int variants = current.getModel().subtypes().size();
         if (variants == 0) return;
 
         this.variant = (this.variant + 1) % (variants + 1);
@@ -249,7 +249,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         this.addText(I18n.get("hostilenetworks.gui.name"), Color.AQUA);
         this.addText(cache.getEntity(this.minecraft.level).getType().getDescription().getString(), Color.WHITE);
         this.addText(I18n.get("hostilenetworks.gui.info"), Color.AQUA);
-        String[] trivia = I18n.get(model.getTriviaKey()).split("\\n");
+        String[] trivia = I18n.get(model.triviaKey()).split("\\n");
         for (int i = 0; i < Math.min(4, trivia.length); i++) {
             this.addText(trivia[i], Color.WHITE);
         }
@@ -309,7 +309,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         matrixstack.translate(0.0D, 0.0D, 1000.0D);
         DataModel model = this.getCurrentModel().getModel();
 
-        pScale *= model.getScale();
+        pScale *= model.guiScale();
 
         matrixstack.scale(pScale, pScale, pScale);
         Quaternionf quaternion = Axis.ZP.rotationDegrees(180.0F);
@@ -327,7 +327,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         entityrenderermanager.setRenderShadow(false);
         MultiBufferSource.BufferSource rtBuffer = Minecraft.getInstance().renderBuffers().bufferSource();
         RenderSystem.runAsFancy(() -> {
-            entityrenderermanager.render(pLivingEntity, model.getXOffset(), model.getYOffset(), model.getZOffset(), 0.0F, 1, matrixstack, new WrappedRTBuffer(rtBuffer), 15728880);
+            entityrenderermanager.render(pLivingEntity, model.guiXOff(), model.guiYOff(), model.guiZOff(), 0.0F, 1, matrixstack, new WrappedRTBuffer(rtBuffer), 15728880);
         });
         rtBuffer.endBatch();
         entityrenderermanager.setRenderShadow(true);

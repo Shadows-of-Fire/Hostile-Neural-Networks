@@ -45,7 +45,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
             txt.add(Component.translatable("hostilenetworks.gui.energy", this.menu.getEnergyStored(), HostileConfig.simPowerCap));
             CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
             if (cModel.isValid()) {
-                txt.add(Component.translatable("hostilenetworks.gui.cost", cModel.getModel().getSimCost()));
+                txt.add(Component.translatable("hostilenetworks.gui.cost", cModel.getModel().simCost()));
             }
             gfx.renderComponentTooltip(this.font, txt, pX, pY);
         }
@@ -76,7 +76,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
             String msg = I18n.get("hostilenetworks.gui.target");
             gfx.drawString(this.font, msg, xOff, 9, Color.WHITE);
             xOff += this.font.width(msg);
-            gfx.drawString(this.font, cModel.getModel().getName(), xOff, 9, Color.LIME);
+            gfx.drawString(this.font, cModel.getModel().name(), xOff, 9, Color.LIME);
 
             xOff = 18;
             msg = I18n.get("hostilenetworks.gui.tier");
@@ -148,7 +148,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
                 if (this.lastFailState == FailureState.INPUT) {
                     CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
                     Component name = ERROR;
-                    if (cModel.isValid()) name = cModel.getModel().getInput().getHoverName();
+                    if (cModel.isValid()) name = cModel.getModel().input().getHoverName();
                     msg = I18n.get(this.lastFailState.getKey(), name.getString()).split("\\n");
                 }
                 for (String s : msg)

@@ -21,8 +21,8 @@ public class TickingDataModelWrapper {
         this.model = new ItemStack(Hostile.Items.DATA_MODEL.get());
         DataModelItem.setStoredModel(this.model, src);
         DataModelItem.setData(this.model, src.getTierData(ModelTier.BASIC));
-        this.input = src.getInput().copy();
-        this.baseDrop = src.getBaseDrop().copy();
+        this.input = src.input().copy();
+        this.baseDrop = src.baseDrop().copy();
         this.prediction = src.getPredictionDrop();
     }
 

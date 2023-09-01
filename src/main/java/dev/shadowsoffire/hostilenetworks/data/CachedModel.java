@@ -86,8 +86,8 @@ public class CachedModel {
     }
 
     public LivingEntity getEntity(Level level, int variant) {
-        EntityType<? extends LivingEntity> type = variant == 0 ? this.getModel().type : this.getModel().subtypes.get(variant - 1);
-        return ClientEntityCache.computeIfAbsent(type, level, this.getModel().displayNbt);
+        EntityType<? extends LivingEntity> type = variant == 0 ? this.getModel().type() : this.getModel().subtypes().get(variant - 1);
+        return ClientEntityCache.computeIfAbsent(type, level, this.getModel().displayNbt());
     }
 
     public ItemStack getPredictionDrop() {

@@ -39,7 +39,7 @@ public class LootFabContainer extends BlockEntityMenu<LootFabTileEntity> {
     @Override
     public boolean clickMenuButton(Player pPlayer, int pId) {
         DynamicHolder<DataModel> model = DataModelItem.getStoredModel(this.getSlot(0).getItem());
-        if (!model.isBound() || pId >= model.get().getFabDrops().size()) return false;
+        if (!model.isBound() || pId >= model.get().fabDrops().size()) return false;
         this.tile.setSelection(model, pId);
         return true;
     }

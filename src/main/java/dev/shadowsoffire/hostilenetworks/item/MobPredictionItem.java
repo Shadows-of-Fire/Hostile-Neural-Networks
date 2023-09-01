@@ -27,13 +27,13 @@ public class MobPredictionItem extends Item implements ITabFiller {
         if (!model.isBound()) {
             modelName = Component.literal("BROKEN").withStyle(ChatFormatting.OBFUSCATED);
         }
-        else modelName = model.get().getName();
+        else modelName = model.get().name();
         return Component.translatable(this.getDescriptionId(pStack), modelName);
     }
 
     @Override
     public void fillItemCategory(CreativeModeTab tab, CreativeModeTab.Output output) {
-        DataModelRegistry.INSTANCE.getValues().stream().sorted(Comparator.comparing(DataModel::getId)).forEach(model -> {
+        DataModelRegistry.INSTANCE.getValues().stream().sorted(Comparator.comparing(DataModelRegistry.INSTANCE::getKey)).forEach(model -> {
             ItemStack s = new ItemStack(this);
             DataModelItem.setStoredModel(s, model);
             output.accept(s);

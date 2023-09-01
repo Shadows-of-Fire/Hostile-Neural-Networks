@@ -95,7 +95,7 @@ public class GenerateModelCommand {
                 Player p = c.getSource().getPlayerOrException();
                 ResourceLocation name = c.getArgument("data_model", ResourceLocation.class);
                 DataModel model = DataModelRegistry.INSTANCE.getValue(name);
-                EntityType<? extends LivingEntity> type = model.getType();
+                EntityType<? extends LivingEntity> type = model.type();
                 var results = runSimulation(type, p, 7500, c.getArgument("max_stack_size", Integer.class));
 
                 DataModel newModel = new DataModel(model, results);
