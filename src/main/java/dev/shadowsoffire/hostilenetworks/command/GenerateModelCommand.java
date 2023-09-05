@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -18,11 +19,14 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonWriter;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.serialization.JsonOps;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
+import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
@@ -132,6 +136,51 @@ public class GenerateModelCommand {
             c.getSource().sendSuccess(() -> Component.literal("Data Model JSON files generated at datagen/data_models/"), true);
             return 0;
         })));
+
+        root.then(Commands.literal("datafix_all").requires(c -> c.hasPermission(2)).executes(c -> {
+            var resman = c.getSource().getServer().getResourceManager();
+            var profiler = c.getSource().getServer().getProfiler();
+            Map<ResourceLocation, JsonElement> map = DataModelRegistry.INSTANCE.prepare(resman, profiler);
+            for (var entry : map.entrySet()) {
+                JsonObject out = new JsonObject();
+                JsonObject obj = entry.getValue().getAsJsonObject();
+                if (obj.has("conditions")) {
+                    out.add("conditions", obj.remove("conditions"));
+                }
+                out.add("entity", obj.remove("type"));
+                if (obj.has("subtypes")) {
+                    out.add("variants", obj.remove("subtypes"));
+                }
+                else {
+                    out.add("variants", new JsonArray());
+                }
+                out.add("name", obj.remove("name"));
+                if (obj.has("name_color")) {
+                    var colorJson = obj.remove("name_color").getAsJsonPrimitive();
+                    TextColor color;
+                    if (colorJson.isNumber()) {
+                        color = TextColor.fromRgb(colorJson.getAsInt());
+                    }
+                    else {
+                        String str = colorJson.getAsString();
+                        if (str.startsWith("0x")) {
+                            color = TextColor.fromRgb(Integer.decode(str));
+                        }
+                        else {
+                            color = TextColor.parseColor(str);
+                        }
+                    }
+                    out.addProperty("name_color", color.serialize());
+                }
+                for (String s : obj.keySet()) {
+                    out.add(s, obj.get(s));
+                }
+                write(entry.getKey().getNamespace(), entry.getKey().getPath(), out);
+            }
+            c.getSource().sendSuccess(() -> Component.literal("Data Model JSON files generated at datagen/data_models/"), true);
+            return 0;
+        }));
+
     }
 
     private static List<ItemStack> runSimulation(EntityType<?> type, Player p, int runs, float maxStackSize) {
@@ -180,25 +229,29 @@ public class GenerateModelCommand {
     private static Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private static void write(String namespace, String path, DataModel model) {
+        JsonElement json = DataModel.CODEC.encodeStart(JsonOps.INSTANCE, model).getOrThrow(false, HostileNetworks.LOGGER::error);
+        if (!"minecraft".equals(namespace)) {
+            var condition = new ModLoadedCondition(namespace);
+            var arr = new JsonArray();
+            arr.add(CraftingHelper.serialize(condition));
+            var copy = new JsonObject();
+            copy.add("conditions", arr);
+            json.getAsJsonObject().entrySet().forEach(entry -> copy.add(entry.getKey(), entry.getValue()));
+            json = copy;
+        }
+        write(namespace, path, json);
+    }
+
+    private static void write(String namespace, String path, JsonElement json) {
         File file = new File(FMLPaths.GAMEDIR.get().toFile(), "datagen/data/" + namespace + "/data_models/" + path + ".json");
         file.getParentFile().mkdirs();
         try (FileWriter writer = new FileWriter(file)) {
-            JsonElement json = DataModel.SERIALIZER.write(model);
-
-            if (!"minecraft".equals(namespace)) {
-                var condition = new ModLoadedCondition(namespace);
-                var arr = new JsonArray();
-                arr.add(CraftingHelper.serialize(condition));
-                var copy = new JsonObject();
-                copy.add("conditions", arr);
-                json.getAsJsonObject().entrySet().forEach(entry -> copy.add(entry.getKey(), entry.getValue()));
-                json = copy;
-            }
-
-            GSON.toJson(json, writer);
+            JsonWriter jWriter = new JsonWriter(writer);
+            jWriter.setIndent("    ");
+            GSON.toJson(json, jWriter);
         }
         catch (IOException ex) {
-
+            throw new RuntimeException(ex);
         }
     }
 

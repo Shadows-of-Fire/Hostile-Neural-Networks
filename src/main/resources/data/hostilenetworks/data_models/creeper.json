@@ -1,50 +1,50 @@
 {
-	"type": "minecraft:creeper",
-	"subtypes": [
-		"ad_astra:sulfur_creeper",
-		"creeperoverhaul:badlands_creeper",
-		"creeperoverhaul:bamboo_creeper",
-		"creeperoverhaul:beach_creeper",
-		"creeperoverhaul:cave_creeper",
-		"creeperoverhaul:dark_oak_creeper",
-		"creeperoverhaul:desert_creeper",
-		"creeperoverhaul:dripstone_creeper",
-		"creeperoverhaul:hills_creeper",
-		"creeperoverhaul:jungle_creeper",
-		"creeperoverhaul:mushroom_creeper",
-		"creeperoverhaul:ocean_creeper",
-		"creeperoverhaul:savannah_creeper",
-		"creeperoverhaul:snowy_creeper",
-		"creeperoverhaul:spruce_creeper",
-		"creeperoverhaul:swamp_creeper"
-	],
-	"name": "entity.minecraft.creeper",
-	"name_color": "0x70DC5D",
-	"gui_scale": 1,
-	"gui_x_offset": 0,
-	"gui_y_offset": 0,
-	"gui_z_offset": 0,
-	"sim_cost": 128,
-	"input": {
-		"item": "hostilenetworks:prediction_matrix"
-	},
-	"base_drop": {
-		"item": "hostilenetworks:overworld_prediction"
-	},
-	"trivia": "hostilenetworks.trivia.creeper",
-	"fabricator_drops": [
-		{
-			"item": "minecraft:gunpowder",
-			"count": 32
-		},
-		{
-			"item": "minecraft:creeper_head",
-			"count": 4
-		},
-		{
-			"optional": true,
-			"item": "reliquary:catalyzing_gland",
-			"count": 2
-		}
-	]
+    "entity": "minecraft:creeper",
+    "variants": [
+        "ad_astra:sulfur_creeper",
+        "creeperoverhaul:badlands_creeper",
+        "creeperoverhaul:bamboo_creeper",
+        "creeperoverhaul:beach_creeper",
+        "creeperoverhaul:cave_creeper",
+        "creeperoverhaul:dark_oak_creeper",
+        "creeperoverhaul:desert_creeper",
+        "creeperoverhaul:dripstone_creeper",
+        "creeperoverhaul:hills_creeper",
+        "creeperoverhaul:jungle_creeper",
+        "creeperoverhaul:mushroom_creeper",
+        "creeperoverhaul:ocean_creeper",
+        "creeperoverhaul:savannah_creeper",
+        "creeperoverhaul:snowy_creeper",
+        "creeperoverhaul:spruce_creeper",
+        "creeperoverhaul:swamp_creeper"
+    ],
+    "name": "entity.minecraft.creeper",
+    "name_color": "#70DC5D",
+    "gui_scale": 1,
+    "gui_x_offset": 0,
+    "gui_y_offset": 0,
+    "gui_z_offset": 0,
+    "sim_cost": 128,
+    "input": {
+        "item": "hostilenetworks:prediction_matrix"
+    },
+    "base_drop": {
+        "item": "hostilenetworks:overworld_prediction"
+    },
+    "trivia": "hostilenetworks.trivia.creeper",
+    "fabricator_drops": [
+        {
+            "item": "minecraft:gunpowder",
+            "count": 32
+        },
+        {
+            "item": "minecraft:creeper_head",
+            "count": 4
+        },
+        {
+            "optional": true,
+            "item": "reliquary:catalyzing_gland",
+            "count": 2
+        }
+    ]
 }

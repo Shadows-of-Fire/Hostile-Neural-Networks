@@ -3,7 +3,6 @@ package dev.shadowsoffire.hostilenetworks.data;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Stream;
 
 import com.google.common.base.Preconditions;
@@ -13,17 +12,19 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
+import dev.shadowsoffire.placebo.codec.CodecProvider;
 import dev.shadowsoffire.placebo.json.ItemAdapter;
 import dev.shadowsoffire.placebo.json.NBTAdapter;
-import dev.shadowsoffire.placebo.json.PSerializer;
-import dev.shadowsoffire.placebo.json.PSerializer.PSerializable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -35,7 +36,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ForgeRegistry;
 
 /**
  * Stores all of the information representing an individual Data Model.
@@ -59,18 +59,13 @@ import net.minecraftforge.registries.ForgeRegistry;
 public record DataModel(EntityType<? extends LivingEntity> type, List<EntityType<? extends LivingEntity>> subtypes,
     MutableComponent name, CompoundTag displayNbt, float guiScale, float guiXOff, float guiYOff, float guiZOff,
     int simCost, ItemStack input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops, int[] tierData,
-    int[] dataPerKill) implements PSerializable<DataModel> {
+    int[] dataPerKill) implements CodecProvider<DataModel> {
 
-    public static final PSerializer<DataModel> SERIALIZER = PSerializer.builder("Data Model", DataModel::read).toJson(DataModel::write).networked(DataModel::read, DataModel::write).build();
+    public static final Codec<DataModel> CODEC = new DataModelCodec();
 
     public DataModel(DataModel other, List<ItemStack> newResults) {
         this(other.type, other.subtypes, other.name, other.displayNbt, other.guiScale, other.guiYOff, other.guiXOff, other.guiZOff, other.simCost, other.input, other.baseDrop, other.triviaKey, newResults, other.tierData,
             other.dataPerKill);
-    }
-
-    @Override
-    public PSerializer<DataModel> getSerializer() {
-        return SERIALIZER;
     }
 
     public int getTierData(ModelTier tier) {
@@ -91,9 +86,10 @@ public record DataModel(EntityType<? extends LivingEntity> type, List<EntityType
         return this.name.getStyle().getColor().getValue();
     }
 
-    public DataModel validate() {
+    public DataModel validate(ResourceLocation key) {
         Preconditions.checkNotNull(this.type, "Invalid entity type!");
         Preconditions.checkNotNull(this.name, "Invalid entity name!");
+        Preconditions.checkNotNull(this.name.getStyle().getColor(), "Invalid entity name color!");
         Preconditions.checkArgument(this.guiScale > 0, "Invalid gui scale!");
         Preconditions.checkArgument(this.simCost > 0, "Invalid simulation cost!");
         Preconditions.checkArgument(this.input != null && !this.input.isEmpty(), "Invalid input item!");
@@ -110,165 +106,102 @@ public record DataModel(EntityType<? extends LivingEntity> type, List<EntityType
         return this;
     }
 
-    public void write(FriendlyByteBuf buf) {
-        buf.writeVarInt(getId(this.type));
-        buf.writeByte(this.subtypes.size());
-        for (EntityType<?> t : this.subtypes) {
-            buf.writeVarInt(getId(t));
-        }
-        buf.writeUtf(((TranslatableContents) this.name.getContents()).getKey());
-        buf.writeUtf(this.name.getStyle().getColor().serialize());
-        buf.writeNbt(this.displayNbt);
-        buf.writeFloat(this.guiScale);
-        buf.writeFloat(this.guiXOff);
-        buf.writeFloat(this.guiYOff);
-        buf.writeFloat(this.guiZOff);
-        buf.writeInt(this.simCost);
-        buf.writeItem(this.input);
-        buf.writeItem(this.baseDrop);
-        buf.writeUtf(this.triviaKey);
-        buf.writeVarInt(this.fabDrops.size());
-        for (ItemStack i : this.fabDrops)
-            buf.writeItem(i);
-        for (int i = 0; i < 5; i++) {
-            buf.writeShort(this.tierData[i]);
-            buf.writeShort(this.dataPerKill[i]);
-        }
+    @Override
+    public Codec<? extends DataModel> getCodec() {
+        return CODEC;
     }
 
-    private static int getId(EntityType<?> type) {
-        return ((ForgeRegistry<EntityType<?>>) ForgeRegistries.ENTITY_TYPES).getID(type);
-    }
+    /**
+     * DataModel codec that handles everything in json form because I don't know how to convert this to a codec.
+     */
+    public static class DataModelCodec implements Codec<DataModel> {
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static EntityType<? extends LivingEntity> byId(int id) {
-        return (EntityType) ((ForgeRegistry<EntityType<?>>) ForgeRegistries.ENTITY_TYPES).getValue(id);
-    }
-
-    public static DataModel read(FriendlyByteBuf buf) {
-        EntityType<? extends LivingEntity> type = byId(buf.readVarInt());
-        int size = buf.readByte();
-        List<EntityType<? extends LivingEntity>> subtypes = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            subtypes.add(byId(buf.readVarInt()));
-        }
-        MutableComponent name = Component.translatable(buf.readUtf());
-        name.withStyle(Style.EMPTY.withColor(TextColor.parseColor(buf.readUtf())));
-        CompoundTag displayNbt = buf.readNbt();
-        float guiScale = buf.readFloat();
-        float guiXOff = buf.readFloat();
-        float guiYOff = buf.readFloat();
-        float guiZOff = buf.readFloat();
-        int simCost = buf.readInt();
-        ItemStack input = buf.readItem();
-        ItemStack baseDrop = buf.readItem();
-        String triviaKey = buf.readUtf();
-        int dropSize = buf.readVarInt();
-        List<ItemStack> fabDrops = new ArrayList<>(dropSize);
-        for (int i = 0; i < dropSize; i++) {
-            fabDrops.add(buf.readItem());
-        }
-        int[] tierData = new int[5], dataPerKill = new int[5];
-        for (int i = 0; i < 5; i++) {
-            tierData[i] = buf.readShort();
-            dataPerKill[i] = buf.readShort();
-        }
-
-        return new DataModel(type, subtypes, name, displayNbt, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops, tierData, dataPerKill);
-    }
-
-    public JsonObject write() {
-        JsonObject obj = new JsonObject();
-        ResourceLocation key = EntityType.getKey(this.type);
-        obj.addProperty("type", key.toString());
-        obj.add("subtypes", ItemAdapter.ITEM_READER.toJsonTree(this.subtypes.stream().map(EntityType::getKey).toList()));
-        obj.addProperty("name", ((TranslatableContents) this.name.getContents()).getKey());
-        obj.addProperty("name_color", "0x" + Integer.toHexString(this.getNameColor()).toUpperCase(Locale.ROOT));
-        obj.add("display_nbt", NBTAdapter.EITHER_CODEC.encodeStart(JsonOps.INSTANCE, this.displayNbt).get().left().get());
-        obj.addProperty("gui_scale", this.guiScale);
-        obj.addProperty("gui_x_offset", this.guiXOff);
-        obj.addProperty("gui_y_offset", this.guiYOff);
-        obj.addProperty("gui_z_offset", this.guiZOff);
-        obj.addProperty("sim_cost", this.simCost);
-        obj.add("input", ItemAdapter.ITEM_READER.toJsonTree(this.input));
-        obj.add("base_drop", ItemAdapter.ITEM_READER.toJsonTree(this.baseDrop));
-        obj.addProperty("trivia", this.triviaKey);
-        JsonArray fabDrops = ItemAdapter.ITEM_READER.toJsonTree(this.fabDrops).getAsJsonArray();
-        for (JsonElement e : fabDrops) {
-            JsonObject drop = e.getAsJsonObject();
-            ResourceLocation itemName = new ResourceLocation(drop.get("item").getAsString());
-            if (!"minecraft".equals(itemName.getNamespace()) && !key.getNamespace().equals(itemName.getNamespace())) {
-                drop.addProperty("optional", true);
-            }
-        }
-        obj.add("fabricator_drops", fabDrops);
-        obj.add("tier_data", ItemAdapter.ITEM_READER.toJsonTree(Arrays.copyOfRange(this.tierData, 1, 5)));
-        obj.add("data_per_kill", ItemAdapter.ITEM_READER.toJsonTree(Arrays.copyOfRange(this.dataPerKill, 0, 4)));
-        return obj;
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static DataModel read(JsonObject obj) {
-        EntityType<? extends LivingEntity> t = (EntityType) ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(obj.get("type").getAsString()));
-        if (t == EntityType.PIG && !"minecraft:pig".equals(obj.get("type").getAsString())) throw new JsonParseException("DataModel has invalid entity type " + obj.get("type").getAsString());
-        List<EntityType<? extends LivingEntity>> subtypes = new ArrayList<>();
-        if (obj.has("subtypes")) {
-            for (JsonElement json : obj.get("subtypes").getAsJsonArray()) {
-                EntityType<? extends LivingEntity> st = (EntityType) ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(json.getAsString()));
-                if (st != EntityType.PIG || "minecraft:pig".equals(json.getAsString())) subtypes.add(st);
-                // Intentionally ignore invalid entries here, so that modded entities can be added as subtypes without hard deps.
-            }
-        }
-        MutableComponent name = Component.translatable(obj.get("name").getAsString());
-        if (obj.has("name_color")) {
-            var colorJson = obj.get("name_color").getAsJsonPrimitive();
-            TextColor color;
-            if (colorJson.isNumber()) {
-                color = TextColor.fromRgb(colorJson.getAsInt());
-            }
-            else {
-                String str = colorJson.getAsString();
-                if (str.startsWith("0x")) {
-                    color = TextColor.fromRgb(Integer.decode(str));
-                }
-                else {
-                    color = TextColor.parseColor(str);
+        @Override
+        public <T> DataResult<T> encode(DataModel input, DynamicOps<T> ops, T prefix) {
+            JsonObject obj = new JsonObject();
+            ResourceLocation key = EntityType.getKey(input.type);
+            obj.addProperty("entity", key.toString());
+            obj.add("variants", ItemAdapter.ITEM_READER.toJsonTree(input.subtypes.stream().map(EntityType::getKey).toList()));
+            obj.addProperty("name", ((TranslatableContents) input.name.getContents()).getKey());
+            obj.addProperty("name_color", input.name.getStyle().getColor().serialize());
+            obj.add("display_nbt", NBTAdapter.EITHER_CODEC.encodeStart(JsonOps.INSTANCE, input.displayNbt).get().left().get());
+            obj.addProperty("gui_scale", input.guiScale);
+            obj.addProperty("gui_x_offset", input.guiXOff);
+            obj.addProperty("gui_y_offset", input.guiYOff);
+            obj.addProperty("gui_z_offset", input.guiZOff);
+            obj.addProperty("sim_cost", input.simCost);
+            obj.add("input", ItemAdapter.ITEM_READER.toJsonTree(input.input));
+            obj.add("base_drop", ItemAdapter.ITEM_READER.toJsonTree(input.baseDrop));
+            obj.addProperty("trivia", input.triviaKey);
+            JsonArray fabDrops = ItemAdapter.ITEM_READER.toJsonTree(input.fabDrops).getAsJsonArray();
+            for (JsonElement e : fabDrops) {
+                JsonObject drop = e.getAsJsonObject();
+                ResourceLocation itemName = new ResourceLocation(drop.get("item").getAsString());
+                if (!"minecraft".equals(itemName.getNamespace()) && !key.getNamespace().equals(itemName.getNamespace())) {
+                    drop.addProperty("optional", true);
                 }
             }
-            name = name.withStyle(Style.EMPTY.withColor(color));
-        }
-        else name.withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
-        float guiScale = obj.get("gui_scale").getAsFloat();
-        float guiXOff = obj.get("gui_x_offset").getAsFloat();
-        float guiYOff = obj.get("gui_y_offset").getAsFloat();
-        float guiZOff = obj.get("gui_z_offset").getAsFloat();
-        int simCost = obj.get("sim_cost").getAsInt();
-        ItemStack input = ItemAdapter.ITEM_READER.fromJson(obj.get("input"), ItemStack.class);
-        ItemStack baseDrop = ItemAdapter.ITEM_READER.fromJson(obj.get("base_drop"), ItemStack.class);
-        if (baseDrop.isEmpty()) {
-            baseDrop = new ItemStack(Items.BARRIER);
-            baseDrop.setHoverName(Component.translatable("hostilenetworks.info.no_base_drop"));
-        }
-        String triviaKey = obj.has("trivia") ? obj.get("trivia").getAsString() : "hostilenetworks.trivia.nothing";
-        List<ItemStack> fabDrops = ItemAdapter.ITEM_READER.fromJson(obj.get("fabricator_drops"), new TypeToken<List<ItemStack>>(){}.getType());
-        fabDrops.removeIf(ItemStack::isEmpty);
-
-        int[] tierData = ModelTier.defaultData();
-        if (obj.has("tier_data")) {
-            JsonArray arr = obj.get("tier_data").getAsJsonArray();
-            tierData = Stream.of(new JsonPrimitive(0), arr.get(0), arr.get(1), arr.get(2), arr.get(3)).mapToInt(JsonElement::getAsShort).toArray();
-        }
-        int[] dataPerKill = ModelTier.defaultDataPerKill();
-        if (obj.has("data_per_kill")) {
-            JsonArray arr = obj.get("data_per_kill").getAsJsonArray();
-            dataPerKill = Stream.of(arr.get(0), arr.get(1), arr.get(2), arr.get(3), new JsonPrimitive(0)).mapToInt(JsonElement::getAsShort).toArray();
-        }
-        CompoundTag displayNbt = new CompoundTag();
-        if (obj.has("display_nbt")) {
-            displayNbt = NBTAdapter.EITHER_CODEC.decode(JsonOps.INSTANCE, obj.get("display_nbt")).result().get().getFirst();
+            obj.add("fabricator_drops", fabDrops);
+            obj.add("tier_data", ItemAdapter.ITEM_READER.toJsonTree(Arrays.copyOfRange(input.tierData, 1, 5)));
+            obj.add("data_per_kill", ItemAdapter.ITEM_READER.toJsonTree(Arrays.copyOfRange(input.dataPerKill, 0, 4)));
+            return DataResult.success(JsonOps.INSTANCE.convertTo(ops, obj));
         }
 
-        return new DataModel(t, subtypes, name, displayNbt, guiScale, guiXOff, guiYOff, guiZOff, simCost, input, baseDrop, triviaKey, fabDrops, tierData, dataPerKill).validate();
+        @Override
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        public <T> DataResult<Pair<DataModel, T>> decode(DynamicOps<T> ops, T input) {
+            JsonObject obj = ops.convertTo(JsonOps.INSTANCE, input).getAsJsonObject();
+            String eTypeStr = obj.get("entity").getAsString();
+            EntityType<? extends LivingEntity> t = (EntityType) ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(eTypeStr));
+            if (t == EntityType.PIG && !"minecraft:pig".equals(eTypeStr)) throw new JsonParseException("DataModel has invalid entity type " + eTypeStr);
+            List<EntityType<? extends LivingEntity>> subtypes = new ArrayList<>();
+            if (obj.has("variants")) {
+                for (JsonElement json : obj.get("variants").getAsJsonArray()) {
+                    EntityType<? extends LivingEntity> st = (EntityType) ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(json.getAsString()));
+                    if (st != EntityType.PIG || "minecraft:pig".equals(json.getAsString())) subtypes.add(st);
+                    // Intentionally ignore invalid entries here, so that modded entities can be added as subtypes without hard deps.
+                }
+            }
+            MutableComponent name = Component.translatable(obj.get("name").getAsString());
+            if (obj.has("name_color")) {
+                String colorStr = obj.get("name_color").getAsString();
+                var color = TextColor.parseColor(colorStr);
+                name = name.withStyle(Style.EMPTY.withColor(color));
+            }
+            else name.withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
+            float guiScale = obj.get("gui_scale").getAsFloat();
+            float guiXOff = obj.get("gui_x_offset").getAsFloat();
+            float guiYOff = obj.get("gui_y_offset").getAsFloat();
+            float guiZOff = obj.get("gui_z_offset").getAsFloat();
+            int simCost = obj.get("sim_cost").getAsInt();
+            ItemStack inputItem = ItemAdapter.ITEM_READER.fromJson(obj.get("input"), ItemStack.class);
+            ItemStack baseDrop = ItemAdapter.ITEM_READER.fromJson(obj.get("base_drop"), ItemStack.class);
+            if (baseDrop.isEmpty()) {
+                baseDrop = new ItemStack(Items.BARRIER);
+                baseDrop.setHoverName(Component.translatable("hostilenetworks.info.no_base_drop"));
+            }
+            String triviaKey = obj.has("trivia") ? obj.get("trivia").getAsString() : "hostilenetworks.trivia.nothing";
+            List<ItemStack> fabDrops = ItemAdapter.ITEM_READER.fromJson(obj.get("fabricator_drops"), new TypeToken<List<ItemStack>>(){}.getType());
+            fabDrops.removeIf(ItemStack::isEmpty);
+
+            int[] tierData = ModelTier.defaultData();
+            if (obj.has("tier_data")) {
+                JsonArray arr = obj.get("tier_data").getAsJsonArray();
+                tierData = Stream.of(new JsonPrimitive(0), arr.get(0), arr.get(1), arr.get(2), arr.get(3)).mapToInt(JsonElement::getAsShort).toArray();
+            }
+            int[] dataPerKill = ModelTier.defaultDataPerKill();
+            if (obj.has("data_per_kill")) {
+                JsonArray arr = obj.get("data_per_kill").getAsJsonArray();
+                dataPerKill = Stream.of(arr.get(0), arr.get(1), arr.get(2), arr.get(3), new JsonPrimitive(0)).mapToInt(JsonElement::getAsShort).toArray();
+            }
+            CompoundTag displayNbt = new CompoundTag();
+            if (obj.has("display_nbt")) {
+                displayNbt = NBTAdapter.EITHER_CODEC.decode(JsonOps.INSTANCE, obj.get("display_nbt")).result().get().getFirst();
+            }
+
+            return DataResult.success(Pair.of(new DataModel(t, subtypes, name, displayNbt, guiScale, guiXOff, guiYOff, guiZOff, simCost, inputItem, baseDrop, triviaKey, fabDrops, tierData, dataPerKill), input));
+        }
+
     }
 
 }

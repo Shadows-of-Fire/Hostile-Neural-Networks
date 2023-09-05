@@ -1,27 +1,28 @@
 {
-	"type": "minecraft:vindicator",
-	"name": "entity.minecraft.vindicator",
-	"name_color": "0x325566",
-	"gui_scale": 1,
-	"gui_x_offset": 0,
-	"gui_y_offset": 0,
-	"gui_z_offset": 0,
-	"sim_cost": 512,
-	"input": {
-		"item": "hostilenetworks:prediction_matrix"
-	},
-	"base_drop": {
-		"item": "hostilenetworks:overworld_prediction"
-	},
-	"trivia": "hostilenetworks.trivia.vindicator",
-	"fabricator_drops": [
-		{
-			"item": "minecraft:emerald",
-			"count": 8
-		},
-		{
-			"item": "minecraft:iron_axe",
-			"count": 1
-		}
-	]
+    "entity": "minecraft:vindicator",
+    "variants": [],
+    "name": "entity.minecraft.vindicator",
+    "name_color": "#325566",
+    "gui_scale": 1,
+    "gui_x_offset": 0,
+    "gui_y_offset": 0,
+    "gui_z_offset": 0,
+    "sim_cost": 512,
+    "input": {
+        "item": "hostilenetworks:prediction_matrix"
+    },
+    "base_drop": {
+        "item": "hostilenetworks:overworld_prediction"
+    },
+    "trivia": "hostilenetworks.trivia.vindicator",
+    "fabricator_drops": [
+        {
+            "item": "minecraft:emerald",
+            "count": 8
+        },
+        {
+            "item": "minecraft:iron_axe",
+            "count": 1
+        }
+    ]
 }

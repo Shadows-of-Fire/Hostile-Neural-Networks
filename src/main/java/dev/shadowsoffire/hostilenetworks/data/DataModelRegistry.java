@@ -6,10 +6,13 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonElement;
 
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.placebo.reload.DynamicRegistry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.EntityType;
 
 public class DataModelRegistry extends DynamicRegistry<DataModel> {
@@ -23,8 +26,8 @@ public class DataModelRegistry extends DynamicRegistry<DataModel> {
     }
 
     @Override
-    protected void registerBuiltinSerializers() {
-        this.registerSerializer(DEFAULT, DataModel.SERIALIZER);
+    protected void registerBuiltinCodecs() {
+        this.registerDefaultCodec(new ResourceLocation(HostileNetworks.MODID, "data_model"), DataModel.CODEC);
     }
 
     @Override
@@ -41,7 +44,7 @@ public class DataModelRegistry extends DynamicRegistry<DataModel> {
 
     @Override
     protected void validateItem(ResourceLocation key, DataModel model) {
-        model.validate();
+        model.validate(key);
         if (this.modelsByType.containsKey(model.type())) {
             String msg = "Attempted to register two models (%s and %s) for Entity Type %s!";
             throw new UnsupportedOperationException(String.format(msg, key, this.getKey(this.modelsByType.get(model.type())), EntityType.getKey(model.type())));
@@ -52,6 +55,11 @@ public class DataModelRegistry extends DynamicRegistry<DataModel> {
     @Nullable
     public DataModel getForEntity(EntityType<?> type) {
         return this.modelsByType.get(type);
+    }
+
+    @Override
+    public Map<ResourceLocation, JsonElement> prepare(ResourceManager pResourceManager, ProfilerFiller pProfiler) {
+        return super.prepare(pResourceManager, pProfiler);
     }
 
 }

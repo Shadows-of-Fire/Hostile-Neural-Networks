@@ -1,37 +1,38 @@
 {
-	"type": "minecraft:enderman",
-	"name": "entity.minecraft.enderman",
-	"name_color": "0x161616",
-	"gui_scale": 0.75,
-	"gui_x_offset": 0,
-	"gui_y_offset": 0,
-	"gui_z_offset": 0,
-	"sim_cost": 512,
-	"input": {
-		"item": "hostilenetworks:prediction_matrix"
-	},
-	"base_drop": {
-		"item": "hostilenetworks:end_prediction"
-	},
-	"trivia": "hostilenetworks.trivia.enderman",
-	"fabricator_drops": [
-		{
-			"item": "minecraft:ender_pearl",
-			"count": 16
-		},
-		{
-			"item": "minecraft:end_crystal",
-			"count": 1
-		},
-		{
-			"optional": true,
-			"item": "evilcraft:ender_tear",
-			"count": 4
-		},
-		{
-			"optional": true,
-			"item": "reliquary:nebulous_heart",
-			"count": 2
-		}
-	]
+    "entity": "minecraft:enderman",
+    "variants": [],
+    "name": "entity.minecraft.enderman",
+    "name_color": "#161616",
+    "gui_scale": 0.75,
+    "gui_x_offset": 0,
+    "gui_y_offset": 0,
+    "gui_z_offset": 0,
+    "sim_cost": 512,
+    "input": {
+        "item": "hostilenetworks:prediction_matrix"
+    },
+    "base_drop": {
+        "item": "hostilenetworks:end_prediction"
+    },
+    "trivia": "hostilenetworks.trivia.enderman",
+    "fabricator_drops": [
+        {
+            "item": "minecraft:ender_pearl",
+            "count": 16
+        },
+        {
+            "item": "minecraft:end_crystal",
+            "count": 1
+        },
+        {
+            "optional": true,
+            "item": "evilcraft:ender_tear",
+            "count": 4
+        },
+        {
+            "optional": true,
+            "item": "reliquary:nebulous_heart",
+            "count": 2
+        }
+    ]
 }

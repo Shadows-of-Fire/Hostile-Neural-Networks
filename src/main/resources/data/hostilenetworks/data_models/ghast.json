@@ -1,36 +1,36 @@
 {
-	"type": "minecraft:ghast",
-	"subtypes": [
-		"twilightforest:carminite_ghastguard",
-		"twilightforest:carminite_ghastling"
-	],
-	"name": "entity.minecraft.ghast",
-	"name_color": "0xF0F0F0",
-	"gui_scale": 0.25,
-	"gui_x_offset": 0,
-	"gui_y_offset": 4,
-	"gui_z_offset": 0,
-	"sim_cost": 256,
-	"input": {
-		"item": "hostilenetworks:prediction_matrix"
-	},
-	"base_drop": {
-		"item": "hostilenetworks:nether_prediction"
-	},
-	"trivia": "hostilenetworks.trivia.ghast",
-	"fabricator_drops": [
-		{
-			"item": "minecraft:ghast_tear",
-			"count": 16
-		},
-		{
-			"item": "minecraft:gunpowder",
-			"count": 32
-		},
-		{
-			"optional": true,
-			"item": "reliquary:catalyzing_gland",
-			"count": 2
-		}
-	]
+    "entity": "minecraft:ghast",
+    "variants": [
+        "twilightforest:carminite_ghastguard",
+        "twilightforest:carminite_ghastling"
+    ],
+    "name": "entity.minecraft.ghast",
+    "name_color": "#F0F0F0",
+    "gui_scale": 0.25,
+    "gui_x_offset": 0,
+    "gui_y_offset": 4,
+    "gui_z_offset": 0,
+    "sim_cost": 256,
+    "input": {
+        "item": "hostilenetworks:prediction_matrix"
+    },
+    "base_drop": {
+        "item": "hostilenetworks:nether_prediction"
+    },
+    "trivia": "hostilenetworks.trivia.ghast",
+    "fabricator_drops": [
+        {
+            "item": "minecraft:ghast_tear",
+            "count": 16
+        },
+        {
+            "item": "minecraft:gunpowder",
+            "count": 32
+        },
+        {
+            "optional": true,
+            "item": "reliquary:catalyzing_gland",
+            "count": 2
+        }
+    ]
 }
