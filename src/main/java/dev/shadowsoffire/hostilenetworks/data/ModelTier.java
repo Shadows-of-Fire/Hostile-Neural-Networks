@@ -11,7 +11,7 @@ public enum ModelTier {
     BASIC(6, 4, "basic", ChatFormatting.GREEN, 0.05F),
     ADVANCED(6 + 48, 10, "advanced", ChatFormatting.BLUE, 0.22F),
     SUPERIOR(6 + 48 + 300, 18, "superior", ChatFormatting.LIGHT_PURPLE, 0.65F),
-    SELF_AWARE(6 + 48 + 300 + 900, 0, "self_aware", ChatFormatting.GOLD, 0.995F);
+    SELF_AWARE(6 + 48 + 300 + 900, 0, "self_aware", ChatFormatting.GOLD, 1.0F);
 
     private static final ModelTier[] VALUES = ModelTier.values();
 
