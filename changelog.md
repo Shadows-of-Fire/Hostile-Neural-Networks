@@ -1,3 +1,8 @@
+## 5.2.0
+* Updated to Placebo 8.5.2 and made `DataModel` a record class.
+* Changed the Data Model JSON keys `type` and `subtypes` to `entity` and `variants` respectively. Also changed how colors are parsed.
+  * Models from the old format can be updated to the new format by running `/hostilenetworks datafix_all` with relevant datapacks loaded.
+
 ## 5.1.3
 * Removed forge dependency line from the mods.toml and marked as Forge and NeoForge for CF.
   * The dependency will be added back and the Forge marker will be removed once CF supports Neo correctly.
