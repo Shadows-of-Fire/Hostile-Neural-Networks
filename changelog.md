@@ -1,3 +1,7 @@
+## 5.2.1
+* Updated Guardian data per kill to match other bosses.
+* Removed nether star recipe.
+
 ## 5.2.0
 * Updated to Placebo 8.5.2 and made `DataModel` a record class.
 * Changed the Data Model JSON keys `type` and `subtypes` to `entity` and `variants` respectively. Also changed how colors are parsed.
