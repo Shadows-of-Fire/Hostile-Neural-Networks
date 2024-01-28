@@ -44,5 +44,11 @@
             "item": "minecraft:wet_sponge",
             "count": 32
         }
+    ],
+    "data_per_kill": [
+        3,
+        12,
+        30,
+        45
     ]
 }
