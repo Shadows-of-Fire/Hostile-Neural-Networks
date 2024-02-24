@@ -6,7 +6,6 @@ import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerScreen;
 import dev.shadowsoffire.hostilenetworks.gui.LootFabScreen;
 import dev.shadowsoffire.hostilenetworks.gui.SimChamberScreen;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
-import dev.shadowsoffire.hostilenetworks.util.ClientEntityCache;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.resources.ResourceLocation;
@@ -14,9 +13,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
@@ -32,7 +28,6 @@ public class HostileClient {
             MenuScreens.register(Hostile.Containers.SIM_CHAMBER.get(), SimChamberScreen::new);
             MenuScreens.register(Hostile.Containers.LOOT_FABRICATOR.get(), LootFabScreen::new);
         });
-        MinecraftForge.EVENT_BUS.addListener(HostileClient::tick);
     }
 
     @SubscribeEvent
@@ -55,10 +50,6 @@ public class HostileClient {
     @SubscribeEvent
     public static void overlays(RegisterGuiOverlaysEvent e) {
         e.registerAboveAll("deep_learner", new DeepLearnerHudRenderer());
-    }
-
-    public static void tick(ClientTickEvent e) {
-        if (e.phase == Phase.START) ClientEntityCache.tick();
     }
 
 }
