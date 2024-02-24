@@ -1,3 +1,6 @@
+## 5.2.2
+* Fixed a memory leak caused by `ClientEntityCache`.
+
 ## 5.2.1
 * Updated Guardian data per kill to match other bosses.
 * Removed nether star recipe.
