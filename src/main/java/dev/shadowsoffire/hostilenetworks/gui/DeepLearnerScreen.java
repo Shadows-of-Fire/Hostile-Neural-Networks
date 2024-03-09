@@ -259,12 +259,12 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         this.addText(I18n.get("hostilenetworks.gui.tier"), Color.WHITE, false);
         ModelTier tier = cache.getTier();
         ModelTier next = tier.next();
-        this.addText(I18n.get("hostilenetworks.tier." + tier.name), tier.color.getColor());
+        this.addText(I18n.get("hostilenetworks.tier." + tier.name), tier.color());
         this.addText(I18n.get("hostilenetworks.gui.accuracy"), Color.WHITE, false);
-        this.addText(fmt.format(cache.getAccuracy()), tier.color.getColor());
+        this.addText(fmt.format(cache.getAccuracy()), tier.color());
         if (tier != next) {
             this.addText(I18n.get("hostilenetworks.gui.next_tier"), Color.WHITE, false);
-            this.addText(I18n.get("hostilenetworks.tier." + next.name), next.color.getColor(), false);
+            this.addText(I18n.get("hostilenetworks.tier." + next.name), next.color(), false);
             this.addText(I18n.get("hostilenetworks.gui.next_tier2", cache.getKillsNeeded()), Color.WHITE, false);
             this.addText(I18n.get("hostilenetworks.gui.kill" + (cache.getKillsNeeded() > 1 ? "s" : "")), Color.WHITE);
         }

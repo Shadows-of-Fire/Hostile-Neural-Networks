@@ -94,9 +94,9 @@ public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapp
         }
         Component comp = recipe.currentTier.getComponent();
         width = font.width(comp);
-        gfx.drawString(font, recipe.currentTier.getComponent(), 33 - width / 2, 30, recipe.currentTier.color.getColor());
+        gfx.drawString(font, recipe.currentTier.getComponent(), 33 - width / 2, 30, recipe.currentTier.color());
         DecimalFormat fmt = new DecimalFormat("##.##%");
-        String msg = fmt.format(recipe.currentTier.accuracy);
+        String msg = fmt.format(recipe.currentTier.accuracy());
         width = font.width(msg);
         gfx.drawString(font, msg, 114 - width, 30, Color.WHITE, true);
     }

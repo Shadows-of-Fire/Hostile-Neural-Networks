@@ -71,10 +71,10 @@ public class CachedModel {
 
     public float getAccuracy() {
         ModelTier next = this.tier.next();
-        if (this.tier == next) return next.accuracy;
+        if (this.tier == next) return next.accuracy();
         int diff = this.getNextTierData() - this.getTierData();
-        float tDiff = next.accuracy - this.tier.accuracy;
-        return this.tier.accuracy + tDiff * (diff - (this.getNextTierData() - this.data)) / diff;
+        float tDiff = next.accuracy() - this.tier.accuracy();
+        return this.tier.accuracy() + tDiff * (diff - (this.getNextTierData() - this.data)) / diff;
     }
 
     public int getKillsNeeded() {

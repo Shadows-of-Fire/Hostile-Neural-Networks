@@ -1,5 +1,6 @@
 package dev.shadowsoffire.hostilenetworks;
 
+import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.placebo.config.Configuration;
 
 public class HostileConfig {

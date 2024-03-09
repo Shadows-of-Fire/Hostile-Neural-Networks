@@ -83,7 +83,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
             gfx.drawString(this.font, msg, xOff, 9 + this.font.lineHeight + 3, Color.WHITE);
             xOff += this.font.width(msg);
             msg = I18n.get("hostilenetworks.tier." + cModel.getTier().name);
-            gfx.drawString(this.font, msg, xOff, 9 + this.font.lineHeight + 3, cModel.getTier().color.getColor());
+            gfx.drawString(this.font, msg, xOff, 9 + this.font.lineHeight + 3, cModel.getTier().color());
 
             xOff = 18;
             msg = I18n.get("hostilenetworks.gui.accuracy");
@@ -91,7 +91,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
             xOff += this.font.width(msg);
             DecimalFormat fmt = new DecimalFormat("##.##%");
             msg = fmt.format(cModel.getAccuracy());
-            gfx.drawString(this.font, msg, xOff, 9 + (this.font.lineHeight + 3) * 2, cModel.getTier().color.getColor());
+            gfx.drawString(this.font, msg, xOff, 9 + (this.font.lineHeight + 3) * 2, cModel.getTier().color());
         }
         int left = 29;
         int top = 51;
