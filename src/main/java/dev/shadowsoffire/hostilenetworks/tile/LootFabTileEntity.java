@@ -178,8 +178,17 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         return this.runtime;
     }
 
+    /**
+     * Returns the index of the selected drop for a given data model.
+     * 
+     * @param model The model to check
+     * @return The index of the selected drop, or -1 if no selection is present.
+     */
     public int getSelectedDrop(DataModel model) {
-        return model == null ? -1 : this.savedSelections.getInt(DataModelRegistry.INSTANCE.holder(model));
+        if (model == null) return -1;
+        int index = this.savedSelections.getInt(DataModelRegistry.INSTANCE.holder(model));
+        if (index >= model.fabDrops().size()) return -1;
+        return index;
     }
 
     public class FabItemHandler extends InternalItemHandler {
