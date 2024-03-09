@@ -45,7 +45,7 @@ public class CachedModel {
     }
 
     public int getDataPerKill() {
-        return this.getModel().getDataPerKill(this.tier);
+        return HostileConfig.killModelUpgrade ? this.getModel().getDataPerKill(this.tier) : 0;
     }
 
     public int getTierData() {

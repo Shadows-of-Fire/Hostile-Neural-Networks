@@ -64,7 +64,9 @@
 	"hostilenetworks.run.5": "> Sequence prediction ",
 	"hostilenetworks.run.6": "> Processing results...",
 	
-	"hostilenetworks.info.click_to_attune": "%s on an entity to %s.",
+	"hostilenetworks.info.click_to_attune": "%s on an entity to %s",
+	"hostilenetworks.info.attunment_disabled": "Model attunement is disabled",
+	"hostilenetworks.info.disabled": "(Disabled)",
 	"hostilenetworks.info.hold_shift": "- Hold %s for more info",
 	"hostilenetworks.info.tier": "Tier: %s",
 	"hostilenetworks.info.data": "Data Collected: %s",

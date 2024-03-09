@@ -54,7 +54,14 @@ public class DataModelItem extends Item implements ITabFiller {
             int dMax = cModel.getNextTierData() - cModel.getTierData();
             if (tier != ModelTier.SELF_AWARE) {
                 list.add(Component.translatable("hostilenetworks.info.data", Component.translatable("hostilenetworks.info.dprog", dProg, dMax).withStyle(ChatFormatting.GRAY)));
-                list.add(Component.translatable("hostilenetworks.info.dpk", Component.literal("" + cModel.getDataPerKill()).withStyle(ChatFormatting.GRAY)));
+                int dataPerKill = cModel.getDataPerKill();
+                if (dataPerKill == 0) {
+                    Component c1 = Component.literal("000 ").withStyle(ChatFormatting.GRAY, ChatFormatting.OBFUSCATED);
+                    list.add(Component.translatable("hostilenetworks.info.dpk", c1).append(Component.translatable("hostilenetworks.info.disabled").withStyle(ChatFormatting.RED)));
+                }
+                else {
+                    list.add(Component.translatable("hostilenetworks.info.dpk", Component.literal("" + cModel.getDataPerKill()).withStyle(ChatFormatting.GRAY)));
+                }
             }
             list.add(Component.translatable("hostilenetworks.info.sim_cost", Component.translatable("hostilenetworks.info.rft", cModel.getModel().simCost()).withStyle(ChatFormatting.GRAY)));
             List<EntityType<? extends LivingEntity>> subtypes = cModel.getModel().subtypes();
