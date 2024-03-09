@@ -3,6 +3,7 @@ package dev.shadowsoffire.hostilenetworks;
 import dev.shadowsoffire.hostilenetworks.Hostile.Items;
 import dev.shadowsoffire.hostilenetworks.HostileConfig.ConfigMessage;
 import dev.shadowsoffire.hostilenetworks.command.GenerateModelCommand;
+import dev.shadowsoffire.hostilenetworks.command.GiveModelCommand;
 import dev.shadowsoffire.hostilenetworks.curios.CuriosCompat;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
@@ -38,6 +39,7 @@ public class HostileEvents {
     public static void cmds(RegisterCommandsEvent e) {
         var builder = Commands.literal("hostilenetworks");
         GenerateModelCommand.register(builder);
+        GiveModelCommand.register(builder);
         e.getDispatcher().register(builder);
     }
 
