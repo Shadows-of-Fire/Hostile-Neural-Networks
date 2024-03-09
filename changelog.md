@@ -1,3 +1,15 @@
+## 5.3.0
+* Max: Added many new configuration options.
+  * Made model tier information loaded from data files.
+  * Added the option to disable right-click attunement.
+  * Added the option to disable model upgrading on kill.
+  * Added the option to disable accuracy interpolation.
+  * Added the opton to change how the simulation chamber upgrades models.
+* Made the config file synced.
+* Fixed a crash that could occur if loot fabricator drops were removed from a model.
+* Improved error handling when parsing data models from json.
+* Added the `/hostilenetworks give_model` command, allowing for the generation of models with specific tiers.
+
 ## 5.2.2
 * Fixed a memory leak caused by `ClientEntityCache`.
 
