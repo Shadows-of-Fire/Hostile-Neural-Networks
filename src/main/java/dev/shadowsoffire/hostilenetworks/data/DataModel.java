@@ -31,6 +31,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -100,7 +101,7 @@ public record DataModel(EntityType<? extends LivingEntity> type, List<EntityType
         Preconditions.checkArgument(this.tierData != null && this.tierData.length == 5, "Invalid tier data!");
         Preconditions.checkArgument(this.dataPerKill != null && this.dataPerKill.length == 5, "Invalid data per kill!");
         for (int i = 0; i < 4; i++) {
-            if (this.dataPerKill[i] <= 0) throw new IllegalArgumentException("Data per kill may not be zero or negative!");
+            if (this.dataPerKill[i] < 0) throw new IllegalArgumentException("Data per kill may not be negative!");
             if (this.tierData[i] >= this.tierData[i + 1]) throw new IllegalArgumentException("Malformed tier data, all values must be ascending!");
         }
         return this;
@@ -151,47 +152,47 @@ public record DataModel(EntityType<? extends LivingEntity> type, List<EntityType
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public <T> DataResult<Pair<DataModel, T>> decode(DynamicOps<T> ops, T input) {
             JsonObject obj = ops.convertTo(JsonOps.INSTANCE, input).getAsJsonObject();
-            String eTypeStr = obj.get("entity").getAsString();
+            String eTypeStr = GsonHelper.getAsString(obj, "entity");
             EntityType<? extends LivingEntity> t = (EntityType) ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(eTypeStr));
             if (t == EntityType.PIG && !"minecraft:pig".equals(eTypeStr)) throw new JsonParseException("DataModel has invalid entity type " + eTypeStr);
             List<EntityType<? extends LivingEntity>> subtypes = new ArrayList<>();
             if (obj.has("variants")) {
-                for (JsonElement json : obj.get("variants").getAsJsonArray()) {
+                for (JsonElement json : GsonHelper.getAsJsonArray(obj, "variants")) {
                     EntityType<? extends LivingEntity> st = (EntityType) ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(json.getAsString()));
                     if (st != EntityType.PIG || "minecraft:pig".equals(json.getAsString())) subtypes.add(st);
                     // Intentionally ignore invalid entries here, so that modded entities can be added as subtypes without hard deps.
                 }
             }
-            MutableComponent name = Component.translatable(obj.get("name").getAsString());
+            MutableComponent name = Component.translatable(GsonHelper.getAsString(obj, "name"));
             if (obj.has("name_color")) {
-                String colorStr = obj.get("name_color").getAsString();
+                String colorStr = GsonHelper.getAsString(obj, "name_color");
                 var color = TextColor.parseColor(colorStr);
                 name = name.withStyle(Style.EMPTY.withColor(color));
             }
             else name.withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
-            float guiScale = obj.get("gui_scale").getAsFloat();
-            float guiXOff = obj.get("gui_x_offset").getAsFloat();
-            float guiYOff = obj.get("gui_y_offset").getAsFloat();
-            float guiZOff = obj.get("gui_z_offset").getAsFloat();
-            int simCost = obj.get("sim_cost").getAsInt();
-            ItemStack inputItem = ItemAdapter.ITEM_READER.fromJson(obj.get("input"), ItemStack.class);
+            float guiScale = GsonHelper.getAsFloat(obj, "gui_scale");
+            float guiXOff = GsonHelper.getAsFloat(obj, "gui_x_offset");
+            float guiYOff = GsonHelper.getAsFloat(obj, "gui_y_offset");
+            float guiZOff = GsonHelper.getAsFloat(obj, "gui_z_offset");
+            int simCost = GsonHelper.getAsInt(obj, "sim_cost");
+            ItemStack inputItem = ItemAdapter.ITEM_READER.fromJson(GsonHelper.getAsJsonObject(obj, "input"), ItemStack.class);
             ItemStack baseDrop = ItemAdapter.ITEM_READER.fromJson(obj.get("base_drop"), ItemStack.class);
             if (baseDrop.isEmpty()) {
                 baseDrop = new ItemStack(Items.BARRIER);
                 baseDrop.setHoverName(Component.translatable("hostilenetworks.info.no_base_drop"));
             }
-            String triviaKey = obj.has("trivia") ? obj.get("trivia").getAsString() : "hostilenetworks.trivia.nothing";
-            List<ItemStack> fabDrops = ItemAdapter.ITEM_READER.fromJson(obj.get("fabricator_drops"), new TypeToken<List<ItemStack>>(){}.getType());
+            String triviaKey = obj.has("trivia") ? GsonHelper.getAsString(obj, "trivia") : "hostilenetworks.trivia.nothing";
+            List<ItemStack> fabDrops = ItemAdapter.ITEM_READER.fromJson(GsonHelper.getAsJsonArray(obj, "fabricator_drops"), new TypeToken<List<ItemStack>>(){}.getType());
             fabDrops.removeIf(ItemStack::isEmpty);
 
             int[] tierData = ModelTier.defaultData();
             if (obj.has("tier_data")) {
-                JsonArray arr = obj.get("tier_data").getAsJsonArray();
+                JsonArray arr = GsonHelper.getAsJsonArray(obj, "tier_data");
                 tierData = Stream.of(new JsonPrimitive(0), arr.get(0), arr.get(1), arr.get(2), arr.get(3)).mapToInt(JsonElement::getAsShort).toArray();
             }
             int[] dataPerKill = ModelTier.defaultDataPerKill();
             if (obj.has("data_per_kill")) {
-                JsonArray arr = obj.get("data_per_kill").getAsJsonArray();
+                JsonArray arr = GsonHelper.getAsJsonArray(obj, "data_per_kill");
                 dataPerKill = Stream.of(arr.get(0), arr.get(1), arr.get(2), arr.get(3), new JsonPrimitive(0)).mapToInt(JsonElement::getAsShort).toArray();
             }
             CompoundTag displayNbt = new CompoundTag();
