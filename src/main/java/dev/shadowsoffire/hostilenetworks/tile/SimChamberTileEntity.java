@@ -115,7 +115,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                         ModelTier tier = this.currentModel.getTier();
                         if (tier != tier.next() && HostileConfig.simModelUpgrade > 0) {
                             int newData = this.currentModel.getData() + 1;
-                            if (!(HostileConfig.simModelUpgrade == 2 || newData > this.currentModel.getNextTierData())) {
+                            if (!(HostileConfig.simModelUpgrade == 2 && newData > this.currentModel.getNextTierData())) {
                                 this.currentModel.setData(newData);
                             }
                         }
