@@ -113,8 +113,11 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                             else stk.grow(1);
                         }
                         ModelTier tier = this.currentModel.getTier();
-                        if (tier != tier.next()) {
-                            this.currentModel.setData(this.currentModel.getData() + 1);
+                        if (tier != tier.next() && HostileConfig.simModelUpgrade > 0) {
+                            int newData = this.currentModel.getData() + 1;
+                            if (!(HostileConfig.simModelUpgrade == 2 && newData > this.currentModel.getNextTierData())) {
+                                this.currentModel.setData(newData);
+                            }
                         }
                         DataModelItem.setIters(model, DataModelItem.getIters(model) + 1);
                         this.setChanged();

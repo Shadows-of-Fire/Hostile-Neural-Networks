@@ -1,5 +1,6 @@
 package dev.shadowsoffire.hostilenetworks;
 
+import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,5 +43,10 @@ public class HostileNetworks {
                 Items.END_PREDICTION, Items.TWILIGHT_PREDICTION, Items.DATA_MODEL, Items.PREDICTION);
         });
         DataModelRegistry.INSTANCE.registerToBus();
+        ModelTierRegistry.INSTANCE.registerToBus();
+    }
+
+    public static ResourceLocation loc(String path) {
+        return new ResourceLocation(MODID, path);
     }
 }

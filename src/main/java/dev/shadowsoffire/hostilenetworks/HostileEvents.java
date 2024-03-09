@@ -38,6 +38,7 @@ public class HostileEvents {
 
     @SubscribeEvent
     public static void modelAttunement(EntityInteractSpecific e) {
+        if (!HostileConfig.rightClickToAttune) return;
         Player player = e.getEntity();
         ItemStack stack = player.getItemInHand(e.getHand());
         if (stack.getItem() == Hostile.Items.BLANK_DATA_MODEL.get()) {
@@ -62,6 +63,7 @@ public class HostileEvents {
 
     @SubscribeEvent
     public static void kill(LivingDeathEvent e) {
+        if (!HostileConfig.killModelUpgrade) return;
         Entity src = e.getSource().getEntity();
         if (src instanceof ServerPlayer p) {
             p.getInventory().items.stream().filter(s -> s.getItem() == Items.DEEP_LEARNER.get()).forEach(dl -> updateModels(dl, e.getEntity().getType(), 0));

@@ -1,31 +1,41 @@
 package dev.shadowsoffire.hostilenetworks.data;
 
-import java.util.Arrays;
-
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.shadowsoffire.placebo.codec.CodecProvider;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.util.StringRepresentable;
 
-public enum ModelTier {
-    FAULTY(0, 1, "faulty", ChatFormatting.DARK_GRAY, 0.01F),
-    BASIC(6, 4, "basic", ChatFormatting.GREEN, 0.05F),
-    ADVANCED(6 + 48, 10, "advanced", ChatFormatting.BLUE, 0.22F),
-    SUPERIOR(6 + 48 + 300, 18, "superior", ChatFormatting.LIGHT_PURPLE, 0.65F),
-    SELF_AWARE(6 + 48 + 300 + 900, 0, "self_aware", ChatFormatting.GOLD, 0.995F);
+import java.util.Arrays;
+
+public enum ModelTier implements StringRepresentable {
+    FAULTY("faulty", 0, 1, ChatFormatting.DARK_GRAY, 0.01F),
+    BASIC("basic", 6, 4, ChatFormatting.GREEN, 0.05F),
+    ADVANCED("advanced", 6 + 48, 10, ChatFormatting.BLUE, 0.22F),
+    SUPERIOR("superior", 6 + 48 + 300, 18, ChatFormatting.LIGHT_PURPLE, 0.65F),
+    SELF_AWARE("self_aware", 6 + 48 + 300 + 900, 0, ChatFormatting.GOLD, 0.995F);
 
     private static final ModelTier[] VALUES = ModelTier.values();
 
-    private final int data, dataPerKill;
     public final String name;
-    public final ChatFormatting color;
-    public final float accuracy;
 
-    private ModelTier(int data, int dataPerKill, String name, ChatFormatting color, float accuracy) {
-        this.data = data;
-        this.dataPerKill = dataPerKill;
+    // intentionally not final, since we want to update it from datapacks
+    @SuppressWarnings("all")
+    private TierData tierData;
+
+    public static final Codec<ModelTier> CODEC = StringRepresentable.fromEnum(() -> VALUES);
+
+    ModelTier(String name, int requiredData, int dataPerKill, ChatFormatting color, float accuracy) {
+        this(name, requiredData, dataPerKill, TextColor.fromLegacyFormat(color), accuracy);
+    }
+
+    ModelTier(String name, int requiredData, int dataPerKill, TextColor color, float accuracy) {
         this.name = name;
-        this.color = color;
-        this.accuracy = accuracy;
+        this.tierData = new TierData(requiredData, dataPerKill, color, accuracy);
     }
 
     public ModelTier previous() {
@@ -39,7 +49,7 @@ public enum ModelTier {
     }
 
     public Component getComponent() {
-        return Component.translatable("hostilenetworks.tier." + this.name).withStyle(this.color);
+        return Component.translatable("hostilenetworks.tier." + this.name).withStyle(Style.EMPTY.withColor(data().color));
     }
 
     public static ModelTier getByData(DynamicHolder<DataModel> model, int data) {
@@ -54,11 +64,45 @@ public enum ModelTier {
     }
 
     public static int[] defaultData() {
-        return Arrays.stream(VALUES).mapToInt(t -> t.data).toArray();
+        return Arrays.stream(VALUES).mapToInt(t -> t.data().requiredData).toArray();
     }
 
     public static int[] defaultDataPerKill() {
-        return Arrays.stream(VALUES).mapToInt(t -> t.dataPerKill).toArray();
+        return Arrays.stream(VALUES).mapToInt(t -> t.data().dataPerKill).toArray();
     }
 
+    @Override
+    public String getSerializedName() {
+        return name;
+    }
+
+    public TierData data() {
+        return tierData;
+    }
+
+    public int color() {
+        return data().color.getValue();
+    }
+
+    public float accuracy() {
+        return data().accuracy;
+    }
+
+    void updateData(TierData data) {
+        this.tierData = data;
+    }
+
+    public record TierData(int requiredData, int dataPerKill, TextColor color, float accuracy) implements CodecProvider<TierData> {
+        public static final Codec<TierData> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+                Codec.intRange(0, Integer.MAX_VALUE).fieldOf("required_data").forGetter(TierData::requiredData),
+                Codec.intRange(0, Integer.MAX_VALUE).fieldOf("data_per_kill").forGetter(TierData::dataPerKill),
+                TextColor.CODEC.fieldOf("color").forGetter(TierData::color),
+                Codec.floatRange(0, 1).fieldOf("accuracy").forGetter(TierData::accuracy)
+        ).apply(inst, TierData::new));
+
+        @Override
+        public Codec<? extends TierData> getCodec() {
+            return CODEC;
+        }
+    }
 }
