@@ -1,13 +1,15 @@
 package dev.shadowsoffire.hostilenetworks;
 
-import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import dev.shadowsoffire.hostilenetworks.Hostile.Items;
 import dev.shadowsoffire.hostilenetworks.Hostile.Tabs;
+import dev.shadowsoffire.hostilenetworks.HostileConfig.ConfigMessage;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
+import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import dev.shadowsoffire.placebo.loot.LootSystem;
+import dev.shadowsoffire.placebo.network.MessageHelper;
 import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -18,6 +20,8 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.simple.SimpleChannel;
 
 @Mod(HostileNetworks.MODID)
 public class HostileNetworks {
@@ -26,12 +30,20 @@ public class HostileNetworks {
     public static final String VERSION = ModList.get().getModContainerById(MODID).get().getModInfo().getVersion().toString();
     public static final Logger LOGGER = LogManager.getLogger(MODID);
 
+    public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
+        .named(new ResourceLocation(MODID, MODID))
+        .clientAcceptedVersions(s -> true)
+        .serverAcceptedVersions(s -> true)
+        .networkProtocolVersion(() -> "1.0.0")
+        .simpleChannel();
+
     public static final ResourceKey<CreativeModeTab> TAB = ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(MODID, "tab"));
 
     public HostileNetworks() {
         FMLJavaModLoadingContext.get().getModEventBus().register(this);
         HostileConfig.load();
         Hostile.bootstrap();
+        MessageHelper.registerMessage(CHANNEL, 0, new ConfigMessage.Provider());
     }
 
     @SubscribeEvent

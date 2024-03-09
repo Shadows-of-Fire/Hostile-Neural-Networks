@@ -1,6 +1,7 @@
 package dev.shadowsoffire.hostilenetworks;
 
 import dev.shadowsoffire.hostilenetworks.Hostile.Items;
+import dev.shadowsoffire.hostilenetworks.HostileConfig.ConfigMessage;
 import dev.shadowsoffire.hostilenetworks.command.GenerateModelCommand;
 import dev.shadowsoffire.hostilenetworks.curios.CuriosCompat;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
@@ -8,15 +9,19 @@ import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
+import dev.shadowsoffire.placebo.network.PacketDistro;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
@@ -88,5 +93,20 @@ public class HostileEvents {
             }
         }
         DeepLearnerItem.saveItems(learner, handler);
+    }
+
+    @SubscribeEvent
+    public static void reload(AddReloadListenerEvent e) {
+        e.addListener((ResourceManagerReloadListener) resman -> HostileConfig.load());
+    }
+
+    @SubscribeEvent
+    public static void sync(OnDatapackSyncEvent e) {
+        if (e.getPlayer() != null) {
+            PacketDistro.sendTo(HostileNetworks.CHANNEL, new ConfigMessage(), e.getPlayer());
+        }
+        else {
+            PacketDistro.sendToAll(HostileNetworks.CHANNEL, new ConfigMessage());
+        }
     }
 }
