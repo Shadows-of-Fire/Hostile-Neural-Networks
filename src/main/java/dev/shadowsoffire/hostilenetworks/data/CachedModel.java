@@ -1,5 +1,6 @@
 package dev.shadowsoffire.hostilenetworks.data;
 
+import dev.shadowsoffire.hostilenetworks.HostileConfig;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.util.ClientEntityCache;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
@@ -70,6 +71,7 @@ public class CachedModel {
     }
 
     public float getAccuracy() {
+        if (!HostileConfig.continuousAccuracy) return this.tier.accuracy();
         ModelTier next = this.tier.next();
         if (this.tier == next) return next.accuracy();
         int diff = this.getNextTierData() - this.getTierData();
