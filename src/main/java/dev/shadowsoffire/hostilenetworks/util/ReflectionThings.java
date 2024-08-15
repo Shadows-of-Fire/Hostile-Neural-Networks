@@ -5,7 +5,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.coremod.api.ASMAPI;
+import net.neoforged.coremod.api.ASMAPI;
 
 public class ReflectionThings {
 

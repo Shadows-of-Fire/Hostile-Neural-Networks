@@ -1,7 +1,10 @@
 package dev.shadowsoffire.hostilenetworks.data;
 
+import java.util.Arrays;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+
 import dev.shadowsoffire.placebo.codec.CodecProvider;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.ChatFormatting;
@@ -9,8 +12,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.StringRepresentable;
-
-import java.util.Arrays;
 
 public enum ModelTier implements StringRepresentable {
     FAULTY("faulty", 0, 1, ChatFormatting.DARK_GRAY, 0.01F),

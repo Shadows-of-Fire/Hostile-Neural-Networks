@@ -1,0 +1,40 @@
+modLoader="javafml"
+
+loaderVersion="[2,)"
+
+license="${license}"
+
+[[mods]] #mandatory
+
+modId="${modid}"
+
+version="${version}"
+
+displayName="${modName}"
+
+authors="${author}"
+
+description='''${desc}'''
+
+${mixinConfig}
+
+[[dependencies.${modid}]]
+    modId="minecraft"
+    type="required"
+    versionRange="[${mcVersion},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${modid}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[${forgeVersion},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${modid}]]
+    modId="placebo"
+    type="required"
+    versionRange="[${placeboVersion},)"
+    ordering="NONE"
+    side="BOTH"

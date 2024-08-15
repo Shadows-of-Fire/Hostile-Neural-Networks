@@ -8,7 +8,6 @@ import dev.shadowsoffire.placebo.network.MessageHelper;
 import dev.shadowsoffire.placebo.network.MessageProvider;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkEvent.Context;
 
 public class HostileConfig {
 

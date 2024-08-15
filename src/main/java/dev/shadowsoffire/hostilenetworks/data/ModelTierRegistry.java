@@ -1,6 +1,7 @@
 package dev.shadowsoffire.hostilenetworks.data;
 
 import com.google.common.base.Preconditions;
+
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier.TierData;
 import dev.shadowsoffire.placebo.reload.DynamicRegistry;

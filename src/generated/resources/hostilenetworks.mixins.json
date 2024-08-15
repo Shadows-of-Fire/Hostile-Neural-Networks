@@ -1,0 +1,13 @@
+{
+    "required": true,
+    "package": "dev.shadowsoffire.hostilenetworks.mixin",
+    "compatibilityLevel": "JAVA_21",
+    "refmap": "hostilenetworks.refmap.json",
+    "mixins": [
+
+    ],
+    "client": [
+        "client.MixinRenderType"
+    ],
+    "minVersion": "0.8"
+}

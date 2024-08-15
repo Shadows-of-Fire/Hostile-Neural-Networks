@@ -22,8 +22,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 public class DeepLearnerHudRenderer implements IGuiOverlay {
 

@@ -12,7 +12,7 @@ import dev.shadowsoffire.placebo.cap.InternalItemHandler;
 import dev.shadowsoffire.placebo.cap.ModifiableEnergyStorage;
 import dev.shadowsoffire.placebo.menu.SimpleDataSlots;
 import dev.shadowsoffire.placebo.menu.SimpleDataSlots.IDataAutoRegister;
-import dev.shadowsoffire.placebo.recipe.VanillaPacketDispatcher;
+import dev.shadowsoffire.placebo.network.VanillaPacketDispatcher;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
