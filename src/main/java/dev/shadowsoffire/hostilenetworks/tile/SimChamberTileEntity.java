@@ -16,6 +16,7 @@ import dev.shadowsoffire.placebo.menu.SimpleDataSlots;
 import dev.shadowsoffire.placebo.menu.SimpleDataSlots.IDataAutoRegister;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.DataSlot;
@@ -243,6 +244,10 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         @Override
         protected void onContentsChanged(int slot) {
             SimChamberTileEntity.this.setChanged();
+        }
+
+        public NonNullList<ItemStack> getItems() {
+            return this.stacks;
         }
 
     }

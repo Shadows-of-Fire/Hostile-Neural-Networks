@@ -11,8 +11,10 @@ import dev.shadowsoffire.hostilenetworks.curios.CuriosCompat;
 import dev.shadowsoffire.hostilenetworks.data.CachedModel;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
@@ -20,25 +22,23 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
-public class DeepLearnerHudRenderer implements IGuiOverlay {
+public class DeepLearnerHudRenderer implements LayeredDraw.Layer {
 
-    private static final ResourceLocation DL_HUD = new ResourceLocation(HostileNetworks.MODID, "textures/gui/deep_learner_hud.png");
+    private static final ResourceLocation DL_HUD = HostileNetworks.loc("textures/gui/deep_learner_hud.png");
 
     @Override
-    public void render(ForgeGui gui, GuiGraphics gfx, float partialTick, int screenWidth, int screenHeight) {
+    public void render(GuiGraphics gfx, DeltaTracker deltaTracker) {
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
         if (player == null || !(mc.screen instanceof ChatScreen) && mc.screen != null) return;
 
         ItemStack stack = player.getMainHandItem();
-        if (stack.getItem() != Hostile.Items.DEEP_LEARNER.get()) stack = player.getOffhandItem();
-        if (stack.getItem() != Hostile.Items.DEEP_LEARNER.get() && ModList.get().isLoaded("curios")) stack = CuriosCompat.getDeepLearner(player);
-        if (stack.getItem() != Hostile.Items.DEEP_LEARNER.get()) return;
+        if (!stack.is(Hostile.Items.DEEP_LEARNER)) stack = player.getOffhandItem();
+        if (!stack.is(Hostile.Items.DEEP_LEARNER) && ModList.get().isLoaded("curios")) stack = CuriosCompat.getDeepLearner(player);
+        if (!stack.is(Hostile.Items.DEEP_LEARNER)) return;
 
         ItemStackHandler inv = DeepLearnerItem.getItemHandler(stack);
         List<Pair<CachedModel, ItemStack>> renderable = new ArrayList<>(4);

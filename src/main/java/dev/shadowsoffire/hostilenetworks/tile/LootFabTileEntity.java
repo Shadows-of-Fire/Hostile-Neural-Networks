@@ -18,6 +18,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -218,6 +219,10 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         @Override
         protected void onContentsChanged(int slot) {
             LootFabTileEntity.this.setChanged();
+        }
+
+        public NonNullList<ItemStack> getItems() {
+            return this.stacks;
         }
     }
 

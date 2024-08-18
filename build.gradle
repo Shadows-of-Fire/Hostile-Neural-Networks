@@ -59,7 +59,7 @@ neoForge {
     ideSyncTask generateModMetadata
 
     neoFormRuntime {
-        useEclipseCompiler = true // Allows for parallelism on recompile
+        useEclipseCompiler = false // Allows for parallelism on recompile - disabled due to a bug.
         version = "1.0.3"
     }
 }
@@ -256,7 +256,15 @@ tasks.withType(Jar) {
 
 sourceSets.main.resources {
     srcDir 'src/generated/resources'
-    srcDir 'src/templates'
+}
+
+// Declare an additional sourceset so un-expanded template files are visible in the IDE.
+sourceSets {
+    templates {
+        resources {
+            srcDir 'src/templates'
+        }
+    }
 }
 
 if (!project.enableTests.toBoolean()) {
@@ -268,16 +276,13 @@ tasks.named('jar', Jar).configure {
         attributes([
             "Specification-Title": project.fileName,
             "Specification-Vendor": project.author,
-            "Specification-Version": "1.0", // We are version 1 of ourselves``
+            "Specification-Version": project.version,
             "Implementation-Title": project.fileName,
             "Implementation-Version": project.version,
             "Implementation-Vendor" : project.author,
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
-    exclude 'neoforge.mods.toml'
-    exclude 'mixins.json'
-    exclude 'coremods.json'
 }
 
 java {
