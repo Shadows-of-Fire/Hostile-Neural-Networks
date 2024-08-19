@@ -1,6 +1,5 @@
 package dev.shadowsoffire.hostilenetworks.item;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -79,9 +78,9 @@ public class DataModelItem extends Item implements ITabFiller {
 
     @Override
     public void fillItemCategory(CreativeModeTab tab, CreativeModeTab.Output output) {
-        DataModelRegistry.INSTANCE.getValues().stream().sorted(Comparator.comparing(DataModelRegistry.INSTANCE::getKey)).forEach(model -> {
+        DataModelRegistry.INSTANCE.getKeys().stream().sorted().forEach(key -> {
             ItemStack s = new ItemStack(this);
-            setStoredModel(s, model);
+            setStoredModel(s, key);
             output.accept(s);
         });
     }
@@ -119,8 +118,12 @@ public class DataModelItem extends Item implements ITabFiller {
     }
 
     public static void setStoredModel(ItemStack stack, DataModel model) {
+        setStoredModel(stack, DataModelRegistry.INSTANCE.getKey(model));
+    }
+
+    public static void setStoredModel(ItemStack stack, ResourceLocation model) {
         stack.removeTagKey(DATA_MODEL);
-        stack.getOrCreateTagElement(DATA_MODEL).putString(ID, DataModelRegistry.INSTANCE.getKey(model).toString());
+        stack.getOrCreateTagElement(DATA_MODEL).putString(ID, model.toString());
     }
 
     public static int getData(ItemStack stack) {

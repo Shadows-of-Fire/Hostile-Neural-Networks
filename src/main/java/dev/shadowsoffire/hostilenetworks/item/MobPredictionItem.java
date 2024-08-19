@@ -1,7 +1,5 @@
 package dev.shadowsoffire.hostilenetworks.item;
 
-import java.util.Comparator;
-
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
@@ -33,9 +31,9 @@ public class MobPredictionItem extends Item implements ITabFiller {
 
     @Override
     public void fillItemCategory(CreativeModeTab tab, CreativeModeTab.Output output) {
-        DataModelRegistry.INSTANCE.getValues().stream().sorted(Comparator.comparing(DataModelRegistry.INSTANCE::getKey)).forEach(model -> {
+        DataModelRegistry.INSTANCE.getKeys().stream().sorted().forEach(key -> {
             ItemStack s = new ItemStack(this);
-            DataModelItem.setStoredModel(s, model);
+            DataModelItem.setStoredModel(s, key);
             output.accept(s);
         });
     }
