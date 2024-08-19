@@ -1,3 +1,9 @@
+## 5.3.1
+* Fixed a rare crash that could occur when populating creative tabs.
+* MikeyM3thodic4l: Added Enderman Overhaul mobs to the variants list for the Enderman model.
+* Quarkrus: Added Russian translation.
+* RuyaSavascisi: Added Turkish translation.
+
 ## 5.3.0
 * Max: Added many new configuration options.
   * Made model tier information loaded from data files.
