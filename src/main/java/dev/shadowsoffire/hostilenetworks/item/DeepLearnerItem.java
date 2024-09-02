@@ -2,13 +2,13 @@ package dev.shadowsoffire.hostilenetworks.item;
 
 import java.util.List;
 
+import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.data.CachedModel;
 import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerContainer;
 import dev.shadowsoffire.hostilenetworks.util.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -21,50 +21,47 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkHooks;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ComponentItemHandler;
 
 public class DeepLearnerItem extends Item {
 
-    public DeepLearnerItem(Properties pProperties) {
-        super(pProperties);
+    public DeepLearnerItem(Properties properties) {
+        super(properties);
     }
 
     @Override
     public InteractionResult useOn(UseOnContext ctx) {
-        if (!ctx.getLevel().isClientSide) NetworkHooks.openScreen((ServerPlayer) ctx.getPlayer(), new Provider(ctx.getHand()), buf -> buf.writeBoolean(ctx.getHand() == InteractionHand.MAIN_HAND));
-        return InteractionResult.CONSUME;
+        if (!ctx.getLevel().isClientSide) {
+            ctx.getPlayer().openMenu(new Provider(ctx.getHand()), buf -> buf.writeBoolean(ctx.getHand() == InteractionHand.MAIN_HAND));
+            return InteractionResult.CONSUME;
+        }
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand) {
-        if (!pPlayer.level().isClientSide) NetworkHooks.openScreen((ServerPlayer) pPlayer, new Provider(pHand), buf -> buf.writeBoolean(pHand == InteractionHand.MAIN_HAND));
-        return InteractionResultHolder.consume(pPlayer.getItemInHand(pHand));
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        player.openMenu(new Provider(hand), buf -> buf.writeBoolean(hand == InteractionHand.MAIN_HAND));
+        return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide);
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack pStack, Level pLevel, List<Component> list, TooltipFlag pFlag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
         list.add(Component.translatable("hostilenetworks.info.deep_learner", Color.withColor("hostilenetworks.color_text.hud", Color.WHITE)).withStyle(ChatFormatting.GRAY));
         if (Screen.hasShiftDown()) {
-            ItemStackHandler inv = getItemHandler(pStack);
+            ComponentItemHandler inv = getItemHandler(stack);
             boolean empty = true;
             for (int i = 0; i < 4; i++)
                 if (!inv.getStackInSlot(i).isEmpty()) empty = false;
             if (empty) return;
             list.add(Component.translatable("hostilenetworks.info.dl_contains").withStyle(ChatFormatting.GRAY));
             for (int i = 0; i < 4; i++) {
-                ItemStack stack = inv.getStackInSlot(i);
-                if (stack.isEmpty()) continue;
-                CachedModel model = new CachedModel(stack, 0);
+                CachedModel model = new CachedModel(inv.getStackInSlot(i), i);
                 if (!model.isValid()) continue;
                 list.add(Component.translatable("- %s %s", model.getTier().getComponent(), stack.getItem().getName(stack)).withStyle(ChatFormatting.GRAY));
             }
         }
         else {
-            ItemStackHandler inv = getItemHandler(pStack);
+            ComponentItemHandler inv = getItemHandler(stack);
             boolean empty = true;
             for (int i = 0; i < 4; i++)
                 if (!inv.getStackInSlot(i).isEmpty()) empty = false;
@@ -78,15 +75,8 @@ public class DeepLearnerItem extends Item {
         return oldStack.getItem() != newStack.getItem();
     }
 
-    public static ItemStackHandler getItemHandler(ItemStack stack) {
-        if (stack.isEmpty() || !stack.hasTag()) return new ItemStackHandler(4);
-        ItemStackHandler handler = new ItemStackHandler(4);
-        if (stack.hasTag() && stack.getTag().contains("learner_inv")) handler.deserializeNBT(stack.getTag().getCompound("learner_inv"));
-        return handler;
-    }
-
-    public static void saveItems(ItemStack stack, ItemStackHandler handler) {
-        stack.getOrCreateTag().put("learner_inv", handler.serializeNBT());
+    public static ComponentItemHandler getItemHandler(ItemStack stack) {
+        return new ComponentItemHandler(stack, Hostile.Components.LEARNER_INV, 4);
     }
 
     protected class Provider implements MenuProvider {

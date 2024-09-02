@@ -24,8 +24,6 @@ public enum ModelTier implements StringRepresentable {
 
     public final String name;
 
-    // intentionally not final, since we want to update it from datapacks
-    @SuppressWarnings("all")
     private TierData tierData;
 
     public static final Codec<ModelTier> CODEC = StringRepresentable.fromEnum(() -> VALUES);
@@ -94,12 +92,12 @@ public enum ModelTier implements StringRepresentable {
     }
 
     public record TierData(int requiredData, int dataPerKill, TextColor color, float accuracy) implements CodecProvider<TierData> {
+
         public static final Codec<TierData> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-                Codec.intRange(0, Integer.MAX_VALUE).fieldOf("required_data").forGetter(TierData::requiredData),
-                Codec.intRange(0, Integer.MAX_VALUE).fieldOf("data_per_kill").forGetter(TierData::dataPerKill),
-                TextColor.CODEC.fieldOf("color").forGetter(TierData::color),
-                Codec.floatRange(0, 1).fieldOf("accuracy").forGetter(TierData::accuracy)
-        ).apply(inst, TierData::new));
+            Codec.intRange(0, Integer.MAX_VALUE).fieldOf("required_data").forGetter(TierData::requiredData),
+            Codec.intRange(0, Integer.MAX_VALUE).fieldOf("data_per_kill").forGetter(TierData::dataPerKill),
+            TextColor.CODEC.fieldOf("color").forGetter(TierData::color),
+            Codec.floatRange(0, 1).fieldOf("accuracy").forGetter(TierData::accuracy)).apply(inst, TierData::new));
 
         @Override
         public Codec<? extends TierData> getCodec() {

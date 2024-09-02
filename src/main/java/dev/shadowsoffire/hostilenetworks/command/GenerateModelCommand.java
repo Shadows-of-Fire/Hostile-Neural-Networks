@@ -19,6 +19,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonWriter;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -26,16 +27,17 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.serialization.JsonOps;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
-import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
+import dev.shadowsoffire.hostilenetworks.data.DataModel.DataPerKill;
+import dev.shadowsoffire.hostilenetworks.data.DataModel.DisplayData;
+import dev.shadowsoffire.hostilenetworks.data.DataModel.TierData;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
-import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
@@ -52,15 +54,15 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.fml.util.ObfuscationReflectionHelper;
+import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
-import net.neoforged.neoforge.common.crafting.CraftingHelper;
 
 public class GenerateModelCommand {
 
-    public static final SuggestionProvider<CommandSourceStack> SUGGEST_ENTITY_TYPE = (ctx, builder) -> SharedSuggestionProvider.suggest(ForgeRegistries.ENTITY_TYPES.getKeys().stream().map(ResourceLocation::toString), builder);
+    public static final SuggestionProvider<CommandSourceStack> SUGGEST_ENTITY_TYPE = (ctx, builder) -> SharedSuggestionProvider.suggest(BuiltInRegistries.ENTITY_TYPE.keySet().stream().map(ResourceLocation::toString), builder);
     public static final SuggestionProvider<CommandSourceStack> SUGGEST_DATA_MODEL = (ctx, builder) -> SharedSuggestionProvider.suggest(DataModelRegistry.INSTANCE.getKeys().stream().map(ResourceLocation::toString), builder);
 
     public static final Method dropFromLootTable = ObfuscationReflectionHelper.findMethod(LivingEntity.class, "m_7625_", DamageSource.class, boolean.class);
@@ -74,18 +76,17 @@ public class GenerateModelCommand {
             .then(Commands.argument("entity_type", ResourceLocationArgument.id()).suggests(SUGGEST_ENTITY_TYPE).then(Commands.argument("max_stack_size", IntegerArgumentType.integer(1, 64)).executes(c -> {
                 Player p = c.getSource().getPlayerOrException();
                 ResourceLocation name = c.getArgument("entity_type", ResourceLocation.class);
-                EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(name);
+                EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(name);
                 var results = runSimulation(type, p, 7500, c.getArgument("max_stack_size", Integer.class));
 
                 // Formatter::off
                 DataModel model = new DataModel((EntityType) type, Collections.emptyList(),
                     Component.translatable(type.getDescriptionId()).withStyle(Style.EMPTY.withColor(TextColor.fromRgb(p.getRandom().nextInt(0xFFFFFF)))),
-                    new CompoundTag(),
-                    1, 0, 0, 0, 256, new ItemStack(Hostile.Items.PREDICTION_MATRIX.get()),
+                    DisplayData.DEFAULT, 256, Ingredient.of(Hostile.Items.PREDICTION_MATRIX.value()),
                     new ItemStack(Items.STICK),
                     "hostilenetworks.trivia." + name.getPath(),
                     results,
-                    ModelTier.defaultData(), ModelTier.defaultDataPerKill());
+                    TierData.DEFAULT, DataPerKill.DEFAULT);
                 // Formatter::on
 
                 write(name.getNamespace(), name.getPath(), model);
@@ -99,7 +100,7 @@ public class GenerateModelCommand {
                 Player p = c.getSource().getPlayerOrException();
                 ResourceLocation name = c.getArgument("data_model", ResourceLocation.class);
                 DataModel model = DataModelRegistry.INSTANCE.getValue(name);
-                EntityType<? extends LivingEntity> type = model.type();
+                EntityType<?> type = model.entity();
                 var results = runSimulation(type, p, 7500, c.getArgument("max_stack_size", Integer.class));
 
                 DataModel newModel = new DataModel(model, results);
@@ -112,7 +113,7 @@ public class GenerateModelCommand {
 
         root.then(Commands.literal("generate_all").requires(c -> c.hasPermission(2)).then(Commands.argument("max_stack_size", IntegerArgumentType.integer(1, 64)).executes(c -> {
             Player p = c.getSource().getPlayerOrException();
-            for (EntityType<?> type : ForgeRegistries.ENTITY_TYPES) {
+            for (EntityType<?> type : BuiltInRegistries.ENTITY_TYPE) {
                 if (!(type.create(p.level()) instanceof Mob)) continue;
                 ResourceLocation name = EntityType.getKey(type);
 
@@ -122,12 +123,11 @@ public class GenerateModelCommand {
                     // Formatter::off
                     DataModel model = new DataModel((EntityType) type, Collections.emptyList(),
                         Component.translatable(type.getDescriptionId()).withStyle(Style.EMPTY.withColor(TextColor.fromRgb(p.getRandom().nextInt(0xFFFFFF)))),
-                        new CompoundTag(),
-                        1, 0, 0, 0, 256, new ItemStack(Hostile.Items.PREDICTION_MATRIX.get()),
+                        DisplayData.DEFAULT, 256, Ingredient.of(Hostile.Items.PREDICTION_MATRIX.value()),
                         new ItemStack(Items.STICK),
                         "hostilenetworks.trivia." + name.getPath(),
                         results,
-                        ModelTier.defaultData(), ModelTier.defaultDataPerKill());
+                        TierData.DEFAULT, DataPerKill.DEFAULT);
                     // Formatter::on
 
                     write(name.getNamespace(), name.getPath(), model);
@@ -167,7 +167,7 @@ public class GenerateModelCommand {
                             color = TextColor.fromRgb(Integer.decode(str));
                         }
                         else {
-                            color = TextColor.parseColor(str);
+                            color = TextColor.parseColor(str).getOrThrow();
                         }
                     }
                     out.addProperty("name_color", color.serialize());
@@ -205,7 +205,7 @@ public class GenerateModelCommand {
         for (ItemStack s : items) {
             boolean found = false;
             for (CountedStack cs : count) {
-                if (ItemStack.isSameItemSameTags(cs.stack, s)) {
+                if (ItemStack.isSameItemSameComponents(cs.stack, s)) {
                     cs.count.incrementAndGet();
                     found = true;
                     break;
@@ -222,18 +222,18 @@ public class GenerateModelCommand {
             ItemStack s = pair.getLeft();
             s.setCount(Mth.ceil(pair.getRight() / factor));
             return s;
-        }).sorted((s1, s2) -> Integer.compare(s1.getCount(), s2.getCount()) == 0 ? -ForgeRegistries.ITEMS.getKey(s1.getItem()).compareTo(ForgeRegistries.ITEMS.getKey(s2.getItem())) : -Integer.compare(s1.getCount(), s2.getCount()))
+        }).sorted((s1, s2) -> Integer.compare(s1.getCount(), s2.getCount()) == 0 ? -BuiltInRegistries.ITEM.getKey(s1.getItem()).compareTo(BuiltInRegistries.ITEM.getKey(s2.getItem())) : -Integer.compare(s1.getCount(), s2.getCount()))
             .toList();
     }
 
     private static Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private static void write(String namespace, String path, DataModel model) {
-        JsonElement json = DataModel.CODEC.encodeStart(JsonOps.INSTANCE, model).getOrThrow(false, HostileNetworks.LOGGER::error);
+        JsonElement json = DataModel.CODEC.encodeStart(JsonOps.INSTANCE, model).getOrThrow(JsonSyntaxException::new);
         if (!"minecraft".equals(namespace)) {
             var condition = new ModLoadedCondition(namespace);
             var arr = new JsonArray();
-            arr.add(CraftingHelper.serialize(condition));
+            arr.add(ICondition.CODEC.encodeStart(JsonOps.INSTANCE, condition).getOrThrow());
             var copy = new JsonObject();
             copy.add("conditions", arr);
             json.getAsJsonObject().entrySet().forEach(entry -> copy.add(entry.getKey(), entry.getValue()));

@@ -25,11 +25,13 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Inventory;
@@ -39,8 +41,10 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 
     public static final int WIDTH = 338;
     public static final int HEIGHT = 235;
-    private static final ResourceLocation BASE = new ResourceLocation(HostileNetworks.MODID, "textures/gui/deep_learner.png");
-    private static final ResourceLocation PLAYER = new ResourceLocation(HostileNetworks.MODID, "textures/gui/default_gui.png");
+    public static final ResourceLocation BASE = HostileNetworks.loc("textures/gui/deep_learner.png");
+    public static final ResourceLocation PLAYER = HostileNetworks.loc("textures/gui/default_gui.png");
+    public static final WidgetSprites LEFT_BUTTON = makeSprites("left", "left_hovered");
+    public static final WidgetSprites RIGHT_BUTTON = makeSprites("right", "right_hovered");
 
     private List<TickableText> texts = new ArrayList<>();
     private TickableText stats = new TickableText(I18n.get("hostilenetworks.gui.stats"), Color.AQUA);
@@ -87,11 +91,11 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
     @Override
     public void init() {
         super.init();
-        this.btnLeft = this.addRenderableWidget(new ImageButton(this.getGuiLeft() - 27, this.getGuiTop() + 105, 24, 24, 84, 140, 24, BASE, btn -> {
+        this.btnLeft = this.addRenderableWidget(new ImageButton(this.getGuiLeft() - 27, this.getGuiTop() + 105, 24, 24, LEFT_BUTTON, btn -> {
             this.selectLeft();
         }));
 
-        this.btnRight = this.addRenderableWidget(new ImageButton(this.getGuiLeft() - 1, this.getGuiTop() + 105, 24, 24, 108, 140, 24, BASE, btn -> {
+        this.btnRight = this.addRenderableWidget(new ImageButton(this.getGuiLeft() - 1, this.getGuiTop() + 105, 24, 24, RIGHT_BUTTON, btn -> {
             this.selectRight();
         }));
     }
@@ -136,9 +140,11 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
             CachedModel model = this.getCurrentModel();
 
             if (model.isValid()) {
-                LivingEntity ent = model.getEntity(this.minecraft.level, this.variant);
-                ent.yBodyRot = this.spin % 360;
-                this.renderEntityInInventory(left - 4, top + 90, 40, 0, 0, ent);
+                Entity ent = model.getEntity(this.minecraft.level, this.variant);
+                if (ent instanceof LivingEntity living) {
+                    living.yBodyRot = this.spin % 360;
+                }
+                this.renderEntityInInventory(gfx, left - 4, top + 90, 40, 0, 0, ent);
             }
 
             for (int i = 0; i < 3; i++) {
@@ -217,12 +223,12 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
     private void nextVariant() {
         CachedModel current = this.getCurrentModel();
         if (!current.isValid()) return;
-        int variants = current.getModel().subtypes().size();
+        int variants = current.getModel().variants().size();
         if (variants == 0) return;
 
         this.variant = (this.variant + 1) % (variants + 1);
 
-        LivingEntity entity = current.getEntity(this.minecraft.level, this.variant);
+        Entity entity = current.getEntity(this.minecraft.level, this.variant);
         if (this.variant == 0) {
             this.texts.set(1, new TickableText(entity.getType().getDescription().getString(), Color.WHITE, true, 2).setTicks(9999));
         }
@@ -272,16 +278,18 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
             this.addText(I18n.get("hostilenetworks.gui.max_tier"), ChatFormatting.RED.getColor());
         }
 
-        LivingEntity ent = cache.getEntity(this.minecraft.level);
+        Entity ent = cache.getEntity(this.minecraft.level);
 
-        if (ent == null) {
-            for (int i = 0; i < 3; i++)
-                this.statArray[i] = "\u00A7k99999";
+        if (ent instanceof LivingEntity living) {
+            this.statArray[0] = String.valueOf((int) (living.getAttribute(Attributes.MAX_HEALTH).getBaseValue() / 2));
+            this.statArray[1] = String.valueOf((int) (living.getAttribute(Attributes.ARMOR).getBaseValue() / 2));
+            this.statArray[2] = String.valueOf(ReflectionThings.getExperienceReward(living));
         }
-
-        this.statArray[0] = String.valueOf((int) (ent.getAttribute(Attributes.MAX_HEALTH).getBaseValue() / 2));
-        this.statArray[1] = String.valueOf((int) (ent.getAttribute(Attributes.ARMOR).getBaseValue() / 2));
-        this.statArray[2] = String.valueOf(ReflectionThings.getExperienceReward(ent));
+        else {
+            for (int i = 0; i < 3; i++) {
+                this.statArray[i] = "\u00A7k99999";
+            }
+        }
     }
 
     private void addText(String msg, int color) {
@@ -298,42 +306,43 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
     }
 
     @SuppressWarnings("deprecation")
-    public void renderEntityInInventory(float pPosX, float pPosY, float pScale, float pMouseX, float pMouseY, LivingEntity pLivingEntity) {
+    public void renderEntityInInventory(GuiGraphics gfx, float pPosX, float pPosY, float scale, float pMouseX, float pMouseY, Entity entity) {
         float f1 = (float) Math.atan(pMouseY / 40.0F);
-        PoseStack posestack = RenderSystem.getModelViewStack();
-        posestack.pushPose();
-        posestack.translate(pPosX, pPosY, 1050.0F);
-        posestack.scale(1.0F, 1.0F, -1.0F);
-        RenderSystem.applyModelViewMatrix();
-        PoseStack matrixstack = new PoseStack();
-        matrixstack.translate(0.0D, 0.0D, 1000.0D);
+        PoseStack pose = gfx.pose();
+        pose.pushPose();
         DataModel model = this.getCurrentModel().getModel();
+        scale *= model.display().scale();
 
-        pScale *= model.guiScale();
+        pose.translate(pPosX, pPosY, 50.0F); // Mirrors magic z value used by InventoryScreen#renderEntityInInventory
+        pose.scale(scale, scale, -scale);
 
-        matrixstack.scale(pScale, pScale, pScale);
         Quaternionf quaternion = Axis.ZP.rotationDegrees(180.0F);
         Quaternionf quaternion1 = Axis.XP.rotationDegrees(f1 * 20.0F);
         quaternion.mul(quaternion1);
-        matrixstack.mulPose(quaternion);
-        matrixstack.mulPose(Axis.YP.rotationDegrees((this.spin + this.minecraft.getDeltaFrameTime()) * 2.25F % 360));
-        pLivingEntity.setYRot(0);
-        pLivingEntity.yBodyRot = pLivingEntity.getYRot();
-        pLivingEntity.yHeadRot = pLivingEntity.getYRot();
-        pLivingEntity.yHeadRotO = pLivingEntity.getYRot();
+        pose.mulPose(quaternion);
+        pose.mulPose(Axis.YP.rotationDegrees((this.spin + this.minecraft.getTimer().getGameTimeDeltaPartialTick(true)) * 2.25F % 360));
+        entity.setYRot(0);
+        if (entity instanceof LivingEntity living) {
+            living.yBodyRot = entity.getYRot();
+            living.yHeadRot = entity.getYRot();
+            living.yHeadRotO = entity.getYRot();
+        }
         EntityRenderDispatcher entityrenderermanager = Minecraft.getInstance().getEntityRenderDispatcher();
         quaternion1.conjugate();
         entityrenderermanager.overrideCameraOrientation(quaternion1);
         entityrenderermanager.setRenderShadow(false);
         MultiBufferSource.BufferSource rtBuffer = Minecraft.getInstance().renderBuffers().bufferSource();
         RenderSystem.runAsFancy(() -> {
-            entityrenderermanager.render(pLivingEntity, model.guiXOff(), model.guiYOff(), model.guiZOff(), 0.0F, 1, matrixstack, new WrappedRTBuffer(rtBuffer), 15728880);
+            entityrenderermanager.render(entity, model.display().xOffset(), model.display().yOffset(), model.display().zOffset(), 0.0F, 1, pose, new WrappedRTBuffer(rtBuffer), 15728880);
         });
         rtBuffer.endBatch();
         entityrenderermanager.setRenderShadow(true);
-        posestack.popPose();
-        RenderSystem.applyModelViewMatrix();
+        pose.popPose();
         Lighting.setupFor3DItems();
+    }
+
+    public static WidgetSprites makeSprites(String base, String hovered) {
+        return new WidgetSprites(HostileNetworks.loc(base), HostileNetworks.loc(base), HostileNetworks.loc(hovered), HostileNetworks.loc(hovered));
     }
 
 }

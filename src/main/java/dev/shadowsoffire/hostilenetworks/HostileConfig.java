@@ -1,13 +1,18 @@
 package dev.shadowsoffire.hostilenetworks;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import dev.shadowsoffire.placebo.config.Configuration;
-import dev.shadowsoffire.placebo.network.MessageHelper;
-import dev.shadowsoffire.placebo.network.MessageProvider;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkDirection;
+import dev.shadowsoffire.placebo.network.PayloadProvider;
+import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class HostileConfig {
 
@@ -38,51 +43,65 @@ public class HostileConfig {
         if (cfg.hasChanged()) cfg.save();
     }
 
-    static record ConfigMessage(int simPowerCap, int fabPowerCap, int fabPowerCost, boolean rightClickAttune, int simModelUpgrade, boolean killModelUpgrade, boolean continuousAccuracy) {
+    static record ConfigPayload(int simPowerCap, int fabPowerCap, int fabPowerCost, boolean rightClickAttune, int simModelUpgrade, boolean killModelUpgrade, boolean continuousAccuracy) implements CustomPacketPayload {
 
-        public ConfigMessage() {
+        public static final Type<ConfigPayload> TYPE = new Type<>(HostileNetworks.loc("config"));
+
+        public static final StreamCodec<RegistryFriendlyByteBuf, ConfigPayload> CODEC = NeoForgeStreamCodecs.composite(
+            ByteBufCodecs.VAR_INT, ConfigPayload::simPowerCap,
+            ByteBufCodecs.VAR_INT, ConfigPayload::fabPowerCap,
+            ByteBufCodecs.VAR_INT, ConfigPayload::fabPowerCost,
+            ByteBufCodecs.BOOL, ConfigPayload::rightClickAttune,
+            ByteBufCodecs.VAR_INT, ConfigPayload::simModelUpgrade,
+            ByteBufCodecs.BOOL, ConfigPayload::killModelUpgrade,
+            ByteBufCodecs.BOOL, ConfigPayload::continuousAccuracy,
+            ConfigPayload::new);
+
+        public ConfigPayload() {
             this(HostileConfig.simPowerCap, HostileConfig.fabPowerCap, HostileConfig.fabPowerCost, HostileConfig.rightClickToAttune, HostileConfig.simModelUpgrade, HostileConfig.killModelUpgrade, HostileConfig.continuousAccuracy);
         }
 
-        public static class Provider implements MessageProvider<ConfigMessage> {
+        @Override
+        public Type<? extends CustomPacketPayload> type() {
+            return TYPE;
+        }
+
+        public static class Provider implements PayloadProvider<ConfigPayload> {
 
             @Override
-            public Class<?> getMsgClass() {
-                return ConfigMessage.class;
+            public Type<ConfigPayload> getType() {
+                return TYPE;
             }
 
             @Override
-            public void write(ConfigMessage msg, FriendlyByteBuf buf) {
-                buf.writeInt(msg.simPowerCap);
-                buf.writeInt(msg.fabPowerCap);
-                buf.writeInt(msg.fabPowerCost);
-                buf.writeBoolean(msg.rightClickAttune);
-                buf.writeInt(msg.simModelUpgrade);
-                buf.writeBoolean(msg.killModelUpgrade);
-                buf.writeBoolean(msg.continuousAccuracy);
+            public StreamCodec<? super RegistryFriendlyByteBuf, ConfigPayload> getCodec() {
+                return CODEC;
             }
 
             @Override
-            public ConfigMessage read(FriendlyByteBuf buf) {
-                return new ConfigMessage(buf.readInt(), buf.readInt(), buf.readInt(), buf.readBoolean(), buf.readInt(), buf.readBoolean(), buf.readBoolean());
+            public void handle(ConfigPayload msg, IPayloadContext ctx) {
+                HostileConfig.simPowerCap = msg.simPowerCap;
+                HostileConfig.fabPowerCap = msg.fabPowerCap;
+                HostileConfig.fabPowerCost = msg.fabPowerCost;
+                HostileConfig.rightClickToAttune = msg.rightClickAttune;
+                HostileConfig.simModelUpgrade = msg.simModelUpgrade;
+                HostileConfig.killModelUpgrade = msg.killModelUpgrade;
+                HostileConfig.continuousAccuracy = msg.continuousAccuracy;
             }
 
             @Override
-            public void handle(ConfigMessage msg, Supplier<Context> ctx) {
-                MessageHelper.handlePacket(() -> {
-                    HostileConfig.simPowerCap = msg.simPowerCap;
-                    HostileConfig.fabPowerCap = msg.fabPowerCap;
-                    HostileConfig.fabPowerCost = msg.fabPowerCost;
-                    HostileConfig.rightClickToAttune = msg.rightClickAttune;
-                    HostileConfig.simModelUpgrade = msg.simModelUpgrade;
-                    HostileConfig.killModelUpgrade = msg.killModelUpgrade;
-                    HostileConfig.continuousAccuracy = msg.continuousAccuracy;
-                }, ctx);
+            public List<ConnectionProtocol> getSupportedProtocols() {
+                return List.of(ConnectionProtocol.PLAY);
             }
 
             @Override
-            public Optional<NetworkDirection> getNetworkDirection() {
-                return Optional.of(NetworkDirection.PLAY_TO_CLIENT);
+            public Optional<PacketFlow> getFlow() {
+                return Optional.of(PacketFlow.CLIENTBOUND);
+            }
+
+            @Override
+            public String getVersion() {
+                return "1";
             }
 
         }

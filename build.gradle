@@ -65,6 +65,7 @@ neoForge {
 }
 
 repositories {
+    mavenLocal()
     maven {
         // CurseForge
         url "https://www.cursemaven.com"

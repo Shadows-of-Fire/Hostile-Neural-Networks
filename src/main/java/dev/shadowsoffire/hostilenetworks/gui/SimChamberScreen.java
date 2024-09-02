@@ -25,8 +25,8 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
 
     public static final int WIDTH = 232;
     public static final int HEIGHT = 230;
-    private static final ResourceLocation BASE = new ResourceLocation(HostileNetworks.MODID, "textures/gui/sim_chamber.png");
-    private static final ResourceLocation PLAYER = new ResourceLocation(HostileNetworks.MODID, "textures/gui/default_gui.png");
+    private static final ResourceLocation BASE = HostileNetworks.loc("textures/gui/sim_chamber.png");
+    private static final ResourceLocation PLAYER = HostileNetworks.loc("textures/gui/default_gui.png");
 
     private List<TickableText> body = new ArrayList<>(7);
     private FailureState lastFailState = FailureState.NONE;
@@ -148,7 +148,9 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
                 if (this.lastFailState == FailureState.INPUT) {
                     CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
                     Component name = ERROR;
-                    if (cModel.isValid()) name = cModel.getModel().input().getHoverName();
+                    if (cModel.isValid()) {
+                        name = cModel.getModel().input().getItems()[0].getHoverName();
+                    }
                     msg = I18n.get(this.lastFailState.getKey(), name.getString()).split("\\n");
                 }
                 for (String s : msg)

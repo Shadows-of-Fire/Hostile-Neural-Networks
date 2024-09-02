@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 public class MobPredictionItem extends Item implements ITabFiller {
 
@@ -30,11 +31,11 @@ public class MobPredictionItem extends Item implements ITabFiller {
     }
 
     @Override
-    public void fillItemCategory(CreativeModeTab tab, CreativeModeTab.Output output) {
-        DataModelRegistry.INSTANCE.getKeys().stream().sorted().forEach(key -> {
+    public void fillItemCategory(CreativeModeTab tab, BuildCreativeModeTabContentsEvent event) {
+        DataModelRegistry.INSTANCE.getKeys().stream().sorted().map(DataModelRegistry.INSTANCE::holder).forEach(holder -> {
             ItemStack s = new ItemStack(this);
-            DataModelItem.setStoredModel(s, key);
-            output.accept(s);
+            DataModelItem.setStoredModel(s, holder);
+            event.accept(s);
         });
     }
 

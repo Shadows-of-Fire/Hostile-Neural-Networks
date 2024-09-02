@@ -14,6 +14,7 @@ import dev.shadowsoffire.placebo.screen.PlaceboContainerScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
@@ -25,11 +26,14 @@ import net.minecraft.world.item.ItemStack;
 
 public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> {
 
-    private static final int WIDTH = 176;
-    private static final int HEIGHT = 178;
-    private static final ResourceLocation BASE = new ResourceLocation(HostileNetworks.MODID, "textures/gui/loot_fabricator.png");
-    private static final ResourceLocation PLAYER = new ResourceLocation(HostileNetworks.MODID, "textures/gui/default_gui.png");
-    private DynamicHolder<DataModel> model = DataModelRegistry.INSTANCE.holder(new ResourceLocation("empty", "empty"));
+    public static final int WIDTH = 176;
+    public static final int HEIGHT = 178;
+    public static final ResourceLocation BASE = HostileNetworks.loc("textures/gui/loot_fabricator.png");
+    public static final ResourceLocation PLAYER = HostileNetworks.loc("textures/gui/default_gui.png");
+    public static final WidgetSprites LEFT_BUTTON = DeepLearnerScreen.makeSprites("fab_left", "fab_left_hovered");
+    public static final WidgetSprites RIGHT_BUTTON = DeepLearnerScreen.makeSprites("fab_right", "fab_right_hovered");
+
+    private DynamicHolder<DataModel> model = DataModelRegistry.INSTANCE.emptyHolder();
     private int currentPage = 0;
     private ImageButton btnLeft, btnRight;
 
@@ -58,11 +62,11 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> {
     @Override
     public void init() {
         super.init();
-        this.btnLeft = this.addRenderableWidget(new ImageButton(this.getGuiLeft() + 13, this.getGuiTop() + 68, 29, 12, 49, 83, 12, BASE, btn -> {
+        this.btnLeft = this.addRenderableWidget(new ImageButton(this.getGuiLeft() + 13, this.getGuiTop() + 68, 29, 12, LEFT_BUTTON, btn -> {
             if (this.model.isBound() && this.currentPage > 0) this.currentPage--;
         }));
 
-        this.btnRight = this.addRenderableWidget(new ImageButton(this.getGuiLeft() + 46, this.getGuiTop() + 68, 29, 12, 78, 83, 12, BASE, btn -> {
+        this.btnRight = this.addRenderableWidget(new ImageButton(this.getGuiLeft() + 46, this.getGuiTop() + 68, 29, 12, RIGHT_BUTTON, btn -> {
             if (this.model.isBound() && this.currentPage < this.model.get().fabDrops().size() / 9) this.currentPage++;
         }));
     }

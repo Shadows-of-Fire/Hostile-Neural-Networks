@@ -1,54 +1,31 @@
 package dev.shadowsoffire.hostilenetworks.data;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
-import com.google.common.base.Preconditions;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.reflect.TypeToken;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
+import dev.shadowsoffire.hostilenetworks.util.MiscCodecs;
 import dev.shadowsoffire.placebo.codec.CodecProvider;
-import dev.shadowsoffire.placebo.json.ItemAdapter;
 import dev.shadowsoffire.placebo.json.NBTAdapter;
-import net.minecraft.ChatFormatting;
+import dev.shadowsoffire.placebo.json.OptionalStackCodec;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextColor;
-import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.item.crafting.Ingredient;
 
 /**
  * Stores all of the information representing an individual Data Model.
  * 
- * @param type        The primary entity type of this model. Must be a valid entity.
- * @param subtypes    All other entity types that match to this model. Invalid entities may be passed to this list for optional compat.
+ * @param entity      The primary entity type of this model. Must be a valid entity.
+ * @param variants    All other entity types that match to this model. Invalid entities may be passed to this list for optional compat.
  * @param name        The display name of the data model.
- * @param displayNbt  NBT data applied to the entity when it is being rendered.
- * @param guiScale    Scale applied to the entity when it is being rendered.
- * @param guiXOff     X offset applied to the entity when it is being rendered.
- * @param guiYOff     Y offset applied to the entity when it is being rendered.
- * @param guiZOff     Z offset applied to the entity when it is being rendered.
  * @param simCost     FE cost per-tick to run this model in the simulation chamber.
  * @param input       The input itemstack for simulations. Usually the prediction matrix.
  * @param baseDrop    The generic item that is always dropped when simulating this model.
@@ -57,28 +34,41 @@ import net.minecraftforge.registries.ForgeRegistries;
  * @param tierData    The amount of data it takes to reach each tier.
  * @param dataPerKill The amount of data granted per kill at each tier.
  */
-public record DataModel(EntityType<? extends LivingEntity> type, List<EntityType<? extends LivingEntity>> subtypes,
-    MutableComponent name, CompoundTag displayNbt, float guiScale, float guiXOff, float guiYOff, float guiZOff,
-    int simCost, ItemStack input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops, int[] tierData,
-    int[] dataPerKill) implements CodecProvider<DataModel> {
+public record DataModel(EntityType<?> entity, List<EntityType<?>> variants,
+    Component name, DisplayData display,
+    int simCost, Ingredient input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops, TierData tierData,
+    DataPerKill dataPerKill) implements CodecProvider<DataModel> {
 
-    public static final Codec<DataModel> CODEC = new DataModelCodec();
+    public static final Codec<DataModel> CODEC = RecordCodecBuilder.create(inst -> inst
+        .group(
+            BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("entity").forGetter(DataModel::entity),
+            MiscCodecs.OPTIONAL_ENTITY_TYPE_LIST.optionalFieldOf("variants", List.of()).forGetter(DataModel::variants),
+            ComponentSerialization.CODEC.fieldOf("name").forGetter(DataModel::name),
+            DisplayData.CODEC.optionalFieldOf("display", DisplayData.DEFAULT).forGetter(DataModel::display),
+            Codec.intRange(0, Integer.MAX_VALUE / 20).fieldOf("sim_cost").forGetter(DataModel::simCost),
+            Ingredient.CODEC_NONEMPTY.fieldOf("input").forGetter(DataModel::input),
+            OptionalStackCodec.INSTANCE.fieldOf("base_drop").forGetter(DataModel::baseDrop),
+            Codec.STRING.fieldOf("trivia").forGetter(DataModel::triviaKey),
+            OptionalStackCodec.INSTANCE.listOf().fieldOf("fabricator_drops").forGetter(DataModel::fabDrops),
+            TierData.CODEC.optionalFieldOf("tier_data", TierData.DEFAULT).forGetter(DataModel::tierData),
+            DataPerKill.CODEC.optionalFieldOf("data_per_kill", DataPerKill.DEFAULT).forGetter(DataModel::dataPerKill))
+        .apply(inst, DataModel::new)).validate(DataModel::validate);
 
     public DataModel(DataModel other, List<ItemStack> newResults) {
-        this(other.type, other.subtypes, other.name, other.displayNbt, other.guiScale, other.guiYOff, other.guiXOff, other.guiZOff, other.simCost, other.input, other.baseDrop, other.triviaKey, newResults, other.tierData,
+        this(other.entity, other.variants, other.name, other.display, other.simCost, other.input, other.baseDrop, other.triviaKey, newResults, other.tierData,
             other.dataPerKill);
     }
 
     public int getTierData(ModelTier tier) {
-        return this.tierData[tier.ordinal()];
+        return this.tierData.forTier(tier);
     }
 
     public int getDataPerKill(ModelTier tier) {
-        return this.dataPerKill[tier.ordinal()];
+        return this.dataPerKill.forTier(tier);
     }
 
     public ItemStack getPredictionDrop() {
-        ItemStack stk = new ItemStack(Hostile.Items.PREDICTION.get());
+        ItemStack stk = new ItemStack(Hostile.Items.PREDICTION);
         DataModelItem.setStoredModel(stk, this);
         return stk;
     }
@@ -87,122 +77,97 @@ public record DataModel(EntityType<? extends LivingEntity> type, List<EntityType
         return this.name.getStyle().getColor().getValue();
     }
 
-    public DataModel validate(ResourceLocation key) {
-        Preconditions.checkNotNull(this.type, "Invalid entity type!");
-        Preconditions.checkNotNull(this.name, "Invalid entity name!");
-        Preconditions.checkNotNull(this.name.getStyle().getColor(), "Invalid entity name color!");
-        Preconditions.checkArgument(this.guiScale > 0, "Invalid gui scale!");
-        Preconditions.checkArgument(this.simCost > 0, "Invalid simulation cost!");
-        Preconditions.checkArgument(this.input != null && !this.input.isEmpty(), "Invalid input item!");
-        Preconditions.checkNotNull(this.baseDrop, "Invalid base drop!");
-        Preconditions.checkNotNull(this.triviaKey, "Invalid trivia key!");
-        Preconditions.checkNotNull(this.fabDrops, "Missing fabricator drops!");
-        this.fabDrops.forEach(t -> Preconditions.checkArgument(t != null && !t.isEmpty(), "Invalid fabricator drop!"));
-        Preconditions.checkArgument(this.tierData != null && this.tierData.length == 5, "Invalid tier data!");
-        Preconditions.checkArgument(this.dataPerKill != null && this.dataPerKill.length == 5, "Invalid data per kill!");
-        for (int i = 0; i < 4; i++) {
-            if (this.dataPerKill[i] < 0) throw new IllegalArgumentException("Data per kill may not be negative!");
-            if (this.tierData[i] >= this.tierData[i + 1]) throw new IllegalArgumentException("Malformed tier data, all values must be ascending!");
-        }
-        return this;
-    }
-
     @Override
     public Codec<? extends DataModel> getCodec() {
         return CODEC;
     }
 
+    public static DataResult<DataModel> validate(DataModel model) {
+        if (model.name().getStyle().getColor() == null) {
+            return DataResult.error(() -> "A data model must supply a color for the name component.");
+        }
+
+        return DataResult.success(model);
+    }
+
     /**
-     * DataModel codec that handles everything in json form because I don't know how to convert this to a codec.
+     * @param nbt     NBT data applied to the rendered entity.
+     * @param scale   Scale factor applied to the rendered entity. 1 = default scale.
+     * @param xOffset X offset applied to the rendered entity.
+     * @param yOffset Y offset applied to the rendered entity.
+     * @param zOffset Z offset applied to the rendered entity.
      */
-    public static class DataModelCodec implements Codec<DataModel> {
+    public static record DisplayData(CompoundTag nbt, float scale, float xOffset, float yOffset, float zOffset) {
 
-        @Override
-        public <T> DataResult<T> encode(DataModel input, DynamicOps<T> ops, T prefix) {
-            JsonObject obj = new JsonObject();
-            ResourceLocation key = EntityType.getKey(input.type);
-            obj.addProperty("entity", key.toString());
-            obj.add("variants", ItemAdapter.ITEM_READER.toJsonTree(input.subtypes.stream().map(EntityType::getKey).toList()));
-            obj.addProperty("name", ((TranslatableContents) input.name.getContents()).getKey());
-            obj.addProperty("name_color", input.name.getStyle().getColor().serialize());
-            obj.add("display_nbt", NBTAdapter.EITHER_CODEC.encodeStart(JsonOps.INSTANCE, input.displayNbt).get().left().get());
-            obj.addProperty("gui_scale", input.guiScale);
-            obj.addProperty("gui_x_offset", input.guiXOff);
-            obj.addProperty("gui_y_offset", input.guiYOff);
-            obj.addProperty("gui_z_offset", input.guiZOff);
-            obj.addProperty("sim_cost", input.simCost);
-            obj.add("input", ItemAdapter.ITEM_READER.toJsonTree(input.input));
-            obj.add("base_drop", ItemAdapter.ITEM_READER.toJsonTree(input.baseDrop));
-            obj.addProperty("trivia", input.triviaKey);
-            JsonArray fabDrops = ItemAdapter.ITEM_READER.toJsonTree(input.fabDrops).getAsJsonArray();
-            for (JsonElement e : fabDrops) {
-                JsonObject drop = e.getAsJsonObject();
-                ResourceLocation itemName = new ResourceLocation(drop.get("item").getAsString());
-                if (!"minecraft".equals(itemName.getNamespace()) && !key.getNamespace().equals(itemName.getNamespace())) {
-                    drop.addProperty("optional", true);
-                }
-            }
-            obj.add("fabricator_drops", fabDrops);
-            obj.add("tier_data", ItemAdapter.ITEM_READER.toJsonTree(Arrays.copyOfRange(input.tierData, 1, 5)));
-            obj.add("data_per_kill", ItemAdapter.ITEM_READER.toJsonTree(Arrays.copyOfRange(input.dataPerKill, 0, 4)));
-            return DataResult.success(JsonOps.INSTANCE.convertTo(ops, obj));
+        public static final DisplayData DEFAULT = new DisplayData(new CompoundTag(), 1, 0, 0, 0);
+
+        public static final Codec<DisplayData> CODEC = RecordCodecBuilder.create(inst -> inst
+            .group(
+                NBTAdapter.EITHER_CODEC.fieldOf("nbt").forGetter(DisplayData::nbt),
+                Codec.floatRange(0, 5).fieldOf("scale").forGetter(DisplayData::scale),
+                Codec.floatRange(-5, 5).fieldOf("x_offset").forGetter(DisplayData::xOffset),
+                Codec.floatRange(-5, 5).fieldOf("x_offset").forGetter(DisplayData::yOffset),
+                Codec.floatRange(-5, 5).fieldOf("x_offset").forGetter(DisplayData::zOffset))
+            .apply(inst, DisplayData::new));
+    }
+
+    public static record TierData(int basic, int advanced, int superior, int selfAware) {
+
+        public static final TierData DEFAULT = new TierData(6, 6 + 48, 4 + 48 + 300, 4 + 48 + 300 + 900);
+
+        public static final Codec<TierData> CODEC = RecordCodecBuilder.create(inst -> inst
+            .group(
+                Codec.intRange(0, 1048576).fieldOf("basic").forGetter(TierData::basic),
+                Codec.intRange(0, 1048576).fieldOf("advanced").forGetter(TierData::advanced),
+                Codec.intRange(0, 1048576).fieldOf("superior").forGetter(TierData::superior),
+                Codec.intRange(0, 1048576).fieldOf("self_aware").forGetter(TierData::selfAware))
+            .apply(inst, TierData::new)).validate(TierData::validate);
+
+        public int forTier(ModelTier tier) {
+            return switch (tier) {
+                case FAULTY -> 0;
+                case BASIC -> this.basic;
+                case ADVANCED -> this.advanced;
+                case SUPERIOR -> this.superior;
+                case SELF_AWARE -> this.selfAware;
+            };
         }
 
-        @Override
-        @SuppressWarnings({ "unchecked", "rawtypes" })
-        public <T> DataResult<Pair<DataModel, T>> decode(DynamicOps<T> ops, T input) {
-            JsonObject obj = ops.convertTo(JsonOps.INSTANCE, input).getAsJsonObject();
-            String eTypeStr = GsonHelper.getAsString(obj, "entity");
-            EntityType<? extends LivingEntity> t = (EntityType) ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(eTypeStr));
-            if (t == EntityType.PIG && !"minecraft:pig".equals(eTypeStr)) throw new JsonParseException("DataModel has invalid entity type " + eTypeStr);
-            List<EntityType<? extends LivingEntity>> subtypes = new ArrayList<>();
-            if (obj.has("variants")) {
-                for (JsonElement json : GsonHelper.getAsJsonArray(obj, "variants")) {
-                    EntityType<? extends LivingEntity> st = (EntityType) ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(json.getAsString()));
-                    if (st != EntityType.PIG || "minecraft:pig".equals(json.getAsString())) subtypes.add(st);
-                    // Intentionally ignore invalid entries here, so that modded entities can be added as subtypes without hard deps.
-                }
+        public static DataResult<TierData> validate(TierData data) {
+            if (data.basic >= data.advanced) {
+                return DataResult.error(() -> "TierData basic threshold must be less than advanced threshold.");
             }
-            MutableComponent name = Component.translatable(GsonHelper.getAsString(obj, "name"));
-            if (obj.has("name_color")) {
-                String colorStr = GsonHelper.getAsString(obj, "name_color");
-                var color = TextColor.parseColor(colorStr);
-                name = name.withStyle(Style.EMPTY.withColor(color));
+            else if (data.advanced >= data.superior) {
+                return DataResult.error(() -> "TierData advanced threshold must be less than superior threshold.");
             }
-            else name.withStyle(Style.EMPTY.withColor(ChatFormatting.WHITE));
-            float guiScale = GsonHelper.getAsFloat(obj, "gui_scale");
-            float guiXOff = GsonHelper.getAsFloat(obj, "gui_x_offset");
-            float guiYOff = GsonHelper.getAsFloat(obj, "gui_y_offset");
-            float guiZOff = GsonHelper.getAsFloat(obj, "gui_z_offset");
-            int simCost = GsonHelper.getAsInt(obj, "sim_cost");
-            ItemStack inputItem = ItemAdapter.ITEM_READER.fromJson(GsonHelper.getAsJsonObject(obj, "input"), ItemStack.class);
-            ItemStack baseDrop = ItemAdapter.ITEM_READER.fromJson(obj.get("base_drop"), ItemStack.class);
-            if (baseDrop.isEmpty()) {
-                baseDrop = new ItemStack(Items.BARRIER);
-                baseDrop.setHoverName(Component.translatable("hostilenetworks.info.no_base_drop"));
+            else if (data.superior >= data.selfAware) {
+                return DataResult.error(() -> "TierData superior threshold must be less than self_aware threshold.");
             }
-            String triviaKey = obj.has("trivia") ? GsonHelper.getAsString(obj, "trivia") : "hostilenetworks.trivia.nothing";
-            List<ItemStack> fabDrops = ItemAdapter.ITEM_READER.fromJson(GsonHelper.getAsJsonArray(obj, "fabricator_drops"), new TypeToken<List<ItemStack>>(){}.getType());
-            fabDrops.removeIf(ItemStack::isEmpty);
-
-            int[] tierData = ModelTier.defaultData();
-            if (obj.has("tier_data")) {
-                JsonArray arr = GsonHelper.getAsJsonArray(obj, "tier_data");
-                tierData = Stream.of(new JsonPrimitive(0), arr.get(0), arr.get(1), arr.get(2), arr.get(3)).mapToInt(JsonElement::getAsShort).toArray();
-            }
-            int[] dataPerKill = ModelTier.defaultDataPerKill();
-            if (obj.has("data_per_kill")) {
-                JsonArray arr = GsonHelper.getAsJsonArray(obj, "data_per_kill");
-                dataPerKill = Stream.of(arr.get(0), arr.get(1), arr.get(2), arr.get(3), new JsonPrimitive(0)).mapToInt(JsonElement::getAsShort).toArray();
-            }
-            CompoundTag displayNbt = new CompoundTag();
-            if (obj.has("display_nbt")) {
-                displayNbt = NBTAdapter.EITHER_CODEC.decode(JsonOps.INSTANCE, obj.get("display_nbt")).result().get().getFirst();
-            }
-
-            return DataResult.success(Pair.of(new DataModel(t, subtypes, name, displayNbt, guiScale, guiXOff, guiYOff, guiZOff, simCost, inputItem, baseDrop, triviaKey, fabDrops, tierData, dataPerKill), input));
+            return DataResult.success(data);
         }
+    }
 
+    public static record DataPerKill(int faulty, int basic, int advanced, int superior) {
+
+        public static final DataPerKill DEFAULT = new DataPerKill(1, 4, 10, 18);
+
+        public static final Codec<DataPerKill> CODEC = RecordCodecBuilder.create(inst -> inst
+            .group(
+                Codec.intRange(0, 1048576).fieldOf("faulty").forGetter(DataPerKill::faulty),
+                Codec.intRange(0, 1048576).fieldOf("basic").forGetter(DataPerKill::basic),
+                Codec.intRange(0, 1048576).fieldOf("advanced").forGetter(DataPerKill::advanced),
+                Codec.intRange(0, 1048576).fieldOf("superior").forGetter(DataPerKill::superior))
+            .apply(inst, DataPerKill::new));
+
+        public int forTier(ModelTier tier) {
+            return switch (tier) {
+                case FAULTY -> this.faulty;
+                case BASIC -> this.basic;
+                case ADVANCED -> this.advanced;
+                case SUPERIOR -> this.superior;
+                case SELF_AWARE -> 0;
+            };
+        }
     }
 
 }

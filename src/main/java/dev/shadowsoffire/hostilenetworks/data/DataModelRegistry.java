@@ -27,7 +27,7 @@ public class DataModelRegistry extends DynamicRegistry<DataModel> {
 
     @Override
     protected void registerBuiltinCodecs() {
-        this.registerDefaultCodec(new ResourceLocation(HostileNetworks.MODID, "data_model"), DataModel.CODEC);
+        this.registerDefaultCodec(HostileNetworks.loc("data_model"), DataModel.CODEC);
     }
 
     @Override
@@ -44,12 +44,11 @@ public class DataModelRegistry extends DynamicRegistry<DataModel> {
 
     @Override
     protected void validateItem(ResourceLocation key, DataModel model) {
-        model.validate(key);
-        if (this.modelsByType.containsKey(model.type())) {
+        if (this.modelsByType.containsKey(model.entity())) {
             String msg = "Attempted to register two models (%s and %s) for Entity Type %s!";
-            throw new UnsupportedOperationException(String.format(msg, key, this.getKey(this.modelsByType.get(model.type())), EntityType.getKey(model.type())));
+            throw new UnsupportedOperationException(String.format(msg, key, this.getKey(this.modelsByType.get(model.entity())), EntityType.getKey(model.entity())));
         }
-        this.modelsByType.put(model.type(), model);
+        this.modelsByType.put(model.entity(), model);
     }
 
     @Nullable

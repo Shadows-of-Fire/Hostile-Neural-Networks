@@ -5,8 +5,8 @@ import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.util.ClientEntityCache;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -83,13 +83,13 @@ public class CachedModel {
         return Mth.ceil((this.getNextTierData() - this.data) / (float) this.getDataPerKill());
     }
 
-    public LivingEntity getEntity(Level level) {
+    public Entity getEntity(Level level) {
         return this.getEntity(level, 0);
     }
 
-    public LivingEntity getEntity(Level level, int variant) {
-        EntityType<? extends LivingEntity> type = variant == 0 ? this.getModel().type() : this.getModel().subtypes().get(variant - 1);
-        return ClientEntityCache.computeIfAbsent(type, level, this.getModel().displayNbt());
+    public Entity getEntity(Level level, int variant) {
+        EntityType<?> type = variant == 0 ? this.getModel().entity() : this.getModel().variants().get(variant - 1);
+        return ClientEntityCache.computeIfAbsent(type, level, this.getModel().display().nbt());
     }
 
     public ItemStack getPredictionDrop() {

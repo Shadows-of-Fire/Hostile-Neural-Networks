@@ -21,7 +21,7 @@ import net.minecraft.world.item.ItemStack;
 public class LootFabCategory implements IRecipeCategory<LootFabRecipe> {
 
     public static final RecipeType<LootFabRecipe> TYPE = RecipeType.create(HostileNetworks.MODID, "loot_fabricator", LootFabRecipe.class);
-    public static final ResourceLocation TEXTURES = new ResourceLocation(HostileNetworks.MODID, "textures/jei/loot_fabricator.png");
+    public static final ResourceLocation TEXTURES = HostileNetworks.loc("textures/jei/loot_fabricator.png");
 
     private final IDrawable background;
     private final IDrawable icon;
@@ -32,8 +32,8 @@ public class LootFabCategory implements IRecipeCategory<LootFabRecipe> {
 
     public LootFabCategory(IGuiHelper guiHelper) {
         this.background = guiHelper.createDrawable(TEXTURES, 0, 0, 103, 30);
-        this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Hostile.Blocks.LOOT_FABRICATOR.get()));
-        this.name = Component.translatable(Hostile.Blocks.LOOT_FABRICATOR.get().getDescriptionId());
+        this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Hostile.Items.LOOT_FABRICATOR));
+        this.name = Component.translatable(Hostile.Blocks.LOOT_FABRICATOR.value().getDescriptionId());
     }
 
     @Override
@@ -66,7 +66,7 @@ public class LootFabCategory implements IRecipeCategory<LootFabRecipe> {
     public void draw(LootFabRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics gfx, double mouseX, double mouseY) {
         Minecraft mc = Minecraft.getInstance();
         long time = mc.level.getGameTime();
-        int width = Mth.ceil(36F * (this.ticks % 40 + mc.getDeltaFrameTime()) / 40);
+        int width = Mth.ceil(36F * (this.ticks % 40 + mc.getTimer().getGameTimeDeltaPartialTick(true)) / 40);
         gfx.blit(TEXTURES, 34, 12, 0, 30, width, 6, 256, 256);
         if (time != this.lastTickTime) {
             ++this.ticks;

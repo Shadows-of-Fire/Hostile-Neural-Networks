@@ -7,32 +7,22 @@ import dev.shadowsoffire.hostilenetworks.gui.LootFabScreen;
 import dev.shadowsoffire.hostilenetworks.gui.SimChamberScreen;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
-import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.EventBusSubscriber.Bus;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
 @EventBusSubscriber(bus = Bus.MOD, value = Dist.CLIENT, modid = HostileNetworks.MODID)
 public class HostileClient {
 
     @SubscribeEvent
-    public static void init(FMLClientSetupEvent e) {
-        e.enqueueWork(() -> {
-            MenuScreens.register(Hostile.Containers.DEEP_LEARNER.get(), DeepLearnerScreen::new);
-            MenuScreens.register(Hostile.Containers.SIM_CHAMBER.get(), SimChamberScreen::new);
-            MenuScreens.register(Hostile.Containers.LOOT_FABRICATOR.get(), LootFabScreen::new);
-        });
-    }
-
-    @SubscribeEvent
     public static void mrl(ModelEvent.RegisterAdditional e) {
-        e.register(new ResourceLocation(HostileNetworks.MODID, "item/data_model_base"));
+        e.register(ModelResourceLocation.standalone(HostileNetworks.loc("item/data_model_base")));
     }
 
     @SubscribeEvent
@@ -44,12 +34,19 @@ public class HostileClient {
                 color = model.get().getNameColor();
             }
             return color;
-        }, Hostile.Items.PREDICTION.get());
+        }, Hostile.Items.PREDICTION.value());
     }
 
     @SubscribeEvent
-    public static void overlays(RegisterGuiOverlaysEvent e) {
-        e.registerAboveAll("deep_learner", new DeepLearnerHudRenderer());
+    public static void overlays(RegisterGuiLayersEvent e) {
+        e.registerAboveAll(HostileNetworks.loc("deep_learner"), new DeepLearnerHudRenderer());
+    }
+
+    @SubscribeEvent
+    public static void screens(RegisterMenuScreensEvent e) {
+        e.register(Hostile.Containers.DEEP_LEARNER, DeepLearnerScreen::new);
+        e.register(Hostile.Containers.SIM_CHAMBER, SimChamberScreen::new);
+        e.register(Hostile.Containers.LOOT_FABRICATOR, LootFabScreen::new);
     }
 
 }

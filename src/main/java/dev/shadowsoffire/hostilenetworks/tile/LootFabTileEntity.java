@@ -17,7 +17,7 @@ import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -29,9 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity, IDataAutoRegister {
 
@@ -44,7 +42,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
     protected int currentSel = -1;
 
     public LootFabTileEntity(BlockPos pos, BlockState state) {
-        super(Hostile.TileEntities.LOOT_FABRICATOR.get(), pos, state);
+        super(Hostile.TileEntities.LOOT_FABRICATOR, pos, state);
         this.savedSelections.defaultReturnValue(-1);
         this.data.addData(() -> this.runtime, v -> this.runtime = v);
         this.data.addEnergy(this.energy);
@@ -99,6 +97,10 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         return this.inventory;
     }
 
+    public IEnergyStorage getEnergy() {
+        return this.energy;
+    }
+
     public void setSelection(DynamicHolder<DataModel> model, int selection) {
         if (selection == -1) this.savedSelections.removeInt(model);
         else this.savedSelections.put(model, Mth.clamp(selection, 0, model.get().fabDrops().size() - 1));
@@ -107,27 +109,20 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
     }
 
     @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) return LazyOptional.of(() -> this.inventory).cast();
-        if (cap == ForgeCapabilities.ENERGY) return LazyOptional.of(() -> this.energy).cast();
-        return super.getCapability(cap, side);
-    }
-
-    @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider regs) {
+        super.saveAdditional(tag, regs);
         tag.put("saved_selections", this.writeSelections(new CompoundTag()));
-        tag.put("inventory", this.inventory.serializeNBT());
+        tag.put("inventory", this.inventory.serializeNBT(regs));
         tag.putInt("energy", this.energy.getEnergyStored());
         tag.putInt("runtime", this.runtime);
         tag.putInt("selection", this.currentSel);
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider regs) {
+        super.loadAdditional(tag, regs);
         this.readSelections(tag.getCompound("saved_selections"));
-        this.inventory.deserializeNBT(tag.getCompound("inventory"));
+        this.inventory.deserializeNBT(regs, tag.getCompound("inventory"));
         this.energy.setEnergy(tag.getInt("energy"));
         this.runtime = tag.getInt("runtime");
         this.currentSel = tag.getInt("selection");
@@ -135,7 +130,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
 
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this, t -> ((LootFabTileEntity) t).writeSync());
+        return ClientboundBlockEntityDataPacket.create(this, (be, regs) -> ((LootFabTileEntity) be).writeSync());
     }
 
     private CompoundTag writeSync() {
@@ -145,13 +140,13 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider regs) {
         this.readSelections(pkt.getTag().getCompound("saved_selections"));
     }
 
     @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = super.getUpdateTag();
+    public CompoundTag getUpdateTag(HolderLookup.Provider regs) {
+        CompoundTag tag = super.getUpdateTag(regs);
         tag.put("saved_selections", this.writeSelections(new CompoundTag()));
         return tag;
     }
@@ -166,7 +161,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
     private void readSelections(CompoundTag tag) {
         this.savedSelections.clear();
         for (String s : tag.getAllKeys()) {
-            DynamicHolder<DataModel> dm = DataModelRegistry.INSTANCE.holder(new ResourceLocation(s));
+            DynamicHolder<DataModel> dm = DataModelRegistry.INSTANCE.holder(ResourceLocation.tryParse(s));
             this.savedSelections.put(dm, tag.getInt(s));
         }
     }
@@ -200,7 +195,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            if (slot == 0) return stack.getItem() == Hostile.Items.PREDICTION.get();
+            if (slot == 0) return stack.is(Hostile.Items.PREDICTION);
             return true;
         }
 

@@ -13,20 +13,20 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.ComponentItemHandler;
 import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerCopySlot;
 
 public class DeepLearnerContainer extends PlaceboContainerMenu {
 
     protected final InteractionHand hand;
     protected final Player player;
     protected final ItemStack deepLearner;
-    protected final ItemStackHandler learnerInv;
+    protected final ComponentItemHandler learnerInv;
     protected Consumer<Integer> notifyCallback;
 
     public DeepLearnerContainer(int id, Inventory pInv, InteractionHand hand) {
-        super(Hostile.Containers.DEEP_LEARNER.get(), id, pInv);
+        super(Hostile.Containers.DEEP_LEARNER, id, pInv);
         this.hand = hand;
         this.player = pInv.player;
         this.deepLearner = this.player.getItemInHand(hand);
@@ -73,14 +73,7 @@ public class DeepLearnerContainer extends PlaceboContainerMenu {
 
     @Override
     public boolean stillValid(Player pPlayer) {
-        return this.deepLearner.getItem() == Hostile.Items.DEEP_LEARNER.get() && this.player.getItemInHand(this.hand) == this.deepLearner;
-    }
-
-    @Override
-    public void removed(Player pPlayer) {
-        super.removed(pPlayer);
-        DeepLearnerItem.saveItems(this.deepLearner, this.learnerInv);
-        pPlayer.getInventory().setChanged();
+        return this.deepLearner.is(Hostile.Items.DEEP_LEARNER) && this.player.getItemInHand(this.hand) == this.deepLearner;
     }
 
     public boolean hasModels() {
@@ -91,7 +84,7 @@ public class DeepLearnerContainer extends PlaceboContainerMenu {
         return hasModels;
     }
 
-    public class DataModelSlot extends SlotItemHandler {
+    public class DataModelSlot extends ItemHandlerCopySlot {
 
         public DataModelSlot(IItemHandler handler, int index, int x, int y) {
             super(handler, index, x, y);
@@ -108,8 +101,8 @@ public class DeepLearnerContainer extends PlaceboContainerMenu {
         }
 
         @Override
-        public void setChanged() {
-            super.setChanged();
+        protected void setStackCopy(ItemStack stack) {
+            super.setStackCopy(stack);
             if (DeepLearnerContainer.this.notifyCallback != null) {
                 DeepLearnerContainer.this.notifyCallback.accept(((Slot) this).index);
             }

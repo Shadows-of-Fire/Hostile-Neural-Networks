@@ -18,14 +18,11 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.EventBusSubscriber.Bus;
 
-@EventBusSubscriber(bus = Bus.GAME, value = Dist.CLIENT, modid = HostileNetworks.MODID)
 public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer {
 
     public DataModelItemStackRenderer() {
@@ -70,7 +67,7 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
         matrix.popPose();
         DynamicHolder<DataModel> model = DataModelItem.getStoredModel(stack);
         if (model.isBound()) {
-            LivingEntity ent = ClientEntityCache.computeIfAbsent(model.get().type(), Minecraft.getInstance().level, model.get().displayNbt());
+            Entity ent = ClientEntityCache.computeIfAbsent(model.get().entity(), Minecraft.getInstance().level, model.get().display().nbt());
             if (Minecraft.getInstance().player != null) ent.tickCount = Minecraft.getInstance().player.tickCount;
             if (ent != null) {
                 this.renderEntityInInventory(matrix, type, ent, model.get());
@@ -79,13 +76,13 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
     }
 
     @SuppressWarnings("deprecation")
-    public void renderEntityInInventory(PoseStack matrix, ItemDisplayContext type, LivingEntity pLivingEntity, DataModel model) {
+    public void renderEntityInInventory(PoseStack matrix, ItemDisplayContext type, Entity entity, DataModel model) {
         matrix.pushPose();
         matrix.translate(0.5, 0.5, 0.5);
+        float scale = model.display().scale();
         if (type == ItemDisplayContext.FIXED) {
             matrix.translate(0, -0.5, 0);
-            float scale = 0.4F;
-            scale *= model.guiScale();
+            scale *= 0.4F;
             matrix.scale(scale, scale, scale);
             matrix.translate(0, 1.45, 0);
             matrix.mulPose(Axis.XN.rotationDegrees(90));
@@ -93,32 +90,35 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
         }
         else if (type == ItemDisplayContext.GUI) {
             matrix.translate(0, -0.5, 0);
-            float scale = 0.4F;
-            scale *= model.guiScale();
+            scale *= 0.4F;
             matrix.scale(scale, scale, scale);
             matrix.translate(0, 0.45, 0);
         }
         else {
-            float scale = 0.25F;
-            scale *= model.guiScale();
+            scale *= 0.25F;
             matrix.scale(scale, scale, scale);
-            matrix.translate(0, 0.12 + 0.05 * Math.sin((pLivingEntity.tickCount + Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true)) / 12), 0);
+            matrix.translate(0, 0.12 + 0.05 * Math.sin((entity.tickCount + Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true)) / 12), 0);
         }
 
         float rotation = -30;
         if (type == ItemDisplayContext.FIRST_PERSON_LEFT_HAND || type == ItemDisplayContext.THIRD_PERSON_LEFT_HAND) rotation = 30;
         if (type == ItemDisplayContext.FIXED) rotation = 180;
         matrix.mulPose(Axis.YP.rotationDegrees(rotation));
-        pLivingEntity.setYRot(0);
-        pLivingEntity.yBodyRot = pLivingEntity.getYRot();
-        pLivingEntity.yHeadRot = pLivingEntity.getYRot();
-        pLivingEntity.yHeadRotO = pLivingEntity.getYRot();
+        entity.setYRot(0);
+
+        if (entity instanceof LivingEntity living) {
+            living.yBodyRot = entity.getYRot();
+            living.yHeadRot = entity.getYRot();
+            living.yHeadRotO = entity.getYRot();
+        }
+
         EntityRenderDispatcher entityrenderermanager = Minecraft.getInstance().getEntityRenderDispatcher();
         entityrenderermanager.setRenderShadow(false);
         MultiBufferSource.BufferSource rtBuffer = GHOST_ENTITY_BUF;
         WeirdRenderThings.translucent = true;
         RenderSystem.runAsFancy(() -> {
-            entityrenderermanager.render(pLivingEntity, model.guiXOff(), model.guiYOff(), model.guiZOff(), 0.0F, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true), matrix, new WrappedRTBuffer(rtBuffer), 15728880);
+            entityrenderermanager.render(entity, model.display().xOffset(), model.display().yOffset(), model.display().zOffset(), 0.0F, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true), matrix,
+                new WrappedRTBuffer(rtBuffer), 15728880);
         });
         rtBuffer.endBatch();
         WeirdRenderThings.translucent = false;

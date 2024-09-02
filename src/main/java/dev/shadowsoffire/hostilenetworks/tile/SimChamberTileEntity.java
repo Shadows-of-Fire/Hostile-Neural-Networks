@@ -15,7 +15,7 @@ import dev.shadowsoffire.placebo.cap.ModifiableEnergyStorage;
 import dev.shadowsoffire.placebo.menu.SimpleDataSlots;
 import dev.shadowsoffire.placebo.menu.SimpleDataSlots.IDataAutoRegister;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -24,9 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 public class SimChamberTileEntity extends BlockEntity implements TickingBlockEntity, IDataAutoRegister {
 
@@ -40,7 +38,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
     protected FailureState failState = FailureState.NONE;
 
     public SimChamberTileEntity(BlockPos pos, BlockState state) {
-        super(Hostile.TileEntities.SIM_CHAMBER.get(), pos, state);
+        super(Hostile.TileEntities.SIM_CHAMBER, pos, state);
         this.data.addData(() -> this.runtime, v -> this.runtime = v);
         this.data.addData(() -> this.predictionSuccess, v -> this.predictionSuccess = v);
         this.data.addData(() -> this.failState.ordinal(), v -> this.failState = FailureState.values()[v]);
@@ -53,9 +51,9 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
-        tag.put("inventory", this.inventory.serializeNBT());
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider regs) {
+        super.saveAdditional(tag, regs);
+        tag.put("inventory", this.inventory.serializeNBT(regs));
         tag.putInt("energy", this.energy.getEnergyStored());
         tag.putString("model", !this.currentModel.isValid() ? "null" : DataModelRegistry.INSTANCE.getKey(this.currentModel.getModel()).toString());
         tag.putInt("runtime", this.runtime);
@@ -64,13 +62,13 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
-        this.inventory.deserializeNBT(tag.getCompound("inventory"));
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider regs) {
+        super.loadAdditional(tag, regs);
+        this.inventory.deserializeNBT(regs, tag.getCompound("inventory"));
         this.energy.setEnergy(tag.getInt("energy"));
         ItemStack model = this.inventory.getStackInSlot(0);
         CachedModel cModel = this.getOrLoadModel(model);
-        ResourceLocation modelId = new ResourceLocation(tag.getString("model"));
+        ResourceLocation modelId = ResourceLocation.parse(tag.getString("model"));
         if (cModel.isValid() && DataModelRegistry.INSTANCE.getKey(cModel.getModel()).equals(modelId)) {
             this.currentModel = cModel;
         }
@@ -171,7 +169,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 
     public boolean canStack(ItemStack a, ItemStack b) {
         if (a.isEmpty()) return true;
-        return ItemStack.isSameItemSameTags(a, b) && a.getCount() < a.getMaxStackSize();
+        return ItemStack.isSameItemSameComponents(a, b) && a.getCount() < a.getMaxStackSize();
     }
 
     /**
@@ -189,15 +187,12 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         else return new CachedModel(stack, 0);
     }
 
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) return LazyOptional.of(() -> this.inventory).cast();
-        if (cap == ForgeCapabilities.ENERGY) return LazyOptional.of(() -> this.energy).cast();
-        return super.getCapability(cap, side);
-    }
-
     public SimItemHandler getInventory() {
         return this.inventory;
+    }
+
+    public IEnergyStorage getEnergy() {
+        return energy;
     }
 
     public int getEnergyStored() {
@@ -225,7 +220,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
             if (slot == 0) return stack.getItem() instanceof DataModelItem;
-            else if (slot == 1) return DataModelItem.matchesInput(this.getStackInSlot(0), stack);
+            else if (slot == 1) return DataModelItem.matchesModelInput(this.getStackInSlot(0), stack);
             return true;
         }
 

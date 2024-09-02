@@ -1,7 +1,7 @@
 package dev.shadowsoffire.hostilenetworks;
 
 import dev.shadowsoffire.hostilenetworks.Hostile.Items;
-import dev.shadowsoffire.hostilenetworks.HostileConfig.ConfigMessage;
+import dev.shadowsoffire.hostilenetworks.HostileConfig.ConfigPayload;
 import dev.shadowsoffire.hostilenetworks.command.GenerateModelCommand;
 import dev.shadowsoffire.hostilenetworks.command.GiveModelCommand;
 import dev.shadowsoffire.hostilenetworks.curios.CuriosCompat;
@@ -10,13 +10,13 @@ import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
-import dev.shadowsoffire.placebo.network.PacketDistro;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -29,7 +29,8 @@ import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ComponentItemHandler;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber(modid = HostileNetworks.MODID)
 public class HostileEvents {
@@ -47,7 +48,7 @@ public class HostileEvents {
         if (!HostileConfig.rightClickToAttune) return;
         Player player = e.getEntity();
         ItemStack stack = player.getItemInHand(e.getHand());
-        if (stack.getItem() == Hostile.Items.BLANK_DATA_MODEL.get()) {
+        if (stack.is(Hostile.Items.BLANK_DATA_MODEL)) {
             if (!player.level().isClientSide) {
                 DataModel model = DataModelRegistry.INSTANCE.getForEntity(e.getTarget().getType());
                 if (model == null) {
@@ -59,11 +60,12 @@ public class HostileEvents {
                 Component msg = Component.translatable("hostilenetworks.msg.built", model.name()).withStyle(ChatFormatting.GOLD);
                 player.sendSystemMessage(msg);
 
-                ItemStack modelStack = new ItemStack(Hostile.Items.DATA_MODEL.get());
+                ItemStack modelStack = new ItemStack(Hostile.Items.DATA_MODEL);
                 DataModelItem.setStoredModel(modelStack, model);
                 player.setItemInHand(e.getHand(), modelStack);
             }
-            e.setResult(Result.DENY);
+            e.setCanceled(true);
+            e.setCancellationResult(InteractionResult.CONSUME);
         }
     }
 
@@ -72,28 +74,30 @@ public class HostileEvents {
         if (!HostileConfig.killModelUpgrade) return;
         Entity src = e.getSource().getEntity();
         if (src instanceof ServerPlayer p) {
-            p.getInventory().items.stream().filter(s -> s.getItem() == Items.DEEP_LEARNER.get()).forEach(dl -> updateModels(dl, e.getEntity().getType(), 0));
-            if (p.getOffhandItem().getItem() == Items.DEEP_LEARNER.get()) updateModels(p.getOffhandItem(), e.getEntity().getType(), 0);
+            p.getInventory().items.stream().filter(s -> s.is(Items.DEEP_LEARNER)).forEach(dl -> updateModels(dl, e.getEntity().getType(), 0));
+            if (p.getOffhandItem().is(Items.DEEP_LEARNER)) updateModels(p.getOffhandItem(), e.getEntity().getType(), 0);
             if (ModList.get().isLoaded("curios")) {
                 ItemStack curioStack = CuriosCompat.getDeepLearner(p);
-                if (curioStack.getItem() == Items.DEEP_LEARNER.get()) updateModels(curioStack, e.getEntity().getType(), 0);
+                if (curioStack.is(Items.DEEP_LEARNER)) {
+                    updateModels(curioStack, e.getEntity().getType(), 0);
+                }
             }
         }
     }
 
     public static void updateModels(ItemStack learner, EntityType<?> type, int bonus) {
-        ItemStackHandler handler = DeepLearnerItem.getItemHandler(learner);
+        ComponentItemHandler handler = DeepLearnerItem.getItemHandler(learner);
         for (int i = 0; i < 4; i++) {
             ItemStack model = handler.getStackInSlot(i);
             if (model.isEmpty()) continue;
             DynamicHolder<DataModel> dModel = DataModelItem.getStoredModel(model);
-            if (dModel.isBound() && dModel.get().type() == type || dModel.get().subtypes().contains(type)) {
+            if (dModel.isBound() && dModel.get().entity() == type || dModel.get().variants().contains(type)) {
                 int data = DataModelItem.getData(model);
                 ModelTier tier = ModelTier.getByData(dModel, data);
                 DataModelItem.setData(model, data + dModel.get().getDataPerKill(tier) + bonus);
+                handler.setStackInSlot(i, model);
             }
         }
-        DeepLearnerItem.saveItems(learner, handler);
     }
 
     @SubscribeEvent
@@ -103,11 +107,7 @@ public class HostileEvents {
 
     @SubscribeEvent
     public static void sync(OnDatapackSyncEvent e) {
-        if (e.getPlayer() != null) {
-            PacketDistro.sendTo(HostileNetworks.CHANNEL, new ConfigMessage(), e.getPlayer());
-        }
-        else {
-            PacketDistro.sendToAll(HostileNetworks.CHANNEL, new ConfigMessage());
-        }
+        ConfigPayload msg = new ConfigPayload();
+        e.getRelevantPlayers().forEach(p -> PacketDistributor.sendToPlayer(p, msg));
     }
 }

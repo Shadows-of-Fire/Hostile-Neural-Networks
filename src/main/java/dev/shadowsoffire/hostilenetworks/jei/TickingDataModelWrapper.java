@@ -5,12 +5,13 @@ import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 
 public class TickingDataModelWrapper {
 
     final DataModel src;
     final ItemStack model;
-    final ItemStack input;
+    final Ingredient input;
     final ItemStack baseDrop;
     final ItemStack prediction;
 
@@ -18,10 +19,10 @@ public class TickingDataModelWrapper {
 
     public TickingDataModelWrapper(DataModel src) {
         this.src = src;
-        this.model = new ItemStack(Hostile.Items.DATA_MODEL.get());
+        this.model = new ItemStack(Hostile.Items.DATA_MODEL);
         DataModelItem.setStoredModel(this.model, src);
         DataModelItem.setData(this.model, src.getTierData(ModelTier.BASIC));
-        this.input = src.input().copy();
+        this.input = src.input();
         this.baseDrop = src.baseDrop().copy();
         this.prediction = src.getPredictionDrop();
     }

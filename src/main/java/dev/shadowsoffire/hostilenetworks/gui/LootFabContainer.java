@@ -16,9 +16,9 @@ import net.minecraft.world.entity.player.Player;
 public class LootFabContainer extends BlockEntityMenu<LootFabTileEntity> {
 
     public LootFabContainer(int id, Inventory pInv, BlockPos pos) {
-        super(Hostile.Containers.LOOT_FABRICATOR.get(), id, pInv, pos);
+        super(Hostile.Containers.LOOT_FABRICATOR, id, pInv, pos);
         FabItemHandler inv = this.tile.getInventory();
-        this.addSlot(new FilteredSlot(inv, 0, 79, 62, s -> s.getItem() == Hostile.Items.PREDICTION.get()));
+        this.addSlot(new FilteredSlot(inv, 0, 79, 62, s -> s.is(Hostile.Items.PREDICTION)));
         for (int y = 0; y < 4; y++) {
             for (int x = 0; x < 4; x++) {
                 this.addSlot(new FilteredSlot(inv, 1 + y * 4 + x, 100 + x * 18, 7 + y * 18, s -> false));
@@ -33,7 +33,7 @@ public class LootFabContainer extends BlockEntityMenu<LootFabTileEntity> {
 
     @Override
     public boolean stillValid(Player pPlayer) {
-        return pPlayer.level().getBlockState(this.pos).getBlock() == Hostile.Blocks.LOOT_FABRICATOR.get();
+        return pPlayer.level().getBlockState(this.pos).is(Hostile.Blocks.LOOT_FABRICATOR);
     }
 
     @Override

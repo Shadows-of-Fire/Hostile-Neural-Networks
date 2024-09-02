@@ -27,7 +27,7 @@ import net.minecraft.world.item.ItemStack;
 public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapper> {
 
     public static final RecipeType<TickingDataModelWrapper> TYPE = RecipeType.create(HostileNetworks.MODID, "sim_chamber", TickingDataModelWrapper.class);
-    public static final ResourceLocation TEXTURES = new ResourceLocation(HostileNetworks.MODID, "textures/jei/sim_chamber.png");
+    public static final ResourceLocation TEXTURES = HostileNetworks.loc("textures/jei/sim_chamber.png");
 
     private final IDrawable background;
     private final IDrawable icon;
@@ -40,8 +40,8 @@ public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapp
 
     public SimChamberCategory(IGuiHelper guiHelper) {
         this.background = guiHelper.createDrawable(TEXTURES, 0, 0, 116, 43);
-        this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Hostile.Blocks.SIM_CHAMBER.get()));
-        this.name = Component.translatable(Hostile.Blocks.SIM_CHAMBER.get().getDescriptionId());
+        this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Hostile.Items.SIM_CHAMBER));
+        this.name = Component.translatable(Hostile.Blocks.SIM_CHAMBER.value().getDescriptionId());
     }
 
     @Override
@@ -67,7 +67,7 @@ public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapp
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, TickingDataModelWrapper recipe, IFocusGroup focuses) {
         builder.addSlot(RecipeIngredientRole.INPUT, 4, 4).addIngredient(VanillaTypes.ITEM_STACK, recipe.model);
-        builder.addSlot(RecipeIngredientRole.INPUT, 28, 4).addIngredient(VanillaTypes.ITEM_STACK, recipe.input);
+        builder.addSlot(RecipeIngredientRole.INPUT, 28, 4).addIngredients(recipe.input);
         builder.addSlot(RecipeIngredientRole.OUTPUT, 96, 4).addIngredient(VanillaTypes.ITEM_STACK, recipe.baseDrop);
         builder.addSlot(RecipeIngredientRole.OUTPUT, 66, 26).addIngredient(VanillaTypes.ITEM_STACK, recipe.prediction);
     }
@@ -78,7 +78,7 @@ public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapp
         Font font = mc.font;
         long time = mc.level.getGameTime();
 
-        int width = Mth.ceil(35F * (this.ticks % 40 + mc.getDeltaFrameTime()) / 40);
+        int width = Mth.ceil(35F * (this.ticks % 40 + mc.getTimer().getGameTimeDeltaPartialTick(true)) / 40);
 
         gfx.blit(TEXTURES, 52, 9, 0, 43, width, 6, 256, 256);
 

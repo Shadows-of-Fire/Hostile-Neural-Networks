@@ -23,7 +23,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ComponentItemHandler;
 
 public class DeepLearnerHudRenderer implements LayeredDraw.Layer {
 
@@ -40,7 +40,7 @@ public class DeepLearnerHudRenderer implements LayeredDraw.Layer {
         if (!stack.is(Hostile.Items.DEEP_LEARNER) && ModList.get().isLoaded("curios")) stack = CuriosCompat.getDeepLearner(player);
         if (!stack.is(Hostile.Items.DEEP_LEARNER)) return;
 
-        ItemStackHandler inv = DeepLearnerItem.getItemHandler(stack);
+        ComponentItemHandler inv = DeepLearnerItem.getItemHandler(stack);
         List<Pair<CachedModel, ItemStack>> renderable = new ArrayList<>(4);
         for (int i = 0; i < 4; i++) {
             ItemStack model = inv.getStackInSlot(i);

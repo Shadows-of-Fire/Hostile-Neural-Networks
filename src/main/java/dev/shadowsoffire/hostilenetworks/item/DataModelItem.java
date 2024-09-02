@@ -3,6 +3,7 @@ package dev.shadowsoffire.hostilenetworks.item;
 import java.util.List;
 import java.util.function.Consumer;
 
+import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.client.DataModelItemStackRenderer;
 import dev.shadowsoffire.hostilenetworks.data.CachedModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
@@ -14,39 +15,32 @@ import dev.shadowsoffire.placebo.tabs.ITabFiller;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 public class DataModelItem extends Item implements ITabFiller {
-
-    public static final String DATA_MODEL = "data_model";
-    public static final String ID = "id";
-    public static final String DATA = "data";
-    public static final String ITERATIONS = "iterations";
 
     public DataModelItem(Properties pProperties) {
         super(pProperties);
     }
 
     @Override
-    public void appendHoverText(ItemStack pStack, Level pLevel, List<Component> list, TooltipFlag pFlag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
         if (Screen.hasShiftDown()) {
-            CachedModel cModel = new CachedModel(pStack, 0);
+            CachedModel cModel = new CachedModel(stack, 0);
             if (!cModel.isValid()) {
                 list.add(Component.translatable("Error: %s", Component.literal("Broke_AF").withStyle(ChatFormatting.OBFUSCATED, ChatFormatting.GRAY)));
                 return;
             }
-            int data = getData(pStack);
+            int data = getData(stack);
             ModelTier tier = ModelTier.getByData(cModel.getModel(), data);
             list.add(Component.translatable("hostilenetworks.info.tier", tier.getComponent()));
             int dProg = data - cModel.getTierData();
@@ -63,7 +57,7 @@ public class DataModelItem extends Item implements ITabFiller {
                 }
             }
             list.add(Component.translatable("hostilenetworks.info.sim_cost", Component.translatable("hostilenetworks.info.rft", cModel.getModel().simCost()).withStyle(ChatFormatting.GRAY)));
-            List<EntityType<? extends LivingEntity>> subtypes = cModel.getModel().subtypes();
+            List<EntityType<?>> subtypes = cModel.getModel().variants();
             if (!subtypes.isEmpty()) {
                 list.add(Component.translatable("hostilenetworks.info.subtypes"));
                 for (EntityType<?> t : subtypes) {
@@ -77,11 +71,11 @@ public class DataModelItem extends Item implements ITabFiller {
     }
 
     @Override
-    public void fillItemCategory(CreativeModeTab tab, CreativeModeTab.Output output) {
-        DataModelRegistry.INSTANCE.getKeys().stream().sorted().forEach(key -> {
+    public void fillItemCategory(CreativeModeTab tab, BuildCreativeModeTabContentsEvent event) {
+        DataModelRegistry.INSTANCE.getKeys().stream().sorted().map(DataModelRegistry.INSTANCE::holder).forEach(holder -> {
             ItemStack s = new ItemStack(this);
-            setStoredModel(s, key);
-            output.accept(s);
+            setStoredModel(s, holder);
+            event.accept(s);
         });
     }
 
@@ -109,56 +103,44 @@ public class DataModelItem extends Item implements ITabFiller {
     }
 
     /**
-     * @return A holder pointing to the nbt-encoded data model.
+     * @return A holder pointing to the nbt-encoded data model. May be unbound.
      */
     public static DynamicHolder<DataModel> getStoredModel(ItemStack stack) {
-        if (!stack.hasTag()) return DataModelRegistry.INSTANCE.holder(new ResourceLocation("empty", "empty"));
-        String dmKey = stack.getOrCreateTagElement(DATA_MODEL).getString(ID);
-        return DataModelRegistry.INSTANCE.holder(new ResourceLocation(dmKey));
+        return stack.getOrDefault(Hostile.Components.DATA_MODEL, DataModelRegistry.INSTANCE.emptyHolder());
     }
 
     public static void setStoredModel(ItemStack stack, DataModel model) {
-        setStoredModel(stack, DataModelRegistry.INSTANCE.getKey(model));
+        setStoredModel(stack, DataModelRegistry.INSTANCE.holder(model));
     }
 
-    public static void setStoredModel(ItemStack stack, ResourceLocation model) {
-        stack.removeTagKey(DATA_MODEL);
-        stack.getOrCreateTagElement(DATA_MODEL).putString(ID, model.toString());
+    public static void setStoredModel(ItemStack stack, DynamicHolder<DataModel> model) {
+        stack.set(Hostile.Components.DATA_MODEL, model);
     }
 
     public static int getData(ItemStack stack) {
-        return stack.getOrCreateTagElement(DATA_MODEL).getInt(DATA);
+        return stack.getOrDefault(Hostile.Components.DATA, 0);
     }
 
     public static void setData(ItemStack stack, int data) {
-        stack.getOrCreateTagElement(DATA_MODEL).putInt(DATA, data);
+        stack.set(Hostile.Components.DATA, data);
     }
 
     public static int getIters(ItemStack stack) {
-        return stack.getOrCreateTagElement(DATA_MODEL).getInt(ITERATIONS);
+        return stack.getOrDefault(Hostile.Components.ITERATIONS, 0);
     }
 
-    public static void setIters(ItemStack stack, int data) {
-        stack.getOrCreateTagElement(DATA_MODEL).putInt(ITERATIONS, data);
+    public static void setIters(ItemStack stack, int iterations) {
+        stack.set(Hostile.Components.ITERATIONS, iterations);
     }
 
-    public static boolean matchesInput(ItemStack model, ItemStack stack) {
+    /**
+     * Returns true if the <code>stack</code> matches the input item specified by the {@link DataModel} stored in <code>model</code>.
+     */
+    public static boolean matchesModelInput(ItemStack model, ItemStack stack) {
         DynamicHolder<DataModel> dModel = getStoredModel(model);
         if (!dModel.isBound()) return false;
-        ItemStack input = dModel.get().input();
-        boolean item = input.getItem() == stack.getItem();
-        if (input.hasTag()) {
-            if (stack.hasTag()) {
-                CompoundTag t1 = input.getTag();
-                CompoundTag t2 = stack.getTag();
-                for (String s : t1.getAllKeys()) {
-                    if (!t1.get(s).equals(t2.get(s))) return false;
-                }
-                return true;
-            }
-            else return false;
-        }
-        else return item;
+        Ingredient input = dModel.get().input();
+        return input.test(stack);
     }
 
 }

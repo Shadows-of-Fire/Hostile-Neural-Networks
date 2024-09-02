@@ -24,12 +24,12 @@ import net.minecraft.world.item.ItemStack;
 @JeiPlugin
 public class HostileJeiPlugin implements IModPlugin {
 
-    public static final ResourceLocation UID = new ResourceLocation(HostileNetworks.MODID, "plugin");
+    public static final ResourceLocation UID = HostileNetworks.loc("plugin");
 
     @Override
     public void registerItemSubtypes(ISubtypeRegistration reg) {
-        reg.registerSubtypeInterpreter(Hostile.Items.DATA_MODEL.get(), new ModelSubtypes());
-        reg.registerSubtypeInterpreter(Hostile.Items.PREDICTION.get(), new ModelSubtypes());
+        reg.registerSubtypeInterpreter(Hostile.Items.DATA_MODEL.value(), new ModelSubtypes());
+        reg.registerSubtypeInterpreter(Hostile.Items.PREDICTION.value(), new ModelSubtypes());
     }
 
     @Override
@@ -53,8 +53,8 @@ public class HostileJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration reg) {
-        reg.addRecipeCatalyst(new ItemStack(Hostile.Blocks.SIM_CHAMBER.get()), SimChamberCategory.TYPE);
-        reg.addRecipeCatalyst(new ItemStack(Hostile.Blocks.LOOT_FABRICATOR.get()), LootFabCategory.TYPE);
+        reg.addRecipeCatalyst(new ItemStack(Hostile.Blocks.SIM_CHAMBER.value()), SimChamberCategory.TYPE);
+        reg.addRecipeCatalyst(new ItemStack(Hostile.Blocks.LOOT_FABRICATOR.value()), LootFabCategory.TYPE);
     }
 
     private static class ModelSubtypes implements IIngredientSubtypeInterpreter<ItemStack> {

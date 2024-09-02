@@ -79,7 +79,7 @@ public class GiveModelCommand {
 
             data += bonusData;
 
-            ItemStack modelStack = new ItemStack(Hostile.Items.DATA_MODEL.get());
+            ItemStack modelStack = new ItemStack(Hostile.Items.DATA_MODEL);
             DataModelItem.setStoredModel(modelStack, model);
             DataModelItem.setData(modelStack, data);
 

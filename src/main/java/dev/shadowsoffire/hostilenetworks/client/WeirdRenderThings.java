@@ -18,7 +18,6 @@ public class WeirdRenderThings {
     });
 
     public static void setup() {
-
         if (translucent) {
             TRANSLUCENT_TRANSPARENCY.setupRenderState();
         }
