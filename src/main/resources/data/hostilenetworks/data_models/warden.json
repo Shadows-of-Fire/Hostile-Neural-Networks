@@ -1,53 +1,42 @@
 {
     "entity": "minecraft:warden",
     "variants": [],
-    "name": "entity.minecraft.warden",
-    "name_color": "#05343F",
-    "gui_scale": 0.65,
-    "gui_x_offset": 0.0,
-    "gui_y_offset": -0.15,
-    "gui_z_offset": 0.0,
+    "name": {
+        "translate": "entity.minecraft.warden",
+        "color": "#05343F"
+    },
+    "display": {
+        "y_offset": -0.15,
+        "scale": 0.65
+    },
     "sim_cost": 2560,
     "input": {
-        "item": "hostilenetworks:prediction_matrix",
-        "count": 1
+        "item": "hostilenetworks:prediction_matrix"
     },
     "base_drop": {
-        "item": "hostilenetworks:end_prediction",
+        "id": "hostilenetworks:end_prediction",
         "count": 1
     },
     "trivia": "hostilenetworks.trivia.warden",
     "fabricator_drops": [
         {
+            "id": "deeperdarker:heart_of_the_deep",
             "optional": true,
-            "item": "deeperdarker:heart_of_the_deep",
             "count": 1
         },
         {
+            "id": "deeperdarker:warden_carapace",
             "optional": true,
-            "item": "deeperdarker:warden_carapace",
             "count": 1
         },
         {
+            "id": "apotheosis:warden_tendril",
             "optional": true,
-            "item": "apotheosis:warden_tendril",
             "count": 1
         },
         {
-            "item": "minecraft:echo_shard",
+            "id": "minecraft:echo_shard",
             "count": 2
         }
-    ],
-    "tier_data": [
-        6,
-        54,
-        354,
-        1254
-    ],
-    "data_per_kill": [
-        1,
-        4,
-        10,
-        18
     ]
 }

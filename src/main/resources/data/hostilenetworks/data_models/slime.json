@@ -5,32 +5,33 @@
         "twilightforest:maze_slime",
         "twilightforest:slime_beetle"
     ],
-    "name": "entity.minecraft.slime",
-    "name_color": "#7BCA62",
-    "gui_scale": 2,
-    "gui_x_offset": 0,
-    "gui_y_offset": 0,
-    "gui_z_offset": 0,
+    "name": {
+        "translate": "entity.minecraft.slime",
+        "color": "#7BCA62"
+    },
+    "display": {
+        "scale": 2.0
+    },
     "sim_cost": 128,
     "input": {
         "item": "hostilenetworks:prediction_matrix"
     },
     "base_drop": {
-        "item": "hostilenetworks:overworld_prediction"
+        "id": "hostilenetworks:overworld_prediction"
     },
     "trivia": "hostilenetworks.trivia.slime",
     "fabricator_drops": [
         {
-            "item": "minecraft:slime_ball",
+            "id": "minecraft:slime_ball",
             "count": 32
         },
         {
-            "item": "minecraft:slime_block",
+            "id": "minecraft:slime_block",
             "count": 8
         },
         {
+            "id": "reliquary:slime_pearl",
             "optional": true,
-            "item": "reliquary:slime_pearl",
             "count": 2
         }
     ]

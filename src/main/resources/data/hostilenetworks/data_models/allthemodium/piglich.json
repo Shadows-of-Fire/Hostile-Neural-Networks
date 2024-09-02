@@ -1,44 +1,32 @@
 {
-    "conditions": [
+    "neoforge:conditions": [
         {
-            "modid": "allthemodium",
-            "type": "forge:mod_loaded"
+            "type": "neoforge:mod_loaded",
+            "modid": "allthemodium"
         }
     ],
     "entity": "allthemodium:piglich",
     "variants": [],
-    "name": "entity.allthemodium.piglich",
-    "name_color": "#D3D3D3",
-    "gui_scale": 0.85,
-    "gui_x_offset": 0.0,
-    "gui_y_offset": 0.0,
-    "gui_z_offset": 0.0,
+    "name": {
+        "translate": "entity.allthemodium.piglich",
+        "color": "#D3D3D3"
+    },
+    "display": {
+        "scale": 0.85
+    },
     "sim_cost": 16384,
     "input": {
-        "item": "hostilenetworks:prediction_matrix",
-        "count": 1
+        "item": "hostilenetworks:prediction_matrix"
     },
     "base_drop": {
-        "item": "hostilenetworks:end_prediction",
+        "id": "hostilenetworks:end_prediction",
         "count": 1
     },
     "trivia": "hostilenetworks.trivia.piglich",
     "fabricator_drops": [
         {
-            "item": "allthemodium:piglich_heart",
+            "id": "allthemodium:piglich_heart",
             "count": 4
         }
-    ],
-    "tier_data": [
-        6,
-        54,
-        354,
-        1254
-    ],
-    "data_per_kill": [
-        1,
-        4,
-        10,
-        18
     ]
 }

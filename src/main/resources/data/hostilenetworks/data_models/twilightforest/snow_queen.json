@@ -1,56 +1,42 @@
 {
-    "conditions": [
+    "neoforge:conditions": [
         {
-            "modid": "twilightforest",
-            "type": "forge:mod_loaded"
+            "type": "neoforge:mod_loaded",
+            "modid": "twilightforest"
         }
     ],
     "entity": "twilightforest:snow_queen",
     "variants": [],
-    "name": "entity.twilightforest.snow_queen",
-    "name_color": "#363990",
-    "gui_scale": 1.0,
-    "gui_x_offset": 0.0,
-    "gui_y_offset": 0.0,
-    "gui_z_offset": 0.0,
+    "name": {
+        "translate": "entity.twilightforest.snow_queen",
+        "color": "#363990"
+    },
+    "display": {},
     "sim_cost": 4096,
     "input": {
-        "item": "hostilenetworks:prediction_matrix",
-        "count": 1
+        "item": "hostilenetworks:prediction_matrix"
     },
     "base_drop": {
-        "item": "hostilenetworks:twilight_prediction",
+        "id": "hostilenetworks:twilight_prediction",
         "count": 1
     },
     "trivia": "hostilenetworks.trivia.snow_queen",
     "fabricator_drops": [
         {
-            "item": "minecraft:snowball",
+            "id": "minecraft:snowball",
             "count": 32
         },
         {
-            "item": "minecraft:packed_ice",
+            "id": "minecraft:packed_ice",
             "count": 24
         },
         {
-            "item": "twilightforest:snow_queen_trophy",
+            "id": "twilightforest:snow_queen_trophy",
             "count": 4
         },
         {
-            "item": "twilightforest:triple_bow",
+            "id": "twilightforest:triple_bow",
             "count": 1
         }
-    ],
-    "tier_data": [
-        6,
-        54,
-        354,
-        1254
-    ],
-    "data_per_kill": [
-        1,
-        4,
-        10,
-        18
     ]
 }

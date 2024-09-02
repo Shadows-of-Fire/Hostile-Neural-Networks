@@ -5,40 +5,39 @@
         "minecraft:zombie_villager",
         "twilightforest:rising_zombie"
     ],
-    "name": "entity.minecraft.zombie",
-    "name_color": "#3B622F",
-    "gui_scale": 1,
-    "gui_x_offset": 0,
-    "gui_y_offset": 0,
-    "gui_z_offset": 0,
+    "name": {
+        "translate": "entity.minecraft.zombie",
+        "color": "#3B622F"
+    },
+    "display": {},
     "sim_cost": 128,
     "input": {
         "item": "hostilenetworks:prediction_matrix"
     },
     "base_drop": {
-        "item": "hostilenetworks:overworld_prediction"
+        "id": "hostilenetworks:overworld_prediction"
     },
     "trivia": "hostilenetworks.trivia.zombie",
     "fabricator_drops": [
         {
-            "item": "minecraft:rotten_flesh",
+            "id": "minecraft:rotten_flesh",
             "count": 64
         },
         {
-            "item": "minecraft:iron_ingot",
+            "id": "minecraft:iron_ingot",
             "count": 8
         },
         {
-            "item": "minecraft:carrot",
+            "id": "minecraft:carrot",
             "count": 16
         },
         {
-            "item": "minecraft:potato",
+            "id": "minecraft:potato",
             "count": 16
         },
         {
+            "id": "reliquary:zombie_heart",
             "optional": true,
-            "item": "reliquary:zombie_heart",
             "count": 2
         }
     ]

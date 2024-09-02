@@ -1,52 +1,40 @@
 {
-    "conditions": [
+    "neoforge:conditions": [
         {
-            "modid": "twilightforest",
-            "type": "forge:mod_loaded"
+            "type": "neoforge:mod_loaded",
+            "modid": "twilightforest"
         }
     ],
     "entity": "twilightforest:alpha_yeti",
     "variants": [],
-    "name": "entity.twilightforest.alpha_yeti",
-    "name_color": "#E1E1E1",
-    "gui_scale": 0.33,
-    "gui_x_offset": 0.0,
-    "gui_y_offset": 0.0,
-    "gui_z_offset": 0.0,
+    "name": {
+        "translate": "entity.twilightforest.alpha_yeti",
+        "color": "#E1E1E1"
+    },
+    "display": {
+        "scale": 0.33
+    },
     "sim_cost": 4096,
     "input": {
-        "item": "hostilenetworks:prediction_matrix",
-        "count": 1
+        "item": "hostilenetworks:prediction_matrix"
     },
     "base_drop": {
-        "item": "hostilenetworks:twilight_prediction",
+        "id": "hostilenetworks:twilight_prediction",
         "count": 1
     },
     "trivia": "hostilenetworks.trivia.alpha_yeti",
     "fabricator_drops": [
         {
-            "item": "twilightforest:ice_bomb",
+            "id": "twilightforest:ice_bomb",
             "count": 32
         },
         {
-            "item": "twilightforest:alpha_yeti_trophy",
+            "id": "twilightforest:alpha_yeti_trophy",
             "count": 4
         },
         {
-            "item": "twilightforest:alpha_yeti_fur",
+            "id": "twilightforest:alpha_yeti_fur",
             "count": 16
         }
-    ],
-    "tier_data": [
-        6,
-        54,
-        354,
-        1254
-    ],
-    "data_per_kill": [
-        1,
-        4,
-        10,
-        18
     ]
 }

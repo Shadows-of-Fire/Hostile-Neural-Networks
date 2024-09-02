@@ -1,8 +1,8 @@
 {
-    "conditions": [
+    "neoforge:conditions": [
         {
-            "modid": "ars_nouveau",
-            "type": "forge:mod_loaded"
+            "type": "neoforge:mod_loaded",
+            "modid": "ars_nouveau"
         }
     ],
     "entity": "ars_nouveau:wilden_hunter",
@@ -10,46 +10,32 @@
         "ars_nouveau:wilden_stalker",
         "ars_nouveau:wilden_guardian"
     ],
-    "name": "name.hostilenetworks.ars_wilden",
-    "name_color": "#55FF55",
-    "gui_scale": 1.0,
-    "gui_x_offset": 0.0,
-    "gui_y_offset": 0.0,
-    "gui_z_offset": 0.0,
+    "name": {
+        "translate": "name.hostilenetworks.ars_wilden",
+        "color": "#55FF55"
+    },
+    "display": {},
     "sim_cost": 256,
     "input": {
-        "item": "hostilenetworks:prediction_matrix",
-        "count": 1
+        "item": "hostilenetworks:prediction_matrix"
     },
     "base_drop": {
-        "item": "hostilenetworks:overworld_prediction",
+        "id": "hostilenetworks:overworld_prediction",
         "count": 1
     },
     "trivia": "hostilenetworks.trivia.ars_wilden",
     "fabricator_drops": [
         {
-            "item": "ars_nouveau:wilden_spike",
+            "id": "ars_nouveau:wilden_spike",
             "count": 16
         },
         {
-            "item": "ars_nouveau:wilden_wing",
+            "id": "ars_nouveau:wilden_wing",
             "count": 16
         },
         {
-            "item": "ars_nouveau:wilden_horn",
+            "id": "ars_nouveau:wilden_horn",
             "count": 16
         }
-    ],
-    "tier_data": [
-        6,
-        54,
-        354,
-        1254
-    ],
-    "data_per_kill": [
-        1,
-        4,
-        10,
-        18
     ]
 }

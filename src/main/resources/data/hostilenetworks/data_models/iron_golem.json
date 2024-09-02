@@ -1,42 +1,28 @@
 {
     "entity": "minecraft:iron_golem",
     "variants": [],
-    "name": "entity.minecraft.iron_golem",
-    "name_color": "#CFB198",
-    "gui_scale": 1.0,
-    "gui_x_offset": 0.0,
-    "gui_y_offset": 0.0,
-    "gui_z_offset": 0.0,
+    "name": {
+        "translate": "entity.minecraft.iron_golem",
+        "color": "#CFB198"
+    },
+    "display": {},
     "sim_cost": 1024,
     "input": {
-        "item": "hostilenetworks:prediction_matrix",
-        "count": 1
+        "item": "hostilenetworks:prediction_matrix"
     },
     "base_drop": {
-        "item": "hostilenetworks:overworld_prediction",
+        "id": "hostilenetworks:overworld_prediction",
         "count": 1
     },
     "trivia": "hostilenetworks.trivia.iron_golem",
     "fabricator_drops": [
         {
-            "item": "minecraft:iron_ingot",
+            "id": "minecraft:iron_ingot",
             "count": 32
         },
         {
-            "item": "minecraft:poppy",
+            "id": "minecraft:poppy",
             "count": 24
         }
-    ],
-    "tier_data": [
-        6,
-        54,
-        354,
-        1254
-    ],
-    "data_per_kill": [
-        1,
-        4,
-        10,
-        18
     ]
 }

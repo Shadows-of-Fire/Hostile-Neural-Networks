@@ -1,48 +1,34 @@
 {
-    "conditions": [
+    "neoforge:conditions": [
         {
-            "modid": "twilightforest",
-            "type": "forge:mod_loaded"
+            "type": "neoforge:mod_loaded",
+            "modid": "twilightforest"
         }
     ],
     "entity": "twilightforest:helmet_crab",
     "variants": [],
-    "name": "entity.twilightforest.helmet_crab",
-    "name_color": "#FFA96F",
-    "gui_scale": 1.0,
-    "gui_x_offset": 0.0,
-    "gui_y_offset": 0.0,
-    "gui_z_offset": 0.0,
+    "name": {
+        "translate": "entity.twilightforest.helmet_crab",
+        "color": "#FFA96F"
+    },
+    "display": {},
     "sim_cost": 512,
     "input": {
-        "item": "hostilenetworks:prediction_matrix",
-        "count": 1
+        "item": "hostilenetworks:prediction_matrix"
     },
     "base_drop": {
-        "item": "hostilenetworks:twilight_prediction",
+        "id": "hostilenetworks:twilight_prediction",
         "count": 1
     },
     "trivia": "hostilenetworks.trivia.helmet_crab",
     "fabricator_drops": [
         {
-            "item": "twilightforest:armor_shard",
+            "id": "twilightforest:armor_shard",
             "count": 8
         },
         {
-            "item": "minecraft:cod",
+            "id": "minecraft:cod",
             "count": 24
         }
-    ],
-    "tier_data": [
-        6,
-        54,
-        354,
-        1254
-    ],
-    "data_per_kill": [
-        1,
-        4,
-        10,
-        18
     ]
 }

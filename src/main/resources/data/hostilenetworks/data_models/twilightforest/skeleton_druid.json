@@ -1,57 +1,43 @@
 {
-    "conditions": [
+    "neoforge:conditions": [
         {
-            "modid": "twilightforest",
-            "type": "forge:mod_loaded"
+            "type": "neoforge:mod_loaded",
+            "modid": "twilightforest"
         }
     ],
     "entity": "twilightforest:skeleton_druid",
     "variants": [],
-    "name": "entity.twilightforest.skeleton_druid",
-    "name_color": "#415329",
-    "gui_scale": 1.0,
-    "gui_x_offset": 0.0,
-    "gui_y_offset": 0.0,
-    "gui_z_offset": 0.0,
+    "name": {
+        "translate": "entity.twilightforest.skeleton_druid",
+        "color": "#415329"
+    },
+    "display": {},
     "sim_cost": 512,
     "input": {
-        "item": "hostilenetworks:prediction_matrix",
-        "count": 1
+        "item": "hostilenetworks:prediction_matrix"
     },
     "base_drop": {
-        "item": "hostilenetworks:twilight_prediction",
+        "id": "hostilenetworks:twilight_prediction",
         "count": 1
     },
     "trivia": "hostilenetworks.trivia.skeleton_druid",
     "fabricator_drops": [
         {
-            "item": "twilightforest:torchberries",
+            "id": "twilightforest:torchberries",
             "count": 32
         },
         {
-            "item": "minecraft:bone",
+            "id": "minecraft:bone",
             "count": 32
         },
         {
-            "item": "minecraft:skeleton_skull",
+            "id": "minecraft:skeleton_skull",
             "count": 4
         },
         {
+            "id": "reliquary:rib_bone",
             "optional": true,
-            "item": "reliquary:rib_bone",
             "count": 2
         }
-    ],
-    "tier_data": [
-        6,
-        54,
-        354,
-        1254
-    ],
-    "data_per_kill": [
-        1,
-        4,
-        10,
-        18
     ]
 }

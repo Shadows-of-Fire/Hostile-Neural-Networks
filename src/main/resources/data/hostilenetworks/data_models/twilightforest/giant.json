@@ -1,66 +1,54 @@
 {
-    "conditions": [
+    "neoforge:conditions": [
         {
-            "modid": "twilightforest",
-            "type": "forge:mod_loaded"
+            "type": "neoforge:mod_loaded",
+            "modid": "twilightforest"
         }
     ],
     "entity": "twilightforest:giant_miner",
     "variants": [
         "twilightforest:armored_giant"
     ],
-    "name": "name.hostilenetworks.twilight_giant",
-    "name_color": "#444444",
-    "gui_scale": 0.25,
-    "gui_x_offset": 0.0,
-    "gui_y_offset": 0.0,
-    "gui_z_offset": 0.0,
+    "name": {
+        "translate": "name.hostilenetworks.twilight_giant",
+        "color": "#444444"
+    },
+    "display": {
+        "scale": 0.25
+    },
     "sim_cost": 1024,
     "input": {
-        "item": "hostilenetworks:prediction_matrix",
-        "count": 1
+        "item": "hostilenetworks:prediction_matrix"
     },
     "base_drop": {
-        "item": "hostilenetworks:twilight_prediction",
+        "id": "hostilenetworks:twilight_prediction",
         "count": 1
     },
     "trivia": "hostilenetworks.trivia.twilight_giant",
     "fabricator_drops": [
         {
-            "item": "twilightforest:giant_sword",
+            "id": "twilightforest:giant_sword",
             "count": 1
         },
         {
-            "item": "twilightforest:giant_pickaxe",
+            "id": "twilightforest:giant_pickaxe",
             "count": 1
         },
         {
-            "item": "twilightforest:giant_cobblestone",
+            "id": "twilightforest:giant_cobblestone",
             "count": 16
         },
         {
-            "item": "twilightforest:giant_log",
+            "id": "twilightforest:giant_log",
             "count": 16
         },
         {
-            "item": "twilightforest:giant_leaves",
+            "id": "twilightforest:giant_leaves",
             "count": 16
         },
         {
-            "item": "twilightforest:giant_obsidian",
+            "id": "twilightforest:giant_obsidian",
             "count": 16
         }
-    ],
-    "tier_data": [
-        6,
-        54,
-        354,
-        1254
-    ],
-    "data_per_kill": [
-        1,
-        4,
-        10,
-        18
     ]
 }

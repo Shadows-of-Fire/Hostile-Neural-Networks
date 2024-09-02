@@ -1,44 +1,30 @@
 {
-    "conditions": [
+    "neoforge:conditions": [
         {
-            "modid": "thermal",
-            "type": "forge:mod_loaded"
+            "type": "neoforge:mod_loaded",
+            "modid": "thermal"
         }
     ],
     "entity": "thermal:basalz",
     "variants": [],
-    "name": "entity.thermal.basalz",
-    "name_color": "#292C2F",
-    "gui_scale": 1.0,
-    "gui_x_offset": 0.0,
-    "gui_y_offset": 0.0,
-    "gui_z_offset": 0.0,
+    "name": {
+        "translate": "entity.thermal.basalz",
+        "color": "#292C2F"
+    },
+    "display": {},
     "sim_cost": 512,
     "input": {
-        "item": "hostilenetworks:prediction_matrix",
-        "count": 1
+        "item": "hostilenetworks:prediction_matrix"
     },
     "base_drop": {
-        "item": "hostilenetworks:overworld_prediction",
+        "id": "hostilenetworks:overworld_prediction",
         "count": 1
     },
     "trivia": "hostilenetworks.trivia.basalz",
     "fabricator_drops": [
         {
-            "item": "thermal:basalz_rod",
+            "id": "thermal:basalz_rod",
             "count": 16
         }
-    ],
-    "tier_data": [
-        6,
-        54,
-        354,
-        1254
-    ],
-    "data_per_kill": [
-        1,
-        4,
-        10,
-        18
     ]
 }

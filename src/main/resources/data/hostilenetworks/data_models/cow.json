@@ -1,47 +1,33 @@
 {
     "entity": "minecraft:cow",
     "variants": [],
-    "name": "entity.minecraft.cow",
-    "name_color": "#352A1F",
-    "gui_scale": 1.0,
-    "gui_x_offset": 0.0,
-    "gui_y_offset": 0.0,
-    "gui_z_offset": 0.0,
+    "name": {
+        "translate": "entity.minecraft.cow",
+        "color": "#352A1F"
+    },
+    "display": {},
     "sim_cost": 64,
     "input": {
-        "item": "hostilenetworks:prediction_matrix",
-        "count": 1
+        "item": "hostilenetworks:prediction_matrix"
     },
     "base_drop": {
-        "item": "hostilenetworks:overworld_prediction",
+        "id": "hostilenetworks:overworld_prediction",
         "count": 1
     },
     "trivia": "hostilenetworks.trivia.cow",
     "fabricator_drops": [
         {
-            "item": "minecraft:beef",
+            "id": "minecraft:beef",
             "count": 32
         },
         {
-            "item": "minecraft:leather",
+            "id": "minecraft:leather",
             "count": 24
         },
         {
+            "id": "hexerei:animal_fat",
             "optional": true,
-            "item": "hexerei:animal_fat",
             "count": 16
         }
-    ],
-    "tier_data": [
-        6,
-        54,
-        354,
-        1254
-    ],
-    "data_per_kill": [
-        1,
-        4,
-        10,
-        18
     ]
 }

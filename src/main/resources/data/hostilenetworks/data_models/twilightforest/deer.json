@@ -1,65 +1,51 @@
 {
-    "conditions": [
+    "neoforge:conditions": [
         {
-            "modid": "twilightforest",
-            "type": "forge:mod_loaded"
+            "type": "neoforge:mod_loaded",
+            "modid": "twilightforest"
         }
     ],
     "entity": "twilightforest:deer",
     "variants": [
         "naturalist:deer"
     ],
-    "name": "entity.twilightforest.deer",
-    "name_color": "#4B241D",
-    "gui_scale": 1.0,
-    "gui_x_offset": 0.0,
-    "gui_y_offset": 0.0,
-    "gui_z_offset": 0.0,
+    "name": {
+        "translate": "entity.twilightforest.deer",
+        "color": "#4B241D"
+    },
+    "display": {},
     "sim_cost": 128,
     "input": {
-        "item": "hostilenetworks:prediction_matrix",
-        "count": 1
+        "item": "hostilenetworks:prediction_matrix"
     },
     "base_drop": {
-        "item": "hostilenetworks:twilight_prediction",
+        "id": "hostilenetworks:twilight_prediction",
         "count": 1
     },
     "trivia": "hostilenetworks.trivia.deer",
     "fabricator_drops": [
         {
-            "item": "twilightforest:raw_venison",
+            "id": "twilightforest:raw_venison",
             "count": 32
         },
         {
-            "item": "minecraft:leather",
+            "id": "minecraft:leather",
             "count": 24
         },
         {
+            "id": "hexerei:animal_fat",
             "optional": true,
-            "item": "hexerei:animal_fat",
             "count": 16
         },
         {
+            "id": "naturalist:venison",
             "optional": true,
-            "item": "naturalist:venison",
             "count": 32
         },
         {
+            "id": "naturalist:antler",
             "optional": true,
-            "item": "naturalist:antler",
             "count": 16
         }
-    ],
-    "tier_data": [
-        6,
-        54,
-        354,
-        1254
-    ],
-    "data_per_kill": [
-        1,
-        4,
-        10,
-        18
     ]
 }

@@ -1,48 +1,49 @@
 {
     "entity": "minecraft:witch",
     "variants": [],
-    "name": "entity.minecraft.witch",
-    "name_color": "#361758",
-    "gui_scale": 0.8,
-    "gui_x_offset": 0,
-    "gui_y_offset": 0,
-    "gui_z_offset": 0,
+    "name": {
+        "translate": "entity.minecraft.witch",
+        "color": "#361758"
+    },
+    "display": {
+        "scale": 0.8
+    },
     "sim_cost": 256,
     "input": {
         "item": "hostilenetworks:prediction_matrix"
     },
     "base_drop": {
-        "item": "hostilenetworks:overworld_prediction"
+        "id": "hostilenetworks:overworld_prediction"
     },
     "trivia": "hostilenetworks.trivia.witch",
     "fabricator_drops": [
         {
-            "item": "minecraft:redstone",
+            "id": "minecraft:redstone",
             "count": 16
         },
         {
-            "item": "minecraft:glowstone_dust",
+            "id": "minecraft:glowstone_dust",
             "count": 16
         },
         {
-            "item": "minecraft:sugar",
+            "id": "minecraft:sugar",
             "count": 32
         },
         {
-            "item": "minecraft:stick",
+            "id": "minecraft:stick",
             "count": 32
         },
         {
-            "item": "minecraft:spider_eye",
+            "id": "minecraft:spider_eye",
             "count": 16
         },
         {
-            "item": "minecraft:glass_bottle",
+            "id": "minecraft:glass_bottle",
             "count": 16
         },
         {
+            "id": "reliquary:witch_hat",
             "optional": true,
-            "item": "reliquary:witch_hat",
             "count": 2
         }
     ]
