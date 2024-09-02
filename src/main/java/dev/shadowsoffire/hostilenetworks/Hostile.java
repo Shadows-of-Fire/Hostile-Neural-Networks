@@ -19,9 +19,7 @@ import dev.shadowsoffire.placebo.block_entity.TickingBlockEntityType.TickSide;
 import dev.shadowsoffire.placebo.registry.DeferredHelper;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.core.Holder;
-import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.inventory.MenuType;
@@ -59,11 +57,7 @@ public class Hostile {
         private static void bootstrap() {}
     }
 
-    @SuppressWarnings("deprecation")
     public static class TileEntities {
-        static {
-            ((MappedRegistry<BlockEntityType<?>>) BuiltInRegistries.BLOCK_ENTITY_TYPE).unfreeze();
-        }
         public static final BlockEntityType<SimChamberTileEntity> SIM_CHAMBER = R.tickingBlockEntity("sim_chamber", SimChamberTileEntity::new, TickSide.SERVER, Hostile.Blocks.SIM_CHAMBER);
         public static final BlockEntityType<LootFabTileEntity> LOOT_FABRICATOR = R.tickingBlockEntity("loot_fabricator", LootFabTileEntity::new, TickSide.SERVER, Hostile.Blocks.LOOT_FABRICATOR);
 
