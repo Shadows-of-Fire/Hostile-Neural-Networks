@@ -103,17 +103,17 @@ public record DataModel(EntityType<?> entity, List<EntityType<?>> variants,
 
         public static final Codec<DisplayData> CODEC = RecordCodecBuilder.create(inst -> inst
             .group(
-                NBTAdapter.EITHER_CODEC.fieldOf("nbt").forGetter(DisplayData::nbt),
-                Codec.floatRange(0, 5).fieldOf("scale").forGetter(DisplayData::scale),
-                Codec.floatRange(-5, 5).fieldOf("x_offset").forGetter(DisplayData::xOffset),
-                Codec.floatRange(-5, 5).fieldOf("x_offset").forGetter(DisplayData::yOffset),
-                Codec.floatRange(-5, 5).fieldOf("x_offset").forGetter(DisplayData::zOffset))
+                NBTAdapter.EITHER_CODEC.optionalFieldOf("nbt", new CompoundTag()).forGetter(DisplayData::nbt),
+                Codec.floatRange(0, 5).optionalFieldOf("scale", 1F).forGetter(DisplayData::scale),
+                Codec.floatRange(-5, 5).optionalFieldOf("x_offset", 0F).forGetter(DisplayData::xOffset),
+                Codec.floatRange(-5, 5).optionalFieldOf("y_offset", 0F).forGetter(DisplayData::yOffset),
+                Codec.floatRange(-5, 5).optionalFieldOf("z_offset", 0F).forGetter(DisplayData::zOffset))
             .apply(inst, DisplayData::new));
     }
 
     public static record TierData(int basic, int advanced, int superior, int selfAware) {
 
-        public static final TierData DEFAULT = new TierData(6, 6 + 48, 4 + 48 + 300, 4 + 48 + 300 + 900);
+        public static final TierData DEFAULT = new TierData(6, 6 + 48, 6 + 48 + 300, 6 + 48 + 300 + 900);
 
         public static final Codec<TierData> CODEC = RecordCodecBuilder.create(inst -> inst
             .group(

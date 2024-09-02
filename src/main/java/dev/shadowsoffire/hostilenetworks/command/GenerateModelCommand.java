@@ -27,6 +27,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.serialization.JsonOps;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
+import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModel.DataPerKill;
 import dev.shadowsoffire.hostilenetworks.data.DataModel.DisplayData;
@@ -38,7 +39,10 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
@@ -65,7 +69,7 @@ public class GenerateModelCommand {
     public static final SuggestionProvider<CommandSourceStack> SUGGEST_ENTITY_TYPE = (ctx, builder) -> SharedSuggestionProvider.suggest(BuiltInRegistries.ENTITY_TYPE.keySet().stream().map(ResourceLocation::toString), builder);
     public static final SuggestionProvider<CommandSourceStack> SUGGEST_DATA_MODEL = (ctx, builder) -> SharedSuggestionProvider.suggest(DataModelRegistry.INSTANCE.getKeys().stream().map(ResourceLocation::toString), builder);
 
-    public static final Method dropFromLootTable = ObfuscationReflectionHelper.findMethod(LivingEntity.class, "m_7625_", DamageSource.class, boolean.class);
+    public static final Method dropFromLootTable = ObfuscationReflectionHelper.findMethod(LivingEntity.class, "dropFromLootTable", DamageSource.class, boolean.class);
     public static final MethodHandle DROP_LOOT = lootMethodHandle();
 
     private record CountedStack(ItemStack stack, AtomicInteger count) {}
@@ -142,45 +146,149 @@ public class GenerateModelCommand {
             var profiler = c.getSource().getServer().getProfiler();
             Map<ResourceLocation, JsonElement> map = DataModelRegistry.INSTANCE.prepare(resman, profiler);
             for (var entry : map.entrySet()) {
-                JsonObject out = new JsonObject();
-                JsonObject obj = entry.getValue().getAsJsonObject();
-                if (obj.has("conditions")) {
-                    out.add("conditions", obj.remove("conditions"));
-                }
-                out.add("entity", obj.remove("type"));
-                if (obj.has("subtypes")) {
-                    out.add("variants", obj.remove("subtypes"));
-                }
-                else {
-                    out.add("variants", new JsonArray());
-                }
-                out.add("name", obj.remove("name"));
-                if (obj.has("name_color")) {
-                    var colorJson = obj.remove("name_color").getAsJsonPrimitive();
-                    TextColor color;
-                    if (colorJson.isNumber()) {
-                        color = TextColor.fromRgb(colorJson.getAsInt());
+                try {
+                    JsonObject out = new JsonObject();
+                    JsonObject obj = entry.getValue().getAsJsonObject();
+                    // Datafix legacy forge "conditions" to "neoforge:conditions", renaming the type names from forge: to neoforge: along the way.
+                    if (obj.has("conditions")) {
+                        JsonArray conditions = obj.remove("conditions").getAsJsonArray();
+                        JsonArray condOut = new JsonArray();
+                        conditions.asList().stream().map(JsonElement::getAsJsonObject).map(condObj -> {
+                            JsonObject singleCondition = new JsonObject();
+                            singleCondition.addProperty("type", condObj.remove("type").getAsString().replace("forge", "neoforge"));
+                            for (String s : condObj.keySet()) {
+                                singleCondition.add(s, condObj.get(s));
+                            }
+                            return singleCondition;
+                        }).forEach(condOut::add);
+                        out.add("neoforge:conditions", condOut);
+                    }
+
+                    // Move the "entity" key
+                    out.add("entity", obj.remove("entity"));
+
+                    // Move or create the "variants" key
+                    if (obj.has("variants")) {
+                        out.add("variants", obj.remove("variants"));
                     }
                     else {
-                        String str = colorJson.getAsString();
-                        if (str.startsWith("0x")) {
-                            color = TextColor.fromRgb(Integer.decode(str));
+                        out.add("variants", new JsonArray());
+                    }
+
+                    // Convert legacy "name" and "name_color" into the new Component "name" field
+                    String nameKey = obj.remove("name").getAsString();
+                    MutableComponent name = Component.translatable(nameKey);
+                    if (obj.has("name_color")) {
+                        var colorJson = obj.remove("name_color").getAsJsonPrimitive();
+                        TextColor color;
+                        if (colorJson.isNumber()) {
+                            color = TextColor.fromRgb(colorJson.getAsInt());
                         }
                         else {
-                            color = TextColor.parseColor(str).getOrThrow();
+                            String str = colorJson.getAsString();
+                            if (str.startsWith("0x")) {
+                                color = TextColor.fromRgb(Integer.decode(str));
+                            }
+                            else {
+                                color = TextColor.parseColor(str).getOrThrow();
+                            }
                         }
+                        name = name.withStyle(s -> s.withColor(color));
                     }
-                    out.addProperty("name_color", color.serialize());
+                    out.add("name", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE, name).getOrThrow());
+
+                    // Merge legacy values into new "display" field.
+                    float scale = removeOrDefault(obj, "gui_scale", 1);
+                    float xOff = removeOrDefault(obj, "gui_x_offset", 0);
+                    float yOff = removeOrDefault(obj, "gui_y_offset", 0);
+                    float zOff = removeOrDefault(obj, "gui_z_offset", 0);
+                    JsonObject nbt = obj.has("display_nbt") ? obj.remove("display_nbt").getAsJsonObject() : new JsonObject();
+
+                    DisplayData display = new DisplayData(CompoundTag.CODEC.decode(JsonOps.INSTANCE, nbt).getOrThrow().getFirst(), scale, xOff, yOff, zOff);
+                    out.add("display", DisplayData.CODEC.encodeStart(JsonOps.INSTANCE, display).getOrThrow());
+
+                    out.add("sim_cost", obj.remove("sim_cost"));
+
+                    // Convert old ItemStack input into an Ingredient. NBT is no longer legal, so we'll just try to read the item.
+                    // Also, since we're supporting a datafix while things aren't loaded, we can't try to load the item.
+                    JsonObject input = obj.remove("input").getAsJsonObject();
+                    JsonObject newInput = new JsonObject();
+                    newInput.add("item", input.get("item")); // Old placebo itemstack codec used "item" as the key
+                    out.add("input", newInput);
+
+                    // Convert base drop key "item" to "id" to match ItemStack codec
+                    JsonObject base = obj.remove("base_drop").getAsJsonObject();
+                    JsonObject newBase = new JsonObject();
+                    newBase.add("id", base.remove("item"));
+                    for (String s : base.keySet()) {
+                        newBase.add(s, base.get(s));
+                    }
+                    out.add("base_drop", newBase);
+
+                    out.add("trivia", obj.remove("trivia"));
+
+                    // Convert fabricator drops, key-fixing item to id for each element.
+                    JsonArray fabDrops = obj.remove("fabricator_drops").getAsJsonArray();
+                    JsonArray newFabDrops = new JsonArray();
+
+                    fabDrops.asList().stream().map(JsonElement::getAsJsonObject).map(drop -> {
+                        JsonObject newDrop = new JsonObject();
+                        newDrop.add("id", drop.remove("item"));
+                        for (String s : drop.keySet()) {
+                            newDrop.add(s, drop.get(s));
+                        }
+                        return newDrop;
+                    }).forEach(newFabDrops::add);
+                    out.add("fabricator_drops", newFabDrops);
+
+                    // Fix tier data and data per kill legacy arrays to the real objects.
+
+                    TierData newTierData = TierData.DEFAULT;
+                    if (obj.has("tier_data")) {
+                        JsonArray arr = obj.remove("tier_data").getAsJsonArray();
+                        TierData data = new TierData(arr.get(0).getAsInt(), arr.get(1).getAsInt(), arr.get(2).getAsInt(), arr.get(3).getAsInt());
+                        newTierData = data;
+                    }
+
+                    if (!newTierData.equals(TierData.DEFAULT)) {
+                        out.add("tier_data", TierData.CODEC.encodeStart(JsonOps.INSTANCE, newTierData).getOrThrow());
+                    }
+
+                    DataPerKill newDpk = DataPerKill.DEFAULT;
+                    if (obj.has("data_per_kill")) {
+                        JsonArray arr = obj.remove("data_per_kill").getAsJsonArray();
+                        DataPerKill data = new DataPerKill(arr.get(0).getAsInt(), arr.get(1).getAsInt(), arr.get(2).getAsInt(), arr.get(3).getAsInt());
+                        newDpk = data;
+                    }
+
+                    if (!newDpk.equals(DataPerKill.DEFAULT)) {
+                        out.add("data_per_kill", DataPerKill.CODEC.encodeStart(JsonOps.INSTANCE, newDpk).getOrThrow());
+                    }
+
+                    // Convert everything else
+                    for (String s : obj.keySet()) {
+                        out.add(s, obj.get(s));
+                    }
+
+                    write(entry.getKey().getNamespace(), entry.getKey().getPath(), out);
                 }
-                for (String s : obj.keySet()) {
-                    out.add(s, obj.get(s));
+                catch (Exception ex) {
+                    HostileNetworks.LOGGER.error("Failed to datafix {}", entry.getKey());
+                    ex.printStackTrace();
                 }
-                write(entry.getKey().getNamespace(), entry.getKey().getPath(), out);
             }
             c.getSource().sendSuccess(() -> Component.literal("Data Model JSON files generated at datagen/data_models/"), true);
             return 0;
         }));
 
+    }
+
+    @SuppressWarnings("unchecked")
+    private static float removeOrDefault(JsonObject obj, String key, float value) {
+        if (obj.has(key)) {
+            return obj.remove(key).getAsFloat();
+        }
+        return value;
     }
 
     private static List<ItemStack> runSimulation(EntityType<?> type, Player p, int runs, float maxStackSize) {
