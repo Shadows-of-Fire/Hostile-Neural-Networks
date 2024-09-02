@@ -1,6 +1,7 @@
 package dev.shadowsoffire.hostilenetworks.data;
 
 import java.util.List;
+import java.util.function.Function;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -49,7 +50,7 @@ public record DataModel(EntityType<?> entity, List<EntityType<?>> variants,
             Ingredient.CODEC_NONEMPTY.fieldOf("input").forGetter(DataModel::input),
             OptionalStackCodec.INSTANCE.fieldOf("base_drop").forGetter(DataModel::baseDrop),
             Codec.STRING.fieldOf("trivia").forGetter(DataModel::triviaKey),
-            OptionalStackCodec.INSTANCE.listOf().fieldOf("fabricator_drops").forGetter(DataModel::fabDrops),
+            OptionalStackCodec.INSTANCE.listOf().xmap(DataModel::removeEmptyStacks, Function.identity()).fieldOf("fabricator_drops").forGetter(DataModel::fabDrops),
             TierData.CODEC.optionalFieldOf("tier_data", TierData.DEFAULT).forGetter(DataModel::tierData),
             DataPerKill.CODEC.optionalFieldOf("data_per_kill", DataPerKill.DEFAULT).forGetter(DataModel::dataPerKill))
         .apply(inst, DataModel::new)).validate(DataModel::validate);
@@ -168,6 +169,10 @@ public record DataModel(EntityType<?> entity, List<EntityType<?>> variants,
                 case SELF_AWARE -> 0;
             };
         }
+    }
+
+    private static List<ItemStack> removeEmptyStacks(List<ItemStack> list) {
+        return list.stream().filter(i -> !i.isEmpty()).toList();
     }
 
 }

@@ -5,26 +5,25 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.coremod.api.ASMAPI;
 
 public class ReflectionThings {
 
-    private static MethodHandle getExperienceReward;
+    private static MethodHandle getBaseExperienceReward;
 
     static {
         try {
-            Method getXPReward = LivingEntity.class.getDeclaredMethod(ASMAPI.mapMethod("m_213860_"));
+            Method getXPReward = LivingEntity.class.getDeclaredMethod("getBaseExperienceReward");
             getXPReward.setAccessible(true);
-            getExperienceReward = MethodHandles.lookup().unreflect(getXPReward);
+            getBaseExperienceReward = MethodHandles.lookup().unreflect(getXPReward);
         }
         catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static int getExperienceReward(LivingEntity ent) {
+    public static int getBaseExperienceReward(LivingEntity ent) {
         try {
-            return (int) getExperienceReward.invoke(ent);
+            return (int) getBaseExperienceReward.invoke(ent);
         }
         catch (Throwable e) {
             throw new RuntimeException(e);

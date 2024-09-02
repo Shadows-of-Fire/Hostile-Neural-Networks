@@ -39,6 +39,7 @@
 	"hostilenetworks.gui.max_tier": "You cannot improve me further",
 	"hostilenetworks.gui.max_data": "I am at maximum potential",
 	"hostilenetworks.gui.variant": "%s (Variant)",
+	"hostilenetworks.gui.upgrade_disabled": "Models cannot be upgraded via kills.",
 
 	"hostilenetworks.hud.model": " Model",
 	"hostilenetworks.hud.kills": "%s Remaining",

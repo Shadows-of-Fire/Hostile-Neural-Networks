@@ -33,7 +33,7 @@ public class HostileClient {
             if (model.isBound()) {
                 color = model.get().getNameColor();
             }
-            return color;
+            return 0xFF000000 | color;
         }, Hostile.Items.PREDICTION.value());
     }
 

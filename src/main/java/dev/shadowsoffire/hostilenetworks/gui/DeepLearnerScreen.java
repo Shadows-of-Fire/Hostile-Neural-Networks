@@ -12,6 +12,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
+import dev.shadowsoffire.hostilenetworks.HostileConfig;
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.client.WrappedRTBuffer;
 import dev.shadowsoffire.hostilenetworks.data.CachedModel;
@@ -269,10 +270,15 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         this.addText(I18n.get("hostilenetworks.gui.accuracy"), Color.WHITE, false);
         this.addText(fmt.format(cache.getAccuracy()), tier.color());
         if (tier != next) {
-            this.addText(I18n.get("hostilenetworks.gui.next_tier"), Color.WHITE, false);
-            this.addText(I18n.get("hostilenetworks.tier." + next.name), next.color(), false);
-            this.addText(I18n.get("hostilenetworks.gui.next_tier2", cache.getKillsNeeded()), Color.WHITE, false);
-            this.addText(I18n.get("hostilenetworks.gui.kill" + (cache.getKillsNeeded() > 1 ? "s" : "")), Color.WHITE);
+            if (HostileConfig.killModelUpgrade) {
+                this.addText(I18n.get("hostilenetworks.gui.next_tier"), Color.WHITE, false);
+                this.addText(I18n.get("hostilenetworks.tier." + next.name), next.color(), false);
+                this.addText(I18n.get("hostilenetworks.gui.next_tier2", cache.getKillsNeeded()), Color.WHITE, false);
+                this.addText(I18n.get("hostilenetworks.gui.kill" + (cache.getKillsNeeded() > 1 ? "s" : "")), Color.WHITE);
+            }
+            else {
+                this.addText(I18n.get("hostilenetworks.gui.upgrade_disabled"), Color.WHITE);
+            }
         }
         else {
             this.addText(I18n.get("hostilenetworks.gui.max_tier"), ChatFormatting.RED.getColor());
@@ -283,7 +289,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         if (ent instanceof LivingEntity living) {
             this.statArray[0] = String.valueOf((int) (living.getAttribute(Attributes.MAX_HEALTH).getBaseValue() / 2));
             this.statArray[1] = String.valueOf((int) (living.getAttribute(Attributes.ARMOR).getBaseValue() / 2));
-            this.statArray[2] = String.valueOf(ReflectionThings.getExperienceReward(living));
+            this.statArray[2] = String.valueOf(ReflectionThings.getBaseExperienceReward(living));
         }
         else {
             for (int i = 0; i < 3; i++) {

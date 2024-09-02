@@ -59,6 +59,7 @@ public class Hostile {
         private static void bootstrap() {}
     }
 
+    @SuppressWarnings("deprecation")
     public static class TileEntities {
         static {
             ((MappedRegistry<BlockEntityType<?>>) BuiltInRegistries.BLOCK_ENTITY_TYPE).unfreeze();

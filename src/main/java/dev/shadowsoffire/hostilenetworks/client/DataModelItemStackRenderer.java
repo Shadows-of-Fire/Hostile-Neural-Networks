@@ -30,7 +30,7 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
     }
 
     private static final MultiBufferSource.BufferSource GHOST_ENTITY_BUF = MultiBufferSource.immediate(new ByteBufferBuilder(256));
-    private static final ModelResourceLocation DATA_MODEL_BASE = ModelResourceLocation.inventory(HostileNetworks.loc("item/data_model_base"));
+    private static final ModelResourceLocation DATA_MODEL_BASE = ModelResourceLocation.standalone(HostileNetworks.loc("item/data_model_base"));
 
     @Override
     @SuppressWarnings("deprecation")

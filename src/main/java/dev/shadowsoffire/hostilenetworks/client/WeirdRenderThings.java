@@ -20,11 +20,13 @@ public class WeirdRenderThings {
     public static void setup() {
         if (translucent) {
             TRANSLUCENT_TRANSPARENCY.setupRenderState();
+            RenderSystem.enableCull();
         }
     }
 
     public static void cleanup() {
         if (translucent) {
+            RenderSystem.disableCull();
             TRANSLUCENT_TRANSPARENCY.clearRenderState();
         }
     }
