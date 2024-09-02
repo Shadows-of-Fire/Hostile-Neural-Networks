@@ -40,7 +40,7 @@ public record DataModel(EntityType<?> entity, List<EntityType<?>> variants,
     int simCost, Ingredient input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops, TierData tierData,
     DataPerKill dataPerKill) implements CodecProvider<DataModel> {
 
-    public static final Codec<DataModel> CODEC = RecordCodecBuilder.create(inst -> inst
+    public static final Codec<DataModel> CODEC = RecordCodecBuilder.<DataModel>create(inst -> inst
         .group(
             BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("entity").forGetter(DataModel::entity),
             MiscCodecs.OPTIONAL_ENTITY_TYPE_LIST.optionalFieldOf("variants", List.of()).forGetter(DataModel::variants),
@@ -116,7 +116,7 @@ public record DataModel(EntityType<?> entity, List<EntityType<?>> variants,
 
         public static final TierData DEFAULT = new TierData(6, 6 + 48, 6 + 48 + 300, 6 + 48 + 300 + 900);
 
-        public static final Codec<TierData> CODEC = RecordCodecBuilder.create(inst -> inst
+        public static final Codec<TierData> CODEC = RecordCodecBuilder.<TierData>create(inst -> inst
             .group(
                 Codec.intRange(0, 1048576).fieldOf("basic").forGetter(TierData::basic),
                 Codec.intRange(0, 1048576).fieldOf("advanced").forGetter(TierData::advanced),

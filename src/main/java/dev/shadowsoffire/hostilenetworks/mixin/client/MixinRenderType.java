@@ -11,7 +11,7 @@ import com.mojang.blaze3d.vertex.MeshData;
 import dev.shadowsoffire.hostilenetworks.client.WeirdRenderThings;
 import net.minecraft.client.renderer.RenderType;
 
-@Mixin(RenderType.class)
+@Mixin(value = RenderType.class, remap = false)
 public abstract class MixinRenderType {
 
     @Inject(method = "draw", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/RenderType;setupRenderState()V", shift = Shift.AFTER), require = 1)
