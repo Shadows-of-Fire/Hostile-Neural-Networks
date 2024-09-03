@@ -1,3 +1,7 @@
+## 6.0.0
+* Updated to Minecraft 1.21.1.
+* Self-Aware model tier accuracy increased to 100% by default (was 99.5%).
+
 ## 5.3.1
 * Fixed a rare crash that could occur when populating creative tabs.
 * MikeyM3thodic4l: Added Enderman Overhaul mobs to the variants list for the Enderman model.
