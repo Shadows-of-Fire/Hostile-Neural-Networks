@@ -1,0 +1,23 @@
+Write schema documentation for data model jsons and model tier jsons.
+
+Refactor Simulation Chamber to have Training Mode and Inference Mode, so you don't gain data and run the model at the same time.
+* Needs an additional button and GUI element to display the current mode
+* Needs additional fluff text during each mode
+* Doesn't really need many logic changes beyond locking the generation of data / items past the current mode flag.
+* Current mode has to be synced (at least via menu) to client.
+
+Update Loot Fabricator to have better selection process - fabrication lists, round robin mode, etc.
+* Needs a new GUI element to select the production mode
+  * One of: Fixed, Round-Robin (between selected, defaults to all selected), and Production Queue
+  * Production Queue allows specifying a list of target outputs that will be executed in-order, looping when finished.
+* Needs new internal storage to hold the specified mode as well as the additional data used by the mode.
+  * Technically, round-robin can be treated as a subset of Production Queue, so we could skip it.
+* Needs new logic to pick the target output and continue along the line.
+
+Add the Data Center, a multiblock combining the work of the Simulation Chamber and the Loot Fabricator.
+  * Holds up to 25 data models, of which it can simulate and perform loot generation for.
+  * Only works with Self Aware models (configurable?)
+  * Total multiblock is 7x7, where the center is air and the walls are some kind of glass.
+  * Visually, each model being worked on by the data center will be shown spawning and dying in the middle over the runtime of the block.
+  * Automatic processing of output items will be done through Production Queue rules, similar to the Loot Fabricator.
+  * Uses 150% of the normal simulation power for each model.
