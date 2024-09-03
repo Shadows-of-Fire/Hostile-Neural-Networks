@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "tag": "minecraft:leaves" },
+    { "item": "minecraft:dirt" },
+    { "item": "hostilenetworks:overworld_prediction" }
+  ],
+  "result": {
+    "id": "minecraft:short_grass",
+    "count": 4
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "hostilenetworks:overworld_prediction" },
+    { "item": "minecraft:quartz" }
+  ],
+  "result": {
+    "id": "minecraft:prismarine_shard",
+    "count": 2
+  }
+}

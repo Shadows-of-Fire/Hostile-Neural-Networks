@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " H ",
+    "HEH",
+    " H "
+  ],
+  "key": {
+    "H": {
+      "item": "hostilenetworks:nether_prediction"
+    },
+    "E": {
+      "item": "minecraft:end_stone"
+    }
+  },
+  "result": {
+    "id": "hostilenetworks:end_prediction"
+  }
+}

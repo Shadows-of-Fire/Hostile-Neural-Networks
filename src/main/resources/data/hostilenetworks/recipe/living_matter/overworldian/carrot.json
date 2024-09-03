@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "hostilenetworks:overworld_prediction" },
+    { "item": "minecraft:wheat_seeds" }
+  ],
+  "result": {
+    "id": "minecraft:carrot",
+    "count": 2
+  }
+}

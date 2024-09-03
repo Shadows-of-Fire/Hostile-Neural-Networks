@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "minecraft:rotten_flesh" },
+    { "item": "minecraft:apple" },
+    { "item": "minecraft:red_mushroom" },
+    { "item": "hostilenetworks:overworld_prediction" }
+  ],
+  "result": {
+    "id": "minecraft:spider_eye",
+    "count": 2
+  }
+}

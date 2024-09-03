@@ -1,0 +1,16 @@
+{
+  "neoforge:conditions": [{
+    "type": "neoforge:mod_loaded",
+	"modid": "twilightforest"
+  }],
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "hostilenetworks:twilight_prediction" },
+    { "item": "hostilenetworks:twilight_prediction" },
+    { "item": "minecraft:note_block" }
+  ],
+  "result": {
+    "id": "twilightforest:cicada",
+    "count": 8
+  }
+}

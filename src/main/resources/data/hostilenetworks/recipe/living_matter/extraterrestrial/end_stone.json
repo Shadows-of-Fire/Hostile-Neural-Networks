@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "minecraft:sandstone" },
+    { "item": "minecraft:sandstone" },
+    { "item": "minecraft:ender_pearl" },
+    { "item": "hostilenetworks:end_prediction" }
+  ],
+  "result": {
+    "id": "minecraft:end_stone",
+    "count": 8
+  }
+}

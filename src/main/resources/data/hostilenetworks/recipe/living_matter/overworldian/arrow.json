@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "minecraft:stick" },
+    { "item": "minecraft:flint" },
+    { "item": "hostilenetworks:overworld_prediction" }
+  ],
+  "result": {
+    "id": "minecraft:arrow",
+    "count": 12
+  }
+}

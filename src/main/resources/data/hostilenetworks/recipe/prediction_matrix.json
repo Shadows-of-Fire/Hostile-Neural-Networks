@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IG ",
+    "GLG",
+    " GD"
+  ],
+  "key": {
+    "G": {
+      "tag": "forge:glass_panes"
+    },
+	"I": {
+      "tag": "forge:ingots/iron"
+    },
+	"L": {
+      "item": "minecraft:clay_ball"
+    },
+	"D": {
+      "tag": "forge:ingots/gold"
+    }
+  },
+  "result": {
+    "id": "hostilenetworks:prediction_matrix",
+	"count": 16
+  }
+}
