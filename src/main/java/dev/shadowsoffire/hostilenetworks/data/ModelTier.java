@@ -18,7 +18,7 @@ public enum ModelTier implements StringRepresentable {
     BASIC("basic", 6, 4, ChatFormatting.GREEN, 0.05F),
     ADVANCED("advanced", 6 + 48, 10, ChatFormatting.BLUE, 0.22F),
     SUPERIOR("superior", 6 + 48 + 300, 18, ChatFormatting.LIGHT_PURPLE, 0.65F),
-    SELF_AWARE("self_aware", 6 + 48 + 300 + 900, 0, ChatFormatting.GOLD, 0.995F);
+    SELF_AWARE("self_aware", 6 + 48 + 300 + 900, 0, ChatFormatting.GOLD, 1F);
 
     private static final ModelTier[] VALUES = ModelTier.values();
 
