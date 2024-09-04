@@ -7,16 +7,16 @@
   ],
   "key": {
     "P": {
-      "tag": "forge:ingots/netherite"
+      "tag": "c:ingots/netherite"
     },
     "E": {
-      "tag": "forge:gems/diamond"
+      "tag": "c:gems/diamond"
     },
 	"O": {
-      "tag": "forge:obsidian"
+      "tag": "c:obsidians"
     },
 	"L": {
-      "tag": "forge:ingots/gold"
+      "tag": "c:ingots/gold"
     },
 	"C": {
       "item": "minecraft:comparator"
