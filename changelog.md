@@ -1,3 +1,6 @@
+## 6.0.1
+* Fixed recipes referencing old tag names from 1.20.
+
 ## 6.0.0
 * Updated to Minecraft 1.21.1.
 * Self-Aware model tier accuracy increased to 100% by default (was 99.5%).
