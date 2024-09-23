@@ -39,6 +39,7 @@
 	"hostilenetworks.gui.max_tier": "これ以上正確性を上げることはできません",
 	"hostilenetworks.gui.max_data": "最大限の可能性を秘めている",
 	"hostilenetworks.gui.variant": "%s (変種)",
+        "hostilenetworks.gui.upgrade_disabled": "倒すことでモデルをアップグレードすることはできません",
 
 	"hostilenetworks.hud.model": " モデル",
 	"hostilenetworks.hud.kills": "残り%s体",
