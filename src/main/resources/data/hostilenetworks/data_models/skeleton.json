@@ -1,7 +1,8 @@
 {
     "entity": "minecraft:skeleton",
     "variants": [
-        "minecraft:stray"
+        "minecraft:stray",
+        "minecraft:bogged"
     ],
     "name": {
         "translate": "entity.minecraft.skeleton",
