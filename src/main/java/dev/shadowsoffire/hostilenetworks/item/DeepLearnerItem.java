@@ -4,6 +4,7 @@ import java.util.List;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerContainer;
+import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerContainer.DeepLearnerSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -28,7 +29,8 @@ public class DeepLearnerItem extends Item {
     @Override
     public InteractionResult useOn(UseOnContext ctx) {
         if (!ctx.getLevel().isClientSide) {
-            ctx.getPlayer().openMenu(new Provider(ctx.getHand()), buf -> buf.writeBoolean(ctx.getHand() == InteractionHand.MAIN_HAND));
+            DeepLearnerSource src = DeepLearnerSource.fromHand(ctx.getHand());
+            ctx.getPlayer().openMenu(new Provider(src), buf -> buf.writeByte(src.ordinal()));
             return InteractionResult.CONSUME;
         }
         return InteractionResult.SUCCESS;
@@ -36,7 +38,8 @@ public class DeepLearnerItem extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        player.openMenu(new Provider(hand), buf -> buf.writeBoolean(hand == InteractionHand.MAIN_HAND));
+        DeepLearnerSource src = DeepLearnerSource.fromHand(hand);
+        player.openMenu(new Provider(src), buf -> buf.writeByte(src.ordinal()));
         return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide);
     }
 
@@ -54,17 +57,17 @@ public class DeepLearnerItem extends Item {
         return new ComponentItemHandler(stack, Hostile.Components.LEARNER_INV, 4);
     }
 
-    protected class Provider implements MenuProvider {
+    public static class Provider implements MenuProvider {
 
-        private final InteractionHand hand;
+        private final DeepLearnerSource src;
 
-        protected Provider(InteractionHand hand) {
-            this.hand = hand;
+        public Provider(DeepLearnerSource src) {
+            this.src = src;
         }
 
         @Override
         public AbstractContainerMenu createMenu(int id, Inventory inv, Player player) {
-            return new DeepLearnerContainer(id, inv, this.hand);
+            return new DeepLearnerContainer(id, inv, this.src);
         }
 
         @Override

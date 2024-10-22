@@ -11,7 +11,10 @@
 	"item.hostilenetworks.nether_prediction": "Generalized Nether Prediction",
 	"item.hostilenetworks.end_prediction": "Generalized Ender Prediction",
 	"item.hostilenetworks.twilight_prediction": "Generalized Twilight Prediction",
-	
+
+    "key.categories.hostilenetworks": "Hostile Neural Networks",
+    "key.hostilenetworks.open_deep_learner": "Open Deep Learner Curio",
+
 	"itemGroup.hostilenetworks": "Hostile Neural Networks",
 	
 	"hostilenetworks.gui.learner_empty.0": "No Data Model Found",

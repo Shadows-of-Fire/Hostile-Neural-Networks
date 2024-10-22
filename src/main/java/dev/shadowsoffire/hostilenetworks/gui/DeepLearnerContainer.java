@@ -3,6 +3,7 @@ package dev.shadowsoffire.hostilenetworks.gui;
 import java.util.function.Consumer;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
+import dev.shadowsoffire.hostilenetworks.curios.CuriosCompat;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
 import dev.shadowsoffire.placebo.menu.PlaceboContainerMenu;
@@ -19,17 +20,17 @@ import net.neoforged.neoforge.items.ItemHandlerCopySlot;
 
 public class DeepLearnerContainer extends PlaceboContainerMenu {
 
-    protected final InteractionHand hand;
+    protected final DeepLearnerSource source;
     protected final Player player;
     protected final ItemStack deepLearner;
     protected final ComponentItemHandler learnerInv;
     protected Consumer<Integer> notifyCallback;
 
-    public DeepLearnerContainer(int id, Inventory pInv, InteractionHand hand) {
+    public DeepLearnerContainer(int id, Inventory pInv, DeepLearnerSource source) {
         super(Hostile.Containers.DEEP_LEARNER, id, pInv);
-        this.hand = hand;
+        this.source = source;
         this.player = pInv.player;
-        this.deepLearner = this.player.getItemInHand(hand);
+        this.deepLearner = source.getStack(player);
         this.learnerInv = DeepLearnerItem.getItemHandler(this.deepLearner);
 
         this.addSlot(new DataModelSlot(this.learnerInv, 0, 256, 99));
@@ -52,7 +53,7 @@ public class DeepLearnerContainer extends PlaceboContainerMenu {
         for (int row = 0; row < 9; row++) {
             int index = row;
             Slot slot = new Slot(this.player.getInventory(), index, 89 + row * 18, 211);
-            if (hand == InteractionHand.MAIN_HAND && index == this.player.getInventory().selected) {
+            if (source == DeepLearnerSource.MAIN_HAND && index == this.player.getInventory().selected) {
                 slot = new LockedSlot(this.player.getInventory(), index, 89 + row * 18, 211);
             }
             this.addSlot(slot);
@@ -64,7 +65,7 @@ public class DeepLearnerContainer extends PlaceboContainerMenu {
     }
 
     public DeepLearnerContainer(int id, Inventory inv, FriendlyByteBuf buf) {
-        this(id, inv, buf.readBoolean() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND);
+        this(id, inv, DeepLearnerSource.values()[buf.readByte()]);
     }
 
     public void setNotifyCallback(Consumer<Integer> r) {
@@ -73,7 +74,7 @@ public class DeepLearnerContainer extends PlaceboContainerMenu {
 
     @Override
     public boolean stillValid(Player pPlayer) {
-        return this.deepLearner.is(Hostile.Items.DEEP_LEARNER) && this.player.getItemInHand(this.hand) == this.deepLearner;
+        return this.deepLearner.is(Hostile.Items.DEEP_LEARNER) && this.source.getStack(pPlayer) == this.deepLearner;
     }
 
     public boolean hasModels() {
@@ -109,7 +110,7 @@ public class DeepLearnerContainer extends PlaceboContainerMenu {
         }
     }
 
-    public class LockedSlot extends Slot {
+    public static class LockedSlot extends Slot {
 
         public LockedSlot(Container inv, int index, int x, int y) {
             super(inv, index, x, y);
@@ -123,6 +124,24 @@ public class DeepLearnerContainer extends PlaceboContainerMenu {
         @Override
         public boolean mayPlace(ItemStack stack) {
             return false;
+        }
+    }
+
+    public static enum DeepLearnerSource {
+        MAIN_HAND,
+        OFF_HAND,
+        CURIOS;
+
+        public ItemStack getStack(Player player) {
+            return switch (this) {
+                case MAIN_HAND -> player.getItemInHand(InteractionHand.MAIN_HAND);
+                case OFF_HAND -> player.getItemInHand(InteractionHand.OFF_HAND);
+                case CURIOS -> CuriosCompat.getDeepLearner(player);
+            };
+        }
+
+        public static DeepLearnerSource fromHand(InteractionHand hand) {
+            return hand == InteractionHand.MAIN_HAND ? MAIN_HAND : OFF_HAND;
         }
     }
 

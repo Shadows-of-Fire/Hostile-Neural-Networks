@@ -9,6 +9,7 @@ import dev.shadowsoffire.hostilenetworks.HostileConfig.ConfigPayload;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import dev.shadowsoffire.hostilenetworks.datagen.LootProvider;
+import dev.shadowsoffire.hostilenetworks.net.OpenDeepLearnerPayload;
 import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
 import net.minecraft.resources.ResourceLocation;
@@ -34,6 +35,7 @@ public class HostileNetworks {
         HostileConfig.load();
         Hostile.bootstrap(bus);
         PayloadHelper.registerPayload(new ConfigPayload.Provider());
+        PayloadHelper.registerPayload(new OpenDeepLearnerPayload.Provider());
     }
 
     @SubscribeEvent

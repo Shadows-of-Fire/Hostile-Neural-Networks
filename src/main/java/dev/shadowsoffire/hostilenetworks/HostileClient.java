@@ -3,6 +3,8 @@ package dev.shadowsoffire.hostilenetworks;
 import java.util.List;
 import java.util.Optional;
 
+import org.lwjgl.glfw.GLFW;
+
 import com.mojang.datafixers.util.Either;
 
 import dev.shadowsoffire.hostilenetworks.client.DataModelTooltipRenderer;
@@ -14,7 +16,10 @@ import dev.shadowsoffire.hostilenetworks.gui.LootFabScreen;
 import dev.shadowsoffire.hostilenetworks.gui.SimChamberScreen;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
+import dev.shadowsoffire.hostilenetworks.net.OpenDeepLearnerPayload;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
@@ -25,16 +30,21 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.EventBusSubscriber.Bus;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 import net.neoforged.neoforge.items.ComponentItemHandler;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber(bus = Bus.MOD, value = Dist.CLIENT, modid = HostileNetworks.MODID)
 public class HostileClient {
+
+    public static final KeyMapping KEY_OPEN_DEEP_LEARNER = new KeyMapping("key.hostilenetworks.open_deep_learner", GLFW.GLFW_KEY_U, "key.categories.hostilenetworks");
 
     @SubscribeEvent
     public static void mrl(ModelEvent.RegisterAdditional e) {
@@ -70,6 +80,11 @@ public class HostileClient {
         e.register(DataModelInstance.class, DataModelTooltipRenderer::new);
     }
 
+    @SubscribeEvent
+    public static void keys(RegisterKeyMappingsEvent e) {
+        e.register(KEY_OPEN_DEEP_LEARNER);
+    }
+
     @EventBusSubscriber(bus = Bus.GAME, value = Dist.CLIENT, modid = HostileNetworks.MODID)
     public static class GameBusEvents {
 
@@ -101,6 +116,13 @@ public class HostileClient {
 
                     }
                 }
+            }
+        }
+
+        @SubscribeEvent
+        public static void tick(ClientTickEvent.Post e) {
+            if (KEY_OPEN_DEEP_LEARNER.consumeClick() && Minecraft.getInstance().screen == null) {
+                PacketDistributor.sendToServer(OpenDeepLearnerPayload.INSTANCE);
             }
         }
 
