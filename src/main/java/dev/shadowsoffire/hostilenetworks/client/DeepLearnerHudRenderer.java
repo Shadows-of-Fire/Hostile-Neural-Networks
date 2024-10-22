@@ -67,13 +67,13 @@ public class DeepLearnerHudRenderer implements LayeredDraw.Layer {
         for (int i = 0; i < renderable.size(); i++) {
             gfx.blit(DL_HUD, 3, 4 + spacing * i, 0, 24, 113, spacing, 256, 256);
             DataModelInstance cModel = renderable.get(i);
-            gfx.blit(DL_HUD, x + 18, y + i * spacing + 10, 0, 0, 89, 12, 256, 256);
+            gfx.blit(DL_HUD, x + 18, y + i * spacing + 11, 0, 0, 89, 12, 256, 256);
             int width = 87;
             if (!cModel.getTier().isMax()) {
                 int prev = cModel.getTierData();
                 width = Mth.ceil(width * (cModel.getData() - prev) / (float) (cModel.getNextTierData() - prev));
             }
-            gfx.blit(DL_HUD, x + 19, y + i * spacing + 11, 0, 12, width, 10, 256, 256);
+            gfx.blit(DL_HUD, x + 19, y + i * spacing + 12, 0, 12, width, 10, 256, 256);
         }
         gfx.blit(DL_HUD, 3, 4 + spacing * renderable.size(), 0, 122, 113, 2, 256, 256);
         WeirdRenderThings.TRANSLUCENT_TRANSPARENCY.clearRenderState();
@@ -86,9 +86,9 @@ public class DeepLearnerHudRenderer implements LayeredDraw.Layer {
         for (int i = 0; i < renderable.size(); i++) {
             DataModelInstance cModel = renderable.get(i);
             Component comp = cModel.getTier().getComponent();
-            gfx.drawString(mc.font, comp, x + 4, y + spacing * i, 0xFFFFFF, true);
-            gfx.drawString(mc.font, Component.translatable("hostilenetworks.hud.model"), x + mc.font.width(comp) + 4, y + spacing * i, 0xFFFFFF, true);
-            if (!cModel.getTier().isMax()) gfx.drawString(mc.font, I18n.get("hostilenetworks.hud.kills", cModel.getKillsNeeded()), x + 21, y + 12 + i * spacing, 0xFFFFFF, true);
+            gfx.drawString(mc.font, comp, x + 2, y + spacing * i, 0xFFFFFF, true);
+            gfx.drawString(mc.font, Component.translatable("hostilenetworks.hud.model").withStyle(comp.getStyle()), x + mc.font.width(comp) + 2, y + spacing * i, 0xFFFFFF, true);
+            if (!cModel.getTier().isMax()) gfx.drawString(mc.font, I18n.get("hostilenetworks.hud.kills", cModel.getKillsNeeded()), x + 21, y + 13 + i * spacing, 0xFFFFFF, true);
         }
     }
 
@@ -96,7 +96,7 @@ public class DeepLearnerHudRenderer implements LayeredDraw.Layer {
         gfx.renderItem(stack, x, y + 9);
         Component comp = model.getTier().getComponent();
         gfx.drawString(mc.font, comp, x + 4, y, 0xFFFFFF, true);
-        gfx.drawString(mc.font, Component.translatable("hostilenetworks.hud.model"), x + mc.font.width(comp) + 4, y, 0xFFFFFF, true);
+        gfx.drawString(mc.font, Component.translatable("hostilenetworks.hud.model").withStyle(comp.getStyle()), x + mc.font.width(comp) + 4, y, 0xFFFFFF, true);
         gfx.blit(DL_HUD, x + 18, y + 10, 0, 0, 89, 12, 256, 256);
         int width = 87;
         if (!model.getTier().isMax()) {
