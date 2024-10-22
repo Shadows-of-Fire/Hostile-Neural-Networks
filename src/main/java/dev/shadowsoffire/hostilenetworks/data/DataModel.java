@@ -1,6 +1,7 @@
 package dev.shadowsoffire.hostilenetworks.data;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 import com.mojang.serialization.Codec;
@@ -35,10 +36,9 @@ import net.minecraft.world.item.crafting.Ingredient;
  * @param tierData    The amount of data it takes to reach each tier.
  * @param dataPerKill The amount of data granted per kill at each tier.
  */
-public record DataModel(EntityType<?> entity, List<EntityType<?>> variants,
-    Component name, DisplayData display,
-    int simCost, Ingredient input, ItemStack baseDrop, String triviaKey, List<ItemStack> fabDrops, TierData tierData,
-    DataPerKill dataPerKill) implements CodecProvider<DataModel> {
+public record DataModel(EntityType<?> entity, List<EntityType<?>> variants, Component name,
+    DisplayData display, int simCost, Ingredient input, ItemStack baseDrop, String triviaKey,
+    List<ItemStack> fabDrops, Optional<TierData> tierData, Optional<DataPerKill> dataPerKill) implements CodecProvider<DataModel> {
 
     public static final Codec<DataModel> CODEC = RecordCodecBuilder.<DataModel>create(inst -> inst
         .group(
@@ -51,8 +51,8 @@ public record DataModel(EntityType<?> entity, List<EntityType<?>> variants,
             OptionalStackCodec.INSTANCE.fieldOf("base_drop").forGetter(DataModel::baseDrop),
             Codec.STRING.fieldOf("trivia").forGetter(DataModel::triviaKey),
             OptionalStackCodec.INSTANCE.listOf().xmap(DataModel::removeEmptyStacks, Function.identity()).fieldOf("fabricator_drops").forGetter(DataModel::fabDrops),
-            TierData.CODEC.optionalFieldOf("tier_data", TierData.DEFAULT).forGetter(DataModel::tierData),
-            DataPerKill.CODEC.optionalFieldOf("data_per_kill", DataPerKill.DEFAULT).forGetter(DataModel::dataPerKill))
+            TierData.CODEC.optionalFieldOf("tier_data").forGetter(DataModel::tierData),
+            DataPerKill.CODEC.optionalFieldOf("data_per_kill").forGetter(DataModel::dataPerKill))
         .apply(inst, DataModel::new)).validate(DataModel::validate);
 
     public DataModel(DataModel other, List<ItemStack> newResults) {
@@ -61,11 +61,11 @@ public record DataModel(EntityType<?> entity, List<EntityType<?>> variants,
     }
 
     public int getTierData(ModelTier tier) {
-        return this.tierData.forTier(tier);
+        return this.tierData.isPresent() ? this.tierData().get().forTier(tier) : tier.requiredData();
     }
 
     public int getDataPerKill(ModelTier tier) {
-        return this.dataPerKill.forTier(tier);
+        return this.dataPerKill.isPresent() ? this.dataPerKill.get().forTier(tier) : tier.dataPerKill();
     }
 
     public ItemStack getPredictionDrop() {

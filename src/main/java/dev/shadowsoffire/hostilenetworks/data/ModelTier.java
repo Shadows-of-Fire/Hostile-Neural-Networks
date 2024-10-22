@@ -79,6 +79,14 @@ public enum ModelTier implements StringRepresentable {
         return tierData;
     }
 
+    public int requiredData() {
+        return data().requiredData;
+    }
+
+    public int dataPerKill() {
+        return data().dataPerKill;
+    }
+
     public int color() {
         return data().color.getValue();
     }

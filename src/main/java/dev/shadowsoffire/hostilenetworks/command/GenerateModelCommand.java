@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -90,7 +91,7 @@ public class GenerateModelCommand {
                     new ItemStack(Items.STICK),
                     "hostilenetworks.trivia." + name.getPath(),
                     results,
-                    TierData.DEFAULT, DataPerKill.DEFAULT);
+                    Optional.empty(), Optional.empty());
                 // Formatter::on
 
                 write(name.getNamespace(), name.getPath(), model);
@@ -131,7 +132,7 @@ public class GenerateModelCommand {
                         new ItemStack(Items.STICK),
                         "hostilenetworks.trivia." + name.getPath(),
                         results,
-                        TierData.DEFAULT, DataPerKill.DEFAULT);
+                        Optional.empty(), Optional.empty());
                     // Formatter::on
 
                     write(name.getNamespace(), name.getPath(), model);
