@@ -1,0 +1,21 @@
+{
+    "entity": "minecraft:breeze",
+    "name": {
+        "translate": "entity.minecraft.breeze",
+        "color": "#3D4167"
+    },
+    "sim_cost": 256,
+    "input": {
+        "item": "hostilenetworks:prediction_matrix"
+    },
+    "base_drop": {
+        "id": "hostilenetworks:overworld_prediction"
+    },
+    "trivia": "hostilenetworks.trivia.breeze",
+    "fabricator_drops": [
+        {
+            "id": "minecraft:breeze_rod",
+            "count": 16
+        }
+    ]
+}
