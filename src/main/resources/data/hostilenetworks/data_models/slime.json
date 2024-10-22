@@ -26,6 +26,10 @@
             "count": 32
         },
         {
+            "id": "minecraft:slime_block",
+            "count": 3
+        },
+        {
             "id": "reliquary:slime_pearl",
             "optional": true,
             "count": 2
