@@ -29,7 +29,7 @@ config="hostilenetworks.mixins.json"
 [[dependencies.hostilenetworks]]
     modId="neoforge"
     type="required"
-    versionRange="[21.1.8,)"
+    versionRange="[21.1.60,)"
     ordering="NONE"
     side="BOTH"
 

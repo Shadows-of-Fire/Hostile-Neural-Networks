@@ -74,7 +74,7 @@ repositories {
     }
     maven {
         // Curios
-        url "https://maven.theillusivec4.top"
+        url "https://maven.octo-studios.com/releases"
         content {
             includeGroupByRegex "top\\.theillusivec4.*"
         }
