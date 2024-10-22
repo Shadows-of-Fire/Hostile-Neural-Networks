@@ -93,6 +93,9 @@ public record DataModel(EntityType<?> entity, List<EntityType<?>> variants, Comp
         return stk;
     }
 
+    /**
+     * TODO (Breaking): Update json format to have the color be separate from the name.
+     */
     public int getNameColor() {
         return this.name.getStyle().getColor().getValue();
     }

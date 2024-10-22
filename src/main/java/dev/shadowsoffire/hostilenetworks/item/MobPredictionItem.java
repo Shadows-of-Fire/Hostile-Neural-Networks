@@ -26,7 +26,7 @@ public class MobPredictionItem extends Item implements ITabFiller {
         if (!model.isBound()) {
             modelName = Component.literal("BROKEN").withStyle(ChatFormatting.OBFUSCATED);
         }
-        else modelName = model.get().name();
+        else modelName = model.get().name().plainCopy();
         return Component.translatable(this.getDescriptionId(pStack), modelName);
     }
 
