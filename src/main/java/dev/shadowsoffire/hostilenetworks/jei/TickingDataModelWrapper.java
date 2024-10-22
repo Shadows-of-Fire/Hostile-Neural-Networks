@@ -1,5 +1,7 @@
 package dev.shadowsoffire.hostilenetworks.jei;
 
+import org.jetbrains.annotations.Nullable;
+
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
@@ -15,13 +17,14 @@ public class TickingDataModelWrapper {
     final ItemStack baseDrop;
     final ItemStack prediction;
 
-    ModelTier currentTier = ModelTier.BASIC;
+    @Nullable
+    ModelTier currentTier = null;
 
     public TickingDataModelWrapper(DataModel src) {
         this.src = src;
         this.model = new ItemStack(Hostile.Items.DATA_MODEL);
         DataModelItem.setStoredModel(this.model, src);
-        DataModelItem.setData(this.model, src.getTierData(ModelTier.BASIC));
+        DataModelItem.setData(this.model, 0);
         this.input = src.input();
         this.baseDrop = src.baseDrop().copy();
         this.prediction = src.getPredictionDrop();
@@ -29,7 +32,7 @@ public class TickingDataModelWrapper {
 
     void setTier(ModelTier tier) {
         if (this.currentTier == tier) return;
-        DataModelItem.setData(this.model, src.getTierData(tier));
+        DataModelItem.setData(this.model, src.getRequiredData(tier));
         this.currentTier = tier;
     }
 

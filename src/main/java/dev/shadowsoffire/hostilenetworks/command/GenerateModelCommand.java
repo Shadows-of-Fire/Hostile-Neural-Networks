@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -32,7 +31,7 @@ import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModel.DataPerKill;
 import dev.shadowsoffire.hostilenetworks.data.DataModel.DisplayData;
-import dev.shadowsoffire.hostilenetworks.data.DataModel.TierData;
+import dev.shadowsoffire.hostilenetworks.data.DataModel.RequiredData;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -91,7 +90,7 @@ public class GenerateModelCommand {
                     new ItemStack(Items.STICK),
                     "hostilenetworks.trivia." + name.getPath(),
                     results,
-                    Optional.empty(), Optional.empty());
+                    RequiredData.EMPTY, DataPerKill.EMPTY);
                 // Formatter::on
 
                 write(name.getNamespace(), name.getPath(), model);
@@ -132,7 +131,7 @@ public class GenerateModelCommand {
                         new ItemStack(Items.STICK),
                         "hostilenetworks.trivia." + name.getPath(),
                         results,
-                        Optional.empty(), Optional.empty());
+                        RequiredData.EMPTY, DataPerKill.EMPTY);
                     // Formatter::on
 
                     write(name.getNamespace(), name.getPath(), model);
@@ -243,16 +242,18 @@ public class GenerateModelCommand {
                     out.add("fabricator_drops", newFabDrops);
 
                     // Fix tier data and data per kill legacy arrays to the real objects.
-
-                    TierData newTierData = TierData.DEFAULT;
+                    /*
+                    @formatter:off
+                    
+                    RequiredData newTierData = RequiredData.EMPTY;
                     if (obj.has("tier_data")) {
                         JsonArray arr = obj.remove("tier_data").getAsJsonArray();
-                        TierData data = new TierData(arr.get(0).getAsInt(), arr.get(1).getAsInt(), arr.get(2).getAsInt(), arr.get(3).getAsInt());
+                        RequiredData data = new RequiredData(arr.get(0).getAsInt(), arr.get(1).getAsInt(), arr.get(2).getAsInt(), arr.get(3).getAsInt());
                         newTierData = data;
                     }
 
-                    if (!newTierData.equals(TierData.DEFAULT)) {
-                        out.add("tier_data", TierData.CODEC.encodeStart(JsonOps.INSTANCE, newTierData).getOrThrow());
+                    if (!newTierData.equals(RequiredData.DEFAULT)) {
+                        out.add("tier_data", RequiredData.CODEC.encodeStart(JsonOps.INSTANCE, newTierData).getOrThrow());
                     }
 
                     DataPerKill newDpk = DataPerKill.DEFAULT;
@@ -265,6 +266,9 @@ public class GenerateModelCommand {
                     if (!newDpk.equals(DataPerKill.DEFAULT)) {
                         out.add("data_per_kill", DataPerKill.CODEC.encodeStart(JsonOps.INSTANCE, newDpk).getOrThrow());
                     }
+
+                    @formatter:on
+                    */
 
                     // Convert everything else
                     for (String s : obj.keySet()) {

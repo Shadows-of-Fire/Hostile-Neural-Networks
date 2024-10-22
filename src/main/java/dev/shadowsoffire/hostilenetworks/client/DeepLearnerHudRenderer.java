@@ -8,8 +8,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.curios.CuriosCompat;
-import dev.shadowsoffire.hostilenetworks.data.CachedModel;
-import dev.shadowsoffire.hostilenetworks.data.ModelTier;
+import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -41,11 +40,11 @@ public class DeepLearnerHudRenderer implements LayeredDraw.Layer {
         if (!stack.is(Hostile.Items.DEEP_LEARNER)) return;
 
         ComponentItemHandler inv = DeepLearnerItem.getItemHandler(stack);
-        List<Pair<CachedModel, ItemStack>> renderable = new ArrayList<>(4);
+        List<Pair<DataModelInstance, ItemStack>> renderable = new ArrayList<>(4);
         for (int i = 0; i < 4; i++) {
             ItemStack model = inv.getStackInSlot(i);
             if (model.isEmpty()) continue;
-            CachedModel cModel = new CachedModel(model, 0);
+            DataModelInstance cModel = new DataModelInstance(model, 0);
             if (!cModel.isValid()) continue;
             renderable.add(Pair.of(cModel, model));
         }
@@ -60,10 +59,10 @@ public class DeepLearnerHudRenderer implements LayeredDraw.Layer {
         gfx.blit(DL_HUD, 3, 3, 0, 23, 113, 1, 256, 256);
         for (int i = 0; i < renderable.size(); i++) {
             gfx.blit(DL_HUD, 3, 4 + spacing * i, 0, 24, 113, spacing, 256, 256);
-            CachedModel cModel = renderable.get(i).getLeft();
+            DataModelInstance cModel = renderable.get(i).getLeft();
             gfx.blit(DL_HUD, x + 18, y + i * spacing + 10, 0, 0, 89, 12, 256, 256);
             int width = 87;
-            if (cModel.getTier() != ModelTier.SELF_AWARE) {
+            if (!cModel.getTier().isMax()) {
                 int prev = cModel.getTierData();
                 width = Mth.ceil(width * (cModel.getData() - prev) / (float) (cModel.getNextTierData() - prev));
             }
@@ -78,22 +77,22 @@ public class DeepLearnerHudRenderer implements LayeredDraw.Layer {
         }
 
         for (int i = 0; i < renderable.size(); i++) {
-            CachedModel cModel = renderable.get(i).getLeft();
+            DataModelInstance cModel = renderable.get(i).getLeft();
             Component comp = cModel.getTier().getComponent();
             gfx.drawString(mc.font, comp, x + 4, y + spacing * i, 0xFFFFFF, true);
             gfx.drawString(mc.font, Component.translatable("hostilenetworks.hud.model"), x + mc.font.width(comp) + 4, y + spacing * i, 0xFFFFFF, true);
-            if (cModel.getTier() != ModelTier.SELF_AWARE) gfx.drawString(mc.font, I18n.get("hostilenetworks.hud.kills", cModel.getKillsNeeded()), x + 21, y + 12 + i * spacing, 0xFFFFFF, true);
+            if (!cModel.getTier().isMax()) gfx.drawString(mc.font, I18n.get("hostilenetworks.hud.kills", cModel.getKillsNeeded()), x + 21, y + 12 + i * spacing, 0xFFFFFF, true);
         }
     }
 
-    public static void drawModel(Minecraft mc, int x, int y, ItemStack stack, CachedModel model, GuiGraphics gfx) {
+    public static void drawModel(Minecraft mc, int x, int y, ItemStack stack, DataModelInstance model, GuiGraphics gfx) {
         gfx.renderItem(stack, x, y + 9);
         Component comp = model.getTier().getComponent();
         gfx.drawString(mc.font, comp, x + 4, y, 0xFFFFFF, true);
         gfx.drawString(mc.font, Component.translatable("hostilenetworks.hud.model"), x + mc.font.width(comp) + 4, y, 0xFFFFFF, true);
         gfx.blit(DL_HUD, x + 18, y + 10, 0, 0, 89, 12, 256, 256);
         int width = 87;
-        if (model.getTier() != ModelTier.SELF_AWARE) {
+        if (!model.getTier().isMax()) {
             width = Mth.ceil(width * model.getData() / (float) model.getNextTierData());
         }
         gfx.blit(DL_HUD, x + 19, y + 11, 0, 12, width, 10, 256, 256);

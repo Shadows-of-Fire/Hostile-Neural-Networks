@@ -15,9 +15,10 @@ import com.mojang.math.Axis;
 import dev.shadowsoffire.hostilenetworks.HostileConfig;
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.client.WrappedRTBuffer;
-import dev.shadowsoffire.hostilenetworks.data.CachedModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
+import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
+import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import dev.shadowsoffire.hostilenetworks.util.Color;
 import dev.shadowsoffire.hostilenetworks.util.ReflectionThings;
 import dev.shadowsoffire.placebo.screen.PlaceboContainerScreen;
@@ -52,7 +53,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
     private final String[] statArray = new String[3];
     private int numModels = 0;
     private boolean emptyText = true;
-    private CachedModel[] models = new CachedModel[4];
+    private DataModelInstance[] models = new DataModelInstance[4];
     private int spin = 65;
     private int selectedModel = 0;
     private ImageButton btnLeft, btnRight;
@@ -64,12 +65,12 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         this.imageWidth = WIDTH;
         this.imageHeight = HEIGHT;
         this.setupEmptyText();
-        Arrays.fill(models, CachedModel.EMPTY);
+        Arrays.fill(models, DataModelInstance.EMPTY);
         this.minecraft = Minecraft.getInstance();
         pMenu.setNotifyCallback(slotId -> {
             ItemStack stack = pMenu.getSlot(slotId).getItem();
-            CachedModel old = this.models[slotId];
-            this.models[slotId] = new CachedModel(stack, slotId);
+            DataModelInstance old = this.models[slotId];
+            this.models[slotId] = new DataModelInstance(stack, slotId);
             if (!old.isValid() && this.models[slotId].isValid()) {
                 if (++this.numModels == 1) {
                     this.selectedModel = slotId;
@@ -85,7 +86,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         });
     }
 
-    protected CachedModel getCurrentModel() {
+    protected DataModelInstance getCurrentModel() {
         return this.models[this.selectedModel];
     }
 
@@ -104,7 +105,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
     public void selectLeft() {
         if (this.numModels == 0) return;
         int old = this.selectedModel;
-        CachedModel model = this.models[this.clamp(this.selectedModel - 1)];
+        DataModelInstance model = this.models[this.clamp(this.selectedModel - 1)];
         while (!model.isValid())
             model = this.models[this.clamp(this.selectedModel - 1)];
         if (model.getSlot() != old) this.setupModel(model);
@@ -113,7 +114,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
     public void selectRight() {
         if (this.numModels == 0) return;
         int old = this.selectedModel;
-        CachedModel model = this.models[this.clamp(this.selectedModel + 1)];
+        DataModelInstance model = this.models[this.clamp(this.selectedModel + 1)];
         while (!model.isValid())
             model = this.models[this.clamp(this.selectedModel + 1)];
         if (model.getSlot() != old) this.setupModel(model);
@@ -138,7 +139,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 
             gfx.blit(BASE, left - 41, top, 9, 140, 75, 101);
 
-            CachedModel model = this.getCurrentModel();
+            DataModelInstance model = this.getCurrentModel();
 
             if (model.isValid()) {
                 Entity ent = model.getEntity(this.minecraft.level, this.variant);
@@ -222,7 +223,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
     }
 
     private void nextVariant() {
-        CachedModel current = this.getCurrentModel();
+        DataModelInstance current = this.getCurrentModel();
         if (!current.isValid()) return;
         int variants = current.getModel().variants().size();
         if (variants == 0) return;
@@ -247,7 +248,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 
     private static DecimalFormat fmt = new DecimalFormat("##.##%");
 
-    private void setupModel(CachedModel cache) {
+    private void setupModel(DataModelInstance cache) {
         if (!cache.isValid()) return;
         DataModel model = cache.getModel();
         this.ticksShown = 0;
@@ -265,14 +266,14 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         }
         this.addText(I18n.get("hostilenetworks.gui.tier"), Color.WHITE, false);
         ModelTier tier = cache.getTier();
-        ModelTier next = tier.next();
-        this.addText(I18n.get("hostilenetworks.tier." + tier.name), tier.color());
+        ModelTier next = ModelTierRegistry.next(tier);
+        this.addText(I18n.get("hostilenetworks.tier." + tier.name()), tier.colorValue());
         this.addText(I18n.get("hostilenetworks.gui.accuracy"), Color.WHITE, false);
-        this.addText(fmt.format(cache.getAccuracy()), tier.color());
-        if (tier != next) {
+        this.addText(fmt.format(cache.getAccuracy()), tier.colorValue());
+        if (!tier.isMax()) {
             if (HostileConfig.killModelUpgrade) {
                 this.addText(I18n.get("hostilenetworks.gui.next_tier"), Color.WHITE, false);
-                this.addText(I18n.get("hostilenetworks.tier." + next.name), next.color(), false);
+                this.addText(I18n.get("hostilenetworks.tier." + next.name()), next.colorValue(), false);
                 this.addText(I18n.get("hostilenetworks.gui.next_tier2", cache.getKillsNeeded()), Color.WHITE, false);
                 this.addText(I18n.get("hostilenetworks.gui.kill" + (cache.getKillsNeeded() > 1 ? "s" : "")), Color.WHITE);
             }

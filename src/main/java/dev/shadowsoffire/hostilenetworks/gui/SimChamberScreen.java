@@ -6,7 +6,7 @@ import java.util.List;
 
 import dev.shadowsoffire.hostilenetworks.HostileConfig;
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
-import dev.shadowsoffire.hostilenetworks.data.CachedModel;
+import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity.FailureState;
@@ -43,20 +43,22 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
         if (this.isHovering(211, 48, 7, 87, pX, pY)) {
             List<Component> txt = new ArrayList<>(2);
             txt.add(Component.translatable("hostilenetworks.gui.energy", this.menu.getEnergyStored(), HostileConfig.simPowerCap));
-            CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
+            DataModelInstance cModel = new DataModelInstance(this.menu.getSlot(0).getItem(), 0);
             if (cModel.isValid()) {
                 txt.add(Component.translatable("hostilenetworks.gui.cost", cModel.getModel().simCost()));
             }
             gfx.renderComponentTooltip(this.font, txt, pX, pY);
         }
         else if (this.isHovering(14, 48, 7, 87, pX, pY)) {
-            CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
+            DataModelInstance cModel = new DataModelInstance(this.menu.getSlot(0).getItem(), 0);
             if (cModel.isValid()) {
                 List<Component> txt = new ArrayList<>(1);
-                if (cModel.getTier() != cModel.getTier().next()) {
+                if (!cModel.getTier().isMax()) {
                     txt.add(Component.translatable("hostilenetworks.gui.data", cModel.getData() - cModel.getTierData(), cModel.getNextTierData() - cModel.getTierData()));
                 }
-                else txt.add(Component.translatable("hostilenetworks.gui.max_data").withStyle(ChatFormatting.RED));
+                else {
+                    txt.add(Component.translatable("hostilenetworks.gui.max_data").withStyle(ChatFormatting.RED));
+                }
                 gfx.renderComponentTooltip(this.font, txt, pX, pY);
             }
         }
@@ -70,7 +72,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
             int rTime = Math.min(99, Mth.ceil(100F * (300 - runtime) / 300));
             gfx.drawString(this.font, rTime + "%", 184, 123, Color.AQUA, true);
         }
-        CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
+        DataModelInstance cModel = new DataModelInstance(this.menu.getSlot(0).getItem(), 0);
         if (cModel.isValid()) {
             int xOff = 18;
             String msg = I18n.get("hostilenetworks.gui.target");
@@ -82,8 +84,8 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
             msg = I18n.get("hostilenetworks.gui.tier");
             gfx.drawString(this.font, msg, xOff, 9 + this.font.lineHeight + 3, Color.WHITE);
             xOff += this.font.width(msg);
-            msg = I18n.get("hostilenetworks.tier." + cModel.getTier().name);
-            gfx.drawString(this.font, msg, xOff, 9 + this.font.lineHeight + 3, cModel.getTier().color());
+            msg = I18n.get("hostilenetworks.tier." + cModel.getTier().name());
+            gfx.drawString(this.font, msg, xOff, 9 + this.font.lineHeight + 3, cModel.getTier().colorValue());
 
             xOff = 18;
             msg = I18n.get("hostilenetworks.gui.accuracy");
@@ -91,7 +93,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
             xOff += this.font.width(msg);
             DecimalFormat fmt = new DecimalFormat("##.##%");
             msg = fmt.format(cModel.getAccuracy());
-            gfx.drawString(this.font, msg, xOff, 9 + (this.font.lineHeight + 3) * 2, cModel.getTier().color());
+            gfx.drawString(this.font, msg, xOff, 9 + (this.font.lineHeight + 3) * 2, cModel.getTier().colorValue());
         }
         int left = 29;
         int top = 51;
@@ -122,13 +124,16 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
         gfx.blit(BASE, left + 211, top + 48, 18, 141, 7, energyHeight, 256, 256);
 
         int dataHeight = 87;
-        CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
+        DataModelInstance cModel = new DataModelInstance(this.menu.getSlot(0).getItem(), 0);
         if (cModel.isValid()) {
             int data = cModel.getData();
             ModelTier tier = cModel.getTier();
-            ModelTier next = tier.next();
-            if (tier == next) dataHeight = 0;
-            else dataHeight = 87 - Mth.ceil(87F * (data - cModel.getTierData()) / (cModel.getNextTierData() - cModel.getTierData()));
+            if (tier.isMax()) {
+                dataHeight = 0;
+            }
+            else {
+                dataHeight = 87 - Mth.ceil(87F * (data - cModel.getTierData()) / (cModel.getNextTierData() - cModel.getTierData()));
+            }
         }
 
         gfx.blit(BASE, left + 14, top + 48, 18, 141, 7, dataHeight, 256, 256);
@@ -146,7 +151,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
                 this.body.clear();
                 String[] msg = I18n.get(this.lastFailState.getKey()).split("\\n");
                 if (this.lastFailState == FailureState.INPUT) {
-                    CachedModel cModel = new CachedModel(this.menu.getSlot(0).getItem(), 0);
+                    DataModelInstance cModel = new DataModelInstance(this.menu.getSlot(0).getItem(), 0);
                     Component name = ERROR;
                     if (cModel.isValid()) {
                         name = cModel.getModel().input().getItems()[0].getHoverName();

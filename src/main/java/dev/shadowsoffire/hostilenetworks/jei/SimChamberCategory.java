@@ -6,7 +6,9 @@ import java.util.List;
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
+import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import dev.shadowsoffire.hostilenetworks.util.Color;
+import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -33,10 +35,10 @@ public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapp
     private final IDrawable icon;
     private final Component name;
 
-    private int ticks = 0;
-    private long lastTickTime = 0;
+    private int ticks = -1;
+    private long lastTickTime = -1;
     static List<TickingDataModelWrapper> recipes;
-    private ModelTier currentTier = ModelTier.BASIC;
+    private DynamicHolder<ModelTier> currentTier = ModelTierRegistry.INSTANCE.emptyHolder();
 
     public SimChamberCategory(IGuiHelper guiHelper) {
         this.background = guiHelper.createDrawable(TEXTURES, 0, 0, 116, 43);
@@ -82,19 +84,38 @@ public class SimChamberCategory implements IRecipeCategory<TickingDataModelWrapp
 
         gfx.blit(TEXTURES, 52, 9, 0, 43, width, 6, 256, 256);
 
+        if (!this.currentTier.isBound()) {
+            this.currentTier = ModelTierRegistry.INSTANCE.holder(ModelTierRegistry.getMinTier());
+        }
+
         if (time != this.lastTickTime) {
-            if (++this.ticks % 30 == 0) {
-                ModelTier next = this.currentTier.next();
-                if (next == this.currentTier) next = ModelTier.BASIC;
-                for (TickingDataModelWrapper t : recipes)
+            if (++this.ticks % 50 == 0) {
+                ModelTier tier = this.currentTier.get();
+                ModelTier next;
+
+                if (tier.isMax()) {
+                    next = ModelTierRegistry.getMinTier();
+                }
+                else {
+                    next = ModelTierRegistry.next(tier);
+                }
+
+                while (!next.canSim()) {
+                    next = ModelTierRegistry.next(next);
+                }
+
+                for (TickingDataModelWrapper t : recipes) {
                     t.setTier(next);
-                this.currentTier = next;
+                }
+
+                this.currentTier = ModelTierRegistry.INSTANCE.holder(next);
             }
             this.lastTickTime = time;
         }
+
         Component comp = recipe.currentTier.getComponent();
         width = font.width(comp);
-        gfx.drawString(font, recipe.currentTier.getComponent(), 33 - width / 2, 30, recipe.currentTier.color());
+        gfx.drawString(font, recipe.currentTier.getComponent(), 33 - width / 2, 30, recipe.currentTier.colorValue());
         DecimalFormat fmt = new DecimalFormat("##.##%");
         String msg = fmt.format(recipe.currentTier.accuracy());
         width = font.width(msg);

@@ -4,8 +4,8 @@ import java.util.function.Consumer;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.HostileConfig;
-import dev.shadowsoffire.hostilenetworks.data.CachedModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
+import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
@@ -32,9 +32,9 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
     protected final ModifiableEnergyStorage energy = new ModifiableEnergyStorage(HostileConfig.simPowerCap, HostileConfig.simPowerCap);
     protected final SimpleDataSlots data = new SimpleDataSlots();
 
-    protected CachedModel currentModel = CachedModel.EMPTY;
+    protected DataModelInstance currentModel = DataModelInstance.EMPTY;
     protected int runtime = 0;
-    protected boolean predictionSuccess = false;
+    protected int predictionSuccess = 0;
     protected FailureState failState = FailureState.NONE;
 
     public SimChamberTileEntity(BlockPos pos, BlockState state) {
@@ -57,7 +57,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         tag.putInt("energy", this.energy.getEnergyStored());
         tag.putString("model", !this.currentModel.isValid() ? "null" : DataModelRegistry.INSTANCE.getKey(this.currentModel.getModel()).toString());
         tag.putInt("runtime", this.runtime);
-        tag.putBoolean("predSuccess", this.predictionSuccess);
+        tag.putInt("predSuccess", this.predictionSuccess);
         tag.putInt("failState", this.failState.ordinal());
     }
 
@@ -67,13 +67,13 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         this.inventory.deserializeNBT(regs, tag.getCompound("inventory"));
         this.energy.setEnergy(tag.getInt("energy"));
         ItemStack model = this.inventory.getStackInSlot(0);
-        CachedModel cModel = this.getOrLoadModel(model);
+        DataModelInstance cModel = this.getOrLoadModel(model);
         ResourceLocation modelId = ResourceLocation.parse(tag.getString("model"));
         if (cModel.isValid() && DataModelRegistry.INSTANCE.getKey(cModel.getModel()).equals(modelId)) {
             this.currentModel = cModel;
         }
         this.runtime = tag.getInt("runtime");
-        this.predictionSuccess = tag.getBoolean("predSuccess");
+        this.predictionSuccess = tag.getInt("predSuccess");
         this.failState = FailureState.values()[tag.getInt("failState")];
     }
 
@@ -81,13 +81,13 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
     public void serverTick(Level level, BlockPos pos, BlockState state) {
         ItemStack model = this.inventory.getStackInSlot(0);
         if (!model.isEmpty()) {
-            CachedModel oldModel = this.currentModel;
+            DataModelInstance oldModel = this.currentModel;
             this.currentModel = this.getOrLoadModel(model);
             if (oldModel != this.currentModel) {
                 this.runtime = 0;
             }
             if (this.currentModel.isValid()) {
-                if (this.currentModel.getTier() == ModelTier.FAULTY) {
+                if (!this.currentModel.getTier().canSim()) {
                     this.failState = FailureState.FAULTY;
                     this.runtime = 0;
                     return;
@@ -95,7 +95,8 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                 if (this.runtime == 0) {
                     if (this.canStartSimulation()) {
                         this.runtime = 300;
-                        this.predictionSuccess = this.level.random.nextFloat() <= this.currentModel.getAccuracy();
+                        float accuracy = this.currentModel.getAccuracy();
+                        this.predictionSuccess = (int) accuracy + (this.level.random.nextFloat() <= this.currentModel.getAccuracy() % 1 ? 1 : 0);
                         this.inventory.getStackInSlot(1).shrink(1);
                         this.setChanged();
                     }
@@ -106,13 +107,17 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                         ItemStack stk = this.inventory.getStackInSlot(2);
                         if (stk.isEmpty()) this.inventory.setStackInSlot(2, this.currentModel.getModel().baseDrop().copy());
                         else stk.grow(1);
-                        if (this.predictionSuccess) {
+                        if (this.predictionSuccess > 0) {
                             stk = this.inventory.getStackInSlot(3);
-                            if (stk.isEmpty()) this.inventory.setStackInSlot(3, this.currentModel.getPredictionDrop());
-                            else stk.grow(1);
+                            if (stk.isEmpty()) {
+                                this.inventory.setStackInSlot(3, this.currentModel.getPredictionDrop().copyWithCount(this.predictionSuccess));
+                            }
+                            else {
+                                stk.grow(this.predictionSuccess);
+                            }
                         }
                         ModelTier tier = this.currentModel.getTier();
-                        if (tier != tier.next() && HostileConfig.simModelUpgrade > 0) {
+                        if (!tier.isMax() && HostileConfig.simModelUpgrade > 0) {
                             int newData = this.currentModel.getData() + 1;
                             if (!(HostileConfig.simModelUpgrade == 2 && newData > this.currentModel.getNextTierData())) {
                                 this.currentModel.setData(newData);
@@ -182,9 +187,9 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         return this.energy.getEnergyStored() >= model.simCost();
     }
 
-    protected CachedModel getOrLoadModel(ItemStack stack) {
+    protected DataModelInstance getOrLoadModel(ItemStack stack) {
         if (this.currentModel.getSourceStack() == stack) return this.currentModel;
-        else return new CachedModel(stack, 0);
+        else return new DataModelInstance(stack, 0);
     }
 
     public SimItemHandler getInventory() {
@@ -204,7 +209,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
     }
 
     public boolean didPredictionSucceed() {
-        return this.predictionSuccess;
+        return this.predictionSuccess > 0;
     }
 
     public FailureState getFailState() {

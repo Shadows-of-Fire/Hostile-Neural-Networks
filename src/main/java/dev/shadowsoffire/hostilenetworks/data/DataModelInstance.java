@@ -11,25 +11,25 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 /**
- * A Cached model is a temporarily-deserialized model. It retains space for a cached entity for rendering.
+ * Live instance of a data model representing
  */
-public class CachedModel {
+public class DataModelInstance {
 
-    public static final CachedModel EMPTY = new CachedModel(ItemStack.EMPTY, -1);
+    public static final DataModelInstance EMPTY = new DataModelInstance(ItemStack.EMPTY, -1);
 
     protected final ItemStack stack;
     protected final int slot;
     protected final DynamicHolder<DataModel> model;
 
     protected int data;
-    protected ModelTier tier;
+    protected DynamicHolder<ModelTier> tier;
 
-    public CachedModel(ItemStack stack, int slot) {
+    public DataModelInstance(ItemStack stack, int slot) {
         this.stack = stack;
         this.slot = slot;
         this.model = DataModelItem.getStoredModel(stack);
         this.data = DataModelItem.getData(stack);
-        this.tier = ModelTier.getByData(this.model, this.data);
+        this.tier = ModelTierRegistry.INSTANCE.emptyHolder(); // computed lazily by getTier
     }
 
     public DataModel getModel() {
@@ -41,28 +41,37 @@ public class CachedModel {
     }
 
     public ModelTier getTier() {
-        return this.tier;
+        if (!this.tier.isBound()) {
+            this.tier = ModelTierRegistry.getByData(this.model.get(), this.data).asHolder();
+        }
+        return this.tier.getOptional().orElse(ModelTierRegistry.getMinTier());
+    }
+
+    public ModelTier getNextTier() {
+        return ModelTierRegistry.next(this.getTier());
     }
 
     public int getDataPerKill() {
-        return HostileConfig.killModelUpgrade ? this.getModel().getDataPerKill(this.tier) : 0;
+        return HostileConfig.killModelUpgrade ? this.getModel().getDataPerKill(this.getTier()) : 0;
     }
 
     public int getTierData() {
-        return this.getModel().getTierData(this.tier);
+        return this.getModel().getRequiredData(this.getTier());
     }
 
     public int getNextDataPerKill() {
-        return this.getModel().getDataPerKill(this.tier.next());
+        return this.getModel().getDataPerKill(getNextTier());
     }
 
     public int getNextTierData() {
-        return this.getModel().getTierData(this.tier.next());
+        return this.getModel().getRequiredData(getNextTier());
     }
 
     public void setData(int data) {
         this.data = data;
-        if (this.data > this.getNextTierData()) this.tier = this.tier.next();
+        if (this.data > this.getNextTierData()) {
+            this.tier = ModelTierRegistry.next(getTier()).asHolder();
+        }
         DataModelItem.setData(this.stack, data);
     }
 
@@ -71,12 +80,14 @@ public class CachedModel {
     }
 
     public float getAccuracy() {
-        if (!HostileConfig.continuousAccuracy) return this.tier.accuracy();
-        ModelTier next = this.tier.next();
-        if (this.tier == next) return next.accuracy();
+        if (!HostileConfig.continuousAccuracy || this.getTier().isMax()) {
+            return this.getTier().accuracy();
+        }
+
+        ModelTier next = this.getNextTier();
         int diff = this.getNextTierData() - this.getTierData();
-        float tDiff = next.accuracy() - this.tier.accuracy();
-        return this.tier.accuracy() + tDiff * (diff - (this.getNextTierData() - this.data)) / diff;
+        float tDiff = next.accuracy() - this.getTier().accuracy();
+        return this.getTier().accuracy() + tDiff * (diff - (this.getNextTierData() - this.data)) / diff;
     }
 
     public int getKillsNeeded() {

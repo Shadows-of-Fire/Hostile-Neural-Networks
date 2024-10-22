@@ -5,10 +5,11 @@ import java.util.function.Consumer;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.client.DataModelItemStackRenderer;
-import dev.shadowsoffire.hostilenetworks.data.CachedModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
+import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
+import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import dev.shadowsoffire.hostilenetworks.util.Color;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import dev.shadowsoffire.placebo.tabs.ITabFiller;
@@ -35,17 +36,17 @@ public class DataModelItem extends Item implements ITabFiller {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
         if (Screen.hasShiftDown()) {
-            CachedModel cModel = new CachedModel(stack, 0);
+            DataModelInstance cModel = new DataModelInstance(stack, 0);
             if (!cModel.isValid()) {
                 list.add(Component.translatable("Error: %s", Component.literal("Broke_AF").withStyle(ChatFormatting.OBFUSCATED, ChatFormatting.GRAY)));
                 return;
             }
             int data = getData(stack);
-            ModelTier tier = ModelTier.getByData(cModel.getModel(), data);
+            ModelTier tier = ModelTierRegistry.getByData(cModel.getModel(), data);
             list.add(Component.translatable("hostilenetworks.info.tier", tier.getComponent()));
             int dProg = data - cModel.getTierData();
             int dMax = cModel.getNextTierData() - cModel.getTierData();
-            if (tier != ModelTier.SELF_AWARE) {
+            if (!tier.isMax()) {
                 list.add(Component.translatable("hostilenetworks.info.data", Component.translatable("hostilenetworks.info.dprog", dProg, dMax).withStyle(ChatFormatting.GRAY)));
                 int dataPerKill = cModel.getDataPerKill();
                 if (dataPerKill == 0) {

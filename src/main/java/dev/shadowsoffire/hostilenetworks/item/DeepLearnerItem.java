@@ -3,7 +3,7 @@ package dev.shadowsoffire.hostilenetworks.item;
 import java.util.List;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
-import dev.shadowsoffire.hostilenetworks.data.CachedModel;
+import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerContainer;
 import dev.shadowsoffire.hostilenetworks.util.Color;
 import net.minecraft.ChatFormatting;
@@ -55,7 +55,7 @@ public class DeepLearnerItem extends Item {
             if (empty) return;
             list.add(Component.translatable("hostilenetworks.info.dl_contains").withStyle(ChatFormatting.GRAY));
             for (int i = 0; i < 4; i++) {
-                CachedModel model = new CachedModel(inv.getStackInSlot(i), i);
+                DataModelInstance model = new DataModelInstance(inv.getStackInSlot(i), i);
                 if (!model.isValid()) continue;
                 list.add(Component.translatable("- %s %s", model.getTier().getComponent(), stack.getItem().getName(stack)).withStyle(ChatFormatting.GRAY));
             }

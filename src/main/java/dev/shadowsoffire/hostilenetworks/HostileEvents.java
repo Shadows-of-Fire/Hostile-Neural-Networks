@@ -8,6 +8,7 @@ import dev.shadowsoffire.hostilenetworks.curios.CuriosCompat;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
+import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
@@ -93,7 +94,7 @@ public class HostileEvents {
             DynamicHolder<DataModel> dModel = DataModelItem.getStoredModel(model);
             if (dModel.isBound() && dModel.get().entity() == type || dModel.get().variants().contains(type)) {
                 int data = DataModelItem.getData(model);
-                ModelTier tier = ModelTier.getByData(dModel, data);
+                ModelTier tier = ModelTierRegistry.getByData(dModel.get(), data);
                 DataModelItem.setData(model, data + dModel.get().getDataPerKill(tier) + bonus);
                 handler.setStackInSlot(i, model);
             }

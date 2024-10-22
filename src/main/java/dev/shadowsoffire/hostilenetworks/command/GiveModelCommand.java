@@ -1,6 +1,5 @@
 package dev.shadowsoffire.hostilenetworks.command;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 
@@ -11,9 +10,11 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
+import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
+import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -41,7 +42,7 @@ import net.minecraft.world.item.ItemStack;
  */
 public class GiveModelCommand {
 
-    public static final SuggestionProvider<CommandSourceStack> SUGGEST_MODEL_TIER = (ctx, builder) -> SharedSuggestionProvider.suggest(Arrays.stream(ModelTier.values()).map(t -> t.name().toLowerCase(Locale.ROOT)), builder);
+    public static final SuggestionProvider<CommandSourceStack> SUGGEST_MODEL_TIER = (ctx, builder) -> SharedSuggestionProvider.suggest(ModelTierRegistry.INSTANCE.getKeys().stream().map(ResourceLocation::getPath), builder);
 
     public static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
         root.then(
@@ -69,8 +70,8 @@ public class GiveModelCommand {
         else {
             int data;
             try {
-                ModelTier tier = ModelTier.valueOf(tierName.toUpperCase(Locale.ROOT));
-                data = tier.data().requiredData();
+                ModelTier tier = ModelTierRegistry.INSTANCE.getValue(HostileNetworks.loc(tierName.toLowerCase(Locale.ROOT)));
+                data = model.getRequiredData(tier);
             }
             catch (Exception ex) {
                 pSource.sendFailure(Component.literal("Invalid model tier: " + tierName));
