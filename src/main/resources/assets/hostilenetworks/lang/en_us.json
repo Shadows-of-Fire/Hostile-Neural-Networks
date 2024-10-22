@@ -75,8 +75,6 @@
 	"hostilenetworks.info.dpk": "Data Per Kill: %s",
 	"hostilenetworks.info.sim_cost": "Simulation Cost: %s",
 	"hostilenetworks.info.rft": "%s FE/t",
-	"hostilenetworks.info.deep_learner": "Displays a %s when held and models are within",
-	"hostilenetworks.info.dl_contains": "Contains the following models",
 	"hostilenetworks.info.rolls": "Loot Table Copies: %s",
 	"hostilenetworks.info.player": "Player Drops: %s",
 	"hostilenetworks.info.exp": "Generates Experience: %s",

@@ -3,8 +3,6 @@ package dev.shadowsoffire.hostilenetworks.client;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.curios.CuriosCompat;
@@ -26,7 +24,7 @@ import net.neoforged.neoforge.items.ComponentItemHandler;
 
 public class DeepLearnerHudRenderer implements LayeredDraw.Layer {
 
-    private static final ResourceLocation DL_HUD = HostileNetworks.loc("textures/gui/deep_learner_hud.png");
+    public static final ResourceLocation DL_HUD = HostileNetworks.loc("textures/gui/deep_learner_hud.png");
 
     @Override
     public void render(GuiGraphics gfx, DeltaTracker deltaTracker) {
@@ -34,19 +32,28 @@ public class DeepLearnerHudRenderer implements LayeredDraw.Layer {
         Player player = mc.player;
         if (player == null || !(mc.screen instanceof ChatScreen) && mc.screen != null) return;
 
+        // Try to resolve the deep learner from the possible slot options
         ItemStack stack = player.getMainHandItem();
-        if (!stack.is(Hostile.Items.DEEP_LEARNER)) stack = player.getOffhandItem();
-        if (!stack.is(Hostile.Items.DEEP_LEARNER) && ModList.get().isLoaded("curios")) stack = CuriosCompat.getDeepLearner(player);
-        if (!stack.is(Hostile.Items.DEEP_LEARNER)) return;
+        if (!stack.is(Hostile.Items.DEEP_LEARNER)) {
+            stack = player.getOffhandItem();
+        }
+
+        if (!stack.is(Hostile.Items.DEEP_LEARNER) && ModList.get().isLoaded("curios")) {
+            stack = CuriosCompat.getDeepLearner(player);
+        }
+
+        if (!stack.is(Hostile.Items.DEEP_LEARNER)) {
+            return;
+        }
 
         ComponentItemHandler inv = DeepLearnerItem.getItemHandler(stack);
-        List<Pair<DataModelInstance, ItemStack>> renderable = new ArrayList<>(4);
+        List<DataModelInstance> renderable = new ArrayList<>(4);
         for (int i = 0; i < 4; i++) {
             ItemStack model = inv.getStackInSlot(i);
             if (model.isEmpty()) continue;
             DataModelInstance cModel = new DataModelInstance(model, 0);
             if (!cModel.isValid()) continue;
-            renderable.add(Pair.of(cModel, model));
+            renderable.add(cModel);
         }
 
         if (renderable.isEmpty()) return;
@@ -59,7 +66,7 @@ public class DeepLearnerHudRenderer implements LayeredDraw.Layer {
         gfx.blit(DL_HUD, 3, 3, 0, 23, 113, 1, 256, 256);
         for (int i = 0; i < renderable.size(); i++) {
             gfx.blit(DL_HUD, 3, 4 + spacing * i, 0, 24, 113, spacing, 256, 256);
-            DataModelInstance cModel = renderable.get(i).getLeft();
+            DataModelInstance cModel = renderable.get(i);
             gfx.blit(DL_HUD, x + 18, y + i * spacing + 10, 0, 0, 89, 12, 256, 256);
             int width = 87;
             if (!cModel.getTier().isMax()) {
@@ -72,12 +79,12 @@ public class DeepLearnerHudRenderer implements LayeredDraw.Layer {
         WeirdRenderThings.TRANSLUCENT_TRANSPARENCY.clearRenderState();
 
         for (int i = 0; i < renderable.size(); i++) {
-            ItemStack dModel = renderable.get(i).getRight();
+            ItemStack dModel = renderable.get(i).getSourceStack();
             gfx.renderItem(dModel, x, y + i * spacing + 9);
         }
 
         for (int i = 0; i < renderable.size(); i++) {
-            DataModelInstance cModel = renderable.get(i).getLeft();
+            DataModelInstance cModel = renderable.get(i);
             Component comp = cModel.getTier().getComponent();
             gfx.drawString(mc.font, comp, x + 4, y + spacing * i, 0xFFFFFF, true);
             gfx.drawString(mc.font, Component.translatable("hostilenetworks.hud.model"), x + mc.font.width(comp) + 4, y + spacing * i, 0xFFFFFF, true);

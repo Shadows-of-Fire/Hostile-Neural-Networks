@@ -7,13 +7,14 @@ import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 /**
- * Live instance of a data model representing
+ * Live instance of a data model parsed from an item stack.
  */
-public class DataModelInstance {
+public class DataModelInstance implements TooltipComponent {
 
     public static final DataModelInstance EMPTY = new DataModelInstance(ItemStack.EMPTY, -1);
 

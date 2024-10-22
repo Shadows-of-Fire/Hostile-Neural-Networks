@@ -3,11 +3,7 @@ package dev.shadowsoffire.hostilenetworks.item;
 import java.util.List;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
-import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerContainer;
-import dev.shadowsoffire.hostilenetworks.util.Color;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -46,28 +42,7 @@ public class DeepLearnerItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
-        list.add(Component.translatable("hostilenetworks.info.deep_learner", Color.withColor("hostilenetworks.color_text.hud", Color.WHITE)).withStyle(ChatFormatting.GRAY));
-        if (Screen.hasShiftDown()) {
-            ComponentItemHandler inv = getItemHandler(stack);
-            boolean empty = true;
-            for (int i = 0; i < 4; i++)
-                if (!inv.getStackInSlot(i).isEmpty()) empty = false;
-            if (empty) return;
-            list.add(Component.translatable("hostilenetworks.info.dl_contains").withStyle(ChatFormatting.GRAY));
-            for (int i = 0; i < 4; i++) {
-                DataModelInstance model = new DataModelInstance(inv.getStackInSlot(i), i);
-                if (!model.isValid()) continue;
-                list.add(Component.translatable("- %s %s", model.getTier().getComponent(), stack.getItem().getName(stack)).withStyle(ChatFormatting.GRAY));
-            }
-        }
-        else {
-            ComponentItemHandler inv = getItemHandler(stack);
-            boolean empty = true;
-            for (int i = 0; i < 4; i++)
-                if (!inv.getStackInSlot(i).isEmpty()) empty = false;
-            if (empty) return;
-            list.add(Component.translatable("hostilenetworks.info.hold_shift", Color.withColor("hostilenetworks.color_text.shift", Color.WHITE)).withStyle(ChatFormatting.GRAY));
-        }
+        list.add(Component.literal("DL_INV_MARKER"));
     }
 
     @Override
