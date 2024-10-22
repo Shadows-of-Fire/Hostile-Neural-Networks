@@ -45,8 +45,8 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
     public static final int HEIGHT = 235;
     public static final ResourceLocation BASE = HostileNetworks.loc("textures/gui/deep_learner.png");
     public static final ResourceLocation PLAYER = HostileNetworks.loc("textures/gui/default_gui.png");
-    public static final WidgetSprites LEFT_BUTTON = makeSprites("left", "left_hovered");
-    public static final WidgetSprites RIGHT_BUTTON = makeSprites("right", "right_hovered");
+    public static final WidgetSprites LEFT_BUTTON = makeSprites("widget/left", "widget/left_hovered");
+    public static final WidgetSprites RIGHT_BUTTON = makeSprites("widget/right", "widget/right_hovered");
 
     private List<TickableText> texts = new ArrayList<>();
     private TickableText stats = new TickableText(I18n.get("hostilenetworks.gui.stats"), Color.AQUA);
@@ -82,7 +82,9 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
                 this.numModels--;
                 if (this.numModels > 0 && slotId == this.selectedModel) this.selectLeft();
             }
-            else if (slotId == this.selectedModel && this.models[this.selectedModel].isValid()) this.setupModel(this.models[this.selectedModel]);
+            else if (slotId == this.selectedModel && this.models[this.selectedModel].isValid()) {
+                this.setupModel(this.models[this.selectedModel]);
+            }
         });
     }
 

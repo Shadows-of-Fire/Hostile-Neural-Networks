@@ -30,8 +30,8 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> {
     public static final int HEIGHT = 178;
     public static final ResourceLocation BASE = HostileNetworks.loc("textures/gui/loot_fabricator.png");
     public static final ResourceLocation PLAYER = HostileNetworks.loc("textures/gui/default_gui.png");
-    public static final WidgetSprites LEFT_BUTTON = DeepLearnerScreen.makeSprites("fab_left", "fab_left_hovered");
-    public static final WidgetSprites RIGHT_BUTTON = DeepLearnerScreen.makeSprites("fab_right", "fab_right_hovered");
+    public static final WidgetSprites LEFT_BUTTON = DeepLearnerScreen.makeSprites("widget/fab_left", "widget/fab_left_hovered");
+    public static final WidgetSprites RIGHT_BUTTON = DeepLearnerScreen.makeSprites("widget/fab_right", "widget/fab_right_hovered");
 
     private DynamicHolder<DataModel> model = DataModelRegistry.INSTANCE.emptyHolder();
     private int currentPage = 0;
