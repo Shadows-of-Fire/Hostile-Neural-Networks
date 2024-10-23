@@ -10,6 +10,7 @@ import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import dev.shadowsoffire.hostilenetworks.datagen.LootProvider;
 import dev.shadowsoffire.hostilenetworks.net.OpenDeepLearnerPayload;
+import dev.shadowsoffire.placebo.config.Configuration;
 import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
 import net.minecraft.resources.ResourceLocation;
@@ -29,10 +30,11 @@ public class HostileNetworks {
     public static final String MODID = "hostilenetworks";
     public static final String VERSION = ModList.get().getModContainerById(MODID).get().getModInfo().getVersion().toString();
     public static final Logger LOGGER = LogManager.getLogger(MODID);
+    public static Configuration cfg;
 
     public HostileNetworks(IEventBus bus) {
         bus.register(this);
-        HostileConfig.load();
+        cfg = HostileConfig.load();
         Hostile.bootstrap(bus);
         PayloadHelper.registerPayload(new ConfigPayload.Provider());
         PayloadHelper.registerPayload(new OpenDeepLearnerPayload.Provider());

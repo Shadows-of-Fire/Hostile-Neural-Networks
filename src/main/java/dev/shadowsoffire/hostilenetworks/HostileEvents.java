@@ -103,7 +103,7 @@ public class HostileEvents {
 
     @SubscribeEvent
     public static void reload(AddReloadListenerEvent e) {
-        e.addListener((ResourceManagerReloadListener) resman -> HostileConfig.load());
+        e.addListener((ResourceManagerReloadListener) resman -> HostileNetworks.cfg = HostileConfig.load());
     }
 
     @SubscribeEvent

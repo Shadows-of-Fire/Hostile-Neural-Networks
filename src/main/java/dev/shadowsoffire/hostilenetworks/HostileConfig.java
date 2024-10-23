@@ -3,6 +3,8 @@ package dev.shadowsoffire.hostilenetworks;
 import java.util.List;
 import java.util.Optional;
 
+import dev.shadowsoffire.hostilenetworks.client.Offset;
+import dev.shadowsoffire.hostilenetworks.client.Offset.AnchorPoint;
 import dev.shadowsoffire.placebo.config.Configuration;
 import dev.shadowsoffire.placebo.network.PayloadProvider;
 import net.minecraft.network.ConnectionProtocol;
@@ -25,10 +27,12 @@ public class HostileConfig {
     public static boolean killModelUpgrade;
     public static boolean continuousAccuracy;
 
-    public static void load() {
+    public static Offset deepLearnerOffset;
+
+    public static Configuration load() {
         Configuration cfg = new Configuration(HostileNetworks.MODID);
         cfg.setTitle("Hostile Networks Config");
-        cfg.setComment("All entries in this config file are synced from server to client.");
+        cfg.setComment("All entries in this config file are synced from server to client unless noted otherwise.");
         simPowerCap = cfg.getInt("Sim Chamber Power Cap", "power", 2000000, 1, Integer.MAX_VALUE, "The maximum FE stored in the Simulation Chamber.");
         fabPowerCap = cfg.getInt("Loot Fab Power Cap", "power", 1000000, 1, Integer.MAX_VALUE, "The maximum FE stored in the Loot Fabricator.");
         fabPowerCost = cfg.getInt("Loot Fab Power Cost", "power", 256, 0, Integer.MAX_VALUE, "The FE/t cost of the Loot Fabricator.");
@@ -40,7 +44,11 @@ public class HostileConfig {
             "Whether killing mobs will upgrade the data on a model. Note: If you disable this, be sure to add a way for players to get non-Faulty models!");
         continuousAccuracy = cfg.getBoolean("Continuous Accuracy", "models", true,
             "If true, the accuracy of the model increases as it gains progress towards the next tier. If false, always uses the base accuracy of the current tier.");
+
+        cfg.setCategoryComment("client", "Client-only options, not synced");
+        deepLearnerOffset = Offset.load("Deep Learner HUD", "client", AnchorPoint.TOP_LEFT, cfg);
         if (cfg.hasChanged()) cfg.save();
+        return cfg;
     }
 
     static record ConfigPayload(int simPowerCap, int fabPowerCap, int fabPowerCost, boolean rightClickAttune, int simModelUpgrade, boolean killModelUpgrade, boolean continuousAccuracy) implements CustomPacketPayload {

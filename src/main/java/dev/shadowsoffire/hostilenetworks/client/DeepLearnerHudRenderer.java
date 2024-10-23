@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
+import dev.shadowsoffire.hostilenetworks.HostileConfig;
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
+import dev.shadowsoffire.hostilenetworks.client.Offset.Box;
 import dev.shadowsoffire.hostilenetworks.curios.CuriosCompat;
 import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
@@ -25,6 +27,8 @@ import net.neoforged.neoforge.items.ComponentItemHandler;
 public class DeepLearnerHudRenderer implements LayeredDraw.Layer {
 
     public static final ResourceLocation DL_HUD = HostileNetworks.loc("textures/gui/deep_learner_hud.png");
+    public static final ResourceLocation DL_HUD_BG = HostileNetworks.loc("dl_hud_bg");
+    public static final int SPACING = 28;
 
     @Override
     public void render(GuiGraphics gfx, DeltaTracker deltaTracker) {
@@ -58,51 +62,47 @@ public class DeepLearnerHudRenderer implements LayeredDraw.Layer {
 
         if (renderable.isEmpty()) return;
 
-        int spacing = 28;
+        gfx.pose().pushPose();
+
+        Offset offset = HostileConfig.deepLearnerOffset;
+        Box window = new Box(mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
+        Box element = new Box(119, 10 + SPACING * renderable.size());
+        offset.apply(gfx.pose(), window, element);
+
         int x = 6;
         int y = 6;
 
         WeirdRenderThings.TRANSLUCENT_TRANSPARENCY.setupRenderState();
-        gfx.blit(DL_HUD, 3, 3, 0, 23, 113, 1, 256, 256);
+        // Render the background (as a sprite for autoscaling) and the progress bars
+        gfx.blitSprite(DL_HUD_BG, 3, 3, 113, 5 + SPACING * renderable.size());
         for (int i = 0; i < renderable.size(); i++) {
-            gfx.blit(DL_HUD, 3, 4 + spacing * i, 0, 24, 113, spacing, 256, 256);
             DataModelInstance cModel = renderable.get(i);
-            gfx.blit(DL_HUD, x + 18, y + i * spacing + 11, 0, 0, 89, 12, 256, 256);
+            gfx.blit(DL_HUD, x + 18, y + i * SPACING + 11, 0, 0, 89, 12, 256, 256);
             int width = 87;
             if (!cModel.getTier().isMax()) {
                 int prev = cModel.getTierData();
                 width = Mth.ceil(width * (cModel.getData() - prev) / (float) (cModel.getNextTierData() - prev));
             }
-            gfx.blit(DL_HUD, x + 19, y + i * spacing + 12, 0, 12, width, 10, 256, 256);
+            gfx.blit(DL_HUD, x + 19, y + i * SPACING + 12, 0, 12, width, 10, 256, 256);
         }
-        gfx.blit(DL_HUD, 3, 4 + spacing * renderable.size(), 0, 122, 113, 2, 256, 256);
         WeirdRenderThings.TRANSLUCENT_TRANSPARENCY.clearRenderState();
 
+        // Then the model items
         for (int i = 0; i < renderable.size(); i++) {
             ItemStack dModel = renderable.get(i).getSourceStack();
-            gfx.renderItem(dModel, x, y + i * spacing + 9);
+            gfx.renderItem(dModel, x, y + i * SPACING + 9);
         }
 
+        // Then all the text
         for (int i = 0; i < renderable.size(); i++) {
             DataModelInstance cModel = renderable.get(i);
             Component comp = cModel.getTier().getComponent();
-            gfx.drawString(mc.font, comp, x + 2, y + spacing * i, 0xFFFFFF, true);
-            gfx.drawString(mc.font, Component.translatable("hostilenetworks.hud.model").withStyle(comp.getStyle()), x + mc.font.width(comp) + 2, y + spacing * i, 0xFFFFFF, true);
-            if (!cModel.getTier().isMax()) gfx.drawString(mc.font, I18n.get("hostilenetworks.hud.kills", cModel.getKillsNeeded()), x + 21, y + 13 + i * spacing, 0xFFFFFF, true);
+            gfx.drawString(mc.font, comp, x + 2, y + SPACING * i, 0xFFFFFF, true);
+            gfx.drawString(mc.font, Component.translatable("hostilenetworks.hud.model").withStyle(comp.getStyle()), x + mc.font.width(comp) + 2, y + SPACING * i, 0xFFFFFF, true);
+            if (!cModel.getTier().isMax()) gfx.drawString(mc.font, I18n.get("hostilenetworks.hud.kills", cModel.getKillsNeeded()), x + 21, y + 13 + i * SPACING, 0xFFFFFF, true);
         }
-    }
 
-    public static void drawModel(Minecraft mc, int x, int y, ItemStack stack, DataModelInstance model, GuiGraphics gfx) {
-        gfx.renderItem(stack, x, y + 9);
-        Component comp = model.getTier().getComponent();
-        gfx.drawString(mc.font, comp, x + 4, y, 0xFFFFFF, true);
-        gfx.drawString(mc.font, Component.translatable("hostilenetworks.hud.model").withStyle(comp.getStyle()), x + mc.font.width(comp) + 4, y, 0xFFFFFF, true);
-        gfx.blit(DL_HUD, x + 18, y + 10, 0, 0, 89, 12, 256, 256);
-        int width = 87;
-        if (!model.getTier().isMax()) {
-            width = Mth.ceil(width * model.getData() / (float) model.getNextTierData());
-        }
-        gfx.blit(DL_HUD, x + 19, y + 11, 0, 12, width, 10, 256, 256);
+        gfx.pose().popPose();
     }
 
 }
