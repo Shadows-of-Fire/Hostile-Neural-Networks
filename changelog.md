@@ -1,3 +1,20 @@
+## 6.1.0
+* Model Tiers are now fully data-driven! This means that new tiers can be added, and optionally existing tiers could be removed.
+  * Tiers must all be declared under the `hostilenetworks` namespace.
+  * No two tiers with the same `required_data` value may exist, and one tier with a `required_data` of zero must always exist.
+  * Individual tiers can be declared non-simulatable by setting `can_sim` to false.
+  * The addition and removal of model tiers is retroactive and will impact all existing data models in the game based on the new data thresholds.
+  * Model Tiers may define accuracy values in excess of 100%.
+* Updated the item tooltip for the Deep Learner. The tooltip now looks similar to the HUD.
+* Added support for Curios API Continuation.
+* Added a keybind to open the Deep Learner from the curio slot. Defaults to `u`.
+* Made Data Model and Mob Prediction item names always white.
+  * Using the name color was a nice bit of flavor, but makes the names too hard to read in many cases.
+* Made the Deep Learner HUD position configurable. The `/hnn_client set_hud_pos` command can be used to adjust it in-game.
+* Fixed arrow button sprite rendering in the Loot Fabricator and Deep Learner.
+* Vizthex: Added Breeze Model, added variant declarations for Hoglin (Zoglin) and Skeleton (Bogged), and reduced slime block output to 3 (was 8).
+* Twister: Added Japanese Translation.
+
 ## 6.0.1
 * Fixed recipes referencing old tag names from 1.20.
 
