@@ -12,6 +12,9 @@
 	"item.hostilenetworks.end_prediction": "汎用エンド予測素材",
 	"item.hostilenetworks.twilight_prediction": "汎用黄昏予測素材",
 	
+	"key.categories.hostilenetworks": "Hostile Neural Networks",
+	"key.hostilenetworks.open_deep_learner": "キュリオスロットの深層学習機を開く",
+	
 	"itemGroup.hostilenetworks": "Hostile Neural Networks",
 	
 	"hostilenetworks.gui.learner_empty.0": "データモデルが見つかりません",
@@ -75,8 +78,6 @@
 	"hostilenetworks.info.dpk": "データ当たりの必要殺害数: %s",
 	"hostilenetworks.info.sim_cost": "解析コスト: %s",
 	"hostilenetworks.info.rft": "%s FE/t",
-	"hostilenetworks.info.deep_learner": "モデルが学習機内にある場合%sが表示されます",
-	"hostilenetworks.info.dl_contains": "以下のモデルが学習機に挿入されています",
 	"hostilenetworks.info.rolls": "戦利品テーブルのコピー: %s",
 	"hostilenetworks.info.player": "プレイヤードロップ: %s",
 	"hostilenetworks.info.exp": "生成経験値: %s",
@@ -113,6 +114,7 @@
 	"hostilenetworks.trivia.pig": "豚は興味深いケースである。\n乳を飲むのは牛よりも劣るし、\n乗馬とは比べ物にすらならない。\n殺すことは優しさなのかもしれない...",
 	
 	"_comment": "バニラの敵対",
+	"hostilenetworks.trivia.breeze": "ブレイズの風通しの良い親戚であるブリーズは\nトライアルチャンバー内でのみ見ることが可能である",
 	"hostilenetworks.trivia.blaze": "バケツを持ってきて、\n絶望のさなかそれをぶちまけたとたん、\nすべてが蒸発する...\nそうだ、燃えているんだ。",
 	"hostilenetworks.trivia.creeper": "リフォームの匠を職業としている。\n一般的に誤解されている。",
 	"hostilenetworks.trivia.drowned": "2度も死を拒んだアンデッドの鑑。\nどういうわけかトライデントの使用方法を会得した。",
