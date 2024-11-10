@@ -141,7 +141,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
      * Checks if the output slots are clear and there is enough power for a sim run.
      */
     public boolean canStartSimulation() {
-        if (this.inventory.getStackInSlot(1).isEmpty()) {
+        if (!DataModelItem.matchesInput(this.inventory.getStackInSlot(0), this.inventory.getStackInSlot(1))) {
             this.failState = FailureState.INPUT;
             return false;
         }
