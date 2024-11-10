@@ -1,3 +1,6 @@
+## 6.1.1
+* Fixed simulation chambers not respecting custom model inputs.
+
 ## 6.1.0
 * Model Tiers are now fully data-driven! This means that new tiers can be added, and optionally existing tiers could be removed.
   * Tiers must all be declared under the `hostilenetworks` namespace.
