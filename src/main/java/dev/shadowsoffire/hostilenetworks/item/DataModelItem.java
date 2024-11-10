@@ -112,9 +112,11 @@ public class DataModelItem extends Item implements ITabFiller {
      * @return A holder pointing to the nbt-encoded data model.
      */
     public static DynamicHolder<DataModel> getStoredModel(ItemStack stack) {
-        if (!stack.hasTag()) return DataModelRegistry.INSTANCE.holder(new ResourceLocation("empty", "empty"));
-        String dmKey = stack.getOrCreateTagElement(DATA_MODEL).getString(ID);
-        return DataModelRegistry.INSTANCE.holder(new ResourceLocation(dmKey));
+        CompoundTag tag = stack.getTagElement(DATA_MODEL);
+        if (tag == null || !tag.contains(ID)) {
+            return DataModelRegistry.INSTANCE.emptyHolder();
+        }
+        return DataModelRegistry.INSTANCE.holder(new ResourceLocation(tag.getString(ID)));
     }
 
     public static void setStoredModel(ItemStack stack, DataModel model) {
@@ -127,7 +129,8 @@ public class DataModelItem extends Item implements ITabFiller {
     }
 
     public static int getData(ItemStack stack) {
-        return stack.getOrCreateTagElement(DATA_MODEL).getInt(DATA);
+        CompoundTag tag = stack.getTagElement(DATA_MODEL);
+        return tag == null ? 0 : tag.getInt(DATA);
     }
 
     public static void setData(ItemStack stack, int data) {
@@ -135,7 +138,8 @@ public class DataModelItem extends Item implements ITabFiller {
     }
 
     public static int getIters(ItemStack stack) {
-        return stack.getOrCreateTagElement(DATA_MODEL).getInt(ITERATIONS);
+        CompoundTag tag = stack.getTagElement(DATA_MODEL);
+        return tag == null ? 0 : tag.getInt(ITERATIONS);
     }
 
     public static void setIters(ItemStack stack, int data) {
