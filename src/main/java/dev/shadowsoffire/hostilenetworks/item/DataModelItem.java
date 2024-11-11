@@ -113,7 +113,7 @@ public class DataModelItem extends Item implements ITabFiller {
      */
     public static DynamicHolder<DataModel> getStoredModel(ItemStack stack) {
         CompoundTag tag = stack.getTagElement(DATA_MODEL);
-        if (tag == null || !tag.contains(ID)) {
+        if (stack.isEmpty() || tag == null || !tag.contains(ID)) {
             return DataModelRegistry.INSTANCE.emptyHolder();
         }
         return DataModelRegistry.INSTANCE.holder(new ResourceLocation(tag.getString(ID)));
@@ -130,7 +130,7 @@ public class DataModelItem extends Item implements ITabFiller {
 
     public static int getData(ItemStack stack) {
         CompoundTag tag = stack.getTagElement(DATA_MODEL);
-        return tag == null ? 0 : tag.getInt(DATA);
+        return stack.isEmpty() || tag == null ? 0 : tag.getInt(DATA);
     }
 
     public static void setData(ItemStack stack, int data) {
@@ -139,7 +139,7 @@ public class DataModelItem extends Item implements ITabFiller {
 
     public static int getIters(ItemStack stack) {
         CompoundTag tag = stack.getTagElement(DATA_MODEL);
-        return tag == null ? 0 : tag.getInt(ITERATIONS);
+        return stack.isEmpty() || tag == null ? 0 : tag.getInt(ITERATIONS);
     }
 
     public static void setIters(ItemStack stack, int data) {
