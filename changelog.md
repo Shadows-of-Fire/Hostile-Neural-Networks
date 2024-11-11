@@ -1,3 +1,6 @@
+## 5.3.3
+* Fixed some mechanics treating empty item stacks as valid data models.
+
 ## 5.3.2
 * Fixed simulation chambers not respecting custom model inputs.
 * Fixed simulation chambers modifying the global empty item stack.
