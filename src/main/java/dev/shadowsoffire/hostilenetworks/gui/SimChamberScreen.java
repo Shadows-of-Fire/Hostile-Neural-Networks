@@ -4,22 +4,29 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.shadowsoffire.hostilenetworks.HostileConfig;
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
+import dev.shadowsoffire.hostilenetworks.net.SetRedstoneStatePayload;
+import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity;
 import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity.FailureState;
+import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity.RedstoneState;
 import dev.shadowsoffire.hostilenetworks.util.Color;
 import dev.shadowsoffire.placebo.screen.PlaceboContainerScreen;
 import dev.shadowsoffire.placebo.screen.TickableText;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer> {
 
@@ -36,6 +43,12 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
         super(pMenu, pPlayerInventory, pTitle);
         this.imageWidth = WIDTH;
         this.imageHeight = HEIGHT;
+    }
+
+    @Override
+    public void init() {
+        super.init();
+        addRenderableWidget(new RedstoneButton(this.getGuiLeft() + 228, this.getGuiTop()));
     }
 
     @Override
@@ -61,6 +74,9 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
                 }
                 gfx.renderComponentTooltip(this.font, txt, pX, pY);
             }
+        }
+        else if (this.isHovering(229, 1, 16, 16, pX, pY)) {
+            gfx.renderTooltip(this.font, Component.translatable(this.menu.getRedstoneState().getKey()), pX, pY);
         }
         else super.renderTooltip(gfx, pX, pY);
     }
@@ -118,6 +134,9 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
 
         gfx.blit(BASE, left + 8, top, 0, 0, 216, 141, 256, 256);
         gfx.blit(BASE, left - 14, top, 0, 141, 18, 18, 256, 256);
+
+        // Redstone background
+        gfx.blit(BASE, left + 228, top, 0, 141, 18, 18, 256, 256);
 
         int energyHeight = 87 - Mth.ceil(87F * this.menu.getEnergyStored() / HostileConfig.simPowerCap);
 
@@ -190,6 +209,31 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
 
         TickableText.tickList(this.body);
         if (this.menu.getRuntime() == 0) this.runtimeTextLoaded = false;
+    }
+
+    private class RedstoneButton extends AbstractWidget {
+
+        public RedstoneButton(int x, int y) {
+            super(x, y, 18, 18, Component.empty());
+        }
+
+        @Override
+        public void onClick(double mouseX, double mouseY) {
+            PacketDistributor.sendToServer(new SetRedstoneStatePayload((SimChamberScreen.this.menu.getRedstoneState().ordinal() + 1) % RedstoneState.values().length));
+        }
+
+        @Override
+        protected void updateWidgetNarration(NarrationElementOutput output) {
+            this.defaultButtonNarrationText(output);
+        }
+
+        @Override
+        protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            RenderSystem.enableBlend();
+            RenderSystem.enableDepthTest();
+            guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+            guiGraphics.blit(SimChamberScreen.this.menu.getRedstoneState().getResourceLocation(), this.getX() + 1, this.getY() + 1, 0, 0, 16, 16, 16, 16);
+        }
     }
 
 }

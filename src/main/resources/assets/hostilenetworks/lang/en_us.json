@@ -43,6 +43,9 @@
 	"hostilenetworks.gui.max_data": "I am at maximum potential",
 	"hostilenetworks.gui.variant": "%s (Variant)",
 	"hostilenetworks.gui.upgrade_disabled": "Models cannot be upgraded via kills.",
+	"hostilenetworks.gui.redstone.ignored": "Redstone: Ignored",
+	"hostilenetworks.gui.redstone.off_when_powered": "Redstone: Off When Powered",
+	"hostilenetworks.gui.redstone.on_when_powered": "Redstone: On When Powered",
 
 	"hostilenetworks.hud.model": " Model",
 	"hostilenetworks.hud.kills": "%s Remaining",
@@ -59,6 +62,7 @@
 	"hostilenetworks.fail.model": "Please insert a Data Model\nto begin the simulation",
 	"hostilenetworks.fail.faulty": "Insufficient data in model\nplease insert a basic model\nor better",
 	"hostilenetworks.fail.energy_mid_cycle": "Simulation progress paused\nSystem energy levels critical",
+	"hostilenetworks.fail.redstone": "Simulation progress paused\nIncorrect redstone signal applied",
 	
 	"hostilenetworks.run.0": "> Launching runtime ",
 	"hostilenetworks.run.1": "> Iteration #%s started",

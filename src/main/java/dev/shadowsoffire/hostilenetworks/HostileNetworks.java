@@ -1,5 +1,6 @@
 package dev.shadowsoffire.hostilenetworks;
 
+import dev.shadowsoffire.hostilenetworks.net.SetRedstoneStatePayload;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,6 +39,7 @@ public class HostileNetworks {
         Hostile.bootstrap(bus);
         PayloadHelper.registerPayload(new ConfigPayload.Provider());
         PayloadHelper.registerPayload(new OpenDeepLearnerPayload.Provider());
+        PayloadHelper.registerPayload(new SetRedstoneStatePayload.Provider());
     }
 
     @SubscribeEvent
