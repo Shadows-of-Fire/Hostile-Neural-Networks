@@ -30,13 +30,17 @@
             "count": 1
         },
         {
-            "id": "apotheosis:warden_tendril",
+            "id": "apothic_enchanting:warden_tendril",
             "optional": true,
             "count": 1
         },
         {
             "id": "minecraft:echo_shard",
             "count": 2
+        },
+        {
+            "id": "minecraft:sculk_catalyst",
+            "count": 4
         }
     ]
 }
