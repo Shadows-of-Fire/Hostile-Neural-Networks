@@ -36,12 +36,14 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
     protected int runtime = 0;
     protected int predictionSuccess = 0;
     protected FailureState failState = FailureState.NONE;
+    protected RedstoneState redstoneState = RedstoneState.IGNORED;
 
     public SimChamberTileEntity(BlockPos pos, BlockState state) {
         super(Hostile.TileEntities.SIM_CHAMBER, pos, state);
         this.data.addData(() -> this.runtime, v -> this.runtime = v);
         this.data.addData(() -> this.predictionSuccess, v -> this.predictionSuccess = v);
         this.data.addData(() -> this.failState.ordinal(), v -> this.failState = FailureState.values()[v]);
+        this.data.addData(() -> this.redstoneState.ordinal(), v -> this.redstoneState = RedstoneState.values()[v]);
         this.data.addEnergy(this.energy);
     }
 
@@ -59,6 +61,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         tag.putInt("runtime", this.runtime);
         tag.putInt("predSuccess", this.predictionSuccess);
         tag.putInt("failState", this.failState.ordinal());
+        tag.putInt("redstoneState", this.redstoneState.ordinal());
     }
 
     @Override
@@ -75,6 +78,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         this.runtime = tag.getInt("runtime");
         this.predictionSuccess = tag.getInt("predSuccess");
         this.failState = FailureState.values()[tag.getInt("failState")];
+        this.redstoneState = RedstoneState.values()[tag.getInt("redstoneState")];
     }
 
     @Override
@@ -102,33 +106,38 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                     }
                 }
                 else if (this.hasPowerFor(this.currentModel.getModel())) {
-                    this.failState = FailureState.NONE;
-                    if (--this.runtime == 0) {
-                        ItemStack stk = this.inventory.getStackInSlot(2);
-                        if (stk.isEmpty()) this.inventory.setStackInSlot(2, this.currentModel.getModel().baseDrop().copy());
-                        else stk.grow(1);
-                        if (this.predictionSuccess > 0) {
-                            stk = this.inventory.getStackInSlot(3);
-                            if (stk.isEmpty()) {
-                                this.inventory.setStackInSlot(3, this.currentModel.getPredictionDrop().copyWithCount(this.predictionSuccess));
+                    if (this.getRedstoneState().matches(level.hasNeighborSignal(worldPosition))) {
+                        this.failState = FailureState.NONE;
+                        if (--this.runtime == 0) {
+                            ItemStack stk = this.inventory.getStackInSlot(2);
+                            if (stk.isEmpty()) this.inventory.setStackInSlot(2, this.currentModel.getModel().baseDrop().copy());
+                            else stk.grow(1);
+                            if (this.predictionSuccess > 0) {
+                                stk = this.inventory.getStackInSlot(3);
+                                if (stk.isEmpty()) {
+                                    this.inventory.setStackInSlot(3, this.currentModel.getPredictionDrop().copyWithCount(this.predictionSuccess));
+                                }
+                                else {
+                                    stk.grow(this.predictionSuccess);
+                                }
                             }
-                            else {
-                                stk.grow(this.predictionSuccess);
+                            ModelTier tier = this.currentModel.getTier();
+                            if (!tier.isMax() && HostileConfig.simModelUpgrade > 0) {
+                                int newData = this.currentModel.getData() + 1;
+                                if (!(HostileConfig.simModelUpgrade == 2 && newData > this.currentModel.getNextTierData())) {
+                                    this.currentModel.setData(newData);
+                                }
                             }
+                            DataModelItem.setIters(model, DataModelItem.getIters(model) + 1);
+                            this.setChanged();
                         }
-                        ModelTier tier = this.currentModel.getTier();
-                        if (!tier.isMax() && HostileConfig.simModelUpgrade > 0) {
-                            int newData = this.currentModel.getData() + 1;
-                            if (!(HostileConfig.simModelUpgrade == 2 && newData > this.currentModel.getNextTierData())) {
-                                this.currentModel.setData(newData);
-                            }
+                        else if (this.runtime != 0) {
+                            this.energy.setEnergy(this.energy.getEnergyStored() - this.currentModel.getModel().simCost());
+                            this.setChanged();
                         }
-                        DataModelItem.setIters(model, DataModelItem.getIters(model) + 1);
-                        this.setChanged();
                     }
-                    else if (this.runtime != 0) {
-                        this.energy.setEnergy(this.energy.getEnergyStored() - this.currentModel.getModel().simCost());
-                        this.setChanged();
+                    else {
+                        this.failState = FailureState.REDSTONE;
                     }
                 }
                 else {
@@ -147,6 +156,11 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
     public boolean canStartSimulation() {
         if (!DataModelItem.matchesModelInput(this.inventory.getStackInSlot(0), this.inventory.getStackInSlot(1))) {
             this.failState = FailureState.INPUT;
+            return false;
+        }
+
+        if (!this.redstoneState.matches(this.level.hasNeighborSignal(this.worldPosition))) {
+            this.failState = FailureState.REDSTONE;
             return false;
         }
 
@@ -216,6 +230,14 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         return this.failState;
     }
 
+    public void setRedstoneState(RedstoneState state) {
+        this.redstoneState = state;
+    }
+
+    public RedstoneState getRedstoneState() {
+        return this.redstoneState;
+    }
+
     public class SimItemHandler extends InternalItemHandler {
 
         public SimItemHandler() {
@@ -259,7 +281,8 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         INPUT("input"),
         MODEL("model"),
         FAULTY("faulty"),
-        ENERGY_MID_CYCLE("energy_mid_cycle");
+        ENERGY_MID_CYCLE("energy_mid_cycle"),
+        REDSTONE("redstone");
 
         private final String name;
 
@@ -270,6 +293,46 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         public String getKey() {
             return "hostilenetworks.fail." + this.name;
         }
+    }
+
+    public enum RedstoneState {
+
+        IGNORED("ignored", ResourceLocation.withDefaultNamespace("textures/item/redstone.png")),
+        OFF_WHEN_POWERED("off_when_powered", ResourceLocation.withDefaultNamespace("textures/block/redstone_torch_off.png")),
+        ON_WHEN_POWERED("on_when_powered", ResourceLocation.withDefaultNamespace("textures/block/redstone_torch.png"));
+
+        private final String name;
+        private final ResourceLocation texture;
+
+        RedstoneState(String name, ResourceLocation texture) {
+            this.name = name;
+            this.texture = texture;
+        }
+
+        public String getKey() {
+            return "hostilenetworks.gui.redstone." + name;
+        }
+
+        public ResourceLocation getResourceLocation() {
+            return texture;
+        }
+
+        public boolean matches(boolean power) {
+            return switch (this) {
+                case IGNORED -> true;
+                case OFF_WHEN_POWERED -> !power;
+                case ON_WHEN_POWERED -> power;
+            };
+        }
+
+        public RedstoneState next() {
+            return switch (this) {
+                case IGNORED -> OFF_WHEN_POWERED;
+                case OFF_WHEN_POWERED -> ON_WHEN_POWERED;
+                case ON_WHEN_POWERED -> IGNORED;
+            };
+        }
+
     }
 
 }
