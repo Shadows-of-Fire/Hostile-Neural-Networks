@@ -21,6 +21,9 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
@@ -29,6 +32,8 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
 
     public static final int WIDTH = 232;
     public static final int HEIGHT = 230;
+    public static final int MAX_TEXT_WIDTH = 174;
+
     private static final ResourceLocation BASE = HostileNetworks.loc("textures/gui/sim_chamber.png");
     private static final ResourceLocation PLAYER = HostileNetworks.loc("textures/gui/default_gui.png");
 
@@ -165,17 +170,16 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
             this.lastFailState = this.menu.getFailState();
             if (oState != this.lastFailState) {
                 this.body.clear();
-                String[] msg = I18n.get(this.lastFailState.getKey()).split("\\n");
+                MutableComponent msg = Component.translatable(this.lastFailState.getKey());
                 if (this.lastFailState == FailureState.INPUT) {
                     DataModelInstance cModel = new DataModelInstance(this.menu.getSlot(0).getItem(), 0);
                     Component name = ERROR;
                     if (cModel.isValid()) {
                         name = cModel.getModel().input().getItems()[0].getHoverName();
                     }
-                    msg = I18n.get(this.lastFailState.getKey(), name.getString()).split("\\n");
+                    msg = Component.translatable(this.lastFailState.getKey(), name);
                 }
-                for (String s : msg)
-                    this.body.add(new TickableText(s, Color.WHITE));
+                this.addBodyText(msg, Color.WHITE);
             }
             this.runtimeTextLoaded = false;
         }
@@ -206,6 +210,13 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
 
         TickableText.tickList(this.body);
         if (this.menu.getRuntime() == 0) this.runtimeTextLoaded = false;
+    }
+
+    private void addBodyText(FormattedText text, int color) {
+        List<FormattedText> split = this.font.getSplitter().splitLines(text, MAX_TEXT_WIDTH, Style.EMPTY);
+        for (FormattedText txt : split) {
+            this.body.add(new TickableText(txt.getString(), color));
+        }
     }
 
     private class RedstoneButton extends AbstractWidget {
