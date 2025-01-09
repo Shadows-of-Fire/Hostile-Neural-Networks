@@ -2,6 +2,7 @@ package dev.shadowsoffire.hostilenetworks.data;
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -103,6 +104,10 @@ public record DataModel(EntityType<?> entity, List<EntityType<?>> variants, Comp
     @Override
     public Codec<? extends DataModel> getCodec() {
         return CODEC;
+    }
+
+    public Stream<EntityType<?>> entityAndVariants() {
+        return Stream.concat(Stream.of(this.entity), this.variants.stream());
     }
 
     public static DataResult<DataModel> validate(DataModel model) {

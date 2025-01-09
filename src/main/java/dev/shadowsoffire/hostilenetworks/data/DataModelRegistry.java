@@ -44,11 +44,13 @@ public class DataModelRegistry extends DynamicRegistry<DataModel> {
 
     @Override
     protected void validateItem(ResourceLocation key, DataModel model) {
-        if (this.modelsByType.containsKey(model.entity())) {
-            String msg = "Attempted to register two models (%s and %s) for Entity Type %s!";
-            throw new UnsupportedOperationException(String.format(msg, key, this.getKey(this.modelsByType.get(model.entity())), EntityType.getKey(model.entity())));
-        }
-        this.modelsByType.put(model.entity(), model);
+        model.entityAndVariants().forEach(type -> {
+            if (this.modelsByType.containsKey(type)) {
+                String msg = "Attempted to register two models (%s and %s) for Entity Type %s!";
+                throw new UnsupportedOperationException(String.format(msg, key, this.getKey(this.modelsByType.get(type)), EntityType.getKey(type)));
+            }
+            this.modelsByType.put(type, model);
+        });
     }
 
     @Nullable
