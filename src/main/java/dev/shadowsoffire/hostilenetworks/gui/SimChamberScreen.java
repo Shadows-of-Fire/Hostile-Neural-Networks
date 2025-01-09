@@ -14,16 +14,14 @@ import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity.FailureState;
 import dev.shadowsoffire.hostilenetworks.util.Color;
 import dev.shadowsoffire.placebo.screen.PlaceboContainerScreen;
-import dev.shadowsoffire.placebo.screen.TickableText;
+import dev.shadowsoffire.placebo.screen.TickableTextList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
@@ -33,11 +31,12 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
     public static final int WIDTH = 232;
     public static final int HEIGHT = 230;
     public static final int MAX_TEXT_WIDTH = 174;
+    public static final float RUNTIME_TEXT_SPEED = 0.65F;
 
     private static final ResourceLocation BASE = HostileNetworks.loc("textures/gui/sim_chamber.png");
     private static final ResourceLocation PLAYER = HostileNetworks.loc("textures/gui/default_gui.png");
 
-    private List<TickableText> body = new ArrayList<>(7);
+    private TickableTextList body;
     private FailureState lastFailState = FailureState.NONE;
     private boolean runtimeTextLoaded = false;
 
@@ -51,6 +50,10 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
     public void init() {
         super.init();
         addRenderableWidget(new RedstoneButton(this.getGuiLeft() + 228, this.getGuiTop()));
+        this.body = new TickableTextList(this.minecraft.font, MAX_TEXT_WIDTH);
+        this.lastFailState = FailureState.NONE;
+        this.runtimeTextLoaded = false;
+        this.containerTick();
     }
 
     @Override
@@ -113,20 +116,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
             msg = fmt.format(cModel.getAccuracy());
             gfx.drawString(this.font, msg, xOff, 9 + (this.font.lineHeight + 3) * 2, cModel.getTier().colorValue());
         }
-        int left = 29;
-        int top = 51;
-        int spacing = this.font.lineHeight + 3;
-        int idx = 0;
-        for (TickableText t : this.body) {
-            t.render(this.font, gfx, left, top + spacing * idx);
-            if (t.causesNewLine()) {
-                idx++;
-                left = 29;
-            }
-            else {
-                left += t.getWidth(this.font);
-            }
-        }
+        this.body.render(gfx, 29, 51);
     }
 
     @Override
@@ -179,7 +169,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
                     }
                     msg = Component.translatable(this.lastFailState.getKey(), name);
                 }
-                this.addBodyText(msg, Color.WHITE);
+                this.body.addLine(msg, 1);
             }
             this.runtimeTextLoaded = false;
         }
@@ -189,33 +179,26 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
             this.body.clear();
             int iters = DataModelItem.getIters(this.menu.getSlot(0).getItem());
             for (int i = 0; i < 7; i++) {
-                TickableText txt = new TickableText(I18n.get("hostilenetworks.run." + i, iters), Color.WHITE, i != 0 && i != 5, speed);
-                this.body.add(txt.setTicks(ticks));
-                ticks = Math.max(0, ticks - txt.getMaxUsefulTicks());
+                Component txt = Component.translatable("hostilenetworks.run." + i, iters);
+                this.body.addLine(txt, speed);
                 if (i == 0) {
-                    txt = new TickableText("v" + HostileNetworks.VERSION, ChatFormatting.GOLD.getColor(), true, speed);
-                    this.body.add(txt.setTicks(ticks));
-                    ticks = Math.max(0, ticks - txt.getMaxUsefulTicks());
+                    Component version = Component.literal("v" + HostileNetworks.VERSION).withStyle(ChatFormatting.GOLD);
+                    this.body.continueLine(version, speed);
                 }
                 else if (i == 5) {
                     String key = "hostilenetworks.color_text." + (this.menu.didPredictionSucceed() ? "success" : "failed");
-                    txt = new TickableText(I18n.get(key), (this.menu.didPredictionSucceed() ? ChatFormatting.GOLD : ChatFormatting.RED).getColor(), true, speed);
-                    this.body.add(txt.setTicks(ticks));
-                    ticks = Math.max(0, ticks - txt.getMaxUsefulTicks());
+                    Component status = Component.translatable(key).withStyle(this.menu.didPredictionSucceed() ? ChatFormatting.GOLD : ChatFormatting.RED);
+                    this.body.continueLine(status, speed);
                 }
             }
+            this.body.setTicks(ticks);
             this.runtimeTextLoaded = true;
             this.lastFailState = FailureState.NONE;
         }
 
-        TickableText.tickList(this.body);
-        if (this.menu.getRuntime() == 0) this.runtimeTextLoaded = false;
-    }
-
-    private void addBodyText(FormattedText text, int color) {
-        List<FormattedText> split = this.font.getSplitter().splitLines(text, MAX_TEXT_WIDTH, Style.EMPTY);
-        for (FormattedText txt : split) {
-            this.body.add(new TickableText(txt.getString(), color));
+        this.body.tick();
+        if (this.menu.getRuntime() == 0) {
+            this.runtimeTextLoaded = false;
         }
     }
 

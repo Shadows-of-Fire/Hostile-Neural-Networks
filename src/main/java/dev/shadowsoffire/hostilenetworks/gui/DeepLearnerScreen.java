@@ -1,9 +1,7 @@
 package dev.shadowsoffire.hostilenetworks.gui;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.joml.Quaternionf;
 
@@ -22,7 +20,7 @@ import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import dev.shadowsoffire.hostilenetworks.util.Color;
 import dev.shadowsoffire.hostilenetworks.util.ReflectionThings;
 import dev.shadowsoffire.placebo.screen.PlaceboContainerScreen;
-import dev.shadowsoffire.placebo.screen.TickableText;
+import dev.shadowsoffire.placebo.screen.TickableTextList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -30,7 +28,6 @@ import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -43,13 +40,16 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 
     public static final int WIDTH = 338;
     public static final int HEIGHT = 235;
+    public static final int MAX_TEXT_WIDTH = 200;
+
     public static final ResourceLocation BASE = HostileNetworks.loc("textures/gui/deep_learner.png");
     public static final ResourceLocation PLAYER = HostileNetworks.loc("textures/gui/default_gui.png");
     public static final WidgetSprites LEFT_BUTTON = makeSprites("widget/left", "widget/left_hovered");
     public static final WidgetSprites RIGHT_BUTTON = makeSprites("widget/right", "widget/right_hovered");
 
-    private List<TickableText> texts = new ArrayList<>();
-    private TickableText stats = new TickableText(I18n.get("hostilenetworks.gui.stats"), Color.AQUA);
+    private TickableTextList mainText;
+    private TickableTextList dataText;
+    private TickableTextList stats;
     private final String[] statArray = new String[3];
     private int numModels = 0;
     private boolean emptyText = true;
@@ -64,7 +64,6 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         super(pMenu, pPlayerInventory, pTitle);
         this.imageWidth = WIDTH;
         this.imageHeight = HEIGHT;
-        this.setupEmptyText();
         Arrays.fill(models, DataModelInstance.EMPTY);
         this.minecraft = Minecraft.getInstance();
         pMenu.setNotifyCallback(slotId -> {
@@ -102,6 +101,15 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         this.btnRight = this.addRenderableWidget(new ImageButton(this.getGuiLeft() - 1, this.getGuiTop() + 105, 24, 24, RIGHT_BUTTON, btn -> {
             this.selectRight();
         }));
+
+        this.stats = new TickableTextList(this.minecraft.font, 100);
+        this.stats.addLine(Component.translatable("hostilenetworks.gui.stats").withColor(Color.AQUA));
+
+        this.mainText = new TickableTextList(this.minecraft.font, MAX_TEXT_WIDTH - this.stats.getWidth() + 36);
+        this.dataText = new TickableTextList(this.minecraft.font, MAX_TEXT_WIDTH);
+
+        this.setupEmptyText();
+        this.containerTick();
     }
 
     public void selectLeft() {
@@ -136,7 +144,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 
         if (this.numModels > 0) {
             for (int i = 0; i < 3; i++) {
-                gfx.blit(BASE, left + WIDTH - 49 - this.stats.getWidth(this.font), top + 8 + this.font.lineHeight + (this.font.lineHeight + 2) * i, 0, 140 + 9 * i, 9, 9);
+                gfx.blit(BASE, left + WIDTH - 49 - this.stats.getWidth(), top + 8 + this.font.lineHeight + (this.font.lineHeight + 2) * i, 0, 140 + 9 * i, 9, 9);
             }
 
             gfx.blit(BASE, left - 41, top, 9, 140, 75, 101);
@@ -152,7 +160,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
             }
 
             for (int i = 0; i < 3; i++) {
-                gfx.drawString(this.font, this.statArray[i], left + WIDTH - 36 - this.stats.getWidth(this.font), top + 9 + this.font.lineHeight + (this.font.lineHeight + 2) * i, Color.WHITE);
+                gfx.drawString(this.font, this.statArray[i], left + WIDTH - 36 - this.stats.getWidth(), top + 9 + this.font.lineHeight + (this.font.lineHeight + 2) * i, Color.WHITE);
             }
 
         }
@@ -172,20 +180,10 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
     protected void renderLabels(GuiGraphics gfx, int pX, int pY) {
         int left = 49;
         int top = 6;
-        int spacing = this.font.lineHeight + 3;
-        int idx = 0;
-        for (TickableText t : this.texts) {
-            t.render(this.font, gfx, left, top + spacing * idx);
-            if (t.causesNewLine()) {
-                idx++;
-                left = 49;
-            }
-            else {
-                left += t.getWidth(this.font);
-            }
-        }
+        this.mainText.render(gfx, left, top);
+        this.dataText.render(gfx, left, top + (font.lineHeight + 3) * 8);
         if (this.numModels > 0) {
-            this.stats.render(this.font, gfx, WIDTH - 49 - this.stats.getWidth(this.font), top);
+            this.stats.render(gfx, WIDTH - 49 - this.stats.getWidth(), top);
         }
     }
 
@@ -210,13 +208,8 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
             }
         }
 
-        for (int i = 0; i < this.texts.size(); i++) {
-            TickableText txt = this.texts.get(i);
-            if (!txt.isDone()) {
-                txt.tick();
-                break;
-            }
-        }
+        this.mainText.tick();
+        this.dataText.tick();
 
         this.stats.tick();
 
@@ -234,18 +227,22 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 
         Entity entity = current.getEntity(this.minecraft.level, this.variant);
         if (this.variant == 0) {
-            this.texts.set(1, new TickableText(entity.getType().getDescription().getString(), Color.WHITE, true, 2).setTicks(9999));
+            this.mainText.setLine(1, Component.translatable(entity.getType().getDescription().getString()), 2);
         }
         else {
-            this.texts.set(1, new TickableText(I18n.get("hostilenetworks.gui.variant", entity.getType().getDescription().getString()), Color.LIME, true, 2).setTicks(9999));
+            this.mainText.setLine(1, Component.translatable("hostilenetworks.gui.variant", entity.getType().getDescription()).withColor(Color.LIME), 2);
         }
     }
 
+    /**
+     * Clears all texts and generates the empty text lines.
+     */
     private void setupEmptyText() {
         this.resetText();
         for (int i = 0; i < 7; i++) {
-            this.addText(I18n.get("hostilenetworks.gui.learner_empty." + i), i == 0 ? Color.AQUA : Color.WHITE);
+            this.mainText.addLine(Component.translatable("hostilenetworks.gui.learner_empty." + i).withColor(i == 0 ? Color.AQUA : Color.WHITE));
         }
+        this.emptyText = true;
     }
 
     private static DecimalFormat fmt = new DecimalFormat("##.##%");
@@ -256,35 +253,32 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         this.ticksShown = 0;
         this.variant = 0;
         this.resetText();
-        this.addText(I18n.get("hostilenetworks.gui.name"), Color.AQUA);
-        this.addText(cache.getEntity(this.minecraft.level).getType().getDescription().getString(), Color.WHITE);
-        this.addText(I18n.get("hostilenetworks.gui.info"), Color.AQUA);
-        String[] trivia = I18n.get(model.triviaKey()).split("\\n");
-        for (int i = 0; i < Math.min(4, trivia.length); i++) {
-            this.addText(trivia[i], Color.WHITE);
-        }
-        for (int i = trivia.length; i < 5; i++) {
-            this.addText("", 0);
-        }
-        this.addText(I18n.get("hostilenetworks.gui.tier"), Color.WHITE, false);
+        this.mainText.addLine(Component.translatable("hostilenetworks.gui.name").withColor(Color.AQUA));
+        this.mainText.addLine(cache.getEntity(this.minecraft.level).getType().getDescription());
+        this.mainText.addLine(Component.translatable("hostilenetworks.gui.info").withColor(Color.AQUA));
+        this.mainText.addLine(Component.translatable(model.triviaKey()));
+
         ModelTier tier = cache.getTier();
         ModelTier next = ModelTierRegistry.next(tier);
-        this.addText(I18n.get("hostilenetworks.tier." + tier.name()), tier.colorValue());
-        this.addText(I18n.get("hostilenetworks.gui.accuracy"), Color.WHITE, false);
-        this.addText(fmt.format(cache.getAccuracy()), tier.colorValue());
+        Component tierName = Component.translatable("hostilenetworks.tier." + tier.name()).withColor(tier.colorValue());
+        this.dataText.addLine(Component.translatable("hostilenetworks.gui.tier", tierName));
+
+        Component accuracy = Component.literal(fmt.format(cache.getAccuracy())).withColor(tier.colorValue());
+        this.dataText.addLine(Component.translatable("hostilenetworks.gui.accuracy", accuracy));
+
         if (!tier.isMax()) {
             if (HostileConfig.killModelUpgrade) {
-                this.addText(I18n.get("hostilenetworks.gui.next_tier"), Color.WHITE, false);
-                this.addText(I18n.get("hostilenetworks.tier." + next.name()), next.colorValue(), false);
-                this.addText(I18n.get("hostilenetworks.gui.next_tier2", cache.getKillsNeeded()), Color.WHITE, false);
-                this.addText(I18n.get("hostilenetworks.gui.kill" + (cache.getKillsNeeded() > 1 ? "s" : "")), Color.WHITE);
+                Component nextTierName = Component.translatable("hostilenetworks.tier." + next.name()).withColor(next.colorValue());
+                Component killWord = Component.translatable("hostilenetworks.gui.kill" + (cache.getKillsNeeded() > 1 ? "s" : ""));
+
+                this.dataText.addLine(Component.translatable("hostilenetworks.gui.next_tier", nextTierName, cache.getKillsNeeded(), killWord));
             }
             else {
-                this.addText(I18n.get("hostilenetworks.gui.upgrade_disabled"), Color.WHITE);
+                this.dataText.addLine(Component.translatable("hostilenetworks.gui.upgrade_disabled"));
             }
         }
         else {
-            this.addText(I18n.get("hostilenetworks.gui.max_tier"), ChatFormatting.RED.getColor());
+            this.dataText.addLine(Component.translatable("hostilenetworks.gui.max_tier").withStyle(ChatFormatting.RED));
         }
 
         Entity ent = cache.getEntity(this.minecraft.level);
@@ -301,17 +295,10 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         }
     }
 
-    private void addText(String msg, int color) {
-        this.texts.add(new TickableText(msg, color, true, 2));
-    }
-
-    private void addText(String msg, int color, boolean newline) {
-        this.texts.add(new TickableText(msg, color, newline, 2));
-    }
-
     private void resetText() {
-        this.texts.clear();
-        this.stats.reset();
+        this.mainText.clear();
+        this.dataText.clear();
+        this.stats.setTicks(0);
     }
 
     @SuppressWarnings("deprecation")

@@ -36,6 +36,6 @@ config="hostilenetworks.mixins.json"
 [[dependencies.hostilenetworks]]
     modId="placebo"
     type="required"
-    versionRange="[9.5.1,)"
+    versionRange="[9.6.4,)"
     ordering="NONE"
     side="BOTH"

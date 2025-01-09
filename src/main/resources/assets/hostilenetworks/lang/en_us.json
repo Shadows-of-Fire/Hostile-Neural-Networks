@@ -26,10 +26,9 @@
 	"hostilenetworks.gui.learner_empty.6": "you must deliver the killing blow.",
 	"hostilenetworks.gui.name": "Name",
 	"hostilenetworks.gui.info": "Information",
-	"hostilenetworks.gui.tier": "Model Tier: ",
-	"hostilenetworks.gui.accuracy": "Model Accuracy: ",
-	"hostilenetworks.gui.next_tier": "Upgrades to ",
-	"hostilenetworks.gui.next_tier2": " in %s ",
+	"hostilenetworks.gui.tier": "Model Tier: %s",
+	"hostilenetworks.gui.accuracy": "Model Accuracy: %s",
+	"hostilenetworks.gui.next_tier": "Upgrades to %s in %s %s",
 	"hostilenetworks.gui.kill": "kill",
 	"hostilenetworks.gui.kills": "kills",
 	"hostilenetworks.gui.stats": "Statistics",
@@ -59,8 +58,8 @@
 	"hostilenetworks.fail.output": "Cannot begin simulation\nOutput buffers are occupied",
 	"hostilenetworks.fail.energy": "Cannot begin simulation\nSystem energy levels critical",
 	"hostilenetworks.fail.input": "Cannot begin simulation\nMissing input: %s",
-	"hostilenetworks.fail.model": "Please insert a Data Model\nto begin the simulation",
-	"hostilenetworks.fail.faulty": "Insufficient data in model\nplease insert a basic model\nor better",
+	"hostilenetworks.fail.model": "Please insert a Data Model to begin the simulation",
+	"hostilenetworks.fail.faulty": "Insufficient data in model. Please insert a basic model or better",
 	"hostilenetworks.fail.energy_mid_cycle": "Simulation progress paused\nSystem energy levels critical",
 	"hostilenetworks.fail.redstone": "Simulation progress paused\nIncorrect redstone signal applied",
 	
@@ -144,7 +143,7 @@
 	
 	"_comment": "Ars Nouveau",
 	"name.hostilenetworks.ars_wilden": "Wilden",
-	"hostilenetworks.trivia.ars_wilden": "Protectors of The Wilds.\nTheir form depends on their home.\nOh, and one of them\ncan summon wolves.",
+	"hostilenetworks.trivia.ars_wilden": "Protectors of The Wilds.\nTheir form depends on their home.\nOh, and one of them can summon wolves.",
 
 	"_comment": "Artifacts",
 	"hostilenetworks.trivia.mimic": "A chest with a hunger.\nOne you wish to plunder.\nBe careful,\nlest you be torn asunder.",
