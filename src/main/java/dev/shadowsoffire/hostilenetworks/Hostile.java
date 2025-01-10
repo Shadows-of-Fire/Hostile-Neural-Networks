@@ -20,8 +20,10 @@ import dev.shadowsoffire.placebo.registry.DeferredHelper;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -108,6 +110,13 @@ public class Hostile {
             .networkSynchronized(ItemContainerContents.STREAM_CODEC));
 
         private static void bootstrap() {}
+    }
+
+    public static class Tags {
+        /**
+         * The set of items that will receive the signature HNN colors as part of their item tooltips. Lime/Aqua borders with a gray center.
+         */
+        public static final TagKey<Item> CUSTOM_TOOLTIP_BORDER = TagKey.create(Registries.ITEM, HostileNetworks.loc("custom_tooltip_colors"));
     }
 
     static void bootstrap(IEventBus bus) {

@@ -25,6 +25,7 @@ import dev.shadowsoffire.hostilenetworks.gui.SimChamberScreen;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
 import dev.shadowsoffire.hostilenetworks.net.OpenDeepLearnerPayload;
+import dev.shadowsoffire.hostilenetworks.util.Color;
 import dev.shadowsoffire.placebo.config.Configuration;
 import dev.shadowsoffire.placebo.config.Property;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
@@ -158,6 +159,15 @@ public class HostileClient {
         public static void tick(ClientTickEvent.Post e) {
             if (KEY_OPEN_DEEP_LEARNER.consumeClick() && Minecraft.getInstance().screen == null) {
                 PacketDistributor.sendToServer(OpenDeepLearnerPayload.INSTANCE);
+            }
+        }
+
+        @SubscribeEvent
+        public static void tooltipColors(RenderTooltipEvent.Color e) {
+            if (e.getItemStack().is(Hostile.Tags.CUSTOM_TOOLTIP_BORDER)) {
+                e.setBorderStart(0xC8000000 | Color.LIME);
+                e.setBorderEnd(0xC8000000 | Color.AQUA);
+                e.setBackground(0xF0111111);
             }
         }
 
