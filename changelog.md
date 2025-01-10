@@ -1,3 +1,19 @@
+## 6.1.2
+* Fixed empty models not being able to attune on variants.
+  * This change also means that two models with shared variants can no longer exist.
+  * They shouldn't have in the first place, but it wasn't enforced previously.
+* Twister716: Updated Japanese translation.
+* YocyCraft: Updated the Warden data model to fix compat with Apothic Enchanting.
+  * Also added the Sculk Catalyst to the list of fabricator drops.
+* RhysHolloway: Added Redstone Control to the simulation chamber.
+  * The loot fabricator still does not have redstone control. Might do that later.
+* Rewrote the internal text rendering to use `TickableTextList` instead of `TickableText`.
+  * This allows for more expressive rendering via components, and prevents text from going offscreen.
+  * There is no vertical wrapping, so text that is ultimately too long will still bleed into other elements. Be concise!
+* Tooltip borders for the Deep Learner and all Data Models (including the empty one) will now match the signature HNN colors.
+  * The set of items to which this color change applies to is controlled via `hostilenetworks:custom_tooltip_colors`.
+* A stock datapack artifact will now be published to CurseForge with each release of the mod.
+
 ## 6.1.1
 * Fixed simulation chambers not respecting custom model inputs.
 
