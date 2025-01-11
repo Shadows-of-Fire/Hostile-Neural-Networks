@@ -29,7 +29,7 @@
 	"hostilenetworks.gui.kill": "öldürme gerekli",
 	"hostilenetworks.gui.kills": "öldürme gerekli",
 	"hostilenetworks.gui.stats": "İstatistikler",
-	"hostilenetworks.gui.target": "Sim Hedefi: ",
+	"hostilenetworks.gui.target": "Sim Hedefi: %s",
 	"hostilenetworks.gui.data": "%s/%s Veri toplandı",
 	"hostilenetworks.gui.energy": "%s/%s FE",
 	"hostilenetworks.gui.cost": "Model enerji maliyeti: %s FE/t",

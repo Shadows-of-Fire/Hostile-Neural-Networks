@@ -28,7 +28,7 @@
 	"hostilenetworks.gui.kill": "击杀",
 	"hostilenetworks.gui.kills": "击杀数",
 	"hostilenetworks.gui.stats": "数据",
-	"hostilenetworks.gui.target": "模拟目标：",
+	"hostilenetworks.gui.target": "模拟目标：%s",
 	"hostilenetworks.gui.data": "%s/%s 数据已收集",
 	"hostilenetworks.gui.energy": "%s/%s FE",
 	"hostilenetworks.gui.cost": "模型能量消耗：%s FE/t",

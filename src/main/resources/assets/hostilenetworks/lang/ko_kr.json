@@ -28,7 +28,7 @@
 	"hostilenetworks.gui.kill": "번 사살 남음",
 	"hostilenetworks.gui.kills": "번 사살 남음",
 	"hostilenetworks.gui.stats": "정보",
-	"hostilenetworks.gui.target": "대상: ",
+	"hostilenetworks.gui.target": "대상: %s",
 	"hostilenetworks.gui.data": "%s/%s 수집된 데이터",
 	"hostilenetworks.gui.energy": "%s/%s FE",
 	"hostilenetworks.gui.cost": "모델 에너지 사용량: %s FE/t",

@@ -32,7 +32,7 @@
 	"hostilenetworks.gui.kill": "kill",
 	"hostilenetworks.gui.kills": "kills",
 	"hostilenetworks.gui.stats": "Statistics",
-	"hostilenetworks.gui.target": "Sim Target: ",
+	"hostilenetworks.gui.target": "Sim Target: %s",
 	"hostilenetworks.gui.data": "%s/%s Data collected",
 	"hostilenetworks.gui.energy": "%s/%s FE",
 	"hostilenetworks.gui.cost": "Model energy cost: %s FE/t",

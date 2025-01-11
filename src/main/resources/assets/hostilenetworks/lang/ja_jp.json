@@ -32,7 +32,7 @@
 	"hostilenetworks.gui.kill": "殺害",
 	"hostilenetworks.gui.kills": "倒す必要があります",
 	"hostilenetworks.gui.stats": "情報",
-	"hostilenetworks.gui.target": "解析対象: ",
+	"hostilenetworks.gui.target": "解析対象: %s",
 	"hostilenetworks.gui.data": "%s/%s収集済み",
 	"hostilenetworks.gui.energy": "%s/%s FE",
 	"hostilenetworks.gui.cost": "モデル電力コスト: %s FE/t",

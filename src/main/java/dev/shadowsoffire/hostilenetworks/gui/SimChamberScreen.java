@@ -1,6 +1,5 @@
 package dev.shadowsoffire.hostilenetworks.gui;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,12 +18,12 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.neoforged.neoforge.common.extensions.IAttributeExtension;
 
 public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer> {
 
@@ -93,28 +92,18 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
             int rTime = Math.min(99, Mth.ceil(100F * (300 - runtime) / 300));
             gfx.drawString(this.font, rTime + "%", 184, 123, Color.AQUA, true);
         }
-        DataModelInstance cModel = new DataModelInstance(this.menu.getSlot(0).getItem(), 0);
-        if (cModel.isValid()) {
+        DataModelInstance model = new DataModelInstance(this.menu.getSlot(0).getItem(), 0);
+        if (model.isValid()) {
             int xOff = 18;
-            String msg = I18n.get("hostilenetworks.gui.target");
+            Component msg = Component.translatable("hostilenetworks.gui.target", model.getModel().name().copy().withColor(Color.LIME));
             gfx.drawString(this.font, msg, xOff, 9, Color.WHITE);
-            xOff += this.font.width(msg);
-            gfx.drawString(this.font, cModel.getModel().name(), xOff, 9, Color.LIME);
 
-            xOff = 18;
-            msg = I18n.get("hostilenetworks.gui.tier");
+            msg = Component.translatable("hostilenetworks.gui.tier", model.getTier().getComponent());
             gfx.drawString(this.font, msg, xOff, 9 + this.font.lineHeight + 3, Color.WHITE);
-            xOff += this.font.width(msg);
-            msg = I18n.get("hostilenetworks.tier." + cModel.getTier().name());
-            gfx.drawString(this.font, msg, xOff, 9 + this.font.lineHeight + 3, cModel.getTier().colorValue());
 
-            xOff = 18;
-            msg = I18n.get("hostilenetworks.gui.accuracy");
+            Component accuracy = Component.literal(IAttributeExtension.FORMAT.format(model.getAccuracy())).withColor(model.getTier().colorValue());
+            msg = Component.translatable("hostilenetworks.gui.accuracy", accuracy);
             gfx.drawString(this.font, msg, xOff, 9 + (this.font.lineHeight + 3) * 2, Color.WHITE);
-            xOff += this.font.width(msg);
-            DecimalFormat fmt = new DecimalFormat("##.##%");
-            msg = fmt.format(cModel.getAccuracy());
-            gfx.drawString(this.font, msg, xOff, 9 + (this.font.lineHeight + 3) * 2, cModel.getTier().colorValue());
         }
         this.body.render(gfx, 29, 51);
     }

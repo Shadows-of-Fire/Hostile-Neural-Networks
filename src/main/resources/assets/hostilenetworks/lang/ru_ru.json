@@ -30,7 +30,7 @@
 	"hostilenetworks.gui.kill": "убийство",
 	"hostilenetworks.gui.kills": "убийств",
 	"hostilenetworks.gui.stats": "Статистика",
-	"hostilenetworks.gui.target": "Цель модели: ",
+	"hostilenetworks.gui.target": "Цель модели: %s",
 	"hostilenetworks.gui.data": "Собранные данные: %s/%s",
 	"hostilenetworks.gui.energy": "%s/%s FE",
 	"hostilenetworks.gui.cost": "Стоимость энергии модели: %s FE/тик",
