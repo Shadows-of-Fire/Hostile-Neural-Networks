@@ -1,3 +1,7 @@
+## 6.1.3
+* Fixed a duplicate entry in the enderman data model that caused it to not load when Enderman Overhaul is present.
+* Fixed a formatting error in the Simulation Chamber GUI.
+
 ## 6.1.2
 * Fixed empty models not being able to attune on variants.
   * This change also means that two models with shared variants can no longer exist.
