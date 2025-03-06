@@ -18,8 +18,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -73,9 +73,12 @@ public class HostileEvents {
     @SubscribeEvent
     public static void kill(LivingDeathEvent e) {
         if (!HostileConfig.killModelUpgrade) return;
-        Entity src = e.getSource().getEntity();
-        if (src instanceof ServerPlayer p) {
+
+        LivingEntity entity = e.getEntity();
+        Player player = entity.lastHurtByPlayer; 
+        if (player instanceof ServerPlayer p && entity.tickCount - entity.lastHurtByPlayerTime <= 500) {
             p.getInventory().items.stream().filter(s -> s.is(Items.DEEP_LEARNER)).forEach(dl -> updateModels(dl, e.getEntity().getType(), 0));
+
             if (p.getOffhandItem().is(Items.DEEP_LEARNER)) updateModels(p.getOffhandItem(), e.getEntity().getType(), 0);
             if (ModList.get().isLoaded("curios")) {
                 ItemStack curioStack = CuriosCompat.getDeepLearner(p);
