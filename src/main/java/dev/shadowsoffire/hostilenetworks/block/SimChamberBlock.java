@@ -22,8 +22,12 @@ import net.minecraft.world.phys.BlockHitResult;
 
 public class SimChamberBlock extends HorizontalDirectionalBlock implements TickingEntityBlock {
 
-    public SimChamberBlock(Properties props) {
-        super(props);
+    public SimChamberBlock() {
+        super(Properties.of()
+                .lightLevel(s -> 1)
+                .strength(4, 3000)
+                .isRedstoneConductor((s, g, p) -> false)
+                .noOcclusion());
         this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH));
     }
 

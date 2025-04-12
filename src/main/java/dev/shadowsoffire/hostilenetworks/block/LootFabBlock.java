@@ -22,8 +22,12 @@ import net.minecraft.world.phys.BlockHitResult;
 
 public class LootFabBlock extends HorizontalDirectionalBlock implements TickingEntityBlock {
 
-    public LootFabBlock(Properties props) {
-        super(props);
+    public LootFabBlock() {
+        super(Properties.of()
+                .lightLevel(s -> 1)
+                .strength(4, 3000)
+                .isRedstoneConductor((s, g, p) -> false)
+                .noOcclusion());
         this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH));
     }
 

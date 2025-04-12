@@ -37,8 +37,8 @@ public class Hostile {
     private static final DeferredHelper R = DeferredHelper.create(HostileNetworks.MODID);
 
     public static class Blocks {
-        public static final Holder<Block> SIM_CHAMBER = R.block("sim_chamber", SimChamberBlock::new, p -> p.lightLevel(s -> 1).strength(4, 3000).noOcclusion());
-        public static final Holder<Block> LOOT_FABRICATOR = R.block("loot_fabricator", LootFabBlock::new, p -> p.lightLevel(s -> 1).strength(4, 3000).noOcclusion());
+        public static final Holder<Block> SIM_CHAMBER = R.block("sim_chamber", SimChamberBlock::new);
+        public static final Holder<Block> LOOT_FABRICATOR = R.block("loot_fabricator", LootFabBlock::new);
 
         private static void bootstrap() {}
     }
