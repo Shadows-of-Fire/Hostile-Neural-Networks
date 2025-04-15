@@ -13,8 +13,6 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 public class MobPredictionItem extends Item implements ITabFiller {
 
-    public static final String TIER = "tier";
-
     public MobPredictionItem(Properties pProperties) {
         super(pProperties);
     }

@@ -1,7 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.10-beta'
+    id 'net.neoforged.moddev' version '2.0.80'
     id 'com.diffplug.eclipse.apt' version '3.42.2'
     id 'net.darkhax.curseforgegradle' version '1.1.18'
 }
@@ -60,7 +60,7 @@ neoForge {
 
     neoFormRuntime {
         useEclipseCompiler = false // Allows for parallelism on recompile - disabled due to a bug.
-        version = "1.0.3"
+        version = "1.0.21"
     }
 }
 
