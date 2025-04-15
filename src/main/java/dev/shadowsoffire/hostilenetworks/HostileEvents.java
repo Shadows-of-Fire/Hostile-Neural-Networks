@@ -76,12 +76,13 @@ public class HostileEvents {
         Entity src = e.getSource().getEntity();
         if (src instanceof ServerPlayer p) {
             p.getInventory().items.stream().filter(s -> s.is(Items.DEEP_LEARNER)).forEach(dl -> updateModels(dl, e.getEntity().getType(), 0));
-            if (p.getOffhandItem().is(Items.DEEP_LEARNER)) updateModels(p.getOffhandItem(), e.getEntity().getType(), 0);
+
+            if (p.getOffhandItem().is(Items.DEEP_LEARNER)) {
+                updateModels(p.getOffhandItem(), e.getEntity().getType(), 0);
+            }
+
             if (ModList.get().isLoaded("curios")) {
-                ItemStack curioStack = CuriosCompat.getDeepLearner(p);
-                if (curioStack.is(Items.DEEP_LEARNER)) {
-                    updateModels(curioStack, e.getEntity().getType(), 0);
-                }
+                CuriosCompat.tryUpdateDeepLearner(p, e.getEntity().getType(), 0);
             }
         }
     }
