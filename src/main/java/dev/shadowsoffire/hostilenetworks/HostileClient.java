@@ -1,8 +1,6 @@
 package dev.shadowsoffire.hostilenetworks;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 import org.lwjgl.glfw.GLFW;
@@ -10,13 +8,10 @@ import org.lwjgl.glfw.GLFW;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.datafixers.util.Either;
 
 import dev.shadowsoffire.hostilenetworks.client.DataModelTooltipRenderer;
 import dev.shadowsoffire.hostilenetworks.client.DeepLearnerHudRenderer;
-import dev.shadowsoffire.hostilenetworks.client.Offset;
-import dev.shadowsoffire.hostilenetworks.client.Offset.AnchorPoint;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerScreen;
@@ -27,14 +22,14 @@ import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
 import dev.shadowsoffire.hostilenetworks.net.OpenDeepLearnerPayload;
 import dev.shadowsoffire.hostilenetworks.util.Color;
 import dev.shadowsoffire.placebo.config.Configuration;
-import dev.shadowsoffire.placebo.config.Property;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
+import dev.shadowsoffire.placebo.util.Offset;
+import dev.shadowsoffire.placebo.util.Offset.AnchorPoint;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.contents.PlainTextContents.LiteralContents;
@@ -103,15 +98,12 @@ public class HostileClient {
     @EventBusSubscriber(bus = Bus.GAME, value = Dist.CLIENT, modid = HostileNetworks.MODID)
     public static class GameBusEvents {
 
-        private static final SuggestionProvider<CommandSourceStack> SUGGEST_ANCHOR_POINT = (ctx, builder) -> SharedSuggestionProvider.suggest(Arrays.stream(AnchorPoint.values()).map(Enum::name).map(s -> s.toLowerCase(Locale.ROOT)),
-            builder);
-
         @SubscribeEvent
         public static void commands(RegisterClientCommandsEvent e) {
             e.getDispatcher().register(
                 LiteralArgumentBuilder.<CommandSourceStack>literal("hnn_client")
                     .then(LiteralArgumentBuilder.<CommandSourceStack>literal("set_hud_pos")
-                        .then(Commands.argument("anchor", StringArgumentType.string()).suggests(SUGGEST_ANCHOR_POINT)
+                        .then(Commands.argument("anchor", StringArgumentType.string()).suggests(AnchorPoint.SUGGEST_ANCHOR_POINT)
                             .executes(c -> {
                                 updateHudPos(AnchorPoint.parse(c.getArgument("anchor", String.class)), 0, 0);
                                 return 0;
@@ -174,17 +166,7 @@ public class HostileClient {
         private static void updateHudPos(AnchorPoint anchor, int x, int y) {
             Configuration cfg = HostileNetworks.cfg;
             HostileConfig.deepLearnerOffset = new Offset(anchor, x, y);
-
-            Property anchorProp = cfg.get("client", "Deep Learner HUD Anchor Point", "");
-            anchorProp.setValue(anchor.name().toLowerCase(Locale.ROOT));
-
-            Property xProp = cfg.get("client", "Deep Learner HUD X Offset", 0);
-            xProp.setValue(x);
-
-            Property yProp = cfg.get("client", "Deep Learner HUD Y Offset", 0);
-            yProp.setValue(y);
-
-            cfg.save();
+            Offset.save("Deep Learner HUD", "client", HostileConfig.deepLearnerOffset, cfg);
         }
 
     }

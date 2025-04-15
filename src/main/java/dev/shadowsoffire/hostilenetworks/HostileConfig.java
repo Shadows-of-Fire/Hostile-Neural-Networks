@@ -3,10 +3,10 @@ package dev.shadowsoffire.hostilenetworks;
 import java.util.List;
 import java.util.Optional;
 
-import dev.shadowsoffire.hostilenetworks.client.Offset;
-import dev.shadowsoffire.hostilenetworks.client.Offset.AnchorPoint;
 import dev.shadowsoffire.placebo.config.Configuration;
 import dev.shadowsoffire.placebo.network.PayloadProvider;
+import dev.shadowsoffire.placebo.util.Offset;
+import dev.shadowsoffire.placebo.util.Offset.AnchorPoint;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -27,7 +27,7 @@ public class HostileConfig {
     public static boolean killModelUpgrade;
     public static boolean continuousAccuracy;
 
-    public static Offset deepLearnerOffset;
+    public static Offset deepLearnerOffset = new Offset(AnchorPoint.TOP_LEFT, 0, 0);
 
     public static Configuration load() {
         Configuration cfg = new Configuration(HostileNetworks.MODID);
@@ -46,7 +46,7 @@ public class HostileConfig {
             "If true, the accuracy of the model increases as it gains progress towards the next tier. If false, always uses the base accuracy of the current tier.");
 
         cfg.setCategoryComment("client", "Client-only options, not synced");
-        deepLearnerOffset = Offset.load("Deep Learner HUD", "client", AnchorPoint.TOP_LEFT, cfg);
+        deepLearnerOffset = Offset.load("Deep Learner HUD", "client", deepLearnerOffset, cfg);
         if (cfg.hasChanged()) cfg.save();
         return cfg;
     }
