@@ -7,14 +7,17 @@ import dev.shadowsoffire.hostilenetworks.block.SimChamberBlock;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerContainer;
+import dev.shadowsoffire.hostilenetworks.gui.FabDirectiveMenu;
 import dev.shadowsoffire.hostilenetworks.gui.LootFabContainer;
 import dev.shadowsoffire.hostilenetworks.gui.SimChamberContainer;
 import dev.shadowsoffire.hostilenetworks.item.BlankDataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
+import dev.shadowsoffire.hostilenetworks.item.FabDirectiveItem;
 import dev.shadowsoffire.hostilenetworks.item.MobPredictionItem;
 import dev.shadowsoffire.hostilenetworks.tile.LootFabTileEntity;
 import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity;
+import dev.shadowsoffire.hostilenetworks.util.SavedSelections;
 import dev.shadowsoffire.placebo.block_entity.TickingBlockEntityType.TickSide;
 import dev.shadowsoffire.placebo.registry.DeferredHelper;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
@@ -58,6 +61,7 @@ public class Hostile {
         public static final Holder<Item> PREDICTION = R.item("prediction", MobPredictionItem::new);
         public static final Holder<Item> SIM_CHAMBER = R.blockItem("sim_chamber", Blocks.SIM_CHAMBER);
         public static final Holder<Item> LOOT_FABRICATOR = R.blockItem("loot_fabricator", Blocks.LOOT_FABRICATOR);
+        public static final Holder<Item> FAB_DIRECTIVE = R.item("fab_directive", FabDirectiveItem::new, p -> p.stacksTo(1));
 
         private static void bootstrap() {}
     }
@@ -73,6 +77,7 @@ public class Hostile {
         public static final MenuType<DeepLearnerContainer> DEEP_LEARNER = R.menuWithData("deep_learner", DeepLearnerContainer::new);
         public static final MenuType<SimChamberContainer> SIM_CHAMBER = R.menuWithPos("sim_chamber", SimChamberContainer::new);
         public static final MenuType<LootFabContainer> LOOT_FABRICATOR = R.menuWithPos("loot_fabricator", LootFabContainer::new);
+        public static final MenuType<FabDirectiveMenu> FAB_DIRECTIVE = R.menuWithData("fab_directive", FabDirectiveMenu::new);
 
         private static void bootstrap() {}
     }
@@ -112,6 +117,13 @@ public class Hostile {
             .persistent(ItemContainerContents.CODEC)
             .networkSynchronized(ItemContainerContents.STREAM_CODEC));
 
+        /**
+         * The stored selections retained by a {@link FabDirectiveItem}. This is a map of {@link DataModel} to the index of the drop in the fab drops list.
+         */
+        public static final DataComponentType<SavedSelections> FAB_SELECTIONS = R.component("fab_selections", b -> b
+            .persistent(SavedSelections.CODEC)
+            .networkSynchronized(SavedSelections.STREAM_CODEC));
+
         private static void bootstrap() {}
     }
 
@@ -120,6 +132,11 @@ public class Hostile {
          * The set of items that will receive the signature HNN colors as part of their item tooltips. Lime/Aqua borders with a gray center.
          */
         public static final TagKey<Item> CUSTOM_TOOLTIP_BORDER = TagKey.create(Registries.ITEM, HostileNetworks.loc("custom_tooltip_colors"));
+
+        /**
+         * Set of all Generalized <X> Prediction items. Used in crafting recipes.
+         */
+        public static final TagKey<Item> GENERALIZED_PREDICTIONS = TagKey.create(Registries.ITEM, HostileNetworks.loc("generalized_predictions"));
     }
 
     static void bootstrap(IEventBus bus) {

@@ -11,6 +11,18 @@
 	"item.hostilenetworks.nether_prediction": "Generalized Nether Prediction",
 	"item.hostilenetworks.end_prediction": "Generalized Ender Prediction",
 	"item.hostilenetworks.twilight_prediction": "Generalized Twilight Prediction",
+    "item.hostilenetworks.fab_directive": "Fabrication Directive",
+    "item.hostilenetworks.fab_directive.desc": "Stores selections from a Loot Fabricator",
+    "item.hostilenetworks.fab_directive.desc2": "Right-Click to copy, Shift-Right-Click to apply",
+
+    "text.hostilenetworks.stored_selection": "Stored Selection %s/%s",
+    "text.hostilenetworks.invalid_selection.model": "Errored Selection: Unrecognized Model (%s)",
+    "text.hostilenetworks.invalid_selection.index": "Errored Selection: Invalid Index (%s)",
+    "text.hostilenetworks.scroll": "[scroll]",
+    "text.hostilenetworks.shift": "[shift]",
+    "text.hostilenetworks.selection": "%s -> %s %s",
+    "text.hostilenetworks.selections_applied": "Applied %s selections from %s",
+    "text.hostilenetworks.selections_copied" : "Copied %s selections from %s",
 
     "key.categories.hostilenetworks": "Hostile Neural Networks",
     "key.hostilenetworks.open_deep_learner": "Open Deep Learner Curio",

@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "hostilenetworks:overworld_prediction",
+    "hostilenetworks:nether_prediction",
+    "hostilenetworks:end_prediction",
+    "hostilenetworks:twilight_prediction"
+  ]
+}

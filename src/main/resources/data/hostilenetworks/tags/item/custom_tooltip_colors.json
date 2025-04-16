@@ -3,6 +3,7 @@
   "values": [
     "hostilenetworks:deep_learner",
     "hostilenetworks:blank_data_model",
-    "hostilenetworks:data_model"
+    "hostilenetworks:data_model",
+    "hostilenetworks:fab_directive"
   ]
 }

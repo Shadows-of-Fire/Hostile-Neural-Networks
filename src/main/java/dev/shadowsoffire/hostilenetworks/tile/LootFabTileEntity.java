@@ -101,6 +101,17 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         return this.energy;
     }
 
+    public Object2IntMap<DynamicHolder<DataModel>> getSelections() {
+        return this.savedSelections;
+    }
+
+    public void setSelections(Object2IntMap<DynamicHolder<DataModel>> selections) {
+        this.savedSelections.clear();
+        this.savedSelections.putAll(selections);
+        VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
+        this.setChanged();
+    }
+
     public void setSelection(DynamicHolder<DataModel> model, int selection) {
         if (selection == -1) this.savedSelections.removeInt(model);
         else this.savedSelections.put(model, Mth.clamp(selection, 0, model.get().fabDrops().size() - 1));
