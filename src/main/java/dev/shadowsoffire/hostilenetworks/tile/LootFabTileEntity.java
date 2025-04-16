@@ -46,6 +46,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         this.savedSelections.defaultReturnValue(-1);
         this.data.addData(() -> this.runtime, v -> this.runtime = v);
         this.data.addEnergy(this.energy);
+        this.energy.setMaxExtract(0);
     }
 
     @Override

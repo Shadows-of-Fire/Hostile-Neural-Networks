@@ -45,6 +45,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         this.data.addData(() -> this.failState.ordinal(), v -> this.failState = FailureState.values()[v]);
         this.data.addData(() -> this.redstoneState.ordinal(), v -> this.redstoneState = RedstoneState.values()[v]);
         this.data.addEnergy(this.energy);
+        this.energy.setMaxExtract(0);
     }
 
     @Override
