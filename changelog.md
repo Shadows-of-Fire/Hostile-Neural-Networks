@@ -1,3 +1,12 @@
+## 6.2.0
+* Added the Fabrication Directive!
+  * This new item allows you to copy and paste settings from loot fabricators instead of needing to hand-configure each one.
+* Migrated the `Offset` class to Placebo for reuse in Apothic Attributes.
+* Fixed the Deep Learner losing data when placed in a Curios slot and returning through the end portal.
+* Made it so that indirect kills that would otherwise award kill credit will train Deep Learners.
+* Disabled redstone conduction for the Simulation Chamber and Loot Fabricator.
+* Made it so that energy cannot be extracted from the Loot Fabricator or Simulation Chamber.
+
 ## 6.1.3
 * Fixed a duplicate entry in the enderman data model that caused it to not load when Enderman Overhaul is present.
 * Fixed a formatting error in the Simulation Chamber GUI.
