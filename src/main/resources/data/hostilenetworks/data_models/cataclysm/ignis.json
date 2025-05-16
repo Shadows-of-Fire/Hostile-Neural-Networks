@@ -14,7 +14,7 @@
     "base_drop": {
         "item": "hostilenetworks:nether_prediction"
     },
-    "trivia": "hostilenetworks.trivia.wither_skeleton",
+    "trivia": "hostilenetworks.trivia.ignis",
     "fabricator_drops": [
         {
             "optional": true,
