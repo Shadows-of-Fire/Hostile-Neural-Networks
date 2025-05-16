@@ -1,0 +1,50 @@
+{
+    "entity": "cataclysm:ignis",
+    "variants": [],
+    "name": "entity.cataclysm.ignis",
+    "name_color": "#A81012",
+    "gui_scale": 0.85,
+    "gui_x_offset": 0,
+    "gui_y_offset": 0,
+    "gui_z_offset": 0,
+    "sim_cost": 768,
+    "input": {
+        "item": "hostilenetworks:prediction_matrix"
+    },
+    "base_drop": {
+        "item": "hostilenetworks:nether_prediction"
+    },
+    "trivia": "hostilenetworks.trivia.wither_skeleton",
+    "fabricator_drops": [
+        {
+            "optional": true,
+            "item": "cataclysm:dying_ember",
+            "count": 2
+        },
+        {
+            "item": "cataclysm:ignitium_upgrade_smithing_template",
+            "count": 1
+        },
+        {
+            "item": "cataclysm:music_disc_ignis",
+            "count": 1
+        },
+        {
+            "item": "cataclysm:ignitium_ingot",
+            "count": 8
+        },
+        {
+            "optional": true,
+            "item": "cataclysm:burning_ashes",
+            "count": 2
+        },
+        {
+            "item": "ultimate_utilities:super_caca",
+            "count": 32
+        },
+        {
+            "item": "ultimate_utilities:cacota",
+            "count": 32
+        }
+    ]
+}
