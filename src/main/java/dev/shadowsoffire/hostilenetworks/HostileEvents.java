@@ -1,5 +1,7 @@
 package dev.shadowsoffire.hostilenetworks;
 
+import java.util.Collection;
+
 import dev.shadowsoffire.hostilenetworks.Hostile.Items;
 import dev.shadowsoffire.hostilenetworks.HostileConfig.ConfigPayload;
 import dev.shadowsoffire.hostilenetworks.command.GenerateModelCommand;
@@ -51,18 +53,33 @@ public class HostileEvents {
         ItemStack stack = player.getItemInHand(e.getHand());
         if (stack.is(Hostile.Items.BLANK_DATA_MODEL)) {
             if (!player.level().isClientSide) {
-                DataModel model = DataModelRegistry.INSTANCE.getForEntity(e.getTarget().getType());
-                if (model == null) {
+                Collection<DataModel> models = DataModelRegistry.INSTANCE.getForEntity(e.getTarget().getType());
+
+                // Attempt to find a match. If there are multiple matches, it's a modpack configuration error.
+                // If there are no matches, we just tell the player that no model was found.
+                DataModel match = null;
+                for (DataModel model : models) {
+                    if (model.attunesTo((ServerPlayer) player, e.getTarget())) {
+                        if (match != null) {
+                            Component msg = Component.translatable("hostilenetworks.msg.multiple_models", model.name(), match.name()).withStyle(ChatFormatting.RED);
+                            player.sendSystemMessage(msg);
+                            return;
+                        }
+                        match = model;
+                    }
+                }
+
+                if (match == null) {
                     Component msg = Component.translatable("hostilenetworks.msg.no_model").withStyle(ChatFormatting.RED);
                     player.sendSystemMessage(msg);
                     return;
                 }
 
-                Component msg = Component.translatable("hostilenetworks.msg.built", model.name()).withStyle(ChatFormatting.GOLD);
+                Component msg = Component.translatable("hostilenetworks.msg.built", match.name()).withStyle(ChatFormatting.GOLD);
                 player.sendSystemMessage(msg);
 
                 ItemStack modelStack = new ItemStack(Hostile.Items.DATA_MODEL);
-                DataModelItem.setStoredModel(modelStack, model);
+                DataModelItem.setStoredModel(modelStack, match);
                 player.setItemInHand(e.getHand(), modelStack);
             }
             e.setCanceled(true);

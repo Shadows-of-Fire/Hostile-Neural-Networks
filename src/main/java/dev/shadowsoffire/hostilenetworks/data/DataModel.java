@@ -1,6 +1,7 @@
 package dev.shadowsoffire.hostilenetworks.data;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -22,6 +23,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -39,10 +42,11 @@ import net.minecraft.world.item.crafting.Ingredient;
  * @param fabDrops     List of items produced in the Loot Fabricator when processing Predictions.
  * @param requiredData Optional overrides for the required data levels in the model tiers.
  * @param dataPerKill  Optional overrides for the data per kill values in the model tiers.
+ * @param attunement   Optional attunement rules for this model.
  */
 public record DataModel(EntityType<?> entity, List<EntityType<?>> variants, Component name,
     DisplayData display, int simCost, Ingredient input, ItemStack baseDrop, String triviaKey,
-    List<ItemStack> fabDrops, RequiredData requiredData, DataPerKill dataPerKill) implements CodecProvider<DataModel> {
+    List<ItemStack> fabDrops, RequiredData requiredData, DataPerKill dataPerKill, Optional<ModelAttunement> attunement) implements CodecProvider<DataModel> {
 
     public static final Codec<DataModel> CODEC = RecordCodecBuilder.<DataModel>create(inst -> inst
         .group(
@@ -56,12 +60,13 @@ public record DataModel(EntityType<?> entity, List<EntityType<?>> variants, Comp
             Codec.STRING.fieldOf("trivia").forGetter(DataModel::triviaKey),
             OptionalStackCodec.INSTANCE.listOf().xmap(DataModel::removeEmptyStacks, Function.identity()).fieldOf("fabricator_drops").forGetter(DataModel::fabDrops),
             RequiredData.CODEC.optionalFieldOf("required_data", RequiredData.EMPTY).forGetter(DataModel::requiredData),
-            DataPerKill.CODEC.optionalFieldOf("data_per_kill", DataPerKill.EMPTY).forGetter(DataModel::dataPerKill))
+            DataPerKill.CODEC.optionalFieldOf("data_per_kill", DataPerKill.EMPTY).forGetter(DataModel::dataPerKill),
+            ModelAttunement.CODEC.optionalFieldOf("attunement").forGetter(DataModel::attunement))
         .apply(inst, DataModel::new)).validate(DataModel::validate);
 
     public DataModel(DataModel other, List<ItemStack> newResults) {
         this(other.entity, other.variants, other.name, other.display, other.simCost, other.input, other.baseDrop, other.triviaKey, newResults, other.requiredData,
-            other.dataPerKill);
+            other.dataPerKill, other.attunement);
     }
 
     /**
@@ -108,6 +113,15 @@ public record DataModel(EntityType<?> entity, List<EntityType<?>> variants, Comp
 
     public Stream<EntityType<?>> entityAndVariants() {
         return Stream.concat(Stream.of(this.entity), this.variants.stream());
+    }
+
+    public boolean hasAttunement() {
+        return this.attunement.isPresent();
+    }
+
+    public boolean attunesTo(ServerPlayer player, Entity entity) {
+        return (entity.getType() == this.entity || this.variants.contains(entity.getType()))
+            && (!this.hasAttunement() || this.attunement.get().matches(player, entity));
     }
 
     public static DataResult<DataModel> validate(DataModel model) {

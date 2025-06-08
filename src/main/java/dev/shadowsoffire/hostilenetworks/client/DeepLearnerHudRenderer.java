@@ -8,6 +8,7 @@ import dev.shadowsoffire.hostilenetworks.HostileConfig;
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.curios.CuriosCompat;
 import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
+import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
 import dev.shadowsoffire.placebo.util.Offset;
 import dev.shadowsoffire.placebo.util.Offset.Box;
@@ -61,7 +62,7 @@ public class DeepLearnerHudRenderer implements LayeredDraw.Layer {
             renderable.add(cModel);
         }
 
-        if (renderable.isEmpty()) return;
+        if (renderable.isEmpty() || ModelTierRegistry.INSTANCE.getValues().isEmpty()) return;
 
         gfx.pose().pushPose();
 

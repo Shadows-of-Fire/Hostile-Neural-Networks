@@ -108,10 +108,11 @@
 	"hostilenetworks.color_text.success": "succeeded",
 	"hostilenetworks.color_text.true": "true",
 	"hostilenetworks.color_text.false": "false",
-	
+
+    "hostilenetworks.msg.multiple_models": "Multiple models (%s and %s) matched the target entity. This is a modpack configuration issue.",
 	"hostilenetworks.msg.no_model": "No known models exist for this specimen.",
 	"hostilenetworks.msg.built": "Successfully constructed a %s Data Model",
-	
+
 	"_comment": "Vanilla Passives",
 	"hostilenetworks.trivia.glow_squid": "Deep in the ocean they stow.\nBlessed by a luminescent glow.\nDare you take it as your own?",
 	"hostilenetworks.trivia.sheep": "Masters of color, and all things warm.\nUsually held back, unless blessed by _jeb.",

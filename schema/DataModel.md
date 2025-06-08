@@ -7,6 +7,7 @@ This object references the following objects:
 2. [ItemStack](../../../../Placebo/blob/-/schema/ItemStack.md)
 3. [RequiredData](./components/RequiredData.md)
 4. [DataPerKill](./components/DataPerKill.md)
+5. [ModelAttunement](./components/ModelAttunement.md)
 
 The object types `Component` and `Ingredient` are supplied by Vanilla and are not described here or in my own documentation.
 
@@ -27,7 +28,8 @@ The object types `Component` and `Ingredient` are supplied by Vanilla and are no
         ItemStack                   
     ],                              
     "required_data": RequiredData,  // [Optional]  || Optional overrides for the required data for individual model tiers.
-    "data_per_kill": DataPerKill    // [Optional]  || Optional overrides for the data per kill for individual model tiers.
+    "data_per_kill": DataPerKill,   // [Optional]  || Optional overrides for the data per kill for individual model tiers.
+    "attunement": ModelAttunement   // [Optional]  || Optional attunement rules. Required if making multiple models for the same entity type(s).
 }
 ```
 
