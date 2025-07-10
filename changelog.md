@@ -1,3 +1,8 @@
+## 6.3.0
+* Added the Model Attunement system, which allows making data models for entities with NBT subtypes.
+  * More information can be found on the relevant schema page.
+* Klaus: Added Brazilian translation.
+
 ## 6.2.0
 * Added the Fabrication Directive!
   * This new item allows you to copy and paste settings from loot fabricators instead of needing to hand-configure each one.
