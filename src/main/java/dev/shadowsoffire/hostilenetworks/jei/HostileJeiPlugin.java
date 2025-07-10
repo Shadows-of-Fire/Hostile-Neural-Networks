@@ -12,7 +12,7 @@ import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
-import mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter;
+import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
 import mezz.jei.api.ingredients.subtypes.UidContext;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
@@ -57,10 +57,15 @@ public class HostileJeiPlugin implements IModPlugin {
         reg.addRecipeCatalyst(new ItemStack(Hostile.Blocks.LOOT_FABRICATOR.value()), LootFabCategory.TYPE);
     }
 
-    private static class ModelSubtypes implements IIngredientSubtypeInterpreter<ItemStack> {
+    private static class ModelSubtypes implements ISubtypeInterpreter<ItemStack> {
 
         @Override
-        public String apply(ItemStack stack, UidContext context) {
+        public DynamicHolder<DataModel> getSubtypeData(ItemStack stack, UidContext context) {
+            return DataModelItem.getStoredModel(stack);
+        }
+
+        @Override
+        public String getLegacyStringSubtypeInfo(ItemStack stack, UidContext context) {
             DynamicHolder<DataModel> dm = DataModelItem.getStoredModel(stack);
             if (!dm.isBound()) return "NULL";
             return dm.getId().toString();
