@@ -33,14 +33,14 @@ public class DataModelRegistry extends DynamicRegistry<DataModel> {
     }
 
     @Override
-    protected void beginReload() {
-        super.beginReload();
+    protected void beginReload(ReloadType type) {
+        super.beginReload(type);
         this.modelsByType = HashMultimap.create();
     }
 
     @Override
-    protected void onReload() {
-        super.onReload();
+    protected void onReload(ReloadType type) {
+        super.onReload(type);
         this.modelsByType = ImmutableMultimap.copyOf(this.modelsByType);
     }
 

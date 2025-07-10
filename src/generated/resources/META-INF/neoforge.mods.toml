@@ -8,7 +8,7 @@ license="MIT License"
 
 modId="hostilenetworks"
 
-version="6.2.0"
+version="6.2.1-beta0"
 
 displayName="Hostile Neural Networks"
 
@@ -29,13 +29,13 @@ config="hostilenetworks.mixins.json"
 [[dependencies.hostilenetworks]]
     modId="neoforge"
     type="required"
-    versionRange="[21.1.90,)"
+    versionRange="[21.1.187,)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.hostilenetworks]]
     modId="placebo"
     type="required"
-    versionRange="[9.8.0,)"
+    versionRange="[9.9.0,)"
     ordering="NONE"
     side="BOTH"

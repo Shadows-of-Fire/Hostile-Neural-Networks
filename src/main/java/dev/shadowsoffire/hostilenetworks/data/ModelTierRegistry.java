@@ -68,14 +68,14 @@ public class ModelTierRegistry extends DynamicRegistry<ModelTier> {
     }
 
     @Override
-    protected void beginReload() {
-        super.beginReload();
+    protected void beginReload(ReloadType type) {
+        super.beginReload(type);
         this.sorted.clear();
     }
 
     @Override
-    protected void onReload() {
-        super.onReload();
+    protected void onReload(ReloadType type) {
+        super.onReload(type);
         this.registry.values().stream().sorted(Comparator.comparing(ModelTier::requiredData)).forEach(sorted::add);
         ModelTier min = sorted.peekFirst();
         if (min.requiredData() != 0) {

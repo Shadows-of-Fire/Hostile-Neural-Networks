@@ -12,7 +12,6 @@ import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
@@ -21,7 +20,7 @@ import net.neoforged.neoforge.event.level.LevelEvent;
  * <p>
  * Entities are cleared on level unload.
  */
-@EventBusSubscriber(bus = Bus.GAME, value = Dist.CLIENT, modid = HostileNetworks.MODID)
+@EventBusSubscriber(value = Dist.CLIENT, modid = HostileNetworks.MODID)
 public class ClientEntityCache {
 
     private static final Map<Level, Map<EntityType<?>, Entity>> CACHE = new IdentityHashMap<>();
