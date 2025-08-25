@@ -2,7 +2,7 @@
     "block.hostilenetworks.sim_chamber": "Câmara de Simulação",
     "block.hostilenetworks.loot_fabricator": "Fabricador de Loot",
 
-    "item.hostilenetworks.deep_learner": "Analisador Profundo",
+    "item.hostilenetworks.deep_learner": "Aprendiz Profundo",
     "item.hostilenetworks.data_model": "Modelo de Dados de %s",
     "item.hostilenetworks.blank_data_model": "Estrutura de Modelo",
     "item.hostilenetworks.prediction": "Previsão de %s",
@@ -25,14 +25,14 @@
     "text.hostilenetworks.selections_copied": "%s seleções de %s copiadas",
     
     "key.categories.hostilenetworks": "Hostile Neural Networks",
-    "key.hostilenetworks.open_deep_learner": "Abrir Analisador Profundo (Curio)",
+    "key.hostilenetworks.open_deep_learner": "Abrir Aprendiz Profundo (Curio)",
 
     "itemGroup.hostilenetworks": "Hostile Neural Networks",
 
     "hostilenetworks.gui.learner_empty.0": "Nenhum Modelo de Dados Encontrado",
     "hostilenetworks.gui.learner_empty.1": "Por favor, insira um Modelo de Dados!",
     "hostilenetworks.gui.learner_empty.2": "Seus modelos serão treinados",
-    "hostilenetworks.gui.learner_empty.3": "quando colocados no Analisador Profundo.",
+    "hostilenetworks.gui.learner_empty.3": "quando colocados no Aprendiz Profundo.",
     "hostilenetworks.gui.learner_empty.4": "",
     "hostilenetworks.gui.learner_empty.5": "Para treinar o modelo,",
     "hostilenetworks.gui.learner_empty.6": "você deve desferir o golpe final.",
@@ -203,5 +203,5 @@
 
     "enchantment.level.0": "0",
 
-    "curios.identifier.deep_learner": "Analisador Profundo"
+    "curios.identifier.deep_learner": "Aprendiz Profundo"
 }
