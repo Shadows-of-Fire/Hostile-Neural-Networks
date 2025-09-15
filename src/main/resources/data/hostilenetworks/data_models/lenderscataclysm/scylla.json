@@ -1,0 +1,40 @@
+{
+    "entity": "cataclysm:scylla",
+    "variants": [],
+    "name": {
+        "translate": "entity.cataclysm.scylla",
+        "color": "#1DC2D1"
+    },
+    "display": {
+        "y_offset": 0.8,
+        "scale": 0.7
+    },
+    "sim_cost": 16384,
+    "input": {
+        "item": "hostilenetworks:prediction_matrix"
+    },
+    "base_drop": {
+        "id": "hostilenetworks:overworld_prediction"
+    },
+    "trivia": "hostilenetworks.trivia.scylla",
+    "fabricator_drops": [
+        {
+            "id": "cataclysm:lacrima",
+            "count": 16
+        },
+        {
+            "id": "cataclysm:essence_of_the_storm",
+            "count": 8
+        },
+        {
+            "id": "cataclysm:music_disc_scylla",
+            "count": 1
+        }
+    ],
+    "data_per_kill": {
+        "faulty": 3,
+        "basic": 12,
+        "advanced": 30,
+        "superior": 45
+    }
+}

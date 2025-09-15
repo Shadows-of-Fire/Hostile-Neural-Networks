@@ -1,0 +1,36 @@
+{
+    "entity": "cataclysm:the_harbinger",
+    "variants": [],
+    "name": {
+        "translate": "entity.cataclysm.the_harbinger",
+        "color": "#F82423"
+    },
+    "display": {
+        "y_offset": 0.7,
+        "scale": 0.5
+    },
+    "sim_cost": 16384,
+    "input": {
+        "item": "hostilenetworks:prediction_matrix"
+    },
+    "base_drop": {
+        "id": "hostilenetworks:nether_prediction"
+    },
+    "trivia": "hostilenetworks.trivia.the_harbinger",
+    "fabricator_drops": [
+        {
+            "id": "cataclysm:witherite_block",
+            "count": 4
+        },
+        {
+            "id": "cataclysm:music_disc_the_harbinger",
+            "count": 1
+        }
+    ],
+    "data_per_kill": {
+        "faulty": 3,
+        "basic": 12,
+        "advanced": 30,
+        "superior": 45
+    }
+}
