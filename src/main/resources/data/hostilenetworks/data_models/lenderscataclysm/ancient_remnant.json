@@ -1,0 +1,44 @@
+{
+    "entity": "cataclysm:ancient_remnant",
+    "variants": [],
+    "name": {
+        "translate": "entity.cataclysm.ancient_remnant",
+        "color": "#D9C043"
+    },
+    "display": {
+        "y_offset": 0.8,
+        "scale": 0.7
+    },
+    "sim_cost": 16384,
+    "input": {
+        "item": "hostilenetworks:prediction_matrix"
+    },
+    "base_drop": {
+        "id": "hostilenetworks:overworld_prediction"
+    },
+    "trivia": "hostilenetworks.trivia.ancient_remnant",
+    "fabricator_drops": [
+        {
+            "id": "cataclysm:sandstorm_in_a_bottle",
+            "count": 1
+        },
+        {
+            "id": "cataclysm:remnant_skull",
+            "count": 1
+        },
+        {
+            "id": "cataclysm:ancient_metal_block",
+            "count": 8
+        },
+        {
+            "id": "cataclysm:music_disc_ancient_remnant",
+            "count": 1
+        }
+    ],
+    "data_per_kill": {
+        "faulty": 3,
+        "basic": 12,
+        "advanced": 30,
+        "superior": 45
+    }
+}

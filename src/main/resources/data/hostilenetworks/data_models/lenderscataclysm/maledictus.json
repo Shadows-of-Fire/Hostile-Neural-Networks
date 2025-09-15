@@ -1,0 +1,36 @@
+{
+    "entity": "cataclysm:maledictus",
+    "variants": [],
+    "name": {
+        "translate": "entity.cataclysm.maledictus",
+        "color": "#39FF14"
+    },
+    "display": {
+        "y_offset": 0.8,
+        "scale": 0.7
+    },
+    "sim_cost": 16384,
+    "input": {
+        "item": "hostilenetworks:prediction_matrix"
+    },
+    "base_drop": {
+        "id": "hostilenetworks:overworld_prediction"
+    },
+    "trivia": "hostilenetworks.trivia.maledictus",
+    "fabricator_drops": [
+        {
+            "id": "cataclysm:cursium_ingot",
+            "count": 16
+        },
+        {
+            "id": "cataclysm:music_disc_maledictus",
+            "count": 1
+        }
+    ],
+    "data_per_kill": {
+        "faulty": 3,
+        "basic": 12,
+        "advanced": 30,
+        "superior": 45
+    }
+}

@@ -1,0 +1,36 @@
+{
+    "entity": "cataclysm:ignis",
+    "variants": [],
+    "name": {
+        "translate": "entity.cataclysm.ignis",
+        "color": "#F87D23"
+    },
+    "display": {
+        "y_offset": 0.7,
+        "scale": 0.5
+    },
+    "sim_cost": 16384,
+    "input": {
+        "item": "hostilenetworks:prediction_matrix"
+    },
+    "base_drop": {
+        "id": "hostilenetworks:nether_prediction"
+    },
+    "trivia": "hostilenetworks.trivia.ignis",
+    "fabricator_drops": [
+        {
+            "id": "cataclysm:ignitium_ingot",
+            "count": 16
+        },
+        {
+            "id": "cataclysm:music_disc_ignis",
+            "count": 1
+        }
+    ],
+    "data_per_kill": {
+        "faulty": 3,
+        "basic": 12,
+        "advanced": 30,
+        "superior": 45
+    }
+}
