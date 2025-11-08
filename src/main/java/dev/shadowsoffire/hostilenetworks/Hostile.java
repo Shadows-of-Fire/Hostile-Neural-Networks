@@ -6,6 +6,7 @@ import dev.shadowsoffire.hostilenetworks.block.LootFabBlock;
 import dev.shadowsoffire.hostilenetworks.block.SimChamberBlock;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
+import dev.shadowsoffire.hostilenetworks.data.EntityDataModel;
 import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerContainer;
 import dev.shadowsoffire.hostilenetworks.gui.FabDirectiveMenu;
 import dev.shadowsoffire.hostilenetworks.gui.LootFabContainer;
@@ -118,7 +119,7 @@ public class Hostile {
             .networkSynchronized(ItemContainerContents.STREAM_CODEC));
 
         /**
-         * The stored selections retained by a {@link FabDirectiveItem}. This is a map of {@link DataModel} to the index of the drop in the fab drops list.
+         * The stored selections retained by a {@link FabDirectiveItem}. This is a map of {@link EntityDataModel} to the index of the drop in the fab drops list.
          */
         public static final DataComponentType<SavedSelections> FAB_SELECTIONS = R.component("fab_selections", b -> b
             .persistent(SavedSelections.CODEC)

@@ -21,7 +21,7 @@ public class DataModelRegistry extends DynamicRegistry<DataModel> {
 
     public static final DataModelRegistry INSTANCE = new DataModelRegistry();
 
-    private Multimap<EntityType<?>, DataModel> modelsByType = HashMultimap.create();
+    private Multimap<EntityType<?>, EntityDataModel> modelsByType = HashMultimap.create();
 
     public DataModelRegistry() {
         super(HostileNetworks.LOGGER, "data_models", true, false);
@@ -29,7 +29,7 @@ public class DataModelRegistry extends DynamicRegistry<DataModel> {
 
     @Override
     protected void registerBuiltinCodecs() {
-        this.registerDefaultCodec(HostileNetworks.loc("data_model"), DataModel.CODEC);
+        this.registerDefaultCodec(HostileNetworks.loc("data_model"), EntityDataModel.CODEC);
     }
 
     @Override
@@ -53,32 +53,34 @@ public class DataModelRegistry extends DynamicRegistry<DataModel> {
      */
     @Override
     protected void validateItem(ResourceLocation key, DataModel model) {
-        model.entityAndVariants().forEach(type -> {
-            Collection<DataModel> existingModels = this.modelsByType.get(type);
-            if (existingModels.isEmpty()) {
-                // If there are no models, we just take the new one.
-                this.modelsByType.put(type, model);
-            }
-            else if (existingModels.size() == 1) {
-                // If there's only one model, it might not have an attunement, so validate that they both do.
-                DataModel existing = existingModels.iterator().next();
-                if (!existing.hasAttunement() || !model.hasAttunement()) {
-                    throwAttunementError(key, type, existingModels);
+        if (model instanceof EntityDataModel entityModel) { // TODO: validate() method on DataModel
+            entityModel.entityAndVariants().forEach(type -> {
+                Collection<EntityDataModel> existingModels = this.modelsByType.get(type);
+                if (existingModels.isEmpty()) {
+                    // If there are no models, we just take the new one.
+                    this.modelsByType.put(type, entityModel);
                 }
-                this.modelsByType.put(type, model);
-            }
-            else {
-                // If there's more than one model, we know all the existing ones do, so we only need to check the new one.
-                if (!model.hasAttunement()) {
-                    throwAttunementError(key, type, existingModels);
+                else if (existingModels.size() == 1) {
+                    // If there's only one model, it might not have an attunement, so validate that they both do.
+                    EntityDataModel existing = existingModels.iterator().next();
+                    if (!existing.hasAttunement() || !entityModel.hasAttunement()) {
+                        throwAttunementError(key, type, existingModels);
+                    }
+                    this.modelsByType.put(type, entityModel);
                 }
-                this.modelsByType.put(type, model);
-            }
-        });
+                else {
+                    // If there's more than one model, we know all the existing ones do, so we only need to check the new one.
+                    if (!entityModel.hasAttunement()) {
+                        throwAttunementError(key, type, existingModels);
+                    }
+                    this.modelsByType.put(type, entityModel);
+                }
+            });
+        }
     }
 
     @Nullable
-    public Collection<DataModel> getForEntity(EntityType<?> type) {
+    public Collection<EntityDataModel> getForEntity(EntityType<?> type) {
         return this.modelsByType.get(type);
     }
 
@@ -87,7 +89,7 @@ public class DataModelRegistry extends DynamicRegistry<DataModel> {
         return super.prepare(pResourceManager, pProfiler);
     }
 
-    private void throwAttunementError(ResourceLocation key, EntityType<?> type, Collection<DataModel> existingModels) {
+    private void throwAttunementError(ResourceLocation key, EntityType<?> type, Collection<EntityDataModel> existingModels) {
         String msg = "Attempted to register multiple models for Entity Type %s without specifying an attunement. When registering multiple models, ALL models must specify an attunement!";
         msg += " Existing models: " + existingModels.stream().map(this::getKey).toList();
         msg += " New model: " + key;

@@ -23,7 +23,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.common.extensions.IAttributeExtension;
 
 public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer> {
 
@@ -92,17 +91,16 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
             int rTime = Math.min(99, Mth.ceil(100F * (300 - runtime) / 300));
             gfx.drawString(this.font, rTime + "%", 184, 123, Color.AQUA, true);
         }
-        DataModelInstance model = new DataModelInstance(this.menu.getSlot(0).getItem(), 0);
-        if (model.isValid()) {
+        DataModelInstance inst = new DataModelInstance(this.menu.getSlot(0).getItem(), 0);
+        if (inst.isValid()) {
             int xOff = 18;
-            Component msg = Component.translatable("hostilenetworks.gui.target", model.getModel().name().copy().withColor(Color.LIME));
+            Component msg = Component.translatable("hostilenetworks.gui.target", inst.getModel().name().copy().withColor(Color.LIME));
             gfx.drawString(this.font, msg, xOff, 9, Color.WHITE);
 
-            msg = Component.translatable("hostilenetworks.gui.tier", model.getTier().getComponent());
+            msg = Component.translatable("hostilenetworks.gui.tier", inst.getTier().getComponent());
             gfx.drawString(this.font, msg, xOff, 9 + this.font.lineHeight + 3, Color.WHITE);
 
-            Component accuracy = Component.literal(IAttributeExtension.FORMAT.format(model.getAccuracy())).withColor(model.getTier().colorValue());
-            msg = Component.translatable("hostilenetworks.gui.accuracy", accuracy);
+            msg = inst.getAccuracyComponent();
             gfx.drawString(this.font, msg, xOff, 9 + (this.font.lineHeight + 3) * 2, Color.WHITE);
         }
         this.body.render(gfx, 29, 51);

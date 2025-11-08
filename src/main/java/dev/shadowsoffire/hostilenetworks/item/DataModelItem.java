@@ -8,6 +8,7 @@ import dev.shadowsoffire.hostilenetworks.client.DataModelItemStackRenderer;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
+import dev.shadowsoffire.hostilenetworks.data.EntityDataModel;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import dev.shadowsoffire.hostilenetworks.util.Color;
@@ -32,35 +33,39 @@ public class DataModelItem extends Item implements ITabFiller {
         super(pProperties);
     }
 
+    // TODO: Delegate item tooltip to DataModel so that data model types can add their own info.
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
-        DataModelInstance cModel = new DataModelInstance(stack, 0);
-        if (!cModel.isValid()) {
+        DataModelInstance inst = new DataModelInstance(stack, 0);
+        if (!inst.isValid()) {
             list.add(Component.translatable("Error: %s", Component.literal("Broke_AF").withStyle(ChatFormatting.OBFUSCATED, ChatFormatting.GRAY)));
             return;
         }
         int data = getData(stack);
-        ModelTier tier = ModelTierRegistry.getByData(cModel.getModel(), data);
+        ModelTier tier = ModelTierRegistry.getByData(inst.getModel(), data);
         list.add(Component.translatable("hostilenetworks.info.tier", tier.getComponent()));
-        int dProg = data - cModel.getTierData();
-        int dMax = cModel.getNextTierData() - cModel.getTierData();
-        if (!tier.isMax()) {
-            list.add(Component.translatable("hostilenetworks.info.data", Component.translatable("hostilenetworks.info.dprog", dProg, dMax).withStyle(ChatFormatting.GRAY)));
-            int dataPerKill = cModel.getDataPerKill();
-            if (dataPerKill == 0) {
-                Component c1 = Component.literal("000 ").withStyle(ChatFormatting.GRAY, ChatFormatting.OBFUSCATED);
-                list.add(Component.translatable("hostilenetworks.info.dpk", c1).append(Component.translatable("hostilenetworks.info.disabled").withStyle(ChatFormatting.RED)));
+
+        if (inst.getModel() instanceof EntityDataModel eModel) {
+            int dProg = data - inst.getTierData();
+            int dMax = inst.getNextTierData() - inst.getTierData();
+            if (!tier.isMax()) {
+                list.add(Component.translatable("hostilenetworks.info.data", Component.translatable("hostilenetworks.info.dprog", dProg, dMax).withStyle(ChatFormatting.GRAY)));
+                int dataPerKill = inst.getDataPerKill();
+                if (dataPerKill == 0) {
+                    Component c1 = Component.literal("000 ").withStyle(ChatFormatting.GRAY, ChatFormatting.OBFUSCATED);
+                    list.add(Component.translatable("hostilenetworks.info.dpk", c1).append(Component.translatable("hostilenetworks.info.disabled").withStyle(ChatFormatting.RED)));
+                }
+                else {
+                    list.add(Component.translatable("hostilenetworks.info.dpk", Component.literal("" + inst.getDataPerKill()).withStyle(ChatFormatting.GRAY)));
+                }
             }
-            else {
-                list.add(Component.translatable("hostilenetworks.info.dpk", Component.literal("" + cModel.getDataPerKill()).withStyle(ChatFormatting.GRAY)));
-            }
-        }
-        list.add(Component.translatable("hostilenetworks.info.sim_cost", Component.translatable("hostilenetworks.info.rft", cModel.getModel().simCost()).withStyle(ChatFormatting.GRAY)));
-        List<EntityType<?>> subtypes = cModel.getModel().variants();
-        if (!subtypes.isEmpty()) {
-            list.add(Component.translatable("hostilenetworks.info.subtypes"));
-            for (EntityType<?> t : subtypes) {
-                list.add(Component.translatable("hostilenetworks.info.sub_list", t.getDescription()).withStyle(Style.EMPTY.withColor(Color.LIME)));
+            list.add(Component.translatable("hostilenetworks.info.sim_cost", Component.translatable("hostilenetworks.info.rft", inst.getModel().simCost()).withStyle(ChatFormatting.GRAY)));
+            List<EntityType<?>> subtypes = eModel.variants();
+            if (!subtypes.isEmpty()) {
+                list.add(Component.translatable("hostilenetworks.info.subtypes"));
+                for (EntityType<?> t : subtypes) {
+                    list.add(Component.translatable("hostilenetworks.info.sub_list", t.getDescription()).withStyle(Style.EMPTY.withColor(Color.LIME)));
+                }
             }
         }
     }

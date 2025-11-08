@@ -5,7 +5,6 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
@@ -25,13 +24,12 @@ public class ClientEntityCache {
 
     private static final Map<Level, Map<EntityType<?>, Entity>> CACHE = new IdentityHashMap<>();
 
-    @SuppressWarnings("unchecked")
-    public static <T extends Entity> T computeIfAbsent(EntityType<T> type, Level level, CompoundTag displayNbt) {
+    public static Entity computeIfAbsent(DisplayEntity display, Level level) {
         var map = CACHE.computeIfAbsent(level, l -> new IdentityHashMap<>());
-        return (T) map.computeIfAbsent(type, k -> {
-            T t = type.create(level);
-            t.load(displayNbt);
-            return t;
+        return map.computeIfAbsent(display.type(), k -> {
+            Entity ent = k.create(level);
+            ent.load(display.nbt());
+            return ent;
         });
     }
 

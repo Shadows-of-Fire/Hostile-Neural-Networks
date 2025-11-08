@@ -29,11 +29,11 @@ import com.mojang.serialization.JsonOps;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
-import dev.shadowsoffire.hostilenetworks.data.DataModel;
-import dev.shadowsoffire.hostilenetworks.data.DataModel.DataPerKill;
-import dev.shadowsoffire.hostilenetworks.data.DataModel.DisplayData;
-import dev.shadowsoffire.hostilenetworks.data.DataModel.RequiredData;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
+import dev.shadowsoffire.hostilenetworks.data.EntityDataModel;
+import dev.shadowsoffire.hostilenetworks.data.EntityDataModel.DataPerKill;
+import dev.shadowsoffire.hostilenetworks.data.EntityDataModel.DisplayData;
+import dev.shadowsoffire.hostilenetworks.data.EntityDataModel.RequiredData;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -85,7 +85,7 @@ public class GenerateModelCommand {
                 var results = runSimulation(type, p, 7500, c.getArgument("max_stack_size", Integer.class));
 
                 // Formatter::off
-                DataModel model = new DataModel((EntityType) type, Collections.emptyList(),
+                EntityDataModel model = new EntityDataModel((EntityType) type, Collections.emptyList(),
                     Component.translatable(type.getDescriptionId()).withStyle(Style.EMPTY.withColor(TextColor.fromRgb(p.getRandom().nextInt(0xFFFFFF)))),
                     DisplayData.DEFAULT, 256, Ingredient.of(Hostile.Items.PREDICTION_MATRIX.value()),
                     new ItemStack(Items.STICK),
@@ -104,11 +104,11 @@ public class GenerateModelCommand {
             .then(Commands.argument("data_model", ResourceLocationArgument.id()).suggests(SUGGEST_DATA_MODEL).then(Commands.argument("max_stack_size", IntegerArgumentType.integer(1, 64)).executes(c -> {
                 Player p = c.getSource().getPlayerOrException();
                 ResourceLocation name = c.getArgument("data_model", ResourceLocation.class);
-                DataModel model = DataModelRegistry.INSTANCE.getValue(name);
+                EntityDataModel model = (EntityDataModel) DataModelRegistry.INSTANCE.getValue(name);
                 EntityType<?> type = model.entity();
                 var results = runSimulation(type, p, 7500, c.getArgument("max_stack_size", Integer.class));
 
-                DataModel newModel = new DataModel(model, results);
+                EntityDataModel newModel = new EntityDataModel(model, results);
 
                 write(name.getNamespace(), name.getPath(), newModel);
 
@@ -126,7 +126,7 @@ public class GenerateModelCommand {
 
                 if (!results.isEmpty()) {
                     // Formatter::off
-                    DataModel model = new DataModel((EntityType) type, Collections.emptyList(),
+                    EntityDataModel model = new EntityDataModel((EntityType) type, Collections.emptyList(),
                         Component.translatable(type.getDescriptionId()).withStyle(Style.EMPTY.withColor(TextColor.fromRgb(p.getRandom().nextInt(0xFFFFFF)))),
                         DisplayData.DEFAULT, 256, Ingredient.of(Hostile.Items.PREDICTION_MATRIX.value()),
                         new ItemStack(Items.STICK),
@@ -342,8 +342,8 @@ public class GenerateModelCommand {
 
     private static Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    private static void write(String namespace, String path, DataModel model) {
-        JsonElement json = DataModel.CODEC.encodeStart(JsonOps.INSTANCE, model).getOrThrow(JsonSyntaxException::new);
+    private static void write(String namespace, String path, EntityDataModel model) {
+        JsonElement json = EntityDataModel.CODEC.encodeStart(JsonOps.INSTANCE, model).getOrThrow(JsonSyntaxException::new);
         if (!"minecraft".equals(namespace)) {
             var condition = new ModLoadedCondition(namespace);
             var arr = new JsonArray();

@@ -3,13 +3,15 @@ package dev.shadowsoffire.hostilenetworks.data;
 import dev.shadowsoffire.hostilenetworks.HostileConfig;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.util.ClientEntityCache;
+import dev.shadowsoffire.hostilenetworks.util.DisplayEntity;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.extensions.IAttributeExtension;
 
 /**
  * Live instance of a data model parsed from an item stack.
@@ -52,16 +54,24 @@ public class DataModelInstance implements TooltipComponent {
         return ModelTierRegistry.next(this.getTier());
     }
 
+    @Deprecated
     public int getDataPerKill() {
-        return HostileConfig.killModelUpgrade ? this.getModel().getDataPerKill(this.getTier()) : 0;
+        if (this.getModel() instanceof EntityDataModel entityModel) {
+            return HostileConfig.killModelUpgrade ? entityModel.getDataPerKill(this.getTier()) : 0;
+        }
+        return -1;
     }
 
     public int getTierData() {
         return this.getModel().getRequiredData(this.getTier());
     }
 
+    @Deprecated
     public int getNextDataPerKill() {
-        return this.getModel().getDataPerKill(getNextTier());
+        if (this.getModel() instanceof EntityDataModel entityModel) {
+            return entityModel.getDataPerKill(getNextTier());
+        }
+        return -1;
     }
 
     public int getNextTierData() {
@@ -91,17 +101,32 @@ public class DataModelInstance implements TooltipComponent {
         return this.getTier().accuracy() + tDiff * (diff - (this.getNextTierData() - this.data)) / diff;
     }
 
+    public Component getAccuracyComponent() {
+        Component numeric = Component.literal(IAttributeExtension.FORMAT.format(100 * this.getAccuracy()) + "%").withColor(this.getTier().colorValue());
+        return Component.translatable("hostilenetworks.gui.accuracy", numeric);
+    }
+
     public int getKillsNeeded() {
         return Mth.ceil((this.getNextTierData() - this.data) / (float) this.getDataPerKill());
     }
 
+    public DisplayEntity getDisplayEntity() {
+        return this.getDisplayEntity(0);
+    }
+
+    public DisplayEntity getDisplayEntity(int variant) {
+        return variant == 0 ? this.getModel().displayEntity() : this.getModel().displayVariants().get(variant - 1);
+    }
+
+    @Deprecated
     public Entity getEntity(Level level) {
         return this.getEntity(level, 0);
     }
 
+    @Deprecated
     public Entity getEntity(Level level, int variant) {
-        EntityType<?> type = variant == 0 ? this.getModel().entity() : this.getModel().variants().get(variant - 1);
-        return ClientEntityCache.computeIfAbsent(type, level, this.getModel().display().nbt());
+        DisplayEntity display = variant == 0 ? this.getModel().displayEntity() : this.getModel().displayVariants().get(variant - 1);
+        return ClientEntityCache.computeIfAbsent(display, level);
     }
 
     public ItemStack getPredictionDrop() {

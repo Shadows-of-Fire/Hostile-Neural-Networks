@@ -17,8 +17,8 @@ import net.minecraft.network.chat.TextColor;
  * @param color        The color of the tier, used in various GUI elements.
  * @param accuracy     The accuracy level of the tier, which determines the chance a prediction item is generated. Values above 100% are supported.
  * @param canSim       If models of this tier can be simulated in the Simulation Chamber
- * @apiNote When accessing {@link #requiredData()} or {@link #dataPerKill()}, prefer using {@link DataModel#getRequiredData(ModelTier)} and
- *          {@link DataModel#getDataPerKill(ModelTier)}.
+ * @apiNote When accessing {@link #requiredData()} or {@link #dataPerKill()}, prefer using {@link EntityDataModel#getRequiredData(ModelTier)} and
+ *          {@link EntityDataModel#getDataPerKill(ModelTier)}.
  */
 public record ModelTier(int requiredData, int dataPerKill, TextColor color, float accuracy, boolean canSim) implements CodecProvider<ModelTier> {
 

@@ -1,7 +1,7 @@
 package dev.shadowsoffire.hostilenetworks.gui;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
-import dev.shadowsoffire.hostilenetworks.data.DataModel;
+import dev.shadowsoffire.hostilenetworks.data.EntityDataModel;
 import dev.shadowsoffire.placebo.menu.PlaceboContainerMenu;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -16,7 +16,7 @@ public class FabDirectiveMenu extends PlaceboContainerMenu {
 
     protected final InteractionHand hand;
     protected final ItemStack fabDirective;
-    protected final Object2IntMap<DynamicHolder<DataModel>> selections;
+    protected final Object2IntMap<DynamicHolder<EntityDataModel>> selections;
 
     public FabDirectiveMenu(int id, Inventory pInv, InteractionHand hand) {
         super(Hostile.Containers.FAB_DIRECTIVE, id, pInv);

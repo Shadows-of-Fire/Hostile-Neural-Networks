@@ -9,6 +9,7 @@ import dev.shadowsoffire.hostilenetworks.command.GiveModelCommand;
 import dev.shadowsoffire.hostilenetworks.curios.CuriosCompat;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
+import dev.shadowsoffire.hostilenetworks.data.EntityDataModel;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
@@ -53,12 +54,12 @@ public class HostileEvents {
         ItemStack stack = player.getItemInHand(e.getHand());
         if (stack.is(Hostile.Items.BLANK_DATA_MODEL)) {
             if (!player.level().isClientSide) {
-                Collection<DataModel> models = DataModelRegistry.INSTANCE.getForEntity(e.getTarget().getType());
+                Collection<EntityDataModel> models = DataModelRegistry.INSTANCE.getForEntity(e.getTarget().getType());
 
                 // Attempt to find a match. If there are multiple matches, it's a modpack configuration error.
                 // If there are no matches, we just tell the player that no model was found.
-                DataModel match = null;
-                for (DataModel model : models) {
+                EntityDataModel match = null;
+                for (EntityDataModel model : models) {
                     if (model.attunesTo((ServerPlayer) player, e.getTarget())) {
                         if (match != null) {
                             Component msg = Component.translatable("hostilenetworks.msg.multiple_models", model.name(), match.name()).withStyle(ChatFormatting.RED);
@@ -110,10 +111,10 @@ public class HostileEvents {
             ItemStack model = handler.getStackInSlot(i);
             if (model.isEmpty()) continue;
             DynamicHolder<DataModel> dModel = DataModelItem.getStoredModel(model);
-            if (dModel.isBound() && dModel.get().entity() == type || dModel.get().variants().contains(type)) {
+            if (dModel.isBound() && dModel.get() instanceof EntityDataModel eModel && (eModel.entity() == type || eModel.variants().contains(type))) {
                 int data = DataModelItem.getData(model);
                 ModelTier tier = ModelTierRegistry.getByData(dModel.get(), data);
-                DataModelItem.setData(model, data + dModel.get().getDataPerKill(tier) + bonus);
+                DataModelItem.setData(model, data + eModel.getDataPerKill(tier) + bonus);
                 handler.setStackInSlot(i, model);
             }
         }

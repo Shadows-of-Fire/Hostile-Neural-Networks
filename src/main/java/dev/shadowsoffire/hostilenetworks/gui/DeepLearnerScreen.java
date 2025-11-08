@@ -1,6 +1,5 @@
 package dev.shadowsoffire.hostilenetworks.gui;
 
-import java.text.DecimalFormat;
 import java.util.Arrays;
 
 import org.joml.Quaternionf;
@@ -17,7 +16,9 @@ import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
+import dev.shadowsoffire.hostilenetworks.util.ClientEntityCache;
 import dev.shadowsoffire.hostilenetworks.util.Color;
+import dev.shadowsoffire.hostilenetworks.util.DisplayEntity;
 import dev.shadowsoffire.hostilenetworks.util.ReflectionThings;
 import dev.shadowsoffire.placebo.screen.PlaceboContainerScreen;
 import dev.shadowsoffire.placebo.screen.TickableTextList;
@@ -149,14 +150,15 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 
             gfx.blit(BASE, left - 41, top, 9, 140, 75, 101);
 
-            DataModelInstance model = this.getCurrentModel();
+            DataModelInstance inst = this.getCurrentModel();
 
-            if (model.isValid()) {
-                Entity ent = model.getEntity(this.minecraft.level, this.variant);
+            if (inst.isValid()) {
+                DisplayEntity display = inst.getDisplayEntity(this.variant);
+                Entity ent = ClientEntityCache.computeIfAbsent(display, this.minecraft.level);
                 if (ent instanceof LivingEntity living) {
                     living.yBodyRot = this.spin % 360;
                 }
-                this.renderEntityInInventory(gfx, left - 4, top + 90, 40, 0, 0, ent);
+                this.renderEntityInInventory(gfx, left - 4, top + 90, 40, 0, 0, ent, display);
             }
 
             for (int i = 0; i < 3; i++) {
@@ -220,7 +222,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
     private void nextVariant() {
         DataModelInstance current = this.getCurrentModel();
         if (!current.isValid()) return;
-        int variants = current.getModel().variants().size();
+        int variants = current.getModel().displayVariants().size();
         if (variants == 0) return;
 
         this.variant = (this.variant + 1) % (variants + 1);
@@ -245,33 +247,30 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         this.emptyText = true;
     }
 
-    private static DecimalFormat fmt = new DecimalFormat("##.##%");
-
-    private void setupModel(DataModelInstance cache) {
-        if (!cache.isValid()) return;
-        DataModel model = cache.getModel();
+    private void setupModel(DataModelInstance inst) {
+        if (!inst.isValid()) return;
+        DataModel model = inst.getModel();
         this.ticksShown = 0;
         this.variant = 0;
         this.resetText();
         this.mainText.addLine(Component.translatable("hostilenetworks.gui.name").withColor(Color.AQUA));
-        this.mainText.addLine(cache.getEntity(this.minecraft.level).getType().getDescription());
+        this.mainText.addLine(inst.getEntity(this.minecraft.level).getType().getDescription());
         this.mainText.addLine(Component.translatable("hostilenetworks.gui.info").withColor(Color.AQUA));
         this.mainText.addLine(Component.translatable(model.triviaKey()));
 
-        ModelTier tier = cache.getTier();
+        ModelTier tier = inst.getTier();
         ModelTier next = ModelTierRegistry.next(tier);
         Component tierName = Component.translatable("hostilenetworks.tier." + tier.name()).withColor(tier.colorValue());
         this.dataText.addLine(Component.translatable("hostilenetworks.gui.tier", tierName));
 
-        Component accuracy = Component.literal(fmt.format(cache.getAccuracy())).withColor(tier.colorValue());
-        this.dataText.addLine(Component.translatable("hostilenetworks.gui.accuracy", accuracy));
+        this.dataText.addLine(inst.getAccuracyComponent());
 
         if (!tier.isMax()) {
             if (HostileConfig.killModelUpgrade) {
                 Component nextTierName = Component.translatable("hostilenetworks.tier." + next.name()).withColor(next.colorValue());
-                Component killWord = Component.translatable("hostilenetworks.gui.kill" + (cache.getKillsNeeded() > 1 ? "s" : ""));
+                Component killWord = Component.translatable("hostilenetworks.gui.kill" + (inst.getKillsNeeded() > 1 ? "s" : ""));
 
-                this.dataText.addLine(Component.translatable("hostilenetworks.gui.next_tier", nextTierName, cache.getKillsNeeded(), killWord));
+                this.dataText.addLine(Component.translatable("hostilenetworks.gui.next_tier", nextTierName, inst.getKillsNeeded(), killWord));
             }
             else {
                 this.dataText.addLine(Component.translatable("hostilenetworks.gui.upgrade_disabled"));
@@ -281,7 +280,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
             this.dataText.addLine(Component.translatable("hostilenetworks.gui.max_tier").withStyle(ChatFormatting.RED));
         }
 
-        Entity ent = cache.getEntity(this.minecraft.level);
+        Entity ent = inst.getEntity(this.minecraft.level);
 
         if (ent instanceof LivingEntity living) {
             this.statArray[0] = String.valueOf((int) (living.getAttribute(Attributes.MAX_HEALTH).getBaseValue() / 2));
@@ -302,12 +301,11 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
     }
 
     @SuppressWarnings("deprecation")
-    public void renderEntityInInventory(GuiGraphics gfx, float pPosX, float pPosY, float scale, float pMouseX, float pMouseY, Entity entity) {
+    public void renderEntityInInventory(GuiGraphics gfx, float pPosX, float pPosY, float scale, float pMouseX, float pMouseY, Entity entity, DisplayEntity display) {
         float f1 = (float) Math.atan(pMouseY / 40.0F);
         PoseStack pose = gfx.pose();
         pose.pushPose();
-        DataModel model = this.getCurrentModel().getModel();
-        scale *= model.display().scale();
+        scale *= display.scale();
 
         pose.translate(pPosX, pPosY, 50.0F); // Mirrors magic z value used by InventoryScreen#renderEntityInInventory
         pose.scale(scale, scale, -scale);
@@ -329,7 +327,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         entityrenderermanager.setRenderShadow(false);
         MultiBufferSource.BufferSource rtBuffer = Minecraft.getInstance().renderBuffers().bufferSource();
         RenderSystem.runAsFancy(() -> {
-            entityrenderermanager.render(entity, model.display().xOffset(), model.display().yOffset(), model.display().zOffset(), 0.0F, 1, pose, new WrappedRTBuffer(rtBuffer), 15728880);
+            entityrenderermanager.render(entity, display.xOffset(), display.yOffset(), display.zOffset(), 0.0F, 1, pose, new WrappedRTBuffer(rtBuffer), 0xF000F0);
         });
         rtBuffer.endBatch();
         entityrenderermanager.setRenderShadow(true);

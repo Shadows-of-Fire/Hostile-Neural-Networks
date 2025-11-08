@@ -9,6 +9,7 @@ import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.util.ClientEntityCache;
+import dev.shadowsoffire.hostilenetworks.util.DisplayEntity;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -67,19 +68,22 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
         matrix.popPose();
         DynamicHolder<DataModel> model = DataModelItem.getStoredModel(stack);
         if (model.isBound()) {
-            Entity ent = ClientEntityCache.computeIfAbsent(model.get().entity(), Minecraft.getInstance().level, model.get().display().nbt());
-            if (Minecraft.getInstance().player != null) ent.tickCount = Minecraft.getInstance().player.tickCount;
+            DisplayEntity display = model.get().displayEntity();
+            Entity ent = ClientEntityCache.computeIfAbsent(display, Minecraft.getInstance().level);
+            if (Minecraft.getInstance().player != null) {
+                ent.tickCount = Minecraft.getInstance().player.tickCount;
+            }
             if (ent != null) {
-                this.renderEntityInInventory(matrix, type, ent, model.get());
+                renderEntityInInventory(matrix, type, ent, display);
             }
         }
     }
 
     @SuppressWarnings("deprecation")
-    public void renderEntityInInventory(PoseStack matrix, ItemDisplayContext type, Entity entity, DataModel model) {
+    public static void renderEntityInInventory(PoseStack matrix, ItemDisplayContext type, Entity entity, DisplayEntity display) {
         matrix.pushPose();
         matrix.translate(0.5, 0.5, 0.5);
-        float scale = model.display().scale();
+        float scale = display.scale();
         if (type == ItemDisplayContext.FIXED) {
             matrix.translate(0, -0.5, 0);
             scale *= 0.4F;
@@ -117,8 +121,8 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
         MultiBufferSource.BufferSource rtBuffer = GHOST_ENTITY_BUF;
         WeirdRenderThings.translucent = true;
         RenderSystem.runAsFancy(() -> {
-            entityrenderermanager.render(entity, model.display().xOffset(), model.display().yOffset(), model.display().zOffset(), 0.0F, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true), matrix,
-                new WrappedRTBuffer(rtBuffer), 15728880);
+            entityrenderermanager.render(entity, display.xOffset(), display.yOffset(), display.zOffset(), 0.0F, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true), matrix,
+                new WrappedRTBuffer(rtBuffer), 0xF000F0);
         });
         rtBuffer.endBatch();
         WeirdRenderThings.translucent = false;
