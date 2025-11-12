@@ -29,12 +29,17 @@ import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContainer> {
@@ -153,7 +158,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
             DataModelInstance inst = this.getCurrentModel();
 
             if (inst.isValid()) {
-                DisplayEntity display = inst.getDisplayEntity(this.variant);
+                DisplayEntity display = inst.getDisplayEntity(this.minecraft.level, this.variant);
                 Entity ent = ClientEntityCache.computeIfAbsent(display, this.minecraft.level);
                 if (ent instanceof LivingEntity living) {
                     living.yBodyRot = this.spin % 360;
@@ -164,7 +169,6 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
             for (int i = 0; i < 3; i++) {
                 gfx.drawString(this.font, this.statArray[i], left + WIDTH - 36 - this.stats.getWidth(), top + 9 + this.font.lineHeight + (this.font.lineHeight + 2) * i, Color.WHITE);
             }
-
         }
 
         gfx.blit(PLAYER, left + 81, top + 145, 0, 0, 176, 90);
@@ -222,17 +226,17 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
     private void nextVariant() {
         DataModelInstance current = this.getCurrentModel();
         if (!current.isValid()) return;
-        int variants = current.getModel().displayVariants().size();
+        int variants = current.getModel().displayVariants(this.minecraft.level).size();
         if (variants == 0) return;
 
         this.variant = (this.variant + 1) % (variants + 1);
 
         Entity entity = current.getEntity(this.minecraft.level, this.variant);
         if (this.variant == 0) {
-            this.mainText.setLine(1, Component.translatable(entity.getType().getDescription().getString()), 2);
+            this.mainText.setLine(1, entity.getName(), 2);
         }
         else {
-            this.mainText.setLine(1, Component.translatable("hostilenetworks.gui.variant", entity.getType().getDescription()).withColor(Color.LIME), 2);
+            this.mainText.setLine(1, Component.translatable("hostilenetworks.gui.variant", entity.getName()).withColor(Color.LIME), 2);
         }
     }
 
@@ -254,7 +258,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         this.variant = 0;
         this.resetText();
         this.mainText.addLine(Component.translatable("hostilenetworks.gui.name").withColor(Color.AQUA));
-        this.mainText.addLine(inst.getEntity(this.minecraft.level).getType().getDescription());
+        this.mainText.addLine(inst.getEntity(this.minecraft.level).getName());
         this.mainText.addLine(Component.translatable("hostilenetworks.gui.info").withColor(Color.AQUA));
         this.mainText.addLine(Component.translatable(model.triviaKey()));
 
@@ -302,7 +306,8 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 
     @SuppressWarnings("deprecation")
     public void renderEntityInInventory(GuiGraphics gfx, float pPosX, float pPosY, float scale, float pMouseX, float pMouseY, Entity entity, DisplayEntity display) {
-        float f1 = (float) Math.atan(pMouseY / 40.0F);
+        float partialTicks = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
+        float mouseAtan = (float) Math.atan(pMouseY / 40.0F);
         PoseStack pose = gfx.pose();
         pose.pushPose();
         scale *= display.scale();
@@ -311,23 +316,41 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         pose.scale(scale, scale, -scale);
 
         Quaternionf quaternion = Axis.ZP.rotationDegrees(180.0F);
-        Quaternionf quaternion1 = Axis.XP.rotationDegrees(f1 * 20.0F);
+        Quaternionf quaternion1 = Axis.XP.rotationDegrees(mouseAtan * 20.0F);
         quaternion.mul(quaternion1);
         pose.mulPose(quaternion);
-        pose.mulPose(Axis.YP.rotationDegrees((this.spin + this.minecraft.getTimer().getGameTimeDeltaPartialTick(true)) * 2.25F % 360));
+        pose.mulPose(Axis.YP.rotationDegrees((this.spin + partialTicks) * 2.25F % 360));
         entity.setYRot(0);
         if (entity instanceof LivingEntity living) {
             living.yBodyRot = entity.getYRot();
             living.yHeadRot = entity.getYRot();
             living.yHeadRotO = entity.getYRot();
         }
+
+        // When rendering an item entity, we want to prevent any bobbing or spinning from occurring.
+        // To do that, we have to apply the inverse transforms that would normally be applied so when the real ones apply (in ItemEntityRenderer), they cancel out.
+        if (entity instanceof ItemEntity item) {
+            ItemStack itemstack = item.getItem();
+            ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+            BakedModel bakedmodel = itemRenderer.getModel(itemstack, entity.level(), null, entity.getId());
+
+            boolean shouldBob = net.neoforged.neoforge.client.extensions.common.IClientItemExtensions.of(itemstack).shouldBobAsEntity(itemstack);
+            float f1 = shouldBob ? Mth.sin(((float) item.getAge() + partialTicks) / 10.0F + item.bobOffs) * 0.1F + 0.1F : 0;
+            float f2 = bakedmodel.getTransforms().getTransform(ItemDisplayContext.GROUND).scale.y();
+
+            float f3 = item.getSpin(partialTicks);
+            pose.mulPose(Axis.YP.rotation(-f3));
+
+            pose.translate(0.0F, -(f1 + 0.25F * f2), 0.0F);
+        }
+
         EntityRenderDispatcher entityrenderermanager = Minecraft.getInstance().getEntityRenderDispatcher();
         quaternion1.conjugate();
         entityrenderermanager.overrideCameraOrientation(quaternion1);
         entityrenderermanager.setRenderShadow(false);
         MultiBufferSource.BufferSource rtBuffer = Minecraft.getInstance().renderBuffers().bufferSource();
         RenderSystem.runAsFancy(() -> {
-            entityrenderermanager.render(entity, display.xOffset(), display.yOffset(), display.zOffset(), 0.0F, 1, pose, new WrappedRTBuffer(rtBuffer), 0xF000F0);
+            entityrenderermanager.render(entity, display.xOffset(), display.yOffset(), display.zOffset(), 0.0F, partialTicks, pose, new WrappedRTBuffer(rtBuffer), 0xF000F0);
         });
         rtBuffer.endBatch();
         entityrenderermanager.setRenderShadow(true);

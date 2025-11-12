@@ -3,13 +3,16 @@ package dev.shadowsoffire.hostilenetworks.data;
 import java.util.List;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
-import dev.shadowsoffire.hostilenetworks.data.EntityDataModel.RequiredData;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
+import dev.shadowsoffire.hostilenetworks.util.DataGained;
 import dev.shadowsoffire.hostilenetworks.util.DisplayEntity;
+import dev.shadowsoffire.hostilenetworks.util.RequiredData;
 import dev.shadowsoffire.placebo.codec.CodecProvider;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.Level;
 
 /**
  * Abstract view of a data model. All data models must implement this interface so the Simulation Chamber and Loot Fabricator know how to interact with them.
@@ -21,14 +24,16 @@ public interface DataModel extends CodecProvider<DataModel> {
      * <p>
      * The display entity is shown in the Data Model's item model, and in the Deep Learner.
      */
-    DisplayEntity displayEntity();
+    DisplayEntity displayEntity(Level level);
 
     /**
      * Returns all variant display entities for this data model.
      */
-    List<DisplayEntity> displayVariants();
+    List<DisplayEntity> displayVariants(Level level);
 
     Component name();
+
+    TextColor nameColor();
 
     int simCost();
 
@@ -42,12 +47,7 @@ public interface DataModel extends CodecProvider<DataModel> {
 
     RequiredData requiredData();
 
-    /**
-     * TODO (Breaking): Update json format to have the color be separate from the name.
-     */
-    default int getNameColor() {
-        return this.name().getStyle().getColor().getValue();
-    }
+    DataGained dataGained();
 
     default ItemStack getPredictionDrop() {
         ItemStack stk = new ItemStack(Hostile.Items.PREDICTION);
@@ -65,6 +65,18 @@ public interface DataModel extends CodecProvider<DataModel> {
      */
     default int getRequiredData(ModelTier tier) {
         return this.requiredData().getRequiredData(tier);
+    }
+
+    /**
+     * Returns the data per kill for this model when at the given tier.
+     * <p>
+     * This method respects overrides present in {@link #dataPerKill}.
+     * 
+     * @param tier The tier of the model.
+     * @return The (potentially overridden) amount of data received per kill.
+     */
+    default int getDataGained(ModelTier tier) {
+        return this.dataGained().getDataGained(tier);
     }
 
 }

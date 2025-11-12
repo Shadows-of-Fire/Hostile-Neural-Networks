@@ -19,13 +19,13 @@ import net.minecraft.world.entity.Entity;
  * @param attunable Whether this model can be attuned at all. If false, the predicate is ignored, and the model will require external creation.
  * @param predicate The entity predicate that defines the attunement rules for this model.
  */
-public record ModelAttunement(boolean attunable, EntityPredicate predicate) {
+public record EntityAttunement(boolean attunable, EntityPredicate predicate) {
 
-    public static Codec<ModelAttunement> CODEC = RecordCodecBuilder.create(inst -> inst
+    public static Codec<EntityAttunement> CODEC = RecordCodecBuilder.create(inst -> inst
         .group(
-            Codec.BOOL.fieldOf("attunable").forGetter(ModelAttunement::attunable),
-            EntityPredicate.CODEC.fieldOf("predicate").forGetter(ModelAttunement::predicate))
-        .apply(inst, ModelAttunement::new));
+            Codec.BOOL.fieldOf("attunable").forGetter(EntityAttunement::attunable),
+            EntityPredicate.CODEC.fieldOf("predicate").forGetter(EntityAttunement::predicate))
+        .apply(inst, EntityAttunement::new));
 
     /**
      * Checks if the given entity matches the attunement rules.

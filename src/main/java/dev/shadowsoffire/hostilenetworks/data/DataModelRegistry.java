@@ -24,12 +24,13 @@ public class DataModelRegistry extends DynamicRegistry<DataModel> {
     private Multimap<EntityType<?>, EntityDataModel> modelsByType = HashMultimap.create();
 
     public DataModelRegistry() {
-        super(HostileNetworks.LOGGER, "data_models", true, false);
+        super(HostileNetworks.LOGGER, "data_models", true, true);
     }
 
     @Override
     protected void registerBuiltinCodecs() {
-        this.registerDefaultCodec(HostileNetworks.loc("data_model"), EntityDataModel.CODEC);
+        this.registerDefaultCodec(HostileNetworks.loc("entity_data_model"), EntityDataModel.CODEC);
+        this.registerCodec(HostileNetworks.loc("block_data_model"), BlockDataModel.CODEC);
     }
 
     @Override

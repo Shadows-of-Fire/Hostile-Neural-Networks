@@ -19,8 +19,10 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
@@ -68,7 +70,7 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
         matrix.popPose();
         DynamicHolder<DataModel> model = DataModelItem.getStoredModel(stack);
         if (model.isBound()) {
-            DisplayEntity display = model.get().displayEntity();
+            DisplayEntity display = model.get().displayEntity(Minecraft.getInstance().level);
             Entity ent = ClientEntityCache.computeIfAbsent(display, Minecraft.getInstance().level);
             if (Minecraft.getInstance().player != null) {
                 ent.tickCount = Minecraft.getInstance().player.tickCount;
@@ -85,23 +87,22 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
         matrix.translate(0.5, 0.5, 0.5);
         float scale = display.scale();
         if (type == ItemDisplayContext.FIXED) {
-            matrix.translate(0, -0.5, 0);
             scale *= 0.4F;
             matrix.scale(scale, scale, scale);
-            matrix.translate(0, 1.45, 0);
             matrix.mulPose(Axis.XN.rotationDegrees(90));
             matrix.mulPose(Axis.YN.rotationDegrees(180));
         }
         else if (type == ItemDisplayContext.GUI) {
-            matrix.translate(0, -0.5, 0);
             scale *= 0.4F;
             matrix.scale(scale, scale, scale);
-            matrix.translate(0, 0.45, 0);
+            matrix.translate(0, -0.32 / scale, 0);
         }
         else {
             scale *= 0.25F;
             matrix.scale(scale, scale, scale);
-            matrix.translate(0, 0.12 + 0.05 * Math.sin((entity.tickCount + Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true)) / 12), 0);
+            double yTranslation = 0.12 + 0.05 * Math.sin((entity.tickCount + Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true)) / 12);
+            yTranslation = (yTranslation * 0.25) / scale;
+            matrix.translate(0, yTranslation, 0);
         }
 
         float rotation = -30;
@@ -114,6 +115,25 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
             living.yBodyRot = entity.getYRot();
             living.yHeadRot = entity.getYRot();
             living.yHeadRotO = entity.getYRot();
+        }
+
+        float partialTicks = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
+
+        // When rendering an item entity, we want to prevent any bobbing or spinning from occurring.
+        // To do that, we have to apply the inverse transforms that would normally be applied so when the real ones apply (in ItemEntityRenderer), they cancel out.
+        if (entity instanceof ItemEntity item) {
+            ItemStack itemstack = item.getItem();
+            ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+            BakedModel bakedmodel = itemRenderer.getModel(itemstack, entity.level(), null, entity.getId());
+
+            boolean shouldBob = net.neoforged.neoforge.client.extensions.common.IClientItemExtensions.of(itemstack).shouldBobAsEntity(itemstack);
+            float f1 = shouldBob ? Mth.sin(((float) item.getAge() + partialTicks) / 10.0F + item.bobOffs) * 0.1F + 0.1F : 0;
+            float f2 = bakedmodel.getTransforms().getTransform(ItemDisplayContext.GROUND).scale.y();
+
+            float f3 = item.getSpin(partialTicks);
+            matrix.mulPose(Axis.YP.rotation(-f3));
+
+            matrix.translate(0.0F, -(f1 + 0.25F * f2), 0.0F);
         }
 
         EntityRenderDispatcher entityrenderermanager = Minecraft.getInstance().getEntityRenderDispatcher();

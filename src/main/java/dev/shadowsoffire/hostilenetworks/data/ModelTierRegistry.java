@@ -5,7 +5,10 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.mojang.serialization.Codec;
+
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
+import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import dev.shadowsoffire.placebo.reload.DynamicRegistry;
 import net.minecraft.resources.ResourceLocation;
 
@@ -107,6 +110,10 @@ public class ModelTierRegistry extends DynamicRegistry<ModelTier> {
         if (!HostileNetworks.MODID.equals(key.getNamespace())) {
             throw new UnsupportedOperationException("Model Tiers must be registered under the `hostilenetworks` namespace.");
         }
+    }
+
+    public static Codec<DynamicHolder<ModelTier>> tierHolderCodec() {
+        return Codec.STRING.xmap(HostileNetworks::loc, ResourceLocation::getPath).xmap(ModelTierRegistry.INSTANCE::holder, DynamicHolder::getId);
     }
 
 }

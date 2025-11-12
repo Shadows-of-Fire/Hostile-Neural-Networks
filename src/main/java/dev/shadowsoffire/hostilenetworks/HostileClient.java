@@ -66,7 +66,7 @@ public class HostileClient {
             DynamicHolder<DataModel> model = DataModelItem.getStoredModel(stack);
             int color = 0xFFFFFF;
             if (model.isBound()) {
-                color = model.get().getNameColor();
+                color = model.get().nameColor().getValue();
             }
             return 0xFF000000 | color;
         }, Hostile.Items.PREDICTION.value());

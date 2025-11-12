@@ -55,11 +55,8 @@ public class DataModelInstance implements TooltipComponent {
     }
 
     @Deprecated
-    public int getDataPerKill() {
-        if (this.getModel() instanceof EntityDataModel entityModel) {
-            return HostileConfig.killModelUpgrade ? entityModel.getDataPerKill(this.getTier()) : 0;
-        }
-        return -1;
+    public int getDataGained() {
+        return HostileConfig.killModelUpgrade ? this.getModel().getDataGained(this.getTier()) : 0;
     }
 
     public int getTierData() {
@@ -69,7 +66,7 @@ public class DataModelInstance implements TooltipComponent {
     @Deprecated
     public int getNextDataPerKill() {
         if (this.getModel() instanceof EntityDataModel entityModel) {
-            return entityModel.getDataPerKill(getNextTier());
+            return entityModel.getDataGained(getNextTier());
         }
         return -1;
     }
@@ -107,15 +104,11 @@ public class DataModelInstance implements TooltipComponent {
     }
 
     public int getKillsNeeded() {
-        return Mth.ceil((this.getNextTierData() - this.data) / (float) this.getDataPerKill());
+        return Mth.ceil((this.getNextTierData() - this.data) / (float) this.getDataGained());
     }
 
-    public DisplayEntity getDisplayEntity() {
-        return this.getDisplayEntity(0);
-    }
-
-    public DisplayEntity getDisplayEntity(int variant) {
-        return variant == 0 ? this.getModel().displayEntity() : this.getModel().displayVariants().get(variant - 1);
+    public DisplayEntity getDisplayEntity(Level level, int variant) {
+        return variant == 0 ? this.getModel().displayEntity(level) : this.getModel().displayVariants(level).get(variant - 1);
     }
 
     @Deprecated
@@ -125,7 +118,7 @@ public class DataModelInstance implements TooltipComponent {
 
     @Deprecated
     public Entity getEntity(Level level, int variant) {
-        DisplayEntity display = variant == 0 ? this.getModel().displayEntity() : this.getModel().displayVariants().get(variant - 1);
+        DisplayEntity display = this.getDisplayEntity(level, variant);
         return ClientEntityCache.computeIfAbsent(display, level);
     }
 

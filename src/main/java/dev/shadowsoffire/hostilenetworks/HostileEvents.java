@@ -114,7 +114,7 @@ public class HostileEvents {
             if (dModel.isBound() && dModel.get() instanceof EntityDataModel eModel && (eModel.entity() == type || eModel.variants().contains(type))) {
                 int data = DataModelItem.getData(model);
                 ModelTier tier = ModelTierRegistry.getByData(dModel.get(), data);
-                DataModelItem.setData(model, data + eModel.getDataPerKill(tier) + bonus);
+                DataModelItem.setData(model, data + eModel.getDataGained(tier) + bonus);
                 handler.setStackInSlot(i, model);
             }
         }

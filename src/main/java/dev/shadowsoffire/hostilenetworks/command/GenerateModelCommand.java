@@ -31,9 +31,9 @@ import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.EntityDataModel;
-import dev.shadowsoffire.hostilenetworks.data.EntityDataModel.DataPerKill;
-import dev.shadowsoffire.hostilenetworks.data.EntityDataModel.DisplayData;
-import dev.shadowsoffire.hostilenetworks.data.EntityDataModel.RequiredData;
+import dev.shadowsoffire.hostilenetworks.util.DataGained;
+import dev.shadowsoffire.hostilenetworks.util.DisplayData;
+import dev.shadowsoffire.hostilenetworks.util.RequiredData;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -44,7 +44,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -86,12 +85,12 @@ public class GenerateModelCommand {
 
                 // Formatter::off
                 EntityDataModel model = new EntityDataModel((EntityType) type, Collections.emptyList(),
-                    Component.translatable(type.getDescriptionId()).withStyle(Style.EMPTY.withColor(TextColor.fromRgb(p.getRandom().nextInt(0xFFFFFF)))),
+                    Optional.empty(), TextColor.fromRgb(p.getRandom().nextInt(0xFFFFFF)),
                     DisplayData.DEFAULT, 256, Ingredient.of(Hostile.Items.PREDICTION_MATRIX.value()),
                     new ItemStack(Items.STICK),
                     "hostilenetworks.trivia." + name.getPath(),
                     results,
-                    RequiredData.EMPTY, DataPerKill.EMPTY, Optional.empty());
+                    RequiredData.EMPTY, DataGained.EMPTY, Optional.empty());
                 // Formatter::on
 
                 write(name.getNamespace(), name.getPath(), model);
@@ -127,12 +126,12 @@ public class GenerateModelCommand {
                 if (!results.isEmpty()) {
                     // Formatter::off
                     EntityDataModel model = new EntityDataModel((EntityType) type, Collections.emptyList(),
-                        Component.translatable(type.getDescriptionId()).withStyle(Style.EMPTY.withColor(TextColor.fromRgb(p.getRandom().nextInt(0xFFFFFF)))),
+                        Optional.empty(), TextColor.fromRgb(p.getRandom().nextInt(0xFFFFFF)),
                         DisplayData.DEFAULT, 256, Ingredient.of(Hostile.Items.PREDICTION_MATRIX.value()),
                         new ItemStack(Items.STICK),
                         "hostilenetworks.trivia." + name.getPath(),
                         results,
-                        RequiredData.EMPTY, DataPerKill.EMPTY, Optional.empty());
+                        RequiredData.EMPTY, DataGained.EMPTY, Optional.empty());
                     // Formatter::on
 
                     write(name.getNamespace(), name.getPath(), model);

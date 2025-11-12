@@ -45,21 +45,22 @@ public class DataModelItem extends Item implements ITabFiller {
         ModelTier tier = ModelTierRegistry.getByData(inst.getModel(), data);
         list.add(Component.translatable("hostilenetworks.info.tier", tier.getComponent()));
 
-        if (inst.getModel() instanceof EntityDataModel eModel) {
-            int dProg = data - inst.getTierData();
-            int dMax = inst.getNextTierData() - inst.getTierData();
-            if (!tier.isMax()) {
-                list.add(Component.translatable("hostilenetworks.info.data", Component.translatable("hostilenetworks.info.dprog", dProg, dMax).withStyle(ChatFormatting.GRAY)));
-                int dataPerKill = inst.getDataPerKill();
-                if (dataPerKill == 0) {
-                    Component c1 = Component.literal("000 ").withStyle(ChatFormatting.GRAY, ChatFormatting.OBFUSCATED);
-                    list.add(Component.translatable("hostilenetworks.info.dpk", c1).append(Component.translatable("hostilenetworks.info.disabled").withStyle(ChatFormatting.RED)));
-                }
-                else {
-                    list.add(Component.translatable("hostilenetworks.info.dpk", Component.literal("" + inst.getDataPerKill()).withStyle(ChatFormatting.GRAY)));
-                }
+        int dProg = data - inst.getTierData();
+        int dMax = inst.getNextTierData() - inst.getTierData();
+        if (!tier.isMax()) {
+            list.add(Component.translatable("hostilenetworks.info.data", Component.translatable("hostilenetworks.info.dprog", dProg, dMax).withStyle(ChatFormatting.GRAY)));
+            int dataPerKill = inst.getDataGained();
+            if (dataPerKill == 0) {
+                Component c1 = Component.literal("000 ").withStyle(ChatFormatting.GRAY, ChatFormatting.OBFUSCATED);
+                list.add(Component.translatable("hostilenetworks.info.dpk", c1).append(Component.translatable("hostilenetworks.info.disabled").withStyle(ChatFormatting.RED)));
             }
-            list.add(Component.translatable("hostilenetworks.info.sim_cost", Component.translatable("hostilenetworks.info.rft", inst.getModel().simCost()).withStyle(ChatFormatting.GRAY)));
+            else {
+                list.add(Component.translatable("hostilenetworks.info.dpk", Component.literal("" + inst.getDataGained()).withStyle(ChatFormatting.GRAY)));
+            }
+        }
+        list.add(Component.translatable("hostilenetworks.info.sim_cost", Component.translatable("hostilenetworks.info.rft", inst.getModel().simCost()).withStyle(ChatFormatting.GRAY)));
+
+        if (inst.getModel() instanceof EntityDataModel eModel) {
             List<EntityType<?>> subtypes = eModel.variants();
             if (!subtypes.isEmpty()) {
                 list.add(Component.translatable("hostilenetworks.info.subtypes"));
