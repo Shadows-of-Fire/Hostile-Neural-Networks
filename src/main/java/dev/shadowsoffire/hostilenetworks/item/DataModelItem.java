@@ -11,19 +11,27 @@ import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.EntityDataModel;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
+import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity;
 import dev.shadowsoffire.hostilenetworks.util.Color;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import dev.shadowsoffire.placebo.tabs.ITabFiller;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
@@ -128,6 +136,36 @@ public class DataModelItem extends Item implements ITabFiller {
 
     public static int getIters(ItemStack stack) {
         return stack.getOrDefault(Hostile.Components.ITERATIONS, 0);
+    }
+
+    @Override
+    public InteractionResult useOn(UseOnContext context) {
+        Level level = context.getLevel();
+        Player player = context.getPlayer();
+
+        if (level.isClientSide() || player == null) {
+            return InteractionResult.SUCCESS;
+        }
+
+        ItemStack stack = context.getItemInHand();
+        if (!player.isSecondaryUseActive()) {
+            return super.useOn(context);
+        }
+
+        BlockPos pos = context.getClickedPos();
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (!(blockEntity instanceof SimChamberTileEntity simChamberTileEntity)) {
+            return super.useOn(context);
+        }
+
+        SimChamberTileEntity.SimItemHandler inventory = simChamberTileEntity.getInventory();
+        if (inventory != null && inventory.getStackInSlot(0).isEmpty()) {
+            inventory.setStackInSlot(0, stack.copyWithCount(1));
+            stack.shrink(1);
+            return InteractionResult.CONSUME;
+        }
+
+        return super.useOn(context);
     }
 
     public static void setIters(ItemStack stack, int iterations) {
