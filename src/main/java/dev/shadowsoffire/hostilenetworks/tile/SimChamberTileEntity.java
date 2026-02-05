@@ -34,6 +34,14 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 
     protected DataModelInstance currentModel = DataModelInstance.EMPTY;
     protected int runtime = 0;
+
+    /**
+     * The amount of successful predictions for the current simulation run.
+     * <p>
+     * If the value is 0, the prediction failed and no prediction items will be generated.
+     * <p>
+     * If it is not zero, that many prediction items will be generated. Values higher than one can be generated when accuracy exceeds 100%.
+     */
     protected int predictionSuccess = 0;
     protected FailureState failState = FailureState.NONE;
     protected RedstoneState redstoneState = RedstoneState.IGNORED;
@@ -101,7 +109,11 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                     if (this.canStartSimulation()) {
                         this.runtime = 300;
                         float accuracy = this.currentModel.getAccuracy();
-                        this.predictionSuccess = (int) accuracy + (this.level.random.nextFloat() <= this.currentModel.getAccuracy() % 1 ? 1 : 0);
+                        this.predictionSuccess = (int) accuracy;
+                        if (this.level.random.nextFloat() <= this.currentModel.getAccuracy()) {
+                            this.predictionSuccess += 1;
+                        }
+
                         this.inventory.getStackInSlot(1).shrink(1);
                         this.setChanged();
                     }
