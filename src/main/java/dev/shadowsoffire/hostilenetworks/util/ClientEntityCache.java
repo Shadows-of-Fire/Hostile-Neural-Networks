@@ -1,12 +1,12 @@
 package dev.shadowsoffire.hostilenetworks.util;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -22,12 +22,12 @@ import net.neoforged.neoforge.event.level.LevelEvent;
 @EventBusSubscriber(value = Dist.CLIENT, modid = HostileNetworks.MODID)
 public class ClientEntityCache {
 
-    private static final Map<Level, Map<EntityType<?>, Entity>> CACHE = new IdentityHashMap<>();
+    private static final Map<Level, Map<DisplayEntity, Entity>> CACHE = new IdentityHashMap<>();
 
     public static Entity computeIfAbsent(DisplayEntity display, Level level) {
-        var map = CACHE.computeIfAbsent(level, l -> new IdentityHashMap<>());
-        return map.computeIfAbsent(display.type(), k -> {
-            Entity ent = k.create(level);
+        var map = CACHE.computeIfAbsent(level, l -> new HashMap<>());
+        return map.computeIfAbsent(display, k -> {
+            Entity ent = k.type().create(level);
             ent.load(display.nbt());
             return ent;
         });
