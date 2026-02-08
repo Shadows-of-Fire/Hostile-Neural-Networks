@@ -35,6 +35,8 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
     protected DataModelInstance currentModel = DataModelInstance.EMPTY;
     protected int runtime = 0;
 
+    protected boolean trainingMode = true;
+
     /**
      * The amount of successful predictions for the current simulation run.
      * <p>
@@ -52,6 +54,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         this.data.addData(() -> this.predictionSuccess, v -> this.predictionSuccess = v);
         this.data.addData(() -> this.failState.ordinal(), v -> this.failState = FailureState.values()[v]);
         this.data.addData(() -> this.redstoneState.ordinal(), v -> this.redstoneState = RedstoneState.values()[v]);
+        this.data.addData(() -> this.trainingMode ? 1 : 0, v -> this.trainingMode = v != 0);
         this.data.addEnergy(this.energy);
         this.energy.setMaxExtract(0);
     }
@@ -71,6 +74,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         tag.putInt("predSuccess", this.predictionSuccess);
         tag.putInt("failState", this.failState.ordinal());
         tag.putInt("redstoneState", this.redstoneState.ordinal());
+        tag.putBoolean("trainingMode", this.trainingMode);
     }
 
     @Override
@@ -88,6 +92,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         this.predictionSuccess = tag.getInt("predSuccess");
         this.failState = FailureState.values()[tag.getInt("failState")];
         this.redstoneState = RedstoneState.values()[tag.getInt("redstoneState")];
+        this.trainingMode = tag.getBoolean("trainingMode");
     }
 
     @Override
@@ -122,26 +127,30 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                     if (this.getRedstoneState().matches(level.hasNeighborSignal(worldPosition))) {
                         this.failState = FailureState.NONE;
                         if (--this.runtime == 0) {
-                            ItemStack stk = this.inventory.getStackInSlot(2);
-                            if (stk.isEmpty()) this.inventory.setStackInSlot(2, this.currentModel.getModel().baseDrop().copy());
-                            else stk.grow(1);
-                            if (this.predictionSuccess > 0) {
-                                stk = this.inventory.getStackInSlot(3);
-                                if (stk.isEmpty()) {
-                                    this.inventory.setStackInSlot(3, this.currentModel.getPredictionDrop().copyWithCount(this.predictionSuccess));
-                                }
-                                else {
-                                    stk.grow(this.predictionSuccess);
-                                }
-                            }
-                            ModelTier tier = this.currentModel.getTier();
-                            if (!tier.isMax() && HostileConfig.simModelUpgrade > 0) {
-                                int newData = this.currentModel.getData() + 1;
-                                if (!(HostileConfig.simModelUpgrade == 2 && newData > this.currentModel.getNextTierData())) {
-                                    this.currentModel.setData(newData);
+                            if (!this.trainingMode) { //Inference
+                                ItemStack stk = this.inventory.getStackInSlot(2);
+                                if (stk.isEmpty())
+                                    this.inventory.setStackInSlot(2, this.currentModel.getModel().baseDrop().copy());
+                                else stk.grow(1);
+                                if (this.predictionSuccess > 0) {
+                                    stk = this.inventory.getStackInSlot(3);
+                                    if (stk.isEmpty()) {
+                                        this.inventory.setStackInSlot(3, this.currentModel.getPredictionDrop().copyWithCount(this.predictionSuccess));
+                                    } else {
+                                        stk.grow(this.predictionSuccess);
+                                    }
                                 }
                             }
-                            DataModelItem.setIters(model, DataModelItem.getIters(model) + 1);
+                            else { // Training
+                                ModelTier tier = this.currentModel.getTier();
+                                if (!tier.isMax() && HostileConfig.simModelUpgrade > 0) {
+                                    int newData = this.currentModel.getData() + 1;
+                                    if (!(HostileConfig.simModelUpgrade == 2 && newData > this.currentModel.getNextTierData())) {
+                                        this.currentModel.setData(newData);
+                                    }
+                                }
+                                DataModelItem.setIters(model, DataModelItem.getIters(model) + 1);
+                            }
                             this.setChanged();
                         }
                         else if (this.runtime != 0) {
@@ -249,6 +258,15 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 
     public RedstoneState getRedstoneState() {
         return this.redstoneState;
+    }
+
+    public boolean isTrainingMode() {
+        return this.trainingMode;
+    }
+
+    public void setTrainingMode(boolean trainingMode) {
+        this.trainingMode = trainingMode;
+        this.setChanged();
     }
 
     public class SimItemHandler extends InternalItemHandler {

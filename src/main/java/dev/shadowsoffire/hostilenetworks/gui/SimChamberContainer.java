@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 
+
 public class SimChamberContainer extends BlockEntityMenu<SimChamberTileEntity> {
 
     public SimChamberContainer(int id, Inventory pInv, BlockPos pos) {
@@ -32,6 +33,7 @@ public class SimChamberContainer extends BlockEntityMenu<SimChamberTileEntity> {
     public boolean stillValid(Player pPlayer) {
         return pPlayer.level().getBlockState(this.pos).is(Hostile.Blocks.SIM_CHAMBER);
     }
+    public boolean isTrainingMode() { return this.tile.isTrainingMode(); }
 
     public int getEnergyStored() {
         return this.tile.getEnergyStored();
@@ -62,6 +64,9 @@ public class SimChamberContainer extends BlockEntityMenu<SimChamberTileEntity> {
         if (id >= 0 && id <= 2) {
             RedstoneState state = RedstoneState.values()[id];
             this.setRedstoneState(state);
+            return true;
+        } else if (id == 3) {
+            this.tile.setTrainingMode(!this.tile.isTrainingMode());
             return true;
         }
         return super.clickMenuButton(player, id);

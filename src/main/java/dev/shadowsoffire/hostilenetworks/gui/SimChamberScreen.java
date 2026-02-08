@@ -31,6 +31,8 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
     public static final int MAX_TEXT_WIDTH = 174;
     public static final float RUNTIME_TEXT_SPEED = 0.65F;
 
+
+
     private static final ResourceLocation BASE = HostileNetworks.loc("textures/gui/sim_chamber.png");
     private static final ResourceLocation PLAYER = HostileNetworks.loc("textures/gui/default_gui.png");
 
@@ -48,6 +50,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
     public void init() {
         super.init();
         addRenderableWidget(new RedstoneButton(this.getGuiLeft() + 228, this.getGuiTop()));
+        addRenderableWidget(new ModeButton(this.getGuiLeft() + 228, this.getGuiTop() + 20));
         this.body = new TickableTextList(this.minecraft.font, MAX_TEXT_WIDTH);
         this.lastFailState = FailureState.NONE;
         this.runtimeTextLoaded = false;
@@ -218,5 +221,34 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
             guiGraphics.blit(SimChamberScreen.this.menu.getRedstoneState().getResourceLocation(), this.getX() + 1, this.getY() + 1, 0, 0, 16, 16, 16, 16);
         }
     }
+
+    private class ModeButton extends AbstractWidget {
+
+        public ModeButton(int x, int y) {
+            super(x, y, 18, 18, Component.empty());
+        }
+
+        @Override
+        public void onClick(double mouseX, double mouseY) {
+            SimChamberScreen scn = SimChamberScreen.this;
+            scn.minecraft.gameMode.handleInventoryButtonClick(scn.menu.containerId, 3);
+        }
+
+
+        @Override
+        protected void updateWidgetNarration(NarrationElementOutput output) {
+            this.defaultButtonNarrationText(output);
+        }
+
+        @Override
+        protected void renderWidget(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
+            // draw a single letter so you can see it exists
+            String s = SimChamberScreen.this.menu.isTrainingMode() ? "T" : "I";
+            gfx.drawString(SimChamberScreen.this.font, s, this.getX() + 6, this.getY() + 5, 0xFFFFFF, true);
+        }
+    }
+
+
+
 
 }
