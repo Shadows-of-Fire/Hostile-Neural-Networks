@@ -74,14 +74,26 @@
     "hostilenetworks.fail.faulty": "Insufficient data in model. Please insert a basic model or better",
     "hostilenetworks.fail.energy_mid_cycle": "Simulation progress paused\nSystem energy levels critical",
     "hostilenetworks.fail.redstone": "Simulation progress paused\nIncorrect redstone signal applied",
-    
-    "hostilenetworks.run.0": "> Launching runtime ",
-    "hostilenetworks.run.1": "> Iteration #%s started",
-    "hostilenetworks.run.2": "> Loading model from chip memory",
-    "hostilenetworks.run.3": "> Assessing threat level",
-    "hostilenetworks.run.4": "> Engaging enemy",
-    "hostilenetworks.run.5": "> Sequence prediction ",
-    "hostilenetworks.run.6": "> Processing results...",
+
+    "hostilenetworks.gui.mode.training": "Training Mode",
+    "hostilenetworks.gui.mode.inference": "Inference Mode",
+
+
+    "hostilenetworks.run.training.0": "> Launching runtime ",
+    "hostilenetworks.run.training.1": "> Training iteration #%s started",
+    "hostilenetworks.run.training.2": "> Loading model from chip memory",
+    "hostilenetworks.run.training.3": "> Assessing threat level",
+    "hostilenetworks.run.training.4": "> Engaging enemy",
+    "hostilenetworks.run.training.5": "> Collecting data",
+    "hostilenetworks.run.training.6": "> Processing results...",
+
+    "hostilenetworks.run.inference.0": "> Launching runtime ",
+    "hostilenetworks.run.inference.1": "> Model inference tier: ",
+    "hostilenetworks.run.inference.2": "> Loading model from chip memory",
+    "hostilenetworks.run.inference.3": "> Assessing threat level",
+    "hostilenetworks.run.inference.4": "> Engaging enemy",
+    "hostilenetworks.run.inference.5": "> Sequence prediction ",
+    "hostilenetworks.run.inference.6": "> Processing results...",
     
     "hostilenetworks.info.click_to_attune": "%s on an entity to %s",
     "hostilenetworks.info.attunment_disabled": "Model attunement is disabled",

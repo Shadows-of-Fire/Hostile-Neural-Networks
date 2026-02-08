@@ -35,7 +35,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
     protected DataModelInstance currentModel = DataModelInstance.EMPTY;
     protected int runtime = 0;
 
-    protected boolean trainingMode = true;
+    protected boolean trainingMode = false;
 
     /**
      * The amount of successful predictions for the current simulation run.
@@ -127,21 +127,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                     if (this.getRedstoneState().matches(level.hasNeighborSignal(worldPosition))) {
                         this.failState = FailureState.NONE;
                         if (--this.runtime == 0) {
-                            if (!this.trainingMode) { //Inference
-                                ItemStack stk = this.inventory.getStackInSlot(2);
-                                if (stk.isEmpty())
-                                    this.inventory.setStackInSlot(2, this.currentModel.getModel().baseDrop().copy());
-                                else stk.grow(1);
-                                if (this.predictionSuccess > 0) {
-                                    stk = this.inventory.getStackInSlot(3);
-                                    if (stk.isEmpty()) {
-                                        this.inventory.setStackInSlot(3, this.currentModel.getPredictionDrop().copyWithCount(this.predictionSuccess));
-                                    } else {
-                                        stk.grow(this.predictionSuccess);
-                                    }
-                                }
-                            }
-                            else { // Training
+                            if (this.trainingMode) { // Training
                                 ModelTier tier = this.currentModel.getTier();
                                 if (!tier.isMax() && HostileConfig.simModelUpgrade > 0) {
                                     int newData = this.currentModel.getData() + 1;
@@ -151,13 +137,29 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                                 }
                                 DataModelItem.setIters(model, DataModelItem.getIters(model) + 1);
                             }
+                            else { // Inference
+                                ItemStack stk = this.inventory.getStackInSlot(2);
+                                if (stk.isEmpty()) this.inventory.setStackInSlot(2, this.currentModel.getModel().baseDrop().copy());
+                                else stk.grow(1);
+
+                                if (this.predictionSuccess > 0) {
+                                    stk = this.inventory.getStackInSlot(3);
+                                    if (stk.isEmpty()) {
+                                        this.inventory.setStackInSlot(3, this.currentModel.getPredictionDrop().copyWithCount(this.predictionSuccess));
+                                    }
+                                    else stk.grow(this.predictionSuccess);
+                                }
+                            }
+
                             this.setChanged();
                         }
-                        else if (this.runtime != 0) {
+                        else { // runtime still > 0
                             this.energy.setEnergy(this.energy.getEnergyStored() - this.currentModel.getModel().simCost());
                             this.setChanged();
                         }
+
                     }
+
                     else {
                         this.failState = FailureState.REDSTONE;
                     }

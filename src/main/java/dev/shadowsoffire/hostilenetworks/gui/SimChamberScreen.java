@@ -81,6 +81,14 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
                 gfx.renderComponentTooltip(this.font, txt, pX, pY);
             }
         }
+
+        else if (this.isHovering(228, 20, 18, 18, pX, pY)) {
+            Component tip = this.menu.isTrainingMode()
+                    ? Component.translatable("hostilenetworks.gui.mode.training")
+                    : Component.translatable("hostilenetworks.gui.mode.inference");
+            gfx.renderTooltip(this.font, tip, pX, pY);
+        }
+
         else if (this.isHovering(229, 1, 16, 16, pX, pY)) {
             gfx.renderTooltip(this.font, Component.translatable(this.menu.getRedstoneState().getKey()), pX, pY);
         }
@@ -168,17 +176,36 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
             float speed = 0.65F;
             this.body.clear();
             int iters = DataModelItem.getIters(this.menu.getSlot(0).getItem());
+
+            DataModelInstance tier = new DataModelInstance(this.menu.getSlot(0).getItem(),0);
+            Component tierComp = tier.isValid() ? tier.getTier().getComponent() : ERROR;
+
+            boolean simTraining = SimChamberScreen.this.menu.isTrainingMode();
             for (int i = 0; i < 7; i++) {
-                Component txt = Component.translatable("hostilenetworks.run." + i, iters);
-                this.body.addLine(txt, speed);
-                if (i == 0) {
-                    Component version = Component.literal("v" + HostileNetworks.VERSION).withStyle(ChatFormatting.GOLD);
-                    this.body.continueLine(version, speed);
+                if (simTraining) {
+                    Component txt = Component.translatable("hostilenetworks.run.training." + i, iters);
+                    this.body.addLine(txt, speed);
+                    if (i == 0) {
+                        Component version = Component.literal("v" + HostileNetworks.VERSION).withStyle(ChatFormatting.GOLD);
+                        this.body.continueLine(version, speed);
+                    }
                 }
-                else if (i == 5) {
-                    String key = "hostilenetworks.color_text." + (this.menu.didPredictionSucceed() ? "success" : "failed");
-                    Component status = Component.translatable(key).withStyle(this.menu.didPredictionSucceed() ? ChatFormatting.GOLD : ChatFormatting.RED);
-                    this.body.continueLine(status, speed);
+                else {
+                    Component txt = Component.translatable("hostilenetworks.run.inference." + i, iters);
+                    this.body.addLine(txt, speed);
+                    if (i == 0) {
+                        Component version = Component.literal("v" + HostileNetworks.VERSION).withStyle(ChatFormatting.GOLD);
+                        this.body.continueLine(version, speed);
+
+                    }
+                    else if (i == 1) {
+                        this.body.continueLine(tierComp, speed);
+                    }
+                    else if (i == 5) {
+                        String key = "hostilenetworks.color_text." + (this.menu.didPredictionSucceed() ? "success" : "failed");
+                        Component status = Component.translatable(key).withStyle(this.menu.didPredictionSucceed() ? ChatFormatting.GOLD : ChatFormatting.RED);
+                        this.body.continueLine(status, speed);
+                    }
                 }
             }
             this.body.setTicks(ticks);
@@ -242,9 +269,16 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
 
         @Override
         protected void renderWidget(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
-            // draw a single letter so you can see it exists
+            RenderSystem.enableBlend();
+            RenderSystem.enableDepthTest();
+            gfx.setColor(1f, 1f, 1f, 1f);
+            gfx.blit(BASE, this.getX(), this.getY(), 0, 141, 18, 18, 256, 256);
             String s = SimChamberScreen.this.menu.isTrainingMode() ? "T" : "I";
-            gfx.drawString(SimChamberScreen.this.font, s, this.getX() + 6, this.getY() + 5, 0xFFFFFF, true);
+            int x = this.getX() + 6 + ("I".equals(s) ? 1 : 0); //I needs to be to the right by 1 pixel, otherwise looks ugly
+            int y = this.getY() + 5;
+            gfx.drawString(SimChamberScreen.this.font, s, x, y, 0xFFFFFF, true);
+
+
         }
     }
 
