@@ -1,0 +1,21 @@
+{
+    "type": "hostilenetworks:block_data_model",
+    "block": "minecraft:iron_ore",
+    "variants": [ "minecraft:deepslate_iron_ore"],
+    "name_color": "#D8D8D8",
+    "display": { "scale": 3 },
+    "sim_cost": 256,
+    "input": {
+        "item": "hostilenetworks:prediction_matrix"
+    },
+    "base_drop": {
+        "id": "hostilenetworks:overworld_prediction"
+    },
+    "trivia": "hostilenetworks.trivia.iron_ore",
+    "fabricator_drops": [
+        {
+            "id": "minecraft:raw_iron",
+            "count": 12
+        }
+    ]
+}

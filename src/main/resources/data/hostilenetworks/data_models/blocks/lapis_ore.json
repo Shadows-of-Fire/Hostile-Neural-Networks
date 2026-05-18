@@ -1,0 +1,21 @@
+{
+    "type": "hostilenetworks:block_data_model",
+    "block": "minecraft:lapis_ore",
+    "variants": [ "minecraft:deepslate_lapis_ore"],
+    "name_color": "#5A78E0",
+    "display": { "scale": 3 },
+    "sim_cost": 256,
+    "input": {
+        "item": "hostilenetworks:prediction_matrix"
+    },
+    "base_drop": {
+        "id": "hostilenetworks:overworld_prediction"
+    },
+    "trivia": "hostilenetworks.trivia.lapis_ore",
+    "fabricator_drops": [
+        {
+            "id": "minecraft:lapis_lazuli",
+            "count": 16
+        }
+    ]
+}

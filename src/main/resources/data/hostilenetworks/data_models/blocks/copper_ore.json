@@ -1,0 +1,21 @@
+{
+    "type": "hostilenetworks:block_data_model",
+    "block": "minecraft:copper_ore",
+    "variants": [ "minecraft:deepslate_copper_ore"],
+    "name_color": "#E0734D",
+    "display": { "scale": 3 },
+    "sim_cost": 256,
+    "input": {
+        "item": "hostilenetworks:prediction_matrix"
+    },
+    "base_drop": {
+        "id": "hostilenetworks:overworld_prediction"
+    },
+    "trivia": "hostilenetworks.trivia.copper_ore",
+    "fabricator_drops": [
+        {
+            "id": "minecraft:raw_copper",
+            "count": 16
+        }
+    ]
+}

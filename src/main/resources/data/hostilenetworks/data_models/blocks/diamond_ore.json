@@ -1,0 +1,21 @@
+{
+    "type": "hostilenetworks:block_data_model",
+    "block": "minecraft:diamond_ore",
+    "variants": [ "minecraft:deepslate_diamond_ore"],
+    "name_color": "#4AEDD9",
+    "display": { "scale": 3 },
+    "sim_cost": 256,
+    "input": {
+        "item": "hostilenetworks:prediction_matrix"
+    },
+    "base_drop": {
+        "id": "hostilenetworks:overworld_prediction"
+    },
+    "trivia": "hostilenetworks.trivia.diamond_ore",
+    "fabricator_drops": [
+        {
+            "id": "minecraft:diamond",
+            "count": 6
+        }
+    ]
+}

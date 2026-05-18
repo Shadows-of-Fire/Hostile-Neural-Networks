@@ -147,6 +147,17 @@
     "hostilenetworks.msg.no_model": "No known models exist for this specimen.",
     "hostilenetworks.msg.built": "Successfully constructed a %s Data Model",
 
+    "_comment": "Vanilla Ores",
+    "hostilenetworks.trivia.coal_ore": "An ordinary fuel.\nYet, essential for you.\nSo many things depend on its use.",
+    "hostilenetworks.trivia.iron_ore": "Almost a default metal, of sorts.\nMake a pick, a sword, or whatever!\nAlternatively, give it life with a Pumpkin.",
+    "hostilenetworks.trivia.copper_ore": "Copper, copper, the useless topper.\nFound throughout the world in vast quantities.\nBut only useful for decoration.",
+    "hostilenetworks.trivia.gold_ore": "The shiniest metal around!\nUseful in various forms, for various tasks!\nAlso required to tell the time.",
+    "hostilenetworks.trivia.redstone_ore": "You know how oil is the remains of dinosaurs?\nWell, we think Redstone is the remains of engineers.",
+    "hostilenetworks.trivia.lapis_ore": "Blue stuff!\nMakes blue dye, obviously.\nFor some reason, also used in enchanting.",
+    "hostilenetworks.trivia.diamond_ore": "The gem everyone needs.\nMade the best gear and tools in town!\nUntil Netherite came around...",
+    "hostilenetworks.trivia.emerald_ore": "Really, a currency found in the ground?\nSeems foolish.\nUnfortunately, an entire civilization uses it.",
+    "hostilenetworks.trivia.nether_quartz_ore": "A mysterious fragment of Hell.\nI assume you've come to take it as well.\nBut what use would you have for it?",
+
     "_comment": "Vanilla Passives",
     "hostilenetworks.trivia.glow_squid": "Deep in the ocean they stow.\nBlessed by a luminescent glow.\nDare you take it as your own?",
     "hostilenetworks.trivia.sheep": "Masters of color, and all things warm.\nUsually held back, unless blessed by _jeb.",

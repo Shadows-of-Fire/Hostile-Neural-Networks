@@ -1,0 +1,20 @@
+{
+    "type": "hostilenetworks:block_data_model",
+    "block": "minecraft:nether_quartz_ore",
+    "name_color": "#E8E0D4",
+    "display": { "scale": 3 },
+    "sim_cost": 256,
+    "input": {
+        "item": "hostilenetworks:prediction_matrix"
+    },
+    "base_drop": {
+        "id": "hostilenetworks:nether_prediction"
+    },
+    "trivia": "hostilenetworks.trivia.nether_quartz_ore",
+    "fabricator_drops": [
+        {
+            "id": "minecraft:quartz",
+            "count": 12
+        }
+    ]
+}
