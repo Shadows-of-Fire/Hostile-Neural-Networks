@@ -1,4 +1,9 @@
 {
+    "neoforge:conditions": [
+        {
+            "type": "hostilenetworks:block_data_models_enabled"
+        }
+    ],
     "type": "hostilenetworks:block_data_model",
     "block": "minecraft:coal_ore",
     "variants": [ "minecraft:deepslate_coal_ore"],

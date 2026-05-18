@@ -1,9 +1,11 @@
 package dev.shadowsoffire.hostilenetworks;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 
 import dev.shadowsoffire.hostilenetworks.block.LootFabBlock;
 import dev.shadowsoffire.hostilenetworks.block.SimChamberBlock;
+import dev.shadowsoffire.hostilenetworks.data.BlockDataModelsCondition;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.EntityDataModel;
@@ -35,6 +37,7 @@ import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public class Hostile {
 
@@ -140,6 +143,18 @@ public class Hostile {
         public static final TagKey<Item> GENERALIZED_PREDICTIONS = TagKey.create(Registries.ITEM, HostileNetworks.loc("generalized_predictions"));
     }
 
+    public static class Conditions {
+
+        /**
+         * Data-load condition gating {@link BlockDataModelsCondition the block data models}. All built-in block data
+         * model jsons carry this condition, so they only load when the corresponding config option is enabled.
+         */
+        public static final MapCodec<BlockDataModelsCondition> BLOCK_DATA_MODELS_ENABLED = R.custom("block_data_models_enabled", NeoForgeRegistries.Keys.CONDITION_CODECS,
+            BlockDataModelsCondition.CODEC);
+
+        private static void bootstrap() {}
+    }
+
     static void bootstrap(IEventBus bus) {
         bus.register(R);
         Blocks.bootstrap();
@@ -148,6 +163,7 @@ public class Hostile {
         Containers.bootstrap();
         Tabs.bootstrap();
         Components.bootstrap();
+        Conditions.bootstrap();
     }
 
 }

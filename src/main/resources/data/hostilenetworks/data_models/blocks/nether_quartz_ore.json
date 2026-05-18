@@ -1,4 +1,9 @@
 {
+    "neoforge:conditions": [
+        {
+            "type": "hostilenetworks:block_data_models_enabled"
+        }
+    ],
     "type": "hostilenetworks:block_data_model",
     "block": "minecraft:nether_quartz_ore",
     "name_color": "#E8E0D4",

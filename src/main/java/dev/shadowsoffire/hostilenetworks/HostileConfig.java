@@ -26,6 +26,7 @@ public class HostileConfig {
     public static int simModelUpgrade;
     public static boolean actionUpgradesModel;
     public static boolean continuousAccuracy;
+    public static boolean enableBlockDataModels;
 
     public static Offset deepLearnerOffset = new Offset(AnchorPoint.TOP_LEFT, 0, 0);
 
@@ -48,6 +49,8 @@ public class HostileConfig {
             "Whether killing mobs and breaking blocks will upgrade the data on a corresponding model. Note: If you disable this, be sure to add a way for players to get non-Faulty models!");
         continuousAccuracy = cfg.getBoolean("Continuous Accuracy", "models", true,
             "If true, the accuracy of the model increases as it gains progress towards the next tier. If false, always uses the base accuracy of the current tier.");
+        enableBlockDataModels = cfg.getBoolean("Enable Block Data Models", "models", false,
+            "If true, block data models (such as the built-in ore models) are loaded. This is an experimental feature. This value is not synced; it governs which models load during datapack reading.");
 
         cfg.setCategoryComment("client", "Client-only options, not synced");
         deepLearnerOffset = Offset.load("Deep Learner HUD", "client", deepLearnerOffset, cfg);

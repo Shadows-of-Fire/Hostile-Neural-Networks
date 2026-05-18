@@ -1,4 +1,9 @@
 {
+    "neoforge:conditions": [
+        {
+            "type": "hostilenetworks:block_data_models_enabled"
+        }
+    ],
     "type": "hostilenetworks:block_data_model",
     "block": "minecraft:iron_ore",
     "variants": [ "minecraft:deepslate_iron_ore"],
