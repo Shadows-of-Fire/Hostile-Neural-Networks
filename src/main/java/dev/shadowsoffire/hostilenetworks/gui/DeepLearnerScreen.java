@@ -1,6 +1,7 @@
 package dev.shadowsoffire.hostilenetworks.gui;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.joml.Quaternionf;
 
@@ -19,7 +20,6 @@ import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import dev.shadowsoffire.hostilenetworks.util.ClientEntityCache;
 import dev.shadowsoffire.hostilenetworks.util.Color;
 import dev.shadowsoffire.hostilenetworks.util.DisplayEntity;
-import dev.shadowsoffire.hostilenetworks.util.ReflectionThings;
 import dev.shadowsoffire.placebo.screen.PlaceboContainerScreen;
 import dev.shadowsoffire.placebo.screen.TickableTextList;
 import net.minecraft.ChatFormatting;
@@ -36,7 +36,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -56,7 +55,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
     private TickableTextList mainText;
     private TickableTextList dataText;
     private TickableTextList stats;
-    private final String[] statArray = new String[3];
+    private final Component[] statArray = new Component[3];
     private int numModels = 0;
     private boolean emptyText = true;
     private DataModelInstance[] models = new DataModelInstance[4];
@@ -149,13 +148,18 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         gfx.blit(BASE, left + 41, top, 0, 0, 256, 140);
 
         if (this.numModels > 0) {
-            for (int i = 0; i < 3; i++) {
-                gfx.blit(BASE, left + WIDTH - 49 - this.stats.getWidth(), top + 8 + this.font.lineHeight + (this.font.lineHeight + 2) * i, 0, 140 + 9 * i, 9, 9);
+            DataModelInstance inst = this.getCurrentModel();
+            // Each model type that exposes icon-based stats occupies its own icon column in the texture (entities at U=0,
+            // blocks at U=96). A column of -1 means the model renders its stats as plain text lines in the stats list.
+            int iconColumn = inst.isValid() ? inst.getModel().statIconColumn() : -1;
+
+            if (iconColumn >= 0) {
+                for (int i = 0; i < 3; i++) {
+                    gfx.blit(BASE, left + WIDTH - 49 - this.stats.getWidth(), top + 8 + this.font.lineHeight + (this.font.lineHeight + 2) * i, iconColumn, 140 + 9 * i, 9, 9);
+                }
             }
 
             gfx.blit(BASE, left - 41, top, 9, 140, 75, 101);
-
-            DataModelInstance inst = this.getCurrentModel();
 
             if (inst.isValid()) {
                 DisplayEntity display = inst.getDisplayEntity(this.minecraft.level, this.variant);
@@ -166,8 +170,10 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
                 this.renderEntityInInventory(gfx, left - 4, top + 90, 40, 0, 0, ent, display);
             }
 
-            for (int i = 0; i < 3; i++) {
-                gfx.drawString(this.font, this.statArray[i], left + WIDTH - 36 - this.stats.getWidth(), top + 9 + this.font.lineHeight + (this.font.lineHeight + 2) * i, Color.WHITE);
+            if (iconColumn >= 0) {
+                for (int i = 0; i < 3; i++) {
+                    gfx.drawString(this.font, this.statArray[i], left + WIDTH - 36 - this.stats.getWidth(), top + 9 + this.font.lineHeight + (this.font.lineHeight + 2) * i, Color.WHITE);
+                }
             }
         }
 
@@ -270,11 +276,13 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         this.dataText.addLine(inst.getAccuracyComponent());
 
         if (!tier.isMax()) {
-            if (HostileConfig.killModelUpgrade) {
+            if (HostileConfig.actionUpgradesModel) {
                 Component nextTierName = Component.translatable("hostilenetworks.tier." + next.name()).withColor(next.colorValue());
-                Component killWord = Component.translatable("hostilenetworks.gui.kill" + (inst.getKillsNeeded() > 1 ? "s" : ""));
+                int actions = inst.getActionsNeeded();
+                String actionKey = actions > 1 ? model.actionWordKey() + "s" : model.actionWordKey();
+                Component actionWord = Component.translatable(actionKey);
 
-                this.dataText.addLine(Component.translatable("hostilenetworks.gui.next_tier", nextTierName, inst.getKillsNeeded(), killWord));
+                this.dataText.addLine(Component.translatable("hostilenetworks.gui.next_tier", nextTierName, actions, actionWord));
             }
             else {
                 this.dataText.addLine(Component.translatable("hostilenetworks.gui.upgrade_disabled"));
@@ -284,24 +292,17 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
             this.dataText.addLine(Component.translatable("hostilenetworks.gui.max_tier").withStyle(ChatFormatting.RED));
         }
 
-        Entity ent = inst.getEntity(this.minecraft.level);
-
-        if (ent instanceof LivingEntity living) {
-            this.statArray[0] = String.valueOf((int) (living.getAttribute(Attributes.MAX_HEALTH).getBaseValue() / 2));
-            this.statArray[1] = String.valueOf((int) (living.getAttribute(Attributes.ARMOR).getBaseValue() / 2));
-            this.statArray[2] = String.valueOf(ReflectionThings.getBaseExperienceReward(living));
-        }
-        else {
-            for (int i = 0; i < 3; i++) {
-                this.statArray[i] = "\u00A7k99999";
-            }
+        List<Component> statistics = model.getStatistics(this.minecraft.level);
+        for (int i = 0; i < 3; i++) {
+            this.statArray[i] = statistics.get(i);
         }
     }
 
     private void resetText() {
         this.mainText.clear();
         this.dataText.clear();
-        this.stats.setTicks(0);
+        this.stats.clear();
+        this.stats.addLine(Component.translatable("hostilenetworks.gui.stats").withColor(Color.AQUA));
     }
 
     @SuppressWarnings("deprecation")

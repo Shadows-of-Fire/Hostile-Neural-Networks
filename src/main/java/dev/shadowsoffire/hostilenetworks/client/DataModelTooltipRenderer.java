@@ -50,7 +50,7 @@ public record DataModelTooltipRenderer(DataModelInstance model) implements Clien
         font.drawInBatch(Component.translatable("hostilenetworks.hud.model").withStyle(tierName.getStyle()), x + font.width(tierName), y, 0xFFFFFFFF, true, mat, bufferSource, DisplayMode.NORMAL, 0, 15728880);
 
         if (!model.getTier().isMax()) {
-            font.drawInBatch(I18n.get("hostilenetworks.hud.kills", model.getKillsNeeded()), x + 23, y + 14, 0xFFFFFFFF, true, mat, bufferSource, DisplayMode.NORMAL, 0, 15728880);
+            font.drawInBatch(I18n.get("hostilenetworks.hud.kills", model.getActionsNeeded()), x + 23, y + 14, 0xFFFFFFFF, true, mat, bufferSource, DisplayMode.NORMAL, 0, 15728880);
         }
 
     }

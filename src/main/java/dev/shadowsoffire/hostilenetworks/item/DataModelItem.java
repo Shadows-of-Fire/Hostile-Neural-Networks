@@ -8,7 +8,6 @@ import dev.shadowsoffire.hostilenetworks.client.DataModelItemStackRenderer;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
-import dev.shadowsoffire.hostilenetworks.data.EntityDataModel;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import dev.shadowsoffire.hostilenetworks.util.Color;
@@ -18,7 +17,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -33,7 +31,6 @@ public class DataModelItem extends Item implements ITabFiller {
         super(pProperties);
     }
 
-    // TODO: Delegate item tooltip to DataModel so that data model types can add their own info.
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
         DataModelInstance inst = new DataModelInstance(stack, 0);
@@ -42,31 +39,31 @@ public class DataModelItem extends Item implements ITabFiller {
             return;
         }
         int data = getData(stack);
-        ModelTier tier = ModelTierRegistry.getByData(inst.getModel(), data);
+        DataModel model = inst.getModel();
+        ModelTier tier = ModelTierRegistry.getByData(model, data);
         list.add(Component.translatable("hostilenetworks.info.tier", tier.getComponent()));
 
         int dProg = data - inst.getTierData();
         int dMax = inst.getNextTierData() - inst.getTierData();
         if (!tier.isMax()) {
             list.add(Component.translatable("hostilenetworks.info.data", Component.translatable("hostilenetworks.info.dprog", dProg, dMax).withStyle(ChatFormatting.GRAY)));
-            int dataPerKill = inst.getDataGained();
-            if (dataPerKill == 0) {
+            int dataGained = inst.getDataGained();
+            String dpaKey = model.dataPerActionKey();
+            if (dataGained == 0) {
                 Component c1 = Component.literal("000 ").withStyle(ChatFormatting.GRAY, ChatFormatting.OBFUSCATED);
-                list.add(Component.translatable("hostilenetworks.info.dpk", c1).append(Component.translatable("hostilenetworks.info.disabled").withStyle(ChatFormatting.RED)));
+                list.add(Component.translatable(dpaKey, c1).append(Component.translatable("hostilenetworks.info.disabled").withStyle(ChatFormatting.RED)));
             }
             else {
-                list.add(Component.translatable("hostilenetworks.info.dpk", Component.literal("" + inst.getDataGained()).withStyle(ChatFormatting.GRAY)));
+                list.add(Component.translatable(dpaKey, Component.literal("" + dataGained).withStyle(ChatFormatting.GRAY)));
             }
         }
-        list.add(Component.translatable("hostilenetworks.info.sim_cost", Component.translatable("hostilenetworks.info.rft", inst.getModel().simCost()).withStyle(ChatFormatting.GRAY)));
+        list.add(Component.translatable("hostilenetworks.info.sim_cost", Component.translatable("hostilenetworks.info.rft", model.simCost()).withStyle(ChatFormatting.GRAY)));
 
-        if (inst.getModel() instanceof EntityDataModel eModel) {
-            List<EntityType<?>> subtypes = eModel.variants();
-            if (!subtypes.isEmpty()) {
-                list.add(Component.translatable("hostilenetworks.info.subtypes"));
-                for (EntityType<?> t : subtypes) {
-                    list.add(Component.translatable("hostilenetworks.info.sub_list", t.getDescription()).withStyle(Style.EMPTY.withColor(Color.LIME)));
-                }
+        List<Component> variants = model.variantNames();
+        if (!variants.isEmpty()) {
+            list.add(Component.translatable("hostilenetworks.info.subtypes"));
+            for (Component v : variants) {
+                list.add(Component.translatable("hostilenetworks.info.sub_list", v).withStyle(Style.EMPTY.withColor(Color.LIME)));
             }
         }
     }

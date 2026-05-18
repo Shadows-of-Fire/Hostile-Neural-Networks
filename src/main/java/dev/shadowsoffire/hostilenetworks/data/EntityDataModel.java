@@ -15,8 +15,10 @@ import dev.shadowsoffire.hostilenetworks.util.DataGained;
 import dev.shadowsoffire.hostilenetworks.util.DisplayData;
 import dev.shadowsoffire.hostilenetworks.util.DisplayEntity;
 import dev.shadowsoffire.hostilenetworks.util.MiscCodecs;
+import dev.shadowsoffire.hostilenetworks.util.ReflectionThings;
 import dev.shadowsoffire.hostilenetworks.util.RequiredData;
 import dev.shadowsoffire.placebo.json.OptionalStackCodec;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -25,6 +27,8 @@ import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
@@ -111,11 +115,42 @@ public record EntityDataModel(EntityType<?> entity, List<EntityType<?>> variants
     }
 
     @Override
+    public List<Component> variantNames() {
+        return this.variants.stream().map(EntityType::getDescription).toList();
+    }
+
+    @Override
+    public int statIconColumn() {
+        return 0;
+    }
+
+    @Override
+    public List<Component> getStatistics(Level level) {
+        if (this.entity.create(level) instanceof LivingEntity living) {
+            return List.of(
+                Component.literal(String.valueOf((int) (living.getAttribute(Attributes.MAX_HEALTH).getBaseValue() / 2))),
+                Component.literal(String.valueOf((int) (living.getAttribute(Attributes.ARMOR).getBaseValue() / 2))),
+                Component.literal(String.valueOf(ReflectionThings.getBaseExperienceReward(living))));
+        }
+        Component placeholder = Component.literal("99999").withStyle(ChatFormatting.OBFUSCATED);
+        return List.of(placeholder, placeholder, placeholder);
+    }
+
+    @Override
     public Codec<? extends EntityDataModel> getCodec() {
         return CODEC;
     }
 
-    @Deprecated
+    @Override
+    public String actionWordKey() {
+        return "hostilenetworks.gui.action.kill";
+    }
+
+    @Override
+    public String dataPerActionKey() {
+        return "hostilenetworks.info.dpk";
+    }
+
     public Stream<EntityType<?>> entityAndVariants() {
         return Stream.concat(Stream.of(this.entity), this.variants.stream());
     }

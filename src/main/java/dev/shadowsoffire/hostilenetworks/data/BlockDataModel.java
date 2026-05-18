@@ -1,5 +1,6 @@
 package dev.shadowsoffire.hostilenetworks.data;
 
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -14,15 +15,19 @@ import dev.shadowsoffire.hostilenetworks.util.DisplayableBlock;
 import dev.shadowsoffire.hostilenetworks.util.RequiredData;
 import dev.shadowsoffire.placebo.json.OptionalStackCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
@@ -31,6 +36,9 @@ import net.minecraft.world.level.block.state.BlockState;
 public record BlockDataModel(DisplayableBlock block, List<DisplayableBlock> variants, Optional<Component> displayName,
     TextColor nameColor, DisplayData display, int simCost, Ingredient input, ItemStack baseDrop, String triviaKey,
     List<ItemStack> fabDrops, RequiredData requiredData, DataGained dataGained, Optional<BlockAttunement> attunement) implements DataModel {
+
+    /** Formats block hardness / blast resistance, trimming trailing zeroes (e.g. {@code 1.50} -> {@code 1.5}, {@code 1200.0} -> {@code 1200}). */
+    private static final DecimalFormat STAT_FORMAT = new DecimalFormat("0.##");
 
     public static final Codec<BlockDataModel> CODEC = RecordCodecBuilder.create(inst -> inst
         .group(
@@ -57,6 +65,53 @@ public record BlockDataModel(DisplayableBlock block, List<DisplayableBlock> vari
     @Override
     public Component name() {
         return this.displayName.orElse(this.block.block().getName()).copy().withStyle(s -> s.withColor(this.nameColor));
+    }
+
+    @Override
+    public List<Component> variantNames() {
+        return this.variants.stream().map(b -> b.displayStack().getHoverName()).toList();
+    }
+
+    @Override
+    public String actionWordKey() {
+        return "hostilenetworks.gui.action.mine";
+    }
+
+    @Override
+    public String dataPerActionKey() {
+        return "hostilenetworks.info.dpm";
+    }
+
+    @Override
+    public int statIconColumn() {
+        return 96;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Block models report Hardness ({@link net.minecraft.world.level.block.state.BlockBehaviour#defaultDestroyTime()}),
+     * Blast Resistance ({@link Block#getExplosionResistance()}), and Sound Type, paired with the pickaxe / blast / note
+     * icon column. Values are bare, mirroring how entity models pair bare numbers with the heart / armor / xp icons.
+     */
+    @Override
+    @SuppressWarnings("deprecation")
+    public List<Component> getStatistics(Level level) {
+        Block target = this.block.block();
+        SoundType sound = target.defaultBlockState().getSoundType();
+        return List.of(
+            Component.literal(STAT_FORMAT.format(target.defaultDestroyTime())),
+            Component.literal(STAT_FORMAT.format(target.getExplosionResistance())),
+            soundTypeName(sound));
+    }
+
+    /**
+     * Resolves a display name for a {@link SoundType} by deriving a translation key from its break sound's registry id.
+     */
+    private static Component soundTypeName(SoundType sound) {
+        ResourceLocation breakSound = BuiltInRegistries.SOUND_EVENT.getKey(sound.getBreakSound());
+        String key = "hostilenetworks.sound_type." + breakSound.toString();
+        return Component.translatable(key);
     }
 
     @Override

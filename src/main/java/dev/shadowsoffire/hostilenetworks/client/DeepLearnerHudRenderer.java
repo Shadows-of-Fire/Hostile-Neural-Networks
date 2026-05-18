@@ -101,7 +101,7 @@ public class DeepLearnerHudRenderer implements LayeredDraw.Layer {
             Component comp = cModel.getTier().getComponent();
             gfx.drawString(mc.font, comp, x + 2, y + SPACING * i, 0xFFFFFF, true);
             gfx.drawString(mc.font, Component.translatable("hostilenetworks.hud.model").withStyle(comp.getStyle()), x + mc.font.width(comp) + 2, y + SPACING * i, 0xFFFFFF, true);
-            if (!cModel.getTier().isMax()) gfx.drawString(mc.font, I18n.get("hostilenetworks.hud.kills", cModel.getKillsNeeded()), x + 21, y + 13 + i * SPACING, 0xFFFFFF, true);
+            if (!cModel.getTier().isMax()) gfx.drawString(mc.font, I18n.get("hostilenetworks.hud.kills", cModel.getActionsNeeded()), x + 21, y + 13 + i * SPACING, 0xFFFFFF, true);
         }
 
         gfx.pose().popPose();

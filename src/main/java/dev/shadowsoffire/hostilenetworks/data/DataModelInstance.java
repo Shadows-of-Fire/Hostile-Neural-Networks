@@ -54,21 +54,12 @@ public class DataModelInstance implements TooltipComponent {
         return ModelTierRegistry.next(this.getTier());
     }
 
-    @Deprecated
     public int getDataGained() {
-        return HostileConfig.killModelUpgrade ? this.getModel().getDataGained(this.getTier()) : 0;
+        return HostileConfig.actionUpgradesModel ? this.getModel().getDataGained(this.getTier()) : 0;
     }
 
     public int getTierData() {
         return this.getModel().getRequiredData(this.getTier());
-    }
-
-    @Deprecated
-    public int getNextDataPerKill() {
-        if (this.getModel() instanceof EntityDataModel entityModel) {
-            return entityModel.getDataGained(getNextTier());
-        }
-        return -1;
     }
 
     public int getNextTierData() {
@@ -103,7 +94,7 @@ public class DataModelInstance implements TooltipComponent {
         return Component.translatable("hostilenetworks.gui.accuracy", numeric);
     }
 
-    public int getKillsNeeded() {
+    public int getActionsNeeded() {
         return Mth.ceil((this.getNextTierData() - this.data) / (float) this.getDataGained());
     }
 
@@ -111,12 +102,10 @@ public class DataModelInstance implements TooltipComponent {
         return variant == 0 ? this.getModel().displayEntity(level) : this.getModel().displayVariants(level).get(variant - 1);
     }
 
-    @Deprecated
     public Entity getEntity(Level level) {
         return this.getEntity(level, 0);
     }
 
-    @Deprecated
     public Entity getEntity(Level level, int variant) {
         DisplayEntity display = this.getDisplayEntity(level, variant);
         return ClientEntityCache.computeIfAbsent(display, level);

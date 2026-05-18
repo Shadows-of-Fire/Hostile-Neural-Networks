@@ -24,7 +24,7 @@ public class HostileConfig {
 
     public static boolean rightClickToAttune;
     public static int simModelUpgrade;
-    public static boolean killModelUpgrade;
+    public static boolean actionUpgradesModel;
     public static boolean continuousAccuracy;
 
     public static Offset deepLearnerOffset = new Offset(AnchorPoint.TOP_LEFT, 0, 0);
@@ -38,10 +38,14 @@ public class HostileConfig {
         fabPowerCost = cfg.getInt("Loot Fab Power Cost", "power", 256, 0, Integer.MAX_VALUE, "The FE/t cost of the Loot Fabricator.");
 
         rightClickToAttune = cfg.getBoolean("Right Click To Attune", "models", true,
-            "If true, right clicking a blank data model on a mob will attune it to that mob. If disabled, you will need to provide players with a way to get attuned models!");
+            "If true, right clicking a blank data model on a mob or block will attune it to that target. If disabled, you will need to provide players with a way to get attuned models!");
         simModelUpgrade = cfg.getInt("Sim Chamber Upgrades Model", "models", 1, 0, 2, "Whether the Simulation Chamber will upgrade the data on a model. (0 = No, 1 = Yes, 2 = Only up to tier boundaries)");
-        killModelUpgrade = cfg.getBoolean("Killing Upgrades Model", "models", true,
-            "Whether killing mobs will upgrade the data on a model. Note: If you disable this, be sure to add a way for players to get non-Faulty models!");
+        // Migrate the legacy "Killing Upgrades Model" key (entity-only) to "Action Upgrades Model" (covers kills and block breaks).
+        if (!cfg.hasKey("models", "Action Upgrades Model") && cfg.hasKey("models", "Killing Upgrades Model")) {
+            cfg.renameProperty("models", "Killing Upgrades Model", "Action Upgrades Model");
+        }
+        actionUpgradesModel = cfg.getBoolean("Action Upgrades Model", "models", true,
+            "Whether killing mobs and breaking blocks will upgrade the data on a corresponding model. Note: If you disable this, be sure to add a way for players to get non-Faulty models!");
         continuousAccuracy = cfg.getBoolean("Continuous Accuracy", "models", true,
             "If true, the accuracy of the model increases as it gains progress towards the next tier. If false, always uses the base accuracy of the current tier.");
 
@@ -51,7 +55,7 @@ public class HostileConfig {
         return cfg;
     }
 
-    static record ConfigPayload(int simPowerCap, int fabPowerCap, int fabPowerCost, boolean rightClickAttune, int simModelUpgrade, boolean killModelUpgrade, boolean continuousAccuracy) implements CustomPacketPayload {
+    static record ConfigPayload(int simPowerCap, int fabPowerCap, int fabPowerCost, boolean rightClickAttune, int simModelUpgrade, boolean actionUpgradesModel, boolean continuousAccuracy) implements CustomPacketPayload {
 
         public static final Type<ConfigPayload> TYPE = new Type<>(HostileNetworks.loc("config"));
 
@@ -61,12 +65,12 @@ public class HostileConfig {
             ByteBufCodecs.VAR_INT, ConfigPayload::fabPowerCost,
             ByteBufCodecs.BOOL, ConfigPayload::rightClickAttune,
             ByteBufCodecs.VAR_INT, ConfigPayload::simModelUpgrade,
-            ByteBufCodecs.BOOL, ConfigPayload::killModelUpgrade,
+            ByteBufCodecs.BOOL, ConfigPayload::actionUpgradesModel,
             ByteBufCodecs.BOOL, ConfigPayload::continuousAccuracy,
             ConfigPayload::new);
 
         public ConfigPayload() {
-            this(HostileConfig.simPowerCap, HostileConfig.fabPowerCap, HostileConfig.fabPowerCost, HostileConfig.rightClickToAttune, HostileConfig.simModelUpgrade, HostileConfig.killModelUpgrade, HostileConfig.continuousAccuracy);
+            this(HostileConfig.simPowerCap, HostileConfig.fabPowerCap, HostileConfig.fabPowerCost, HostileConfig.rightClickToAttune, HostileConfig.simModelUpgrade, HostileConfig.actionUpgradesModel, HostileConfig.continuousAccuracy);
         }
 
         @Override
@@ -93,7 +97,7 @@ public class HostileConfig {
                 HostileConfig.fabPowerCost = msg.fabPowerCost;
                 HostileConfig.rightClickToAttune = msg.rightClickAttune;
                 HostileConfig.simModelUpgrade = msg.simModelUpgrade;
-                HostileConfig.killModelUpgrade = msg.killModelUpgrade;
+                HostileConfig.actionUpgradesModel = msg.actionUpgradesModel;
                 HostileConfig.continuousAccuracy = msg.continuousAccuracy;
             }
 
@@ -109,7 +113,7 @@ public class HostileConfig {
 
             @Override
             public String getVersion() {
-                return "1";
+                return "2";
             }
 
         }

@@ -1,12 +1,14 @@
 # Description
-A Data Model is the primary data object for Hostile Neural Networks, holding all data needed to represent a simulatable mob.
+An (Entity) Data Model is the primary data object for Hostile Neural Networks, holding all data needed to represent a simulatable mob. For block-target models, see [BlockDataModel](./BlockDataModel.md).
+
+A `type` field of `hostilenetworks:entity_data_model` selects this codec; it is also the default if `type` is omitted.
 
 # Dependencies
 This object references the following objects:
 1. [DisplayData](./components/DisplayData.md)
 2. [ItemStack](../../../../Placebo/blob/-/schema/ItemStack.md)
 3. [RequiredData](./components/RequiredData.md)
-4. [DataPerKill](./components/DataPerKill.md)
+4. [DataGained](./components/DataGained.md)
 5. [ModelAttunement](./components/ModelAttunement.md)
 
 The object types `Component` and `Ingredient` are supplied by Vanilla and are not described here or in my own documentation.
@@ -28,7 +30,7 @@ The object types `Component` and `Ingredient` are supplied by Vanilla and are no
         ItemStack                   
     ],                              
     "required_data": RequiredData,  // [Optional]  || Optional overrides for the required data for individual model tiers.
-    "data_per_kill": DataPerKill,   // [Optional]  || Optional overrides for the data per kill for individual model tiers.
+    "data_gained": DataGained,      // [Optional]  || Optional overrides for the data gained per kill for individual model tiers. (Legacy name: `data_per_kill`.)
     "attunement": ModelAttunement   // [Optional]  || Optional attunement rules. Required if making multiple models for the same entity type(s).
 }
 ```
