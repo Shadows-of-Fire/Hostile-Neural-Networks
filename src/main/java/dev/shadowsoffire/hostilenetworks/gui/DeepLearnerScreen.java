@@ -53,6 +53,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
     public static final WidgetSprites RIGHT_BUTTON = makeSprites("widget/right", "widget/right_hovered");
 
     private TickableTextList mainText;
+    private TickableTextList infoText;
     private TickableTextList dataText;
     private TickableTextList stats;
     private final Component[] statArray = new Component[3];
@@ -64,6 +65,8 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
     private ImageButton btnLeft, btnRight;
     private int variant = 0;
     private int ticksShown = 0;
+    /** Number of wrapped lines the current name line occupies. Used to position {@link #infoText} directly beneath it. */
+    private int nameLines = 1;
 
     public DeepLearnerScreen(DeepLearnerContainer pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
@@ -110,7 +113,11 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         this.stats = new TickableTextList(this.minecraft.font, 100);
         this.stats.addLine(Component.translatable("hostilenetworks.gui.stats").withColor(Color.AQUA));
 
-        this.mainText = new TickableTextList(this.minecraft.font, MAX_TEXT_WIDTH - this.stats.getWidth() + 36);
+        // mainText (name) and infoText (trivia) are separate lists so that re-setting the name on a variant change
+        // cannot redistribute the shared reveal budget and visibly un-wind the trivia text.
+        int textWidth = MAX_TEXT_WIDTH - this.stats.getWidth() + 36;
+        this.mainText = new TickableTextList(this.minecraft.font, textWidth);
+        this.infoText = new TickableTextList(this.minecraft.font, textWidth);
         this.dataText = new TickableTextList(this.minecraft.font, MAX_TEXT_WIDTH);
 
         this.setupEmptyText();
@@ -193,6 +200,8 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         int left = 49;
         int top = 6;
         this.mainText.render(gfx, left, top);
+        // infoText sits directly below the name line(s): one line for the "Name" header plus however many the name wraps to.
+        this.infoText.render(gfx, left, top + (font.lineHeight + 3) * (1 + this.nameLines));
         this.dataText.render(gfx, left, top + (font.lineHeight + 3) * 8);
         if (this.numModels > 0) {
             this.stats.render(gfx, WIDTH - 49 - this.stats.getWidth(), top);
@@ -221,6 +230,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         }
 
         this.mainText.tick();
+        this.infoText.tick();
         this.dataText.tick();
 
         this.stats.tick();
@@ -238,12 +248,11 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         this.variant = (this.variant + 1) % (variants + 1);
 
         Entity entity = current.getEntity(this.minecraft.level, this.variant);
-        if (this.variant == 0) {
-            this.mainText.setLine(1, entity.getName(), 2);
-        }
-        else {
-            this.mainText.setLine(1, Component.translatable("hostilenetworks.gui.variant", entity.getName()).withColor(Color.LIME), 2);
-        }
+        Component name = this.variant == 0
+            ? entity.getName()
+            : Component.translatable("hostilenetworks.gui.variant", entity.getName()).withColor(Color.LIME);
+        this.mainText.setLine(1, name, 2);
+        this.nameLines = this.minecraft.font.split(name, this.mainText.getMaxWidth()).size();
     }
 
     /**
@@ -264,9 +273,11 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
         this.variant = 0;
         this.resetText();
         this.mainText.addLine(Component.translatable("hostilenetworks.gui.name").withColor(Color.AQUA));
-        this.mainText.addLine(inst.getEntity(this.minecraft.level).getName());
-        this.mainText.addLine(Component.translatable("hostilenetworks.gui.info").withColor(Color.AQUA));
-        this.mainText.addLine(Component.translatable(model.triviaKey()));
+        Component name = inst.getEntity(this.minecraft.level).getName();
+        this.mainText.addLine(name);
+        this.nameLines = this.minecraft.font.split(name, this.mainText.getMaxWidth()).size();
+        this.infoText.addLine(Component.translatable("hostilenetworks.gui.info").withColor(Color.AQUA));
+        this.infoText.addLine(Component.translatable(model.triviaKey()));
 
         ModelTier tier = inst.getTier();
         ModelTier next = ModelTierRegistry.next(tier);
@@ -300,6 +311,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
 
     private void resetText() {
         this.mainText.clear();
+        this.infoText.clear();
         this.dataText.clear();
         this.stats.clear();
         this.stats.addLine(Component.translatable("hostilenetworks.gui.stats").withColor(Color.AQUA));
