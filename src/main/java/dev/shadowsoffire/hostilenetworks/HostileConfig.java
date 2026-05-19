@@ -40,7 +40,8 @@ public class HostileConfig {
 
         rightClickToAttune = cfg.getBoolean("Right Click To Attune", "models", true,
             "If true, right clicking a blank data model on a mob or block will attune it to that target. If disabled, you will need to provide players with a way to get attuned models!");
-        simModelUpgrade = cfg.getInt("Sim Chamber Upgrades Model", "models", 1, 0, 2, "Whether the Simulation Chamber will upgrade the data on a model. (0 = No, 1 = Yes, 2 = Only up to tier boundaries)");
+        simModelUpgrade = cfg.getInt("Sim Chamber Upgrades Model", "models", 1, 0, 2,
+            "How the Simulation Chamber's Training Mode upgrades the data on a model. (0 = Disabled - also disables Training Mode entirely, 1 = Yes, 2 = Only up to tier boundaries)");
         // Migrate the legacy "Killing Upgrades Model" key (entity-only) to "Action Upgrades Model" (covers kills and block breaks).
         if (!cfg.hasKey("models", "Action Upgrades Model") && cfg.hasKey("models", "Killing Upgrades Model")) {
             cfg.renameProperty("models", "Killing Upgrades Model", "Action Upgrades Model");

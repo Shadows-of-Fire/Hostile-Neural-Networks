@@ -6,6 +6,7 @@ import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity;
 import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity.FailureState;
 import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity.RedstoneState;
 import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity.SimItemHandler;
+import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity.SimMode;
 import dev.shadowsoffire.placebo.menu.BlockEntityMenu;
 import dev.shadowsoffire.placebo.menu.FilteredSlot;
 import net.minecraft.core.BlockPos;
@@ -57,11 +58,22 @@ public class SimChamberContainer extends BlockEntityMenu<SimChamberTileEntity> {
         return this.tile.getRedstoneState();
     }
 
+    public void setSimMode(SimMode mode) {
+        this.tile.setSimMode(mode);
+    }
+
+    public SimMode getSimMode() {
+        return this.tile.getSimMode();
+    }
+
     @Override
     public boolean clickMenuButton(Player player, int id) {
         if (id >= 0 && id <= 2) {
-            RedstoneState state = RedstoneState.values()[id];
-            this.setRedstoneState(state);
+            this.setRedstoneState(RedstoneState.values()[id]);
+            return true;
+        }
+        if (id >= 3 && id <= 4) {
+            this.setSimMode(SimMode.values()[id - 3]);
             return true;
         }
         return super.clickMenuButton(player, id);

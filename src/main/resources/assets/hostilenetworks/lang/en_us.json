@@ -61,6 +61,9 @@
     "hostilenetworks.gui.redstone.ignored": "Redstone: Ignored",
     "hostilenetworks.gui.redstone.off_when_powered": "Redstone: Off When Powered",
     "hostilenetworks.gui.redstone.on_when_powered": "Redstone: On When Powered",
+    "hostilenetworks.gui.mode.inference": "Mode: Inference",
+    "hostilenetworks.gui.mode.training": "Mode: Training",
+    "hostilenetworks.gui.mode.disabled": "Training Mode is disabled by the server config",
 
     "hostilenetworks.hud.model": " Model",
     "hostilenetworks.hud.kills": "%s Remaining",
@@ -86,7 +89,15 @@
     "hostilenetworks.run.4": "> Engaging enemy",
     "hostilenetworks.run.5": "> Sequence prediction ",
     "hostilenetworks.run.6": "> Processing results...",
-    
+
+    "hostilenetworks.run.train.0": "> Launching runtime ",
+    "hostilenetworks.run.train.1": "> Iteration #%s started",
+    "hostilenetworks.run.train.2": "> Loading model from chip memory",
+    "hostilenetworks.run.train.3": "> Allocating training dataset",
+    "hostilenetworks.run.train.4": "> Running backpropagation",
+    "hostilenetworks.run.train.5": "> Optimizing model weights",
+    "hostilenetworks.run.train.6": "> Saving checkpoint...",
+
     "hostilenetworks.info.click_to_attune": "%s on an entity or block to %s",
     "hostilenetworks.info.attunment_disabled": "Model attunement is disabled",
     "hostilenetworks.info.disabled": "(Disabled)",

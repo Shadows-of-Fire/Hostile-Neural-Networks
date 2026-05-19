@@ -45,6 +45,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
     protected int predictionSuccess = 0;
     protected FailureState failState = FailureState.NONE;
     protected RedstoneState redstoneState = RedstoneState.IGNORED;
+    protected SimMode mode = SimMode.INFERENCE;
 
     public SimChamberTileEntity(BlockPos pos, BlockState state) {
         super(Hostile.TileEntities.SIM_CHAMBER, pos, state);
@@ -52,6 +53,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         this.data.addData(() -> this.predictionSuccess, v -> this.predictionSuccess = v);
         this.data.addData(() -> this.failState.ordinal(), v -> this.failState = FailureState.values()[v]);
         this.data.addData(() -> this.redstoneState.ordinal(), v -> this.redstoneState = RedstoneState.values()[v]);
+        this.data.addData(() -> this.mode.ordinal(), v -> this.mode = SimMode.values()[v]);
         this.data.addEnergy(this.energy);
         this.energy.setMaxExtract(0);
     }
@@ -71,6 +73,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         tag.putInt("predSuccess", this.predictionSuccess);
         tag.putInt("failState", this.failState.ordinal());
         tag.putInt("redstoneState", this.redstoneState.ordinal());
+        tag.putInt("simMode", this.mode.ordinal());
     }
 
     @Override
@@ -88,10 +91,17 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         this.predictionSuccess = tag.getInt("predSuccess");
         this.failState = FailureState.values()[tag.getInt("failState")];
         this.redstoneState = RedstoneState.values()[tag.getInt("redstoneState")];
+        this.mode = SimMode.values()[tag.getInt("simMode")];
     }
 
     @Override
     public void serverTick(Level level, BlockPos pos, BlockState state) {
+        // Training Mode is unavailable when model upgrading is disabled by config; revert any chamber stuck in it.
+        if (this.mode == SimMode.TRAINING && HostileConfig.simModelUpgrade == 0) {
+            this.mode = SimMode.INFERENCE;
+            this.setChanged();
+        }
+
         ItemStack model = this.inventory.getStackInSlot(0);
         if (!model.isEmpty()) {
             DataModelInstance oldModel = this.currentModel;
@@ -122,20 +132,24 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                     if (this.getRedstoneState().matches(level.hasNeighborSignal(worldPosition))) {
                         this.failState = FailureState.NONE;
                         if (--this.runtime == 0) {
-                            ItemStack stk = this.inventory.getStackInSlot(2);
-                            if (stk.isEmpty()) this.inventory.setStackInSlot(2, this.currentModel.getModel().baseDrop().copy());
-                            else stk.grow(1);
-                            if (this.predictionSuccess > 0) {
-                                stk = this.inventory.getStackInSlot(3);
-                                if (stk.isEmpty()) {
-                                    this.inventory.setStackInSlot(3, this.currentModel.getPredictionDrop().copyWithCount(this.predictionSuccess));
-                                }
-                                else {
-                                    stk.grow(this.predictionSuccess);
+                            // Inference Mode produces the loot; Training Mode produces nothing here.
+                            if (this.mode == SimMode.INFERENCE) {
+                                ItemStack stk = this.inventory.getStackInSlot(2);
+                                if (stk.isEmpty()) this.inventory.setStackInSlot(2, this.currentModel.getModel().baseDrop().copy());
+                                else stk.grow(1);
+                                if (this.predictionSuccess > 0) {
+                                    stk = this.inventory.getStackInSlot(3);
+                                    if (stk.isEmpty()) {
+                                        this.inventory.setStackInSlot(3, this.currentModel.getPredictionDrop().copyWithCount(this.predictionSuccess));
+                                    }
+                                    else {
+                                        stk.grow(this.predictionSuccess);
+                                    }
                                 }
                             }
+                            // Training Mode upgrades the model's data; Inference Mode does not.
                             ModelTier tier = this.currentModel.getTier();
-                            if (!tier.isMax() && HostileConfig.simModelUpgrade > 0) {
+                            if (this.mode == SimMode.TRAINING && !tier.isMax() && HostileConfig.simModelUpgrade > 0) {
                                 int newData = this.currentModel.getData() + 1;
                                 if (!(HostileConfig.simModelUpgrade == 2 && newData > this.currentModel.getNextTierData())) {
                                     this.currentModel.setData(newData);
@@ -251,6 +265,15 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         return this.redstoneState;
     }
 
+    public void setSimMode(SimMode mode) {
+        this.mode = mode;
+        this.setChanged();
+    }
+
+    public SimMode getSimMode() {
+        return this.mode;
+    }
+
     public class SimItemHandler extends InternalItemHandler {
 
         public SimItemHandler() {
@@ -344,6 +367,39 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                 case OFF_WHEN_POWERED -> ON_WHEN_POWERED;
                 case ON_WHEN_POWERED -> IGNORED;
             };
+        }
+
+    }
+
+    /**
+     * The operating mode of the Simulation Chamber.
+     * <p>
+     * In {@link #INFERENCE} the chamber produces loot and predictions; in {@link #TRAINING} it instead upgrades the
+     * data model. The two are mutually exclusive - a run never does both.
+     */
+    public enum SimMode {
+
+        INFERENCE("inference", ResourceLocation.withDefaultNamespace("textures/item/ender_eye.png")),
+        TRAINING("training", ResourceLocation.withDefaultNamespace("textures/item/experience_bottle.png"));
+
+        private final String name;
+        private final ResourceLocation texture;
+
+        SimMode(String name, ResourceLocation texture) {
+            this.name = name;
+            this.texture = texture;
+        }
+
+        public String getKey() {
+            return "hostilenetworks.gui.mode." + this.name;
+        }
+
+        public ResourceLocation getResourceLocation() {
+            return this.texture;
+        }
+
+        public SimMode next() {
+            return this == INFERENCE ? TRAINING : INFERENCE;
         }
 
     }

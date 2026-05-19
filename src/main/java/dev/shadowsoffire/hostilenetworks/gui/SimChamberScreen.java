@@ -11,6 +11,7 @@ import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity.FailureState;
+import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity.SimMode;
 import dev.shadowsoffire.hostilenetworks.util.Color;
 import dev.shadowsoffire.placebo.screen.PlaceboContainerScreen;
 import dev.shadowsoffire.placebo.screen.TickableTextList;
@@ -48,6 +49,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
     public void init() {
         super.init();
         addRenderableWidget(new RedstoneButton(this.getGuiLeft() + 228, this.getGuiTop()));
+        addRenderableWidget(new SimModeButton(this.getGuiLeft() + 228, this.getGuiTop() + 18));
         this.body = new TickableTextList(this.minecraft.font, MAX_TEXT_WIDTH);
         this.lastFailState = FailureState.NONE;
         this.runtimeTextLoaded = false;
@@ -80,6 +82,12 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
         }
         else if (this.isHovering(229, 1, 16, 16, pX, pY)) {
             gfx.renderTooltip(this.font, Component.translatable(this.menu.getRedstoneState().getKey()), pX, pY);
+        }
+        else if (this.isHovering(229, 19, 16, 16, pX, pY)) {
+            Component txt = HostileConfig.simModelUpgrade == 0
+                ? Component.translatable("hostilenetworks.gui.mode.disabled")
+                : Component.translatable(this.menu.getSimMode().getKey());
+            gfx.renderTooltip(this.font, txt, pX, pY);
         }
         else super.renderTooltip(gfx, pX, pY);
     }
@@ -114,8 +122,9 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
         gfx.blit(BASE, left + 8, top, 0, 0, 216, 141, 256, 256);
         gfx.blit(BASE, left - 14, top, 0, 141, 18, 18, 256, 256);
 
-        // Redstone background
+        // Redstone + mode button backgrounds
         gfx.blit(BASE, left + 228, top, 0, 141, 18, 18, 256, 256);
+        gfx.blit(BASE, left + 228, top + 18, 0, 141, 18, 18, 256, 256);
 
         int energyHeight = 87 - Mth.ceil(87F * this.menu.getEnergyStored() / HostileConfig.simPowerCap);
 
@@ -165,14 +174,16 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
             float speed = 0.65F;
             this.body.clear();
             int iters = DataModelItem.getIters(this.menu.getSlot(0).getItem());
+            boolean training = this.menu.getSimMode() == SimMode.TRAINING;
+            String prefix = training ? "hostilenetworks.run.train." : "hostilenetworks.run.";
             for (int i = 0; i < 7; i++) {
-                Component txt = Component.translatable("hostilenetworks.run." + i, iters);
+                Component txt = Component.translatable(prefix + i, iters);
                 this.body.addLine(txt, speed);
                 if (i == 0) {
                     Component version = Component.literal("v" + HostileNetworks.VERSION).withStyle(ChatFormatting.GOLD);
                     this.body.continueLine(version, speed);
                 }
-                else if (i == 5) {
+                else if (i == 5 && !training) {
                     String key = "hostilenetworks.color_text." + (this.menu.didPredictionSucceed() ? "success" : "failed");
                     Component status = Component.translatable(key).withStyle(this.menu.didPredictionSucceed() ? ChatFormatting.GOLD : ChatFormatting.RED);
                     this.body.continueLine(status, speed);
@@ -216,6 +227,45 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
             RenderSystem.enableDepthTest();
             guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
             guiGraphics.blit(SimChamberScreen.this.menu.getRedstoneState().getResourceLocation(), this.getX() + 1, this.getY() + 1, 0, 0, 16, 16, 16, 16);
+        }
+    }
+
+    /**
+     * Toggles the chamber between Inference and Training modes. Greys out and refuses input while Training Mode is
+     * disabled by the {@code simModelUpgrade} config.
+     */
+    private class SimModeButton extends AbstractWidget {
+
+        public SimModeButton(int x, int y) {
+            super(x, y, 18, 18, Component.empty());
+        }
+
+        /**
+         * Sends a {@link ServerboundContainerButtonClickPayload} containing the id of the new sim mode (offset by 3 to
+         * avoid colliding with the redstone button's ids).
+         */
+        @Override
+        public void onClick(double mouseX, double mouseY) {
+            SimChamberScreen scn = SimChamberScreen.this;
+            int idx = 3 + scn.menu.getSimMode().next().ordinal();
+            scn.minecraft.gameMode.handleInventoryButtonClick(scn.menu.containerId, idx);
+        }
+
+        @Override
+        protected void updateWidgetNarration(NarrationElementOutput output) {
+            this.defaultButtonNarrationText(output);
+        }
+
+        @Override
+        protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            // Training Mode is unavailable while model upgrading is disabled; an inactive widget ignores clicks.
+            this.active = HostileConfig.simModelUpgrade != 0;
+            RenderSystem.enableBlend();
+            RenderSystem.enableDepthTest();
+            float shade = this.active ? 1.0F : 0.35F;
+            guiGraphics.setColor(shade, shade, shade, 1.0F);
+            guiGraphics.blit(SimChamberScreen.this.menu.getSimMode().getResourceLocation(), this.getX() + 1, this.getY() + 1, 0, 0, 16, 16, 16, 16);
+            guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         }
     }
 
