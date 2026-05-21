@@ -202,7 +202,7 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabMenu> implement
     public boolean mouseClicked(double pX, double pY, int pButton) {
         // Redstone control is always clickable (independent of whether a model is loaded).
         if (this.isHovering(REDSTONE_X, REDSTONE_Y, 18, 18, pX, pY)) {
-            this.click(2000 + this.menu.getRedstoneState().next().ordinal());
+            this.click(LootFabMenu.REDSTONE_BASE + this.menu.getRedstoneState().next().ordinal());
         }
         if (this.model.isBound()) {
             List<ItemStack> drops = this.model.get().fabDrops();
@@ -212,16 +212,16 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabMenu> implement
 
             // Production mode toggle.
             if (this.isHovering(MODE_X, MODE_Y, 18, 18, pX, pY)) {
-                this.click(-2);
+                this.click(LootFabMenu.BTN_CYCLE_MODE);
             }
 
-            // Drop palette: Fixed selects, Queue appends.
+            // Drop palette: Fixed selects, Queue appends. The drop index is the button id (see LootFabMenu.DROP_BASE).
             for (int y = 0; y < 3; y++) {
                 for (int x = 0; x < 3; x++) {
                     int idx = this.currentPage * 9 + y * 3 + x;
                     if (idx < drops.size() && this.isHovering(18 + 18 * x, 10 + 18 * y, 16, 16, pX, pY)) {
                         if (queue || selection != idx) {
-                            this.click(idx);
+                            this.click(LootFabMenu.DROP_BASE + idx);
                         }
                     }
                 }
@@ -230,17 +230,17 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabMenu> implement
             // Preview click: Fixed mode clears the selection; Queue mode removes the cursor entry from the queue.
             if (selection != -1 && this.isHovering(PREVIEW_X, PREVIEW_Y, 16, 16, pX, pY)) {
                 if (queue && !sel.entries().isEmpty()) {
-                    this.click(1000 + sel.cursor() % sel.entries().size());
+                    this.click(LootFabMenu.QUEUE_REMOVE_BASE + sel.cursor() % sel.entries().size());
                 }
                 else if (!queue) {
-                    this.click(-1);
+                    this.click(LootFabMenu.BTN_CLEAR_FIXED);
                 }
             }
 
             if (queue) {
                 // Clear-queue button: empties the queue while staying in Queue mode.
                 if (this.isHovering(CLEAR_X, CLEAR_Y, 18, 18, pX, pY)) {
-                    this.click(-3);
+                    this.click(LootFabMenu.BTN_CLEAR_QUEUE);
                 }
                 // Queue grid: click a real entry to remove it. The "+N" overflow slot (when present) is unclickable.
                 List<Integer> entries = sel.entries();
@@ -251,7 +251,7 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabMenu> implement
                     int col = i % QUEUE_COLS;
                     int row = i / QUEUE_COLS;
                     if (this.isHovering(QUEUE_X + col * GRID_SLOT_SIZE, QUEUE_Y + row * GRID_SLOT_SIZE, 18, 18, pX, pY)) {
-                        this.click(1000 + i);
+                        this.click(LootFabMenu.QUEUE_REMOVE_BASE + i);
                     }
                 }
             }
