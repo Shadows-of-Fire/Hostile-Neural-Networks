@@ -1,5 +1,9 @@
 package dev.shadowsoffire.hostilenetworks.tile;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
@@ -7,6 +11,9 @@ import dev.shadowsoffire.hostilenetworks.HostileConfig;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
+import dev.shadowsoffire.hostilenetworks.util.FabSelection;
+import dev.shadowsoffire.hostilenetworks.util.FabSelection.ProductionMode;
+import dev.shadowsoffire.hostilenetworks.util.RedstoneState;
 import dev.shadowsoffire.placebo.block_entity.TickingBlockEntity;
 import dev.shadowsoffire.placebo.cap.InternalItemHandler;
 import dev.shadowsoffire.placebo.cap.ModifiableEnergyStorage;
@@ -14,12 +21,13 @@ import dev.shadowsoffire.placebo.menu.SimpleDataSlots;
 import dev.shadowsoffire.placebo.menu.SimpleDataSlots.IDataAutoRegister;
 import dev.shadowsoffire.placebo.network.VanillaPacketDispatcher;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -35,16 +43,17 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
 
     protected final FabItemHandler inventory = new FabItemHandler();
     protected final ModifiableEnergyStorage energy = new ModifiableEnergyStorage(HostileConfig.fabPowerCap, HostileConfig.fabPowerCap);
-    protected final Object2IntMap<DynamicHolder<DataModel>> savedSelections = new Object2IntOpenHashMap<>();
+    protected final Map<DynamicHolder<DataModel>, FabSelection> savedSelections = new HashMap<>();
     protected final SimpleDataSlots data = new SimpleDataSlots();
 
     protected int runtime = 0;
     protected int currentSel = -1;
+    protected RedstoneState redstoneState = RedstoneState.IGNORED;
 
     public LootFabTileEntity(BlockPos pos, BlockState state) {
         super(Hostile.TileEntities.LOOT_FABRICATOR, pos, state);
-        this.savedSelections.defaultReturnValue(-1);
         this.data.addData(() -> this.runtime, v -> this.runtime = v);
+        this.data.addData(() -> this.redstoneState.ordinal(), v -> this.redstoneState = RedstoneState.values()[v]);
         this.data.addEnergy(this.energy);
         this.energy.setMaxExtract(0);
     }
@@ -65,12 +74,16 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
                 return;
             }
             if (selection != -1) {
+                // Redstone control pauses progression and production without resetting the runtime - so the player
+                // can freely edit a queue without the fabricator consuming a prediction mid-edit.
+                if (!this.redstoneState.matches(level.hasNeighborSignal(this.worldPosition))) return;
                 if (this.runtime >= 60) {
                     ItemStack out = dm.get().fabDrops().get(selection).copy();
                     if (this.insertInOutput(out, true)) {
                         this.runtime = 0;
                         this.insertInOutput(out, false);
                         this.inventory.getStackInSlot(0).shrink(1);
+                        this.advanceQueue(dm);
                         this.setChanged();
                     }
                 }
@@ -102,20 +115,105 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         return this.energy;
     }
 
-    public Object2IntMap<DynamicHolder<DataModel>> getSelections() {
+    public Map<DynamicHolder<DataModel>, FabSelection> getSelections() {
         return this.savedSelections;
     }
 
-    public void setSelections(Object2IntMap<DynamicHolder<DataModel>> selections) {
+    public void setSelections(Map<DynamicHolder<DataModel>, FabSelection> selections) {
         this.savedSelections.clear();
         this.savedSelections.putAll(selections);
-        VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
-        this.setChanged();
+        this.sync();
     }
 
-    public void setSelection(DynamicHolder<DataModel> model, int selection) {
-        if (selection == -1) this.savedSelections.removeInt(model);
-        else this.savedSelections.put(model, Mth.clamp(selection, 0, model.get().fabDrops().size() - 1));
+    /**
+     * Returns the {@link FabSelection} configured for the given model, or {@link FabSelection#EMPTY} if none exists.
+     */
+    public FabSelection getSelection(DataModel model) {
+        return this.savedSelections.getOrDefault(DataModelRegistry.INSTANCE.holder(model), FabSelection.EMPTY);
+    }
+
+    /**
+     * Toggles the model between Fixed and Queue production modes, carrying the currently-resolved drop across the swap.
+     */
+    public void cycleMode(DynamicHolder<DataModel> model) {
+        FabSelection sel = this.savedSelections.getOrDefault(model, FabSelection.EMPTY);
+        FabSelection updated;
+        if (sel.mode().next() == ProductionMode.QUEUE) {
+            // The Fixed pick (if any) becomes the queue's first entry.
+            updated = new FabSelection(ProductionMode.QUEUE, List.copyOf(sel.entries()), 0);
+        }
+        else {
+            int current = sel.current();
+            updated = current == -1 ? FabSelection.EMPTY : FabSelection.fixed(current);
+        }
+        this.savedSelections.put(model, updated);
+        this.runtime = 0;
+        this.sync();
+    }
+
+    /**
+     * Sets the model's Fixed-mode drop. An index of {@code -1} clears the model's selection entirely.
+     */
+    public void setFixedDrop(DynamicHolder<DataModel> model, int index) {
+        if (index == -1) {
+            this.savedSelections.remove(model);
+        }
+        else {
+            this.savedSelections.put(model, FabSelection.fixed(Mth.clamp(index, 0, model.get().fabDrops().size() - 1)));
+        }
+        this.sync();
+    }
+
+    /**
+     * Appends a drop index to the model's production queue, switching it to Queue mode if needed.
+     */
+    public void appendToQueue(DynamicHolder<DataModel> model, int index) {
+        DataModel dm = model.get();
+        if (dm == null || index < 0 || index >= dm.fabDrops().size()) return;
+        FabSelection sel = this.savedSelections.getOrDefault(model, FabSelection.EMPTY);
+        List<Integer> entries = new ArrayList<>(sel.entries());
+        entries.add(index);
+        this.savedSelections.put(model, new FabSelection(ProductionMode.QUEUE, entries, sel.cursor()));
+        this.sync();
+    }
+
+    /**
+     * Empties the model's production queue while keeping it in Queue mode (ready to receive new appends).
+     */
+    public void clearQueue(DynamicHolder<DataModel> model) {
+        FabSelection sel = this.savedSelections.get(model);
+        if (sel == null || sel.mode() != ProductionMode.QUEUE) return;
+        this.savedSelections.put(model, new FabSelection(ProductionMode.QUEUE, List.of(), 0));
+        this.sync();
+    }
+
+    /**
+     * Removes the queue entry at the given position, keeping the cursor pointing at the same upcoming entry.
+     */
+    public void removeFromQueue(DynamicHolder<DataModel> model, int pos) {
+        FabSelection sel = this.savedSelections.get(model);
+        if (sel == null || pos < 0 || pos >= sel.entries().size()) return;
+        List<Integer> entries = new ArrayList<>(sel.entries());
+        entries.remove(pos);
+        int cursor = sel.cursor();
+        if (pos < cursor) cursor--;
+        cursor = entries.isEmpty() ? 0 : Math.floorMod(cursor, entries.size());
+        this.savedSelections.put(model, new FabSelection(ProductionMode.QUEUE, entries, cursor));
+        this.sync();
+    }
+
+    /**
+     * After a Queue-mode model fabricates an item, steps its cursor to the next entry.
+     */
+    private void advanceQueue(DynamicHolder<DataModel> model) {
+        FabSelection sel = this.savedSelections.get(model);
+        if (sel != null && sel.mode() == ProductionMode.QUEUE) {
+            this.savedSelections.put(model, sel.advanced());
+            VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
+        }
+    }
+
+    private void sync() {
         VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
         this.setChanged();
     }
@@ -128,6 +226,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         tag.putInt("energy", this.energy.getEnergyStored());
         tag.putInt("runtime", this.runtime);
         tag.putInt("selection", this.currentSel);
+        tag.putInt("redstoneState", this.redstoneState.ordinal());
     }
 
     @Override
@@ -138,6 +237,7 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         this.energy.setEnergy(tag.getInt("energy"));
         this.runtime = tag.getInt("runtime");
         this.currentSel = tag.getInt("selection");
+        this.redstoneState = RedstoneState.values()[tag.getInt("redstoneState")];
     }
 
     @Override
@@ -164,8 +264,9 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
     }
 
     private CompoundTag writeSelections(CompoundTag tag) {
-        for (Object2IntMap.Entry<DynamicHolder<DataModel>> e : this.savedSelections.object2IntEntrySet()) {
-            tag.putInt(e.getKey().getId().toString(), e.getIntValue());
+        for (Map.Entry<DynamicHolder<DataModel>, FabSelection> e : this.savedSelections.entrySet()) {
+            Tag encoded = FabSelection.CODEC.encodeStart(NbtOps.INSTANCE, e.getValue()).getOrThrow();
+            tag.put(e.getKey().getId().toString(), encoded);
         }
         return tag;
     }
@@ -174,7 +275,16 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         this.savedSelections.clear();
         for (String s : tag.getAllKeys()) {
             DynamicHolder<DataModel> dm = DataModelRegistry.INSTANCE.holder(ResourceLocation.tryParse(s));
-            this.savedSelections.put(dm, tag.getInt(s));
+            Tag value = tag.get(s);
+            FabSelection sel;
+            if (value instanceof IntTag intTag) {
+                // Legacy format: a bare int index, pre-dating production modes.
+                sel = FabSelection.fixed(intTag.getAsInt());
+            }
+            else {
+                sel = FabSelection.CODEC.parse(NbtOps.INSTANCE, value).result().orElse(FabSelection.EMPTY);
+            }
+            this.savedSelections.put(dm, sel);
         }
     }
 
@@ -186,6 +296,15 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         return this.runtime;
     }
 
+    public void setRedstoneState(RedstoneState state) {
+        this.redstoneState = state;
+        this.setChanged();
+    }
+
+    public RedstoneState getRedstoneState() {
+        return this.redstoneState;
+    }
+
     /**
      * Returns the index of the selected drop for a given data model.
      * 
@@ -194,8 +313,10 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
      */
     public int getSelectedDrop(DataModel model) {
         if (model == null) return -1;
-        int index = this.savedSelections.getInt(DataModelRegistry.INSTANCE.holder(model));
-        if (index >= model.fabDrops().size()) return -1;
+        FabSelection sel = this.savedSelections.get(DataModelRegistry.INSTANCE.holder(model));
+        if (sel == null) return -1;
+        int index = sel.current();
+        if (index < 0 || index >= model.fabDrops().size()) return -1;
         return index;
     }
 

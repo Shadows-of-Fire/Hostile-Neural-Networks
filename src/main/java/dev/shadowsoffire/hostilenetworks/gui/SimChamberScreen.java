@@ -49,7 +49,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
     public void init() {
         super.init();
         addRenderableWidget(new RedstoneButton(this.getGuiLeft() + 228, this.getGuiTop()));
-        addRenderableWidget(new SimModeButton(this.getGuiLeft() + 228, this.getGuiTop() + 18));
+        addRenderableWidget(new SimModeButton(this.getGuiLeft() + 228, this.getGuiTop() + 20));
         this.body = new TickableTextList(this.minecraft.font, MAX_TEXT_WIDTH);
         this.lastFailState = FailureState.NONE;
         this.runtimeTextLoaded = false;
@@ -124,7 +124,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
 
         // Redstone + mode button backgrounds
         gfx.blit(BASE, left + 228, top, 0, 141, 18, 18, 256, 256);
-        gfx.blit(BASE, left + 228, top + 18, 0, 141, 18, 18, 256, 256);
+        gfx.blit(BASE, left + 228, top + 20, 0, 141, 18, 18, 256, 256);
 
         int energyHeight = 87 - Mth.ceil(87F * this.menu.getEnergyStored() / HostileConfig.simPowerCap);
 

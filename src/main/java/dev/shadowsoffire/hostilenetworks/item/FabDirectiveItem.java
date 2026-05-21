@@ -1,18 +1,20 @@
 package dev.shadowsoffire.hostilenetworks.item;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.tile.LootFabTileEntity;
 import dev.shadowsoffire.hostilenetworks.util.Color;
+import dev.shadowsoffire.hostilenetworks.util.FabSelection;
+import dev.shadowsoffire.hostilenetworks.util.FabSelection.ProductionMode;
 import dev.shadowsoffire.hostilenetworks.util.SavedSelections;
 import dev.shadowsoffire.placebo.PlaceboClient;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import dev.shadowsoffire.placebo.util.SpecialTooltipItem;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -55,13 +57,13 @@ public class FabDirectiveItem extends Item implements SpecialTooltipItem {
                 SavedSelections selections = ctx.getItemInHand().getOrDefault(Hostile.Components.FAB_SELECTIONS, SavedSelections.EMPTY);
                 if (!selections.isEmpty()) {
                     lootFab.setSelections(selections.getSelections());
+                    lootFab.setRedstoneState(selections.getRedstoneState());
                     player.sendSystemMessage(HostileNetworks.lang("text", "selections_applied", lootFab.getSelections().size(), ctx.getItemInHand().getDisplayName()).withColor(Color.LIME));
                     return InteractionResult.SUCCESS;
                 }
             }
             else {
-                Object2IntMap<DynamicHolder<DataModel>> fabSelections = lootFab.getSelections();
-                SavedSelections selections = new SavedSelections(fabSelections);
+                SavedSelections selections = new SavedSelections(lootFab.getSelections(), lootFab.getRedstoneState());
                 ctx.getItemInHand().set(Hostile.Components.FAB_SELECTIONS, selections);
                 player.sendSystemMessage(HostileNetworks.lang("text", "selections_copied", lootFab.getSelections().size(), lootFab.getBlockState().getBlock().getName()).withColor(Color.LIME));
                 return InteractionResult.SUCCESS;
@@ -98,17 +100,15 @@ public class FabDirectiveItem extends Item implements SpecialTooltipItem {
 
             list.add(CommonComponents.SPACE);
 
-            Object2IntMap<DynamicHolder<DataModel>> fabSelections = selections.getSelections();
+            Map<DynamicHolder<DataModel>, FabSelection> fabSelections = selections.getSelections();
             int selIdx = PlaceboClient.getTooltipScrollIndex(selections.size());
 
-            ObjectIterator<Object2IntMap.Entry<DynamicHolder<DataModel>>> it = fabSelections.object2IntEntrySet().iterator();
-            it.skip(selIdx);
-
-            Object2IntMap.Entry<DynamicHolder<DataModel>> entry = it.next();
+            Map.Entry<DynamicHolder<DataModel>, FabSelection> entry = new ArrayList<>(fabSelections.entrySet()).get(selIdx);
             DynamicHolder<DataModel> holder = entry.getKey();
-            int index = entry.getIntValue();
+            FabSelection sel = entry.getValue();
+            int index = sel.current();
             DataModel model = holder.isBound() ? holder.get() : null;
-            ItemStack drop = model != null && index < model.fabDrops().size() ? model.fabDrops().get(index) : ItemStack.EMPTY;
+            ItemStack drop = model != null && index >= 0 && index < model.fabDrops().size() ? model.fabDrops().get(index) : ItemStack.EMPTY;
 
             MutableComponent comp = HostileNetworks.lang("text", "stored_selection", selIdx + 1, selections.size()).withColor(Color.LIME);
             if (flag.hasShiftDown()) {
@@ -126,7 +126,13 @@ public class FabDirectiveItem extends Item implements SpecialTooltipItem {
                 if (!drop.isEmpty()) {
                     Component input = model.getPredictionDrop().getHoverName();
                     Component output = drop.getHoverName();
-                    comp = HostileNetworks.lang("text", "selection", input, drop.getCount(), output).withColor(Color.LIME);
+                    int queued = sel.mode() == ProductionMode.QUEUE ? sel.entries().size() - 1 : 0;
+                    if (queued > 0) {
+                        comp = HostileNetworks.lang("text", "selection.queue", input, output, queued).withColor(Color.LIME);
+                    }
+                    else {
+                        comp = HostileNetworks.lang("text", "selection", input, drop.getCount(), output).withColor(Color.LIME);
+                    }
                     list.add(comp);
                 }
                 else {
@@ -135,7 +141,7 @@ public class FabDirectiveItem extends Item implements SpecialTooltipItem {
                 }
             }
             else {
-                comp = HostileNetworks.lang("text", "invalid_selection.model", holder.getId()).withStyle(ChatFormatting.RED);
+                comp = HostileNetworks.lang("text", "invalid_selection.model", holder.getId().toString()).withStyle(ChatFormatting.RED);
                 list.add(comp);
             }
 

@@ -9,6 +9,7 @@ import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
+import dev.shadowsoffire.hostilenetworks.util.RedstoneState;
 import dev.shadowsoffire.placebo.block_entity.TickingBlockEntity;
 import dev.shadowsoffire.placebo.cap.InternalItemHandler;
 import dev.shadowsoffire.placebo.cap.ModifiableEnergyStorage;
@@ -329,46 +330,6 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         public String getKey() {
             return "hostilenetworks.fail." + this.name;
         }
-    }
-
-    public enum RedstoneState {
-
-        IGNORED("ignored", ResourceLocation.withDefaultNamespace("textures/item/redstone.png")),
-        OFF_WHEN_POWERED("off_when_powered", ResourceLocation.withDefaultNamespace("textures/block/redstone_torch_off.png")),
-        ON_WHEN_POWERED("on_when_powered", ResourceLocation.withDefaultNamespace("textures/block/redstone_torch.png"));
-
-        private final String name;
-        private final ResourceLocation texture;
-
-        RedstoneState(String name, ResourceLocation texture) {
-            this.name = name;
-            this.texture = texture;
-        }
-
-        public String getKey() {
-            return "hostilenetworks.gui.redstone." + name;
-        }
-
-        public ResourceLocation getResourceLocation() {
-            return texture;
-        }
-
-        public boolean matches(boolean power) {
-            return switch (this) {
-                case IGNORED -> true;
-                case OFF_WHEN_POWERED -> !power;
-                case ON_WHEN_POWERED -> power;
-            };
-        }
-
-        public RedstoneState next() {
-            return switch (this) {
-                case IGNORED -> OFF_WHEN_POWERED;
-                case OFF_WHEN_POWERED -> ON_WHEN_POWERED;
-                case ON_WHEN_POWERED -> IGNORED;
-            };
-        }
-
     }
 
     /**
