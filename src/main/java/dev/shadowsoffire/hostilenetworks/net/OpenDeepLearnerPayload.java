@@ -6,7 +6,7 @@ import java.util.Optional;
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.curios.CuriosCompat;
-import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerContainer.DeepLearnerSource;
+import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerMenu.DeepLearnerSource;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
 import dev.shadowsoffire.placebo.network.PayloadProvider;
 import io.netty.buffer.ByteBuf;

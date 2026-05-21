@@ -27,7 +27,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
-public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> implements DrawsOnLeft {
+public class LootFabScreen extends PlaceboContainerScreen<LootFabMenu> implements DrawsOnLeft {
 
     public static final int WIDTH = 176;
     public static final int HEIGHT = 178;
@@ -60,7 +60,7 @@ public class LootFabScreen extends PlaceboContainerScreen<LootFabContainer> impl
     private int currentPage = 0;
     private ImageButton btnLeft, btnRight;
 
-    public LootFabScreen(LootFabContainer pMenu, Inventory pPlayerInventory, Component pTitle) {
+    public LootFabScreen(LootFabMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
         this.imageHeight = HEIGHT;
         this.imageWidth = WIDTH;

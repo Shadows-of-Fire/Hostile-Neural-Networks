@@ -16,9 +16,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 
-public class LootFabContainer extends BlockEntityMenu<LootFabTileEntity> {
+public class LootFabMenu extends BlockEntityMenu<LootFabTileEntity> {
 
-    public LootFabContainer(int id, Inventory pInv, BlockPos pos) {
+    public LootFabMenu(int id, Inventory pInv, BlockPos pos) {
         super(Hostile.Containers.LOOT_FABRICATOR, id, pInv, pos);
         FabItemHandler inv = this.tile.getInventory();
         this.addSlot(new FilteredSlot(inv, 0, 79, 62, s -> s.is(Hostile.Items.PREDICTION)));

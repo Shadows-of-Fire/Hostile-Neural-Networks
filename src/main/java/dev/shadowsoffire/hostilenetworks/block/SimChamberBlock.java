@@ -2,7 +2,7 @@ package dev.shadowsoffire.hostilenetworks.block;
 
 import com.mojang.serialization.MapCodec;
 
-import dev.shadowsoffire.hostilenetworks.gui.SimChamberContainer;
+import dev.shadowsoffire.hostilenetworks.gui.SimChamberMenu;
 import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity;
 import dev.shadowsoffire.placebo.block_entity.TickingEntityBlock;
 import dev.shadowsoffire.placebo.menu.MenuUtil;
@@ -39,7 +39,7 @@ public class SimChamberBlock extends HorizontalDirectionalBlock implements Ticki
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        return MenuUtil.openGui(player, pos, SimChamberContainer::new);
+        return MenuUtil.openGui(player, pos, SimChamberMenu::new);
     }
 
     @Override

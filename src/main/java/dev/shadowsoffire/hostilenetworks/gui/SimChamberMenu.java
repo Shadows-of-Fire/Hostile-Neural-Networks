@@ -13,9 +13,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 
-public class SimChamberContainer extends BlockEntityMenu<SimChamberTileEntity> {
+public class SimChamberMenu extends BlockEntityMenu<SimChamberTileEntity> {
 
-    public SimChamberContainer(int id, Inventory pInv, BlockPos pos) {
+    public SimChamberMenu(int id, Inventory pInv, BlockPos pos) {
         super(Hostile.Containers.SIM_CHAMBER, id, pInv, pos);
         SimItemHandler inventory = this.tile.getInventory();
         this.addSlot(new FilteredSlot(inventory, 0, -13, 1, s -> s.getItem() instanceof DataModelItem));

@@ -41,7 +41,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
-public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContainer> {
+public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerMenu> {
 
     public static final int WIDTH = 338;
     public static final int HEIGHT = 235;
@@ -68,7 +68,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerContain
     /** Number of wrapped lines the current name line occupies. Used to position {@link #infoText} directly beneath it. */
     private int nameLines = 1;
 
-    public DeepLearnerScreen(DeepLearnerContainer pMenu, Inventory pPlayerInventory, Component pTitle) {
+    public DeepLearnerScreen(DeepLearnerMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
         this.imageWidth = WIDTH;
         this.imageHeight = HEIGHT;

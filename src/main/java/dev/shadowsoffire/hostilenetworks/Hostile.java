@@ -9,10 +9,10 @@ import dev.shadowsoffire.hostilenetworks.data.BlockDataModelsCondition;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.EntityDataModel;
-import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerContainer;
+import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerMenu;
 import dev.shadowsoffire.hostilenetworks.gui.FabDirectiveMenu;
-import dev.shadowsoffire.hostilenetworks.gui.LootFabContainer;
-import dev.shadowsoffire.hostilenetworks.gui.SimChamberContainer;
+import dev.shadowsoffire.hostilenetworks.gui.LootFabMenu;
+import dev.shadowsoffire.hostilenetworks.gui.SimChamberMenu;
 import dev.shadowsoffire.hostilenetworks.item.BlankDataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
@@ -78,9 +78,9 @@ public class Hostile {
     }
 
     public static class Containers {
-        public static final MenuType<DeepLearnerContainer> DEEP_LEARNER = R.menuWithData("deep_learner", DeepLearnerContainer::new);
-        public static final MenuType<SimChamberContainer> SIM_CHAMBER = R.menuWithPos("sim_chamber", SimChamberContainer::new);
-        public static final MenuType<LootFabContainer> LOOT_FABRICATOR = R.menuWithPos("loot_fabricator", LootFabContainer::new);
+        public static final MenuType<DeepLearnerMenu> DEEP_LEARNER = R.menuWithData("deep_learner", DeepLearnerMenu::new);
+        public static final MenuType<SimChamberMenu> SIM_CHAMBER = R.menuWithPos("sim_chamber", SimChamberMenu::new);
+        public static final MenuType<LootFabMenu> LOOT_FABRICATOR = R.menuWithPos("loot_fabricator", LootFabMenu::new);
         public static final MenuType<FabDirectiveMenu> FAB_DIRECTIVE = R.menuWithData("fab_directive", FabDirectiveMenu::new);
 
         private static void bootstrap() {}

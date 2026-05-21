@@ -3,8 +3,8 @@ package dev.shadowsoffire.hostilenetworks.item;
 import java.util.List;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
-import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerContainer;
-import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerContainer.DeepLearnerSource;
+import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerMenu;
+import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerMenu.DeepLearnerSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -67,7 +67,7 @@ public class DeepLearnerItem extends Item {
 
         @Override
         public AbstractContainerMenu createMenu(int id, Inventory inv, Player player) {
-            return new DeepLearnerContainer(id, inv, this.src);
+            return new DeepLearnerMenu(id, inv, this.src);
         }
 
         @Override

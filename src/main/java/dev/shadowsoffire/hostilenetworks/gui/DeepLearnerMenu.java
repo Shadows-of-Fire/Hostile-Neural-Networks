@@ -18,7 +18,7 @@ import net.neoforged.neoforge.items.ComponentItemHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerCopySlot;
 
-public class DeepLearnerContainer extends PlaceboContainerMenu {
+public class DeepLearnerMenu extends PlaceboContainerMenu {
 
     protected final DeepLearnerSource source;
     protected final Player player;
@@ -26,7 +26,7 @@ public class DeepLearnerContainer extends PlaceboContainerMenu {
     protected final ComponentItemHandler learnerInv;
     protected Consumer<Integer> notifyCallback;
 
-    public DeepLearnerContainer(int id, Inventory pInv, DeepLearnerSource source) {
+    public DeepLearnerMenu(int id, Inventory pInv, DeepLearnerSource source) {
         super(Hostile.Containers.DEEP_LEARNER, id, pInv);
         this.source = source;
         this.player = pInv.player;
@@ -64,7 +64,7 @@ public class DeepLearnerContainer extends PlaceboContainerMenu {
         this.registerInvShuffleRules();
     }
 
-    public DeepLearnerContainer(int id, Inventory inv, FriendlyByteBuf buf) {
+    public DeepLearnerMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         this(id, inv, DeepLearnerSource.values()[buf.readByte()]);
     }
 
@@ -104,8 +104,8 @@ public class DeepLearnerContainer extends PlaceboContainerMenu {
         @Override
         protected void setStackCopy(ItemStack stack) {
             super.setStackCopy(stack);
-            if (DeepLearnerContainer.this.notifyCallback != null) {
-                DeepLearnerContainer.this.notifyCallback.accept(((Slot) this).index);
+            if (DeepLearnerMenu.this.notifyCallback != null) {
+                DeepLearnerMenu.this.notifyCallback.accept(((Slot) this).index);
             }
         }
     }

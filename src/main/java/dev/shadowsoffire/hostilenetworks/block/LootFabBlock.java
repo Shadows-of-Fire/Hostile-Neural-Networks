@@ -2,7 +2,7 @@ package dev.shadowsoffire.hostilenetworks.block;
 
 import com.mojang.serialization.MapCodec;
 
-import dev.shadowsoffire.hostilenetworks.gui.LootFabContainer;
+import dev.shadowsoffire.hostilenetworks.gui.LootFabMenu;
 import dev.shadowsoffire.hostilenetworks.item.FabDirectiveItem;
 import dev.shadowsoffire.hostilenetworks.tile.LootFabTileEntity;
 import dev.shadowsoffire.placebo.block_entity.TickingEntityBlock;
@@ -48,7 +48,7 @@ public class LootFabBlock extends HorizontalDirectionalBlock implements TickingE
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        return MenuUtil.openGui(player, pos, LootFabContainer::new);
+        return MenuUtil.openGui(player, pos, LootFabMenu::new);
     }
 
     @Override

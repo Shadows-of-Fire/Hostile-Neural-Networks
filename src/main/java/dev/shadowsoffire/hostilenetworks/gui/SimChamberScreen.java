@@ -25,7 +25,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 
-public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer> {
+public class SimChamberScreen extends PlaceboContainerScreen<SimChamberMenu> {
 
     public static final int WIDTH = 232;
     public static final int HEIGHT = 230;
@@ -39,7 +39,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberContainer
     private FailureState lastFailState = FailureState.NONE;
     private boolean runtimeTextLoaded = false;
 
-    public SimChamberScreen(SimChamberContainer pMenu, Inventory pPlayerInventory, Component pTitle) {
+    public SimChamberScreen(SimChamberMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
         this.imageWidth = WIDTH;
         this.imageHeight = HEIGHT;
