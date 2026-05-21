@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:cow",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.cow",
-        "color": "#352A1F"
-    },
+    "name_color": "#352A1F",
     "display": {},
     "sim_cost": 64,
     "input": {

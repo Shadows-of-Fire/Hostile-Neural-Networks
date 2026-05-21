@@ -7,10 +7,7 @@
     ],
     "entity": "artifacts:mimic",
     "variants": [],
-    "name": {
-        "translate": "entity.artifacts.mimic",
-        "color": "#55FF55"
-    },
+    "name_color": "#55FF55",
     "display": {},
     "sim_cost": 2560,
     "input": {
@@ -173,7 +170,7 @@
         "superior": 930,
         "self_aware": 2000
     },
-    "data_per_kill": {
+    "data_gained": {
         "faulty": 1,
         "basic": 10,
         "advanced": 20,

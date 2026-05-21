@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:wither",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.wither",
-        "color": "#343434"
-    },
+    "name_color": "#343434",
     "display": {
         "y_offset": -0.33,
         "scale": 0.5

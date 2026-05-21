@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:phantom",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.phantom",
-        "color": "#0AB405"
-    },
+    "name_color": "#0AB405",
     "display": {},
     "sim_cost": 128,
     "input": {

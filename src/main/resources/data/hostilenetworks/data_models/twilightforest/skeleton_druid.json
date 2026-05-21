@@ -7,10 +7,7 @@
     ],
     "entity": "twilightforest:skeleton_druid",
     "variants": [],
-    "name": {
-        "translate": "entity.twilightforest.skeleton_druid",
-        "color": "#415329"
-    },
+    "name_color": "#415329",
     "display": {},
     "sim_cost": 512,
     "input": {

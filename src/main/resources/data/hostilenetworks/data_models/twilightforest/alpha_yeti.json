@@ -7,10 +7,7 @@
     ],
     "entity": "twilightforest:alpha_yeti",
     "variants": [],
-    "name": {
-        "translate": "entity.twilightforest.alpha_yeti",
-        "color": "#E1E1E1"
-    },
+    "name_color": "#E1E1E1",
     "display": {
         "scale": 0.33
     },

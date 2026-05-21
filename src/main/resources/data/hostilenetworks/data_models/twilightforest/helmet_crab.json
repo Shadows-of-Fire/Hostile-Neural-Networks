@@ -7,10 +7,7 @@
     ],
     "entity": "twilightforest:helmet_crab",
     "variants": [],
-    "name": {
-        "translate": "entity.twilightforest.helmet_crab",
-        "color": "#FFA96F"
-    },
+    "name_color": "#FFA96F",
     "display": {},
     "sim_cost": 512,
     "input": {

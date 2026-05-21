@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:polar_bear",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.polar_bear",
-        "color": "#CCCCCC"
-    },
+    "name_color": "#CCCCCC",
     "display": {},
     "sim_cost": 64,
     "input": {

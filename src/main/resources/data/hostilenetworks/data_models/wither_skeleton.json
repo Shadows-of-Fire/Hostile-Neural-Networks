@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:wither_skeleton",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.wither_skeleton",
-        "color": "#343434"
-    },
+    "name_color": "#343434",
     "display": {
         "scale": 0.85
     },

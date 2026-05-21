@@ -7,10 +7,7 @@
     ],
     "entity": "twilightforest:kobold",
     "variants": [],
-    "name": {
-        "translate": "entity.twilightforest.kobold",
-        "color": "#2F1AB1"
-    },
+    "name_color": "#2F1AB1",
     "display": {},
     "sim_cost": 512,
     "input": {

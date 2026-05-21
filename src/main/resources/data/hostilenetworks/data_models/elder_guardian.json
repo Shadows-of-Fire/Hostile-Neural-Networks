@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:elder_guardian",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.elder_guardian",
-        "color": "#CBB1A5"
-    },
+    "name_color": "#CBB1A5",
     "display": {
         "y_offset": 0.5,
         "scale": 0.5
@@ -47,7 +44,7 @@
             "count": 32
         }
     ],
-    "data_per_kill": {
+    "data_gained": {
         "faulty": 3,
         "basic": 12,
         "advanced": 30,

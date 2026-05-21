@@ -7,10 +7,7 @@
     ],
     "entity": "twilightforest:minotaur",
     "variants": [],
-    "name": {
-        "translate": "entity.twilightforest.minotaur",
-        "color": "#443626"
-    },
+    "name_color": "#443626",
     "display": {},
     "sim_cost": 512,
     "input": {

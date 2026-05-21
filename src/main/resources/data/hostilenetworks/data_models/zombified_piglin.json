@@ -3,10 +3,7 @@
     "variants": [
         "minecraft:piglin"
     ],
-    "name": {
-        "translate": "entity.minecraft.zombified_piglin",
-        "color": "#3B992F"
-    },
+    "name_color": "#3B992F",
     "display": {},
     "sim_cost": 256,
     "input": {

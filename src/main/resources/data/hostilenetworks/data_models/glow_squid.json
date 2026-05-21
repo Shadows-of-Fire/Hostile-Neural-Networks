@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:glow_squid",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.glow_squid",
-        "color": "#32A1A1"
-    },
+    "name_color": "#32A1A1",
     "display": {
         "y_offset": 1.0
     },

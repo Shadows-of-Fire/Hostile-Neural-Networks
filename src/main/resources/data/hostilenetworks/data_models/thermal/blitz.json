@@ -7,10 +7,7 @@
     ],
     "entity": "thermal:blitz",
     "variants": [],
-    "name": {
-        "translate": "entity.thermal.blitz",
-        "color": "#858F8E"
-    },
+    "name_color": "#858F8E",
     "display": {},
     "sim_cost": 512,
     "input": {

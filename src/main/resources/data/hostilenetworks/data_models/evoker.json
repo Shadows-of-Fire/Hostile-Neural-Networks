@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:evoker",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.evoker",
-        "color": "#BCA341"
-    },
+    "name_color": "#BCA341",
     "display": {},
     "sim_cost": 1024,
     "input": {

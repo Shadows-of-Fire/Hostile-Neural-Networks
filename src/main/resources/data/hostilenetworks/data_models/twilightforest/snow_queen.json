@@ -7,10 +7,7 @@
     ],
     "entity": "twilightforest:snow_queen",
     "variants": [],
-    "name": {
-        "translate": "entity.twilightforest.snow_queen",
-        "color": "#363990"
-    },
+    "name_color": "#363990",
     "display": {},
     "sim_cost": 4096,
     "input": {

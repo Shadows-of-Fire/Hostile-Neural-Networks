@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:drowned",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.drowned",
-        "color": "#3B6269"
-    },
+    "name_color": "#3B6269",
     "display": {
         "nbt": {
             "HandItems": [

@@ -9,10 +9,7 @@
     "variants": [
         "naturalist:deer"
     ],
-    "name": {
-        "translate": "entity.twilightforest.deer",
-        "color": "#4B241D"
-    },
+    "name_color": "#4B241D",
     "display": {},
     "sim_cost": 128,
     "input": {

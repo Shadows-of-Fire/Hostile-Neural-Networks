@@ -4,10 +4,7 @@
         "minecraft:stray",
         "minecraft:bogged"
     ],
-    "name": {
-        "translate": "entity.minecraft.skeleton",
-        "color": "#BCBCBC"
-    },
+    "name_color": "#BCBCBC",
     "display": {},
     "sim_cost": 128,
     "input": {

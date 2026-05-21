@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:snow_golem",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.snow_golem",
-        "color": "#FFFFFF"
-    },
+    "name_color": "#FFFFFF",
     "display": {},
     "sim_cost": 64,
     "input": {

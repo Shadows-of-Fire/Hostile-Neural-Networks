@@ -4,10 +4,7 @@
         "twilightforest:boar",
         "naturalist:boar"
     ],
-    "name": {
-        "translate": "entity.minecraft.pig",
-        "color": "#EEA5A4"
-    },
+    "name_color": "#EEA5A4",
     "display": {},
     "sim_cost": 64,
     "input": {

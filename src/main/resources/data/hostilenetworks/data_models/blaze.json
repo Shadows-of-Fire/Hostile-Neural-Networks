@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:blaze",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.blaze",
-        "color": "#FFD528"
-    },
+    "name_color": "#FFD528",
     "display": {},
     "sim_cost": 256,
     "input": {

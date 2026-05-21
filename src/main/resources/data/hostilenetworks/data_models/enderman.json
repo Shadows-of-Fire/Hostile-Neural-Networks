@@ -20,10 +20,7 @@
         "endermanoverhaul:warped_forest_enderman",
         "endermanoverhaul:windswept_hills_enderman"
     ],
-    "name": {
-        "translate": "entity.minecraft.enderman",
-        "color": "#161616"
-    },
+    "name_color": "#161616",
     "display": {
         "scale": 0.75
     },

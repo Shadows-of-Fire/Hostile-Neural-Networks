@@ -3,10 +3,7 @@
     "variants": [
         "twilightforest:dwarf_rabbit"
     ],
-    "name": {
-        "translate": "entity.minecraft.rabbit",
-        "color": "#947D62"
-    },
+    "name_color": "#947D62",
     "display": {},
     "sim_cost": 64,
     "input": {

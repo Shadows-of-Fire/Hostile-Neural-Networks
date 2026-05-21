@@ -7,10 +7,7 @@
     ],
     "entity": "twilightforest:yeti",
     "variants": [],
-    "name": {
-        "translate": "entity.twilightforest.yeti",
-        "color": "#4570B6"
-    },
+    "name_color": "#4570B6",
     "display": {
         "scale": 0.85
     },

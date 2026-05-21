@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:witch",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.witch",
-        "color": "#361758"
-    },
+    "name_color": "#361758",
     "display": {
         "scale": 0.8
     },

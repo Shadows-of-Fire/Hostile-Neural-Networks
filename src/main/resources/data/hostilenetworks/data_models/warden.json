@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:warden",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.warden",
-        "color": "#05343F"
-    },
+    "name_color": "#05343F",
     "display": {
         "y_offset": -0.15,
         "scale": 0.65

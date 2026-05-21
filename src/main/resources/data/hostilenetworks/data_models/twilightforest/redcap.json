@@ -9,10 +9,7 @@
     "variants": [
         "twilightforest:redcap_sapper"
     ],
-    "name": {
-        "translate": "entity.twilightforest.redcap",
-        "color": "#AA2A2A"
-    },
+    "name_color": "#AA2A2A",
     "display": {},
     "sim_cost": 512,
     "input": {

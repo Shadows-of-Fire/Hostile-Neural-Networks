@@ -11,9 +11,9 @@
         "twilightforest:unstable_ice_core"
     ],
     "name": {
-        "translate": "name.hostilenetworks.twilight_ice",
-        "color": "#55FF55"
+        "translate": "name.hostilenetworks.twilight_ice"
     },
+    "name_color": "#55FF55",
     "display": {},
     "sim_cost": 256,
     "input": {

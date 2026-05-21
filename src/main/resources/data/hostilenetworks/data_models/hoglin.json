@@ -3,10 +3,7 @@
     "variants": [
         "minecraft:zoglin"
     ],
-    "name": {
-        "translate": "entity.minecraft.hoglin",
-        "color": "#E8A074"
-    },
+    "name_color": "#E8A074",
     "display": {},
     "sim_cost": 256,
     "input": {

@@ -18,10 +18,7 @@
         "creeperoverhaul:spruce_creeper",
         "creeperoverhaul:swamp_creeper"
     ],
-    "name": {
-        "translate": "entity.minecraft.creeper",
-        "color": "#70DC5D"
-    },
+    "name_color": "#70DC5D",
     "display": {},
     "sim_cost": 128,
     "input": {

@@ -1,7 +1,7 @@
 {
-  "required_data": 0,
-  "data_per_kill": 1,
-  "color": "dark_gray",
-  "accuracy": 0.00,
-  "can_sim": false
+    "required_data": 0,
+    "data_gained": 1,
+    "color": "dark_gray",
+    "accuracy": 0.0,
+    "can_sim": false
 }

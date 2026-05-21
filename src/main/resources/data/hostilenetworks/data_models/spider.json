@@ -7,10 +7,7 @@
         "twilightforest:swarm_spider",
         "twilightforest:carminite_broodling"
     ],
-    "name": {
-        "translate": "entity.minecraft.spider",
-        "color": "#322B26"
-    },
+    "name_color": "#322B26",
     "display": {},
     "sim_cost": 128,
     "input": {

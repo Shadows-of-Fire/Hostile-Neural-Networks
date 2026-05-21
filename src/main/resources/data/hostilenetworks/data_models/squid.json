@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:squid",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.squid",
-        "color": "#546D80"
-    },
+    "name_color": "#546D80",
     "display": {
         "y_offset": 1.0
     },

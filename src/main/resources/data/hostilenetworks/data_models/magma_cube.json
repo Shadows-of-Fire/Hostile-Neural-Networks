@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:magma_cube",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.magma_cube",
-        "color": "#CC2200"
-    },
+    "name_color": "#CC2200",
     "display": {
         "scale": 2.0
     },

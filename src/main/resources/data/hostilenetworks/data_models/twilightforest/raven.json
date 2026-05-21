@@ -7,10 +7,7 @@
     ],
     "entity": "twilightforest:raven",
     "variants": [],
-    "name": {
-        "translate": "entity.twilightforest.raven",
-        "color": "#121922"
-    },
+    "name_color": "#121922",
     "display": {},
     "sim_cost": 256,
     "input": {

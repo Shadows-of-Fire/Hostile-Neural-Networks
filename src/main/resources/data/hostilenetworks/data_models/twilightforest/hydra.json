@@ -7,10 +7,7 @@
     ],
     "entity": "twilightforest:hydra",
     "variants": [],
-    "name": {
-        "translate": "entity.twilightforest.hydra",
-        "color": "#0F253E"
-    },
+    "name_color": "#0F253E",
     "display": {
         "y_offset": 1.1,
         "scale": 0.15

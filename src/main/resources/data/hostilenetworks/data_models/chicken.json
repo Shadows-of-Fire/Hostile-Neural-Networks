@@ -3,10 +3,7 @@
     "variants": [
         "twilightforest:penguin"
     ],
-    "name": {
-        "translate": "entity.minecraft.chicken",
-        "color": "#F0EAD6"
-    },
+    "name_color": "#F0EAD6",
     "display": {},
     "sim_cost": 64,
     "input": {

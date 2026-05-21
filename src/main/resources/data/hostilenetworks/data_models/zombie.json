@@ -5,10 +5,7 @@
         "minecraft:zombie_villager",
         "twilightforest:rising_zombie"
     ],
-    "name": {
-        "translate": "entity.minecraft.zombie",
-        "color": "#3B622F"
-    },
+    "name_color": "#3B622F",
     "display": {},
     "sim_cost": 128,
     "input": {

@@ -7,10 +7,7 @@
     ],
     "entity": "twilightforest:ur_ghast",
     "variants": [],
-    "name": {
-        "translate": "entity.twilightforest.ur_ghast",
-        "color": "#F0F0F0"
-    },
+    "name_color": "#F0F0F0",
     "display": {
         "y_offset": 2.0,
         "scale": 0.1

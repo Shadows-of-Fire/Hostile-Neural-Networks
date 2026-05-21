@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:mooshroom",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.mooshroom",
-        "color": "#A81012"
-    },
+    "name_color": "#A81012",
     "display": {},
     "sim_cost": 64,
     "input": {

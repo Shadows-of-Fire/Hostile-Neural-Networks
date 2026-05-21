@@ -10,9 +10,9 @@
         "twilightforest:armored_giant"
     ],
     "name": {
-        "translate": "name.hostilenetworks.twilight_giant",
-        "color": "#444444"
+        "translate": "name.hostilenetworks.twilight_giant"
     },
+    "name_color": "#444444",
     "display": {
         "scale": 0.25
     },

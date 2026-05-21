@@ -7,10 +7,7 @@
     ],
     "entity": "twilightforest:winter_wolf",
     "variants": [],
-    "name": {
-        "translate": "entity.twilightforest.winter_wolf",
-        "color": "#AFB8C3"
-    },
+    "name_color": "#AFB8C3",
     "display": {},
     "sim_cost": 1024,
     "input": {

@@ -7,10 +7,7 @@
     ],
     "entity": "twilightforest:towerwood_borer",
     "variants": [],
-    "name": {
-        "translate": "entity.twilightforest.towerwood_borer",
-        "color": "#6F3327"
-    },
+    "name_color": "#6F3327",
     "display": {},
     "sim_cost": 512,
     "input": {

@@ -5,10 +5,7 @@
         "twilightforest:maze_slime",
         "twilightforest:slime_beetle"
     ],
-    "name": {
-        "translate": "entity.minecraft.slime",
-        "color": "#7BCA62"
-    },
+    "name_color": "#7BCA62",
     "display": {
         "scale": 2.0
     },

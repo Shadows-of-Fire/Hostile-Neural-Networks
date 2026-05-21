@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:guardian",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.guardian",
-        "color": "#6A9583"
-    },
+    "name_color": "#6A9583",
     "display": {},
     "sim_cost": 256,
     "input": {

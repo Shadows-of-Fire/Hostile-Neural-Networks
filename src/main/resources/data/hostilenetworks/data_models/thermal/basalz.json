@@ -7,10 +7,7 @@
     ],
     "entity": "thermal:basalz",
     "variants": [],
-    "name": {
-        "translate": "entity.thermal.basalz",
-        "color": "#292C2F"
-    },
+    "name_color": "#292C2F",
     "display": {},
     "sim_cost": 512,
     "input": {

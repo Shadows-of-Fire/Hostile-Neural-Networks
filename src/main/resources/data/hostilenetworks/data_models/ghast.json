@@ -4,10 +4,7 @@
         "twilightforest:carminite_ghastguard",
         "twilightforest:carminite_ghastling"
     ],
-    "name": {
-        "translate": "entity.minecraft.ghast",
-        "color": "#F0F0F0"
-    },
+    "name_color": "#F0F0F0",
     "display": {
         "y_offset": 4.0,
         "scale": 0.25

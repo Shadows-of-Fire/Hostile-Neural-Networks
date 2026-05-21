@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:cod",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.cod",
-        "color": "#A52A2A"
-    },
+    "name_color": "#A52A2A",
     "display": {},
     "sim_cost": 32,
     "input": {

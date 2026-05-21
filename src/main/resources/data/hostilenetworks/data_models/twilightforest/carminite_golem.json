@@ -7,10 +7,7 @@
     ],
     "entity": "twilightforest:carminite_golem",
     "variants": [],
-    "name": {
-        "translate": "entity.twilightforest.carminite_golem",
-        "color": "#D3C4BA"
-    },
+    "name_color": "#D3C4BA",
     "display": {
         "scale": 0.9
     },

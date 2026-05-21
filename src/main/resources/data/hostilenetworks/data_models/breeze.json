@@ -1,9 +1,6 @@
 {
     "entity": "minecraft:breeze",
-    "name": {
-        "translate": "entity.minecraft.breeze",
-        "color": "#3D4167"
-    },
+    "name_color": "#3D4167",
     "sim_cost": 256,
     "input": {
         "item": "hostilenetworks:prediction_matrix"

@@ -7,10 +7,7 @@
     ],
     "entity": "twilightforest:troll",
     "variants": [],
-    "name": {
-        "translate": "entity.twilightforest.troll",
-        "color": "#A0A791"
-    },
+    "name_color": "#A0A791",
     "display": {
         "scale": 0.85
     },

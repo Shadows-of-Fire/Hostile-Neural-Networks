@@ -1,6 +1,6 @@
 {
-  "required_data": 354,
-  "data_per_kill": 18,
-  "color": "light_purple",
-  "accuracy": 0.65
+    "required_data": 354,
+    "data_gained": 18,
+    "color": "light_purple",
+    "accuracy": 0.65
 }

@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:iron_golem",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.iron_golem",
-        "color": "#CFB198"
-    },
+    "name_color": "#CFB198",
     "display": {},
     "sim_cost": 1024,
     "input": {

@@ -11,9 +11,9 @@
         "twilightforest:upper_goblin_knight"
     ],
     "name": {
-        "translate": "name.hostilenetworks.twilight_goblin",
-        "color": "#2143FE"
+        "translate": "name.hostilenetworks.twilight_goblin"
     },
+    "name_color": "#2143FE",
     "display": {},
     "sim_cost": 512,
     "input": {

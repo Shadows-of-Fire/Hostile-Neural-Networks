@@ -3,10 +3,7 @@
     "variants": [
         "twilightforest:bighorn_sheep"
     ],
-    "name": {
-        "translate": "entity.minecraft.sheep",
-        "color": "rainbow"
-    },
+    "name_color": "rainbow",
     "display": {
         "nbt": {
             "CustomName": "{\"text\":\"jeb_\"}"

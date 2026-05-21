@@ -9,11 +9,11 @@ This object references the following objects:
 # Schema
 ```js
 {
-    "nbt": CompoundTag,  // [Optional] || 
-    "scale": float,      // [Optional] || 
-    "x_offset": float,   // [Optional] || 
-    "y_offset": float,   // [Optional] || 
-    "z_offset": float,   // [Optional] || 
+    "nbt": CompoundTag,  // [Optional] || Extra NBT applied to the rendered entity (e.g. equipment, pose). Defaults to an empty tag.
+    "scale": float,      // [Optional] || Scale factor applied to the rendered entity. Range [0, 5]. Defaults to 1.
+    "x_offset": float,   // [Optional] || X offset applied to the rendered entity. Range [-5, 5]. Defaults to 0.
+    "y_offset": float,   // [Optional] || Y offset applied to the rendered entity. Range [-5, 5]. Defaults to 0.
+    "z_offset": float,   // [Optional] || Z offset applied to the rendered entity. Range [-5, 5]. Defaults to 0.
 }
 ```
 

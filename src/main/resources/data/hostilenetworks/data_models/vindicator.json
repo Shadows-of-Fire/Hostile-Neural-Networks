@@ -1,10 +1,7 @@
 {
     "entity": "minecraft:vindicator",
     "variants": [],
-    "name": {
-        "translate": "entity.minecraft.vindicator",
-        "color": "#325566"
-    },
+    "name_color": "#325566",
     "display": {},
     "sim_cost": 512,
     "input": {

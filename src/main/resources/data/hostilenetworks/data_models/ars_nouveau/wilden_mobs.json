@@ -11,9 +11,9 @@
         "ars_nouveau:wilden_guardian"
     ],
     "name": {
-        "translate": "name.hostilenetworks.ars_wilden",
-        "color": "#55FF55"
+        "translate": "name.hostilenetworks.ars_wilden"
     },
+    "name_color": "#55FF55",
     "display": {},
     "sim_cost": 256,
     "input": {
