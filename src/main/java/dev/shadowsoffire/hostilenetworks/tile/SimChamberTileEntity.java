@@ -119,12 +119,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                 if (this.runtime == 0) {
                     if (this.canStartSimulation()) {
                         this.runtime = 300;
-                        float accuracy = this.currentModel.getAccuracy();
-                        this.predictionSuccess = (int) accuracy;
-                        if (this.level.random.nextFloat() <= this.currentModel.getAccuracy()) {
-                            this.predictionSuccess += 1;
-                        }
-
+                        this.predictionSuccess = this.currentModel.rollPredictions(this.level.random);
                         this.inventory.getStackInSlot(1).shrink(1);
                         this.setChanged();
                     }
@@ -136,8 +131,6 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                             // Inference Mode produces the loot; Training Mode produces nothing here.
                             if (this.mode == SimMode.INFERENCE) {
                                 ItemStack stk = this.inventory.getStackInSlot(2);
-                                if (stk.isEmpty()) this.inventory.setStackInSlot(2, this.currentModel.getModel().baseDrop().copy());
-                                else stk.grow(1);
                                 if (this.predictionSuccess > 0) {
                                     stk = this.inventory.getStackInSlot(3);
                                     if (stk.isEmpty()) {
@@ -145,6 +138,14 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                                     }
                                     else {
                                         stk.grow(this.predictionSuccess);
+                                    }
+                                }
+                                else {
+                                    if (stk.isEmpty()) {
+                                        this.inventory.setStackInSlot(2, this.currentModel.getModel().baseDrop().copy());
+                                    }
+                                    else {
+                                        stk.grow(1);
                                     }
                                 }
                             }
@@ -319,7 +320,11 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         MODEL("model"),
         FAULTY("faulty"),
         ENERGY_MID_CYCLE("energy_mid_cycle"),
-        REDSTONE("redstone");
+        REDSTONE("redstone"),
+        // The following failure states can only be exhibited by the Data Center.
+        SHELL_BROKEN("shell_broken"),
+        NOT_SELF_AWARE("not_self_aware"),
+        NO_SELECTION("no_selection");
 
         private final String name;
 
