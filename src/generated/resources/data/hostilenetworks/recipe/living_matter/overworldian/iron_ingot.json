@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "hostilenetworks",
+  "ingredients": [
+    {
+      "item": "hostilenetworks:overworld_prediction"
+    },
+    {
+      "item": "hostilenetworks:overworld_prediction"
+    },
+    {
+      "item": "hostilenetworks:overworld_prediction"
+    },
+    {
+      "item": "hostilenetworks:overworld_prediction"
+    },
+    {
+      "item": "minecraft:rotten_flesh"
+    }
+  ],
+  "result": {
+    "count": 8,
+    "id": "minecraft:iron_ingot"
+  }
+}

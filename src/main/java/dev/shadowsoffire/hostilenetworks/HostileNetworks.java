@@ -77,6 +77,8 @@ public class HostileNetworks {
         e.getGenerator().addProvider(true, LootProvider.create(e.getGenerator().getPackOutput(), e.getLookupProvider()));
         e.getGenerator().addProvider(true, new dev.shadowsoffire.hostilenetworks.datagen.BlockTagProvider(
             e.getGenerator().getPackOutput(), e.getLookupProvider(), e.getExistingFileHelper()));
+        e.getGenerator().addProvider(true, new dev.shadowsoffire.hostilenetworks.datagen.HNNRecipeProvider(
+            e.getGenerator().getPackOutput(), e.getLookupProvider()));
     }
 
     public static ResourceLocation loc(String path) {

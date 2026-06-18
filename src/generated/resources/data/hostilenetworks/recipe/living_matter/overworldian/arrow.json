@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "hostilenetworks",
+  "ingredients": [
+    {
+      "item": "minecraft:stick"
+    },
+    {
+      "item": "minecraft:flint"
+    },
+    {
+      "item": "hostilenetworks:overworld_prediction"
+    }
+  ],
+  "result": {
+    "count": 12,
+    "id": "minecraft:arrow"
+  }
+}

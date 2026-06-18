@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "hostilenetworks",
+  "key": {
+    "N": {
+      "item": "minecraft:netherrack"
+    },
+    "O": {
+      "item": "hostilenetworks:overworld_prediction"
+    }
+  },
+  "pattern": [
+    " O ",
+    "ONO",
+    " O "
+  ],
+  "result": {
+    "count": 1,
+    "id": "hostilenetworks:nether_prediction"
+  }
+}
