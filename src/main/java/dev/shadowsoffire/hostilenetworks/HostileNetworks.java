@@ -47,9 +47,9 @@ public class HostileNetworks {
     @SubscribeEvent
     public void setup(FMLCommonSetupEvent e) {
         e.enqueueWork(() -> {
-            TabFillingRegistry.register(Tabs.HNN_TAB.getKey(), Items.SIM_CHAMBER, Items.LOOT_FABRICATOR, Items.DATA_CENTER, Items.DATA_CENTER_IO_PORT, Items.DEEP_LEARNER, Items.BLANK_DATA_MODEL, Items.PREDICTION_MATRIX,
-                Items.OVERWORLD_PREDICTION,
-                Items.NETHER_PREDICTION, Items.END_PREDICTION, Items.TWILIGHT_PREDICTION, Items.DATA_MODEL, Items.PREDICTION, Items.FAB_DIRECTIVE);
+            TabFillingRegistry.register(Tabs.HNN_TAB.getKey(), Items.SIM_CHAMBER, Items.LOOT_FABRICATOR, Items.DATA_CENTER, Items.DATA_CENTER_IO_PORT,
+                Items.DEEP_LEARNER, Items.BLANK_DATA_MODEL, Items.PREDICTION_MATRIX, Items.FAB_DIRECTIVE,
+                Items.OVERWORLD_PREDICTION, Items.NETHER_PREDICTION, Items.END_PREDICTION, Items.TWILIGHT_PREDICTION, Items.DATA_MODEL, Items.PREDICTION);
         });
         DataModelRegistry.INSTANCE.registerToBus();
         ModelTierRegistry.INSTANCE.registerToBus();

@@ -18,6 +18,7 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -49,6 +50,25 @@ public class HostileJeiPlugin implements IModPlugin {
             }
         }
         reg.addRecipes(LootFabCategory.TYPE, fabRecipes);
+
+        // Each call to addIngredientInfo creates a new page.
+        reg.addIngredientInfo(Hostile.Blocks.DATA_CENTER.value(),
+            Component.translatable("hostilenetworks.jei.data_center.intro"));
+
+        reg.addIngredientInfo(Hostile.Blocks.DATA_CENTER.value(),
+            Component.translatable("hostilenetworks.jei.data_center.shell"));
+
+        reg.addIngredientInfo(Hostile.Blocks.DATA_CENTER.value(),
+            Component.translatable("hostilenetworks.jei.data_center.operation"));
+
+        reg.addIngredientInfo(Hostile.Blocks.DATA_CENTER.value(),
+            Component.translatable("hostilenetworks.jei.data_center.io_port"));
+
+        reg.addIngredientInfo(Hostile.Blocks.DATA_CENTER_IO_PORT.value(),
+            Component.translatable("hostilenetworks.jei.io_port.intro"));
+
+        reg.addIngredientInfo(Hostile.Blocks.DATA_CENTER_IO_PORT.value(),
+            Component.translatable("hostilenetworks.jei.io_port.modes"));
     }
 
     @Override

@@ -21,6 +21,7 @@ import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
 import dev.shadowsoffire.hostilenetworks.item.FabDirectiveItem;
 import dev.shadowsoffire.hostilenetworks.item.MobPredictionItem;
+import dev.shadowsoffire.hostilenetworks.item.TooltipBlockItem;
 import dev.shadowsoffire.hostilenetworks.tile.DataCenterIOPortTileEntity;
 import dev.shadowsoffire.hostilenetworks.tile.DataCenterTileEntity;
 import dev.shadowsoffire.hostilenetworks.tile.LootFabTileEntity;
@@ -75,10 +76,10 @@ public class Hostile {
         public static final Holder<Item> DEEP_LEARNER = R.item("deep_learner", DeepLearnerItem::new, p -> p.stacksTo(1));
         public static final Holder<Item> DATA_MODEL = R.item("data_model", DataModelItem::new, p -> p.stacksTo(1));
         public static final Holder<Item> PREDICTION = R.item("prediction", MobPredictionItem::new);
-        public static final Holder<Item> SIM_CHAMBER = R.blockItem("sim_chamber", Blocks.SIM_CHAMBER);
-        public static final Holder<Item> LOOT_FABRICATOR = R.blockItem("loot_fabricator", Blocks.LOOT_FABRICATOR);
-        public static final Holder<Item> DATA_CENTER = R.blockItem("data_center", Blocks.DATA_CENTER);
-        public static final Holder<Item> DATA_CENTER_IO_PORT = R.blockItem("data_center_io_port", Blocks.DATA_CENTER_IO_PORT);
+        public static final Holder<Item> SIM_CHAMBER = R.blockItem("sim_chamber", Blocks.SIM_CHAMBER, (b, p) -> new TooltipBlockItem(b, p, 1), p -> p);
+        public static final Holder<Item> LOOT_FABRICATOR = R.blockItem("loot_fabricator", Blocks.LOOT_FABRICATOR, (b, p) -> new TooltipBlockItem(b, p, 2), p -> p);
+        public static final Holder<Item> DATA_CENTER = R.blockItem("data_center", Blocks.DATA_CENTER, (b, p) -> new TooltipBlockItem(b, p, 2), p -> p);
+        public static final Holder<Item> DATA_CENTER_IO_PORT = R.blockItem("data_center_io_port", Blocks.DATA_CENTER_IO_PORT, (b, p) -> new TooltipBlockItem(b, p, 2), p -> p);
         public static final Holder<Item> FAB_DIRECTIVE = R.item("fab_directive", FabDirectiveItem::new, p -> p.stacksTo(1));
 
         private static void bootstrap() {}
