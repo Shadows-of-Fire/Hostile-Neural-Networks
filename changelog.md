@@ -1,3 +1,25 @@
+## 6.4.0
+### Features
+* Added the Data Center! A 7×7×7 multiblock controller that runs up to 25 Self Aware data models in parallel.
+  * Build a hollow shell with an obsidian floor and black-stained-glass walls and ceiling. The controller substitutes one bottom-wall block.
+  * The floor and wall block sets are tag-driven (`#hostilenetworks:data_center_floor`, `#hostilenetworks:data_center_wall`) and can be retagged via datapack.
+  * Each active slot consumes an input item and power, but directly produces a selected fab output (skipping the prediction item).
+* The Simulation Chamber now has separate Training and Inference modes.
+  * Training mode runs simulations that upgrade the model's data; Inference mode produces predictions, but doesn't upgrade the model.
+* Added Queue Mode and Redstone control to the Loot Fabricator.
+  * Queue Mode lets you cycle through a list of outputs instead of producing only one fixed drop.
+  * Redstone control allows the fab to be enabled or disabled via signal, matching the Sim Chamber.
+* Added Block Data Models, gated behind the `Enable Block Data Models` config option.
+  * Default ore data models ship in the mod (currently disabled by default).
+
+### Misc
+* Added brief item tooltips for the Sim Chamber, Loot Fabricator, Data Center, and IO Port.
+* Added JEI info pages for the Data Center and IO Port, covering shell construction and proxy modes.
+* Added a Jade integration that shows an IO Port's current mode in the HUD.
+* Updated the data model and model tier JSON schemas. Documentation is in the `schema/` directory; all built-in data files have been updated to the new format.
+* Fixed inconsistencies in Simulation Chamber operation that could cause cycles to start without consuming inputs or to skip the failure-state check.
+* PrincessStellar: Updated Brazilian translation.
+
 ## 6.3.0
 * Added the Model Attunement system, which allows making data models for entities with NBT subtypes.
   * More information can be found on the relevant schema page.
