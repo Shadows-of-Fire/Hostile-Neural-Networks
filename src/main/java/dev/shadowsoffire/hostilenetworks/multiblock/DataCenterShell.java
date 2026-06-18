@@ -3,6 +3,8 @@ package dev.shadowsoffire.hostilenetworks.multiblock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import net.minecraft.core.BlockPos;
@@ -63,39 +65,47 @@ public final class DataCenterShell {
 
     /** Short-circuits on the first violation. Use {@link #findInvalidPositions} for a full list. */
     public static boolean validate(Layout layout, LevelReader level) {
-        BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
-        int minX = layout.shellMin.getX(), minY = layout.shellMin.getY(), minZ = layout.shellMin.getZ();
-        int maxX = layout.shellMax.getX(), maxY = layout.shellMax.getY(), maxZ = layout.shellMax.getZ();
-        for (int x = minX; x <= maxX; x++) {
-            for (int y = minY; y <= maxY; y++) {
-                for (int z = minZ; z <= maxZ; z++) {
-                    cursor.set(x, y, z);
-                    BlockState state = level.getBlockState(cursor);
-                    boolean isFloor = y == minY;
-                    boolean isCeiling = y == maxY;
-                    boolean onPerimeter = x == minX || x == maxX || z == minZ || z == maxZ;
+        return findInvalidPositions(layout, level, 1).isEmpty();
+    }
 
-                    if (isFloor) {
-                        if (!state.is(Hostile.Tags.DATA_CENTER_FLOOR)) return false;
-                    }
-                    else if (isCeiling) {
-                        if (!state.is(Hostile.Tags.DATA_CENTER_WALL)) return false;
-                    }
-                    else if (onPerimeter) {
-                        if (cursor.equals(layout.controllerPos)) continue;
-                        if (!state.is(Hostile.Tags.DATA_CENTER_WALL)) return false;
-                    }
-                    else {
-                        // Strict isAir() so replaceable plants/snow don't clip the central mob.
-                        if (!state.isAir()) return false;
-                    }
-                }
-            }
-        }
-        return true;
+    /** Categorises a position inside the shell. Use {@link Layout#classify} to compute. */
+    public enum CellKind {
+        FLOOR, CEILING, WALL, CONTROLLER, INTERIOR
     }
 
     public record Layout(BlockPos controllerPos, Direction wallFace, BlockPos shellMin, BlockPos shellMax, BlockPos centerPos) {
+
+        public CellKind classify(int x, int y, int z) {
+            if (y == this.shellMin.getY()) return CellKind.FLOOR;
+            if (y == this.shellMax.getY()) return CellKind.CEILING;
+            boolean onPerimeter = x == this.shellMin.getX() || x == this.shellMax.getX()
+                || z == this.shellMin.getZ() || z == this.shellMax.getZ();
+            if (!onPerimeter) return CellKind.INTERIOR;
+            if (x == this.controllerPos.getX() && y == this.controllerPos.getY() && z == this.controllerPos.getZ()) return CellKind.CONTROLLER;
+            return CellKind.WALL;
+        }
+
+        /** Iterates every cell in the 7×7×7 shell, supplying its classification. The cursor is reused — copy via {@code immutable()} to retain. */
+        public void forEachCell(BiConsumer<BlockPos, CellKind> action) {
+            this.forEachCellUntil((pos, kind) -> {
+                action.accept(pos, kind);
+                return false;
+            });
+        }
+
+        /** {@link #forEachCell} variant that stops as soon as {@code action} returns {@code true}. Returns whether iteration was stopped early. */
+        public boolean forEachCellUntil(BiPredicate<BlockPos, CellKind> action) {
+            BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+            for (int x = this.shellMin.getX(); x <= this.shellMax.getX(); x++) {
+                for (int y = this.shellMin.getY(); y <= this.shellMax.getY(); y++) {
+                    for (int z = this.shellMin.getZ(); z <= this.shellMax.getZ(); z++) {
+                        cursor.set(x, y, z);
+                        if (action.test(cursor, this.classify(x, y, z))) return true;
+                    }
+                }
+            }
+            return false;
+        }
 
         public static void writeLayout(CompoundTag tag, DataCenterShell.Layout layout) {
             tag.putInt("wallFaceOrd", layout.wallFace().get3DDataValue());
@@ -138,42 +148,31 @@ public final class DataCenterShell {
 
     /** Returns up to {@link #MAX_REPORTED_INVALID} failing positions. Empty when the shell is valid. */
     public static List<InvalidEntry> findInvalidPositions(Layout layout, LevelReader level) {
+        return findInvalidPositions(layout, level, MAX_REPORTED_INVALID);
+    }
+
+    private static List<InvalidEntry> findInvalidPositions(Layout layout, LevelReader level, int limit) {
         List<InvalidEntry> out = new ArrayList<>();
-        BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
-        int minX = layout.shellMin.getX(), minY = layout.shellMin.getY(), minZ = layout.shellMin.getZ();
-        int maxX = layout.shellMax.getX(), maxY = layout.shellMax.getY(), maxZ = layout.shellMax.getZ();
-        for (int x = minX; x <= maxX; x++) {
-            for (int y = minY; y <= maxY; y++) {
-                for (int z = minZ; z <= maxZ; z++) {
-                    cursor.set(x, y, z);
-                    BlockState state = level.getBlockState(cursor);
-                    boolean isFloor = y == minY;
-                    boolean isCeiling = y == maxY;
-                    boolean onPerimeter = x == minX || x == maxX || z == minZ || z == maxZ;
-
-                    InvalidType problem = null;
-                    if (isFloor) {
-                        if (!state.is(Hostile.Tags.DATA_CENTER_FLOOR)) problem = InvalidType.OBSIDIAN_MISSING;
-                    }
-                    else if (isCeiling) {
-                        if (!state.is(Hostile.Tags.DATA_CENTER_WALL)) problem = InvalidType.GLASS_MISSING;
-                    }
-                    else if (onPerimeter) {
-                        if (cursor.equals(layout.controllerPos)) continue;
-                        if (!state.is(Hostile.Tags.DATA_CENTER_WALL)) problem = InvalidType.GLASS_MISSING;
-                    }
-                    else {
-                        if (!state.isAir()) problem = InvalidType.NOT_AIR;
-                    }
-
-                    if (problem != null) {
-                        out.add(new InvalidEntry(cursor.immutable(), problem));
-                        if (out.size() >= MAX_REPORTED_INVALID) return out;
-                    }
-                }
-            }
-        }
+        layout.forEachCellUntil((cursor, kind) -> {
+            InvalidType problem = problemAt(level, cursor, kind);
+            if (problem == null) return false;
+            out.add(new InvalidEntry(cursor.immutable(), problem));
+            return out.size() >= limit;
+        });
         return out;
+    }
+
+    /** Returns the per-cell validation failure (or {@code null} when the cell satisfies its expected contents). */
+    private static InvalidType problemAt(LevelReader level, BlockPos pos, CellKind kind) {
+        if (kind == CellKind.CONTROLLER) return null;
+        BlockState state = level.getBlockState(pos);
+        return switch (kind) {
+            case FLOOR -> state.is(Hostile.Tags.DATA_CENTER_FLOOR) ? null : InvalidType.OBSIDIAN_MISSING;
+            case CEILING, WALL -> state.is(Hostile.Tags.DATA_CENTER_WALL) ? null : InvalidType.GLASS_MISSING;
+            // Strict isAir() so replaceable plants/snow don't clip the central mob.
+            case INTERIOR -> state.isAir() ? null : InvalidType.NOT_AIR;
+            case CONTROLLER -> null;
+        };
     }
 
     /** Returns the candidate with the fewest failures, so the screen can still describe issues when no candidate fully validates. */

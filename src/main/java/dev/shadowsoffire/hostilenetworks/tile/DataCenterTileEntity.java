@@ -333,28 +333,18 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         if (this.shellValid != wasValid) this.sync();
     }
 
-    /** Walks the shell's perimeter + ceiling, claims any IO Port BEs as owned, and releases ports no longer in the shell. */
+    /** Walks the shell's wall + ceiling cells, claims any IO Port BEs as owned, and releases ports no longer in the shell. */
     private void refreshOwnedPorts(Level level, DataCenterShell.Layout layout) {
         Set<BlockPos> current = new HashSet<>();
         if (this.shellValid && layout != null) {
-            BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
-            int minX = layout.shellMin().getX(), minY = layout.shellMin().getY(), minZ = layout.shellMin().getZ();
-            int maxX = layout.shellMax().getX(), maxY = layout.shellMax().getY(), maxZ = layout.shellMax().getZ();
-            for (int x = minX; x <= maxX; x++) {
-                for (int y = minY + 1; y <= maxY; y++) {
-                    for (int z = minZ; z <= maxZ; z++) {
-                        boolean onPerimeter = x == minX || x == maxX || z == minZ || z == maxZ;
-                        if (!onPerimeter && y != maxY) continue;
-                        cursor.set(x, y, z);
-                        if (cursor.equals(layout.controllerPos())) continue;
-                        if (level.getBlockEntity(cursor) instanceof DataCenterIOPortTileEntity port) {
-                            BlockPos immut = cursor.immutable();
-                            current.add(immut);
-                            port.setOwner(this.worldPosition);
-                        }
-                    }
+            layout.forEachCell((cursor, kind) -> {
+                if (kind != DataCenterShell.CellKind.WALL && kind != DataCenterShell.CellKind.CEILING) return;
+                if (level.getBlockEntity(cursor) instanceof DataCenterIOPortTileEntity port) {
+                    BlockPos immut = cursor.immutable();
+                    current.add(immut);
+                    port.setOwner(this.worldPosition);
                 }
-            }
+            });
         }
         for (BlockPos prev : this.ownedPorts) {
             if (!current.contains(prev) && level.getBlockEntity(prev) instanceof DataCenterIOPortTileEntity stale) {
