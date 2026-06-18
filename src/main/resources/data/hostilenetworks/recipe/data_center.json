@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ENE",
+    "SOL",
+    "OOO"
+  ],
+  "key": {
+    "E": {
+      "item": "minecraft:echo_shard"
+    },
+    "S": {
+      "item": "hostilenetworks:sim_chamber"
+    },
+    "L": {
+      "item": "hostilenetworks:loot_fabricator"
+    },
+    "O": {
+      "tag": "c:obsidians"
+    },
+    "N": {
+      "item": "minecraft:nether_star"
+    }
+  },
+  "result": {
+    "id": "hostilenetworks:data_center"
+  }
+}

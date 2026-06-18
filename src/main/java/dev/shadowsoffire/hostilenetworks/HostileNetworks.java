@@ -24,6 +24,7 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage;
 import net.neoforged.neoforge.capabilities.Capabilities.ItemHandler;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.common.world.chunk.RegisterTicketControllersEvent;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 @Mod(HostileNetworks.MODID)
@@ -45,11 +46,16 @@ public class HostileNetworks {
     @SubscribeEvent
     public void setup(FMLCommonSetupEvent e) {
         e.enqueueWork(() -> {
-            TabFillingRegistry.register(Tabs.HNN_TAB.getKey(), Items.SIM_CHAMBER, Items.LOOT_FABRICATOR, Items.DEEP_LEARNER, Items.BLANK_DATA_MODEL, Items.PREDICTION_MATRIX, Items.OVERWORLD_PREDICTION, Items.NETHER_PREDICTION,
+            TabFillingRegistry.register(Tabs.HNN_TAB.getKey(), Items.SIM_CHAMBER, Items.LOOT_FABRICATOR, Items.DATA_CENTER, Items.DEEP_LEARNER, Items.BLANK_DATA_MODEL, Items.PREDICTION_MATRIX, Items.OVERWORLD_PREDICTION, Items.NETHER_PREDICTION,
                 Items.END_PREDICTION, Items.TWILIGHT_PREDICTION, Items.DATA_MODEL, Items.PREDICTION, Items.FAB_DIRECTIVE);
         });
         DataModelRegistry.INSTANCE.registerToBus();
         ModelTierRegistry.INSTANCE.registerToBus();
+    }
+
+    @SubscribeEvent
+    public void tickets(RegisterTicketControllersEvent e) {
+        e.register(Hostile.Tickets.DATA_CENTER);
     }
 
     @SubscribeEvent
@@ -58,11 +64,15 @@ public class HostileNetworks {
         e.registerBlockEntity(ItemHandler.BLOCK, Hostile.TileEntities.LOOT_FABRICATOR, (be, side) -> be.getInventory());
         e.registerBlockEntity(EnergyStorage.BLOCK, Hostile.TileEntities.SIM_CHAMBER, (be, side) -> be.getEnergy());
         e.registerBlockEntity(ItemHandler.BLOCK, Hostile.TileEntities.SIM_CHAMBER, (be, side) -> be.getInventory());
+        e.registerBlockEntity(EnergyStorage.BLOCK, Hostile.TileEntities.DATA_CENTER, (be, side) -> be.getEnergy());
+        e.registerBlockEntity(ItemHandler.BLOCK, Hostile.TileEntities.DATA_CENTER, (be, side) -> be.getInventory());
     }
 
     @SubscribeEvent
     public void data(GatherDataEvent e) {
         e.getGenerator().addProvider(true, LootProvider.create(e.getGenerator().getPackOutput(), e.getLookupProvider()));
+        e.getGenerator().addProvider(true, new dev.shadowsoffire.hostilenetworks.datagen.BlockTagProvider(
+            e.getGenerator().getPackOutput(), e.getLookupProvider(), e.getExistingFileHelper()));
     }
 
     public static ResourceLocation loc(String path) {

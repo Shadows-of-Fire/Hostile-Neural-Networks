@@ -7,6 +7,7 @@ import dev.shadowsoffire.hostilenetworks.util.DisplayEntity;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
@@ -121,6 +122,17 @@ public class DataModelInstance implements TooltipComponent {
 
     public boolean isValid() {
         return this.model.isBound();
+    }
+
+    /**
+     * Rolls the number of successful predictions and returns the result.
+     * Each 100% is a guaranteed prediction, any fractional component is a chance of one.
+     */
+    public int rollPredictions(RandomSource rand) {
+        float accuracy = this.getAccuracy();
+        int floor = (int) accuracy;
+        float frac = accuracy - floor;
+        return floor + (rand.nextFloat() < frac ? 1 : 0);
     }
 
 }

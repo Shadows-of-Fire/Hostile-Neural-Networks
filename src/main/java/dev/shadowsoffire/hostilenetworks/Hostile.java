@@ -3,12 +3,14 @@ package dev.shadowsoffire.hostilenetworks;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 
+import dev.shadowsoffire.hostilenetworks.block.DataCenterBlock;
 import dev.shadowsoffire.hostilenetworks.block.LootFabBlock;
 import dev.shadowsoffire.hostilenetworks.block.SimChamberBlock;
 import dev.shadowsoffire.hostilenetworks.data.BlockDataModelsCondition;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.EntityDataModel;
+import dev.shadowsoffire.hostilenetworks.gui.DataCenterMenu;
 import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerMenu;
 import dev.shadowsoffire.hostilenetworks.gui.FabDirectiveMenu;
 import dev.shadowsoffire.hostilenetworks.gui.LootFabMenu;
@@ -18,6 +20,7 @@ import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
 import dev.shadowsoffire.hostilenetworks.item.FabDirectiveItem;
 import dev.shadowsoffire.hostilenetworks.item.MobPredictionItem;
+import dev.shadowsoffire.hostilenetworks.tile.DataCenterTileEntity;
 import dev.shadowsoffire.hostilenetworks.tile.LootFabTileEntity;
 import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity;
 import dev.shadowsoffire.hostilenetworks.util.SavedSelections;
@@ -37,6 +40,7 @@ import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.world.chunk.TicketController;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public class Hostile {
@@ -49,6 +53,9 @@ public class Hostile {
 
         public static final Holder<Block> LOOT_FABRICATOR = R.block("loot_fabricator", LootFabBlock::new, p -> p
             .lightLevel(s -> 1).strength(4, 3000).noOcclusion().isRedstoneConductor((state, lvl, pos) -> false));
+
+        public static final Holder<Block> DATA_CENTER = R.block("data_center", DataCenterBlock::new, p -> p
+            .lightLevel(s -> 1).strength(5, 6000).noOcclusion().isRedstoneConductor((state, lvl, pos) -> false));
 
         private static void bootstrap() {}
     }
@@ -65,6 +72,7 @@ public class Hostile {
         public static final Holder<Item> PREDICTION = R.item("prediction", MobPredictionItem::new);
         public static final Holder<Item> SIM_CHAMBER = R.blockItem("sim_chamber", Blocks.SIM_CHAMBER);
         public static final Holder<Item> LOOT_FABRICATOR = R.blockItem("loot_fabricator", Blocks.LOOT_FABRICATOR);
+        public static final Holder<Item> DATA_CENTER = R.blockItem("data_center", Blocks.DATA_CENTER);
         public static final Holder<Item> FAB_DIRECTIVE = R.item("fab_directive", FabDirectiveItem::new, p -> p.stacksTo(1));
 
         private static void bootstrap() {}
@@ -73,6 +81,7 @@ public class Hostile {
     public static class TileEntities {
         public static final BlockEntityType<SimChamberTileEntity> SIM_CHAMBER = R.tickingBlockEntity("sim_chamber", SimChamberTileEntity::new, TickSide.SERVER, Hostile.Blocks.SIM_CHAMBER);
         public static final BlockEntityType<LootFabTileEntity> LOOT_FABRICATOR = R.tickingBlockEntity("loot_fabricator", LootFabTileEntity::new, TickSide.SERVER, Hostile.Blocks.LOOT_FABRICATOR);
+        public static final BlockEntityType<DataCenterTileEntity> DATA_CENTER = R.tickingBlockEntity("data_center", DataCenterTileEntity::new, TickSide.SERVER, Hostile.Blocks.DATA_CENTER);
 
         private static void bootstrap() {}
     }
@@ -81,6 +90,7 @@ public class Hostile {
         public static final MenuType<DeepLearnerMenu> DEEP_LEARNER = R.menuWithData("deep_learner", DeepLearnerMenu::new);
         public static final MenuType<SimChamberMenu> SIM_CHAMBER = R.menuWithPos("sim_chamber", SimChamberMenu::new);
         public static final MenuType<LootFabMenu> LOOT_FABRICATOR = R.menuWithPos("loot_fabricator", LootFabMenu::new);
+        public static final MenuType<DataCenterMenu> DATA_CENTER = R.menuWithPos("data_center", DataCenterMenu::new);
         public static final MenuType<FabDirectiveMenu> FAB_DIRECTIVE = R.menuWithData("fab_directive", FabDirectiveMenu::new);
 
         private static void bootstrap() {}
@@ -141,6 +151,17 @@ public class Hostile {
          * Set of all Generalized <X> Prediction items. Used in crafting recipes.
          */
         public static final TagKey<Item> GENERALIZED_PREDICTIONS = TagKey.create(Registries.ITEM, HostileNetworks.loc("generalized_predictions"));
+
+        /**
+         * Block tag of materials the Data Center accepts for its 7×7 floor. Default contents (via datagen): {@code #c:obsidians}.
+         */
+        public static final TagKey<Block> DATA_CENTER_FLOOR = TagKey.create(Registries.BLOCK, HostileNetworks.loc("data_center_floor"));
+
+        /**
+         * Block tag of materials the Data Center accepts for its walls + ceiling. Default contents (via datagen):
+         * {@code minecraft:black_stained_glass}.
+         */
+        public static final TagKey<Block> DATA_CENTER_WALL = TagKey.create(Registries.BLOCK, HostileNetworks.loc("data_center_wall"));
     }
 
     public static class Conditions {
@@ -153,6 +174,14 @@ public class Hostile {
             BlockDataModelsCondition.CODEC);
 
         private static void bootstrap() {}
+    }
+
+    public static class Tickets {
+
+        /**
+         * Chunk-loading ticket controller for the Data Center multiblock. Ensures that the 7x7 is always loaded as to avoid chunk boundary issues.
+         */
+        public static final TicketController DATA_CENTER = new TicketController(HostileNetworks.loc("data_center"), DataCenterTileEntity::validateLoadedTickets);
     }
 
     static void bootstrap(IEventBus bus) {

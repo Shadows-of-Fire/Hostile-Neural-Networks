@@ -10,10 +10,12 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.datafixers.util.Either;
 
+import dev.shadowsoffire.hostilenetworks.client.DataCenterRenderer;
 import dev.shadowsoffire.hostilenetworks.client.DataModelTooltipRenderer;
 import dev.shadowsoffire.hostilenetworks.client.DeepLearnerHudRenderer;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
+import dev.shadowsoffire.hostilenetworks.gui.DataCenterScreen;
 import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerScreen;
 import dev.shadowsoffire.hostilenetworks.gui.LootFabScreen;
 import dev.shadowsoffire.hostilenetworks.gui.SimChamberScreen;
@@ -39,6 +41,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
@@ -82,6 +85,12 @@ public class HostileClient {
         e.register(Hostile.Containers.DEEP_LEARNER, DeepLearnerScreen::new);
         e.register(Hostile.Containers.SIM_CHAMBER, SimChamberScreen::new);
         e.register(Hostile.Containers.LOOT_FABRICATOR, LootFabScreen::new);
+        e.register(Hostile.Containers.DATA_CENTER, DataCenterScreen::new);
+    }
+
+    @SubscribeEvent
+    public static void renderers(EntityRenderersEvent.RegisterRenderers e) {
+        e.registerBlockEntityRenderer(Hostile.TileEntities.DATA_CENTER, DataCenterRenderer::new);
     }
 
     @SubscribeEvent

@@ -9,11 +9,9 @@ import dev.shadowsoffire.placebo.util.Offset;
 import dev.shadowsoffire.placebo.util.Offset.AnchorPoint;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class HostileConfig {
@@ -21,12 +19,14 @@ public class HostileConfig {
     public static int simPowerCap;
     public static int fabPowerCap;
     public static int fabPowerCost;
+    public static int dataCenterPowerCap;
 
     public static boolean rightClickToAttune;
     public static int simModelUpgrade;
     public static boolean actionUpgradesModel;
     public static boolean continuousAccuracy;
     public static boolean enableBlockDataModels;
+    public static float dataCenterSimCostMultiplier;
 
     public static Offset deepLearnerOffset = new Offset(AnchorPoint.TOP_LEFT, 0, 0);
 
@@ -37,6 +37,7 @@ public class HostileConfig {
         simPowerCap = cfg.getInt("Sim Chamber Power Cap", "power", 2000000, 1, Integer.MAX_VALUE, "The maximum FE stored in the Simulation Chamber.");
         fabPowerCap = cfg.getInt("Loot Fab Power Cap", "power", 1000000, 1, Integer.MAX_VALUE, "The maximum FE stored in the Loot Fabricator.");
         fabPowerCost = cfg.getInt("Loot Fab Power Cost", "power", 256, 0, Integer.MAX_VALUE, "The FE/t cost of the Loot Fabricator.");
+        dataCenterPowerCap = cfg.getInt("Data Center Power Cap", "power", 8000000, 1, Integer.MAX_VALUE, "The maximum FE stored in the Data Center. Sized for 25 concurrent self-aware simulations.");
 
         rightClickToAttune = cfg.getBoolean("Right Click To Attune", "models", true,
             "If true, right clicking a blank data model on a mob or block will attune it to that target. If disabled, you will need to provide players with a way to get attuned models!");
@@ -52,6 +53,8 @@ public class HostileConfig {
             "If true, the accuracy of the model increases as it gains progress towards the next tier. If false, always uses the base accuracy of the current tier.");
         enableBlockDataModels = cfg.getBoolean("Enable Block Data Models", "models", false,
             "If true, block data models (such as the built-in ore models) are loaded. This is an experimental feature. This value is not synced; it governs which models load during datapack reading.");
+        dataCenterSimCostMultiplier = cfg.getFloat("Data Center Sim Cost Multiplier", "models", 1.5f, 0.01f, 100f,
+            "Per-tick power cost the Data Center pays per active model, as a multiplier on the model's base simCost. 1.5 = 150% of normal.");
 
         cfg.setCategoryComment("client", "Client-only options, not synced");
         deepLearnerOffset = Offset.load("Deep Learner HUD", "client", deepLearnerOffset, cfg);
@@ -59,22 +62,38 @@ public class HostileConfig {
         return cfg;
     }
 
-    static record ConfigPayload(int simPowerCap, int fabPowerCap, int fabPowerCost, boolean rightClickAttune, int simModelUpgrade, boolean actionUpgradesModel, boolean continuousAccuracy) implements CustomPacketPayload {
+    static record ConfigPayload(int simPowerCap, int fabPowerCap, int fabPowerCost, int dataCenterPowerCap, boolean rightClickAttune, int simModelUpgrade, boolean actionUpgradesModel, boolean continuousAccuracy,
+        float dataCenterSimCostMultiplier) implements CustomPacketPayload {
 
         public static final Type<ConfigPayload> TYPE = new Type<>(HostileNetworks.loc("config"));
 
-        public static final StreamCodec<RegistryFriendlyByteBuf, ConfigPayload> CODEC = NeoForgeStreamCodecs.composite(
-            ByteBufCodecs.VAR_INT, ConfigPayload::simPowerCap,
-            ByteBufCodecs.VAR_INT, ConfigPayload::fabPowerCap,
-            ByteBufCodecs.VAR_INT, ConfigPayload::fabPowerCost,
-            ByteBufCodecs.BOOL, ConfigPayload::rightClickAttune,
-            ByteBufCodecs.VAR_INT, ConfigPayload::simModelUpgrade,
-            ByteBufCodecs.BOOL, ConfigPayload::actionUpgradesModel,
-            ByteBufCodecs.BOOL, ConfigPayload::continuousAccuracy,
-            ConfigPayload::new);
+        // Hand-rolled because StreamCodec.composite tops out at 7 fields (NeoForgeStreamCodecs.composite).
+        public static final StreamCodec<RegistryFriendlyByteBuf, ConfigPayload> CODEC = StreamCodec.of(
+            (buf, msg) -> {
+                buf.writeVarInt(msg.simPowerCap);
+                buf.writeVarInt(msg.fabPowerCap);
+                buf.writeVarInt(msg.fabPowerCost);
+                buf.writeVarInt(msg.dataCenterPowerCap);
+                buf.writeBoolean(msg.rightClickAttune);
+                buf.writeVarInt(msg.simModelUpgrade);
+                buf.writeBoolean(msg.actionUpgradesModel);
+                buf.writeBoolean(msg.continuousAccuracy);
+                buf.writeFloat(msg.dataCenterSimCostMultiplier);
+            },
+            buf -> new ConfigPayload(
+                buf.readVarInt(),
+                buf.readVarInt(),
+                buf.readVarInt(),
+                buf.readVarInt(),
+                buf.readBoolean(),
+                buf.readVarInt(),
+                buf.readBoolean(),
+                buf.readBoolean(),
+                buf.readFloat()));
 
         public ConfigPayload() {
-            this(HostileConfig.simPowerCap, HostileConfig.fabPowerCap, HostileConfig.fabPowerCost, HostileConfig.rightClickToAttune, HostileConfig.simModelUpgrade, HostileConfig.actionUpgradesModel, HostileConfig.continuousAccuracy);
+            this(HostileConfig.simPowerCap, HostileConfig.fabPowerCap, HostileConfig.fabPowerCost, HostileConfig.dataCenterPowerCap, HostileConfig.rightClickToAttune, HostileConfig.simModelUpgrade, HostileConfig.actionUpgradesModel,
+                HostileConfig.continuousAccuracy, HostileConfig.dataCenterSimCostMultiplier);
         }
 
         @Override
@@ -99,10 +118,12 @@ public class HostileConfig {
                 HostileConfig.simPowerCap = msg.simPowerCap;
                 HostileConfig.fabPowerCap = msg.fabPowerCap;
                 HostileConfig.fabPowerCost = msg.fabPowerCost;
+                HostileConfig.dataCenterPowerCap = msg.dataCenterPowerCap;
                 HostileConfig.rightClickToAttune = msg.rightClickAttune;
                 HostileConfig.simModelUpgrade = msg.simModelUpgrade;
                 HostileConfig.actionUpgradesModel = msg.actionUpgradesModel;
                 HostileConfig.continuousAccuracy = msg.continuousAccuracy;
+                HostileConfig.dataCenterSimCostMultiplier = msg.dataCenterSimCostMultiplier;
             }
 
             @Override
@@ -117,7 +138,7 @@ public class HostileConfig {
 
             @Override
             public String getVersion() {
-                return "2";
+                return "3";
             }
 
         }

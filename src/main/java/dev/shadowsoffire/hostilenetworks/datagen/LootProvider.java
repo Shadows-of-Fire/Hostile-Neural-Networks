@@ -46,6 +46,7 @@ public class LootProvider extends LootTableProvider {
         protected void generate() {
             this.dropSelf(Hostile.Blocks.LOOT_FABRICATOR);
             this.dropSelf(Hostile.Blocks.SIM_CHAMBER);
+            this.dropSelf(Hostile.Blocks.DATA_CENTER);
         }
 
         @Override

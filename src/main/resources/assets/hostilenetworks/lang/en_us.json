@@ -1,6 +1,17 @@
 {
     "block.hostilenetworks.sim_chamber": "Simulation Chamber",
     "block.hostilenetworks.loot_fabricator": "Loot Fabricator",
+    "block.hostilenetworks.data_center": "Data Center",
+    "hostilenetworks.gui.data_center.click_to_config": "Right-click to configure",
+    "hostilenetworks.gui.data_center.back": "Back to Data Center",
+    "hostilenetworks.gui.data_center.power_cost": "Power: %s FE/t",
+    "hostilenetworks.gui.data_center.producing": "Producing: %s",
+    "hostilenetworks.gui.data_center.progress": "Progress: %ss / %ss",
+    "hostilenetworks.gui.data_center.shell_invalid.obsidian_missing": "Missing obsidian floor",
+    "hostilenetworks.gui.data_center.shell_invalid.glass_missing": "Missing black stained glass",
+    "hostilenetworks.gui.data_center.shell_invalid.not_air": "Interior obstructed",
+    "hostilenetworks.gui.data_center.shell_invalid.at_pos": "%s at (%s, %s, %s)",
+    "hostilenetworks.gui.data_center.shell_invalid.multi_y": "Issues at Y = %s",
     
     "item.hostilenetworks.deep_learner": "Deep Learner",
     "item.hostilenetworks.data_model": "%s Data Model",
@@ -72,6 +83,7 @@
     "hostilenetworks.gui.mode.inference": "Mode: Inference",
     "hostilenetworks.gui.mode.training": "Mode: Training",
     "hostilenetworks.gui.mode.disabled": "Training Mode is disabled by the server config",
+    "hostilenetworks.gui.data_center.io": "Input / Output",
 
     "hostilenetworks.hud.model": " Model",
     "hostilenetworks.hud.kills": "%s Remaining",
@@ -89,6 +101,9 @@
     "hostilenetworks.fail.faulty": "Insufficient data in model. Please insert a basic model or better",
     "hostilenetworks.fail.energy_mid_cycle": "Simulation progress paused\nSystem energy levels critical",
     "hostilenetworks.fail.redstone": "Simulation progress paused\nIncorrect redstone signal applied",
+    "hostilenetworks.fail.shell_broken": "Multiblock shell is incomplete or invalid",
+    "hostilenetworks.fail.not_self_aware": "Model requires at least Self Aware tier",
+    "hostilenetworks.fail.no_selection": "No output is selected\nRight-click the slot to configure",
     
     "hostilenetworks.run.0": "> Launching runtime ",
     "hostilenetworks.run.1": "> Iteration #%s started",

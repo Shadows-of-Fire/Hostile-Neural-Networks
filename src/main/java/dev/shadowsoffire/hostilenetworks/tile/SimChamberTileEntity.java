@@ -1,6 +1,7 @@
 package dev.shadowsoffire.hostilenetworks.tile;
 
 import java.util.function.Consumer;
+import java.util.function.IntFunction;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.HostileConfig;
@@ -20,6 +21,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ByIdMap;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -325,6 +327,8 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         SHELL_BROKEN("shell_broken"),
         NOT_SELF_AWARE("not_self_aware"),
         NO_SELECTION("no_selection");
+
+        public static final IntFunction<FailureState> BY_ID = ByIdMap.continuous(Enum::ordinal, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
 
         private final String name;
 
