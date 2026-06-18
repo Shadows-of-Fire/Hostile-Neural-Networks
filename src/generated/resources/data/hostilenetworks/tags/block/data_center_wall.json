@@ -1,5 +1,6 @@
 {
   "values": [
-    "minecraft:black_stained_glass"
+    "minecraft:black_stained_glass",
+    "hostilenetworks:data_center_io_port"
   ]
 }

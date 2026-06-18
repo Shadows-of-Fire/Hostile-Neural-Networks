@@ -10,6 +10,7 @@ import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import dev.shadowsoffire.hostilenetworks.datagen.LootProvider;
 import dev.shadowsoffire.hostilenetworks.net.OpenDeepLearnerPayload;
+import dev.shadowsoffire.hostilenetworks.tile.DataCenterIOPortTileEntity;
 import dev.shadowsoffire.placebo.config.Configuration;
 import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
@@ -46,8 +47,9 @@ public class HostileNetworks {
     @SubscribeEvent
     public void setup(FMLCommonSetupEvent e) {
         e.enqueueWork(() -> {
-            TabFillingRegistry.register(Tabs.HNN_TAB.getKey(), Items.SIM_CHAMBER, Items.LOOT_FABRICATOR, Items.DATA_CENTER, Items.DEEP_LEARNER, Items.BLANK_DATA_MODEL, Items.PREDICTION_MATRIX, Items.OVERWORLD_PREDICTION, Items.NETHER_PREDICTION,
-                Items.END_PREDICTION, Items.TWILIGHT_PREDICTION, Items.DATA_MODEL, Items.PREDICTION, Items.FAB_DIRECTIVE);
+            TabFillingRegistry.register(Tabs.HNN_TAB.getKey(), Items.SIM_CHAMBER, Items.LOOT_FABRICATOR, Items.DATA_CENTER, Items.DATA_CENTER_IO_PORT, Items.DEEP_LEARNER, Items.BLANK_DATA_MODEL, Items.PREDICTION_MATRIX,
+                Items.OVERWORLD_PREDICTION,
+                Items.NETHER_PREDICTION, Items.END_PREDICTION, Items.TWILIGHT_PREDICTION, Items.DATA_MODEL, Items.PREDICTION, Items.FAB_DIRECTIVE);
         });
         DataModelRegistry.INSTANCE.registerToBus();
         ModelTierRegistry.INSTANCE.registerToBus();
@@ -66,6 +68,8 @@ public class HostileNetworks {
         e.registerBlockEntity(ItemHandler.BLOCK, Hostile.TileEntities.SIM_CHAMBER, (be, side) -> be.getInventory());
         e.registerBlockEntity(EnergyStorage.BLOCK, Hostile.TileEntities.DATA_CENTER, (be, side) -> be.getEnergy());
         e.registerBlockEntity(ItemHandler.BLOCK, Hostile.TileEntities.DATA_CENTER, (be, side) -> be.getInventory());
+        e.registerBlockEntity(EnergyStorage.BLOCK, Hostile.TileEntities.IO_PORT, DataCenterIOPortTileEntity::getEnergyHandler);
+        e.registerBlockEntity(ItemHandler.BLOCK, Hostile.TileEntities.IO_PORT, DataCenterIOPortTileEntity::getItemHandler);
     }
 
     @SubscribeEvent

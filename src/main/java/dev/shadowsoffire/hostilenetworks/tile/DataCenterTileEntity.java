@@ -99,6 +99,9 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
     /** Force-loaded shell chunks, owned by {@code worldPosition} in {@link Hostile.Tickets#DATA_CENTER}. */
     protected final Set<Long> forcedChunks = new HashSet<>();
 
+    /** IO Port positions in this controller's shell, refreshed on each {@link #recheckShell} pass. */
+    protected final Set<BlockPos> ownedPorts = new HashSet<>();
+
     public DataCenterTileEntity(BlockPos pos, BlockState state) {
         super(Hostile.TileEntities.DATA_CENTER, pos, state);
         for (int i = 0; i < MODEL_SLOTS; i++) {
@@ -326,7 +329,40 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         boolean wasValid = this.shellValid;
         this.shellValid = layout != null;
         if (level instanceof ServerLevel sl) this.ensureShellChunksForced(sl, layout);
+        this.refreshOwnedPorts(level, layout);
         if (this.shellValid != wasValid) this.sync();
+    }
+
+    /** Walks the shell's perimeter + ceiling, claims any IO Port BEs as owned, and releases ports no longer in the shell. */
+    private void refreshOwnedPorts(Level level, DataCenterShell.Layout layout) {
+        Set<BlockPos> current = new HashSet<>();
+        if (this.shellValid && layout != null) {
+            BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+            int minX = layout.shellMin().getX(), minY = layout.shellMin().getY(), minZ = layout.shellMin().getZ();
+            int maxX = layout.shellMax().getX(), maxY = layout.shellMax().getY(), maxZ = layout.shellMax().getZ();
+            for (int x = minX; x <= maxX; x++) {
+                for (int y = minY + 1; y <= maxY; y++) {
+                    for (int z = minZ; z <= maxZ; z++) {
+                        boolean onPerimeter = x == minX || x == maxX || z == minZ || z == maxZ;
+                        if (!onPerimeter && y != maxY) continue;
+                        cursor.set(x, y, z);
+                        if (cursor.equals(layout.controllerPos())) continue;
+                        if (level.getBlockEntity(cursor) instanceof DataCenterIOPortTileEntity port) {
+                            BlockPos immut = cursor.immutable();
+                            current.add(immut);
+                            port.setOwner(this.worldPosition);
+                        }
+                    }
+                }
+            }
+        }
+        for (BlockPos prev : this.ownedPorts) {
+            if (!current.contains(prev) && level.getBlockEntity(prev) instanceof DataCenterIOPortTileEntity stale) {
+                stale.clearOwner();
+            }
+        }
+        this.ownedPorts.clear();
+        this.ownedPorts.addAll(current);
     }
 
     /** Tickets are non-ticking and per-BE-position, so two Data Centers can independently claim the same chunk. */
@@ -359,7 +395,13 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
     public void setRemoved() {
         super.setRemoved();
         // Fires on both block break and chunk unload. On unload the BE will re-pin on its next tick.
-        if (this.level instanceof ServerLevel sl) this.releaseAllForcedChunks(sl);
+        if (this.level instanceof ServerLevel sl) {
+            this.releaseAllForcedChunks(sl);
+            for (BlockPos port : this.ownedPorts) {
+                if (sl.getBlockEntity(port) instanceof DataCenterIOPortTileEntity p) p.clearOwner();
+            }
+            this.ownedPorts.clear();
+        }
     }
 
     /** Excludes the controller's own chunk, which is loaded by virtue of the BE existing. */

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "hostilenetworks:block/data_center_io_port_models"
+  }
+}

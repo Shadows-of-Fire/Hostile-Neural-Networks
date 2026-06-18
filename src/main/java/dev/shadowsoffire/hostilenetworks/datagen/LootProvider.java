@@ -47,6 +47,7 @@ public class LootProvider extends LootTableProvider {
             this.dropSelf(Hostile.Blocks.LOOT_FABRICATOR);
             this.dropSelf(Hostile.Blocks.SIM_CHAMBER);
             this.dropSelf(Hostile.Blocks.DATA_CENTER);
+            this.dropSelf(Hostile.Blocks.DATA_CENTER_IO_PORT);
         }
 
         @Override

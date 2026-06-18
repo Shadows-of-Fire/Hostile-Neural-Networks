@@ -20,6 +20,6 @@ public class BlockTagProvider extends BlockTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider provider) {
         this.tag(Hostile.Tags.DATA_CENTER_FLOOR).addTag(Tags.Blocks.OBSIDIANS);
-        this.tag(Hostile.Tags.DATA_CENTER_WALL).add(Blocks.BLACK_STAINED_GLASS);
+        this.tag(Hostile.Tags.DATA_CENTER_WALL).add(Blocks.BLACK_STAINED_GLASS).add(Hostile.Blocks.DATA_CENTER_IO_PORT.value());
     }
 }

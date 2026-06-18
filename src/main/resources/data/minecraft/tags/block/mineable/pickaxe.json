@@ -2,6 +2,8 @@
 	"replace": false,
 	"values": [
 		"hostilenetworks:sim_chamber",
-		"hostilenetworks:loot_fabricator"
+		"hostilenetworks:loot_fabricator",
+        "hostilenetworks:data_center",
+        "hostilenetworks:data_center_io_port"
 	]
 }

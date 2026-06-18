@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 
 import dev.shadowsoffire.hostilenetworks.block.DataCenterBlock;
+import dev.shadowsoffire.hostilenetworks.block.DataCenterIOPortBlock;
 import dev.shadowsoffire.hostilenetworks.block.LootFabBlock;
 import dev.shadowsoffire.hostilenetworks.block.SimChamberBlock;
 import dev.shadowsoffire.hostilenetworks.data.BlockDataModelsCondition;
@@ -20,6 +21,7 @@ import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
 import dev.shadowsoffire.hostilenetworks.item.FabDirectiveItem;
 import dev.shadowsoffire.hostilenetworks.item.MobPredictionItem;
+import dev.shadowsoffire.hostilenetworks.tile.DataCenterIOPortTileEntity;
 import dev.shadowsoffire.hostilenetworks.tile.DataCenterTileEntity;
 import dev.shadowsoffire.hostilenetworks.tile.LootFabTileEntity;
 import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity;
@@ -57,6 +59,9 @@ public class Hostile {
         public static final Holder<Block> DATA_CENTER = R.block("data_center", DataCenterBlock::new, p -> p
             .lightLevel(s -> 1).strength(5, 6000).noOcclusion().isRedstoneConductor((state, lvl, pos) -> false));
 
+        public static final Holder<Block> DATA_CENTER_IO_PORT = R.block("data_center_io_port", DataCenterIOPortBlock::new, p -> p
+            .strength(5, 6000).isRedstoneConductor((state, lvl, pos) -> false));
+
         private static void bootstrap() {}
     }
 
@@ -73,6 +78,7 @@ public class Hostile {
         public static final Holder<Item> SIM_CHAMBER = R.blockItem("sim_chamber", Blocks.SIM_CHAMBER);
         public static final Holder<Item> LOOT_FABRICATOR = R.blockItem("loot_fabricator", Blocks.LOOT_FABRICATOR);
         public static final Holder<Item> DATA_CENTER = R.blockItem("data_center", Blocks.DATA_CENTER);
+        public static final Holder<Item> DATA_CENTER_IO_PORT = R.blockItem("data_center_io_port", Blocks.DATA_CENTER_IO_PORT);
         public static final Holder<Item> FAB_DIRECTIVE = R.item("fab_directive", FabDirectiveItem::new, p -> p.stacksTo(1));
 
         private static void bootstrap() {}
@@ -82,6 +88,7 @@ public class Hostile {
         public static final BlockEntityType<SimChamberTileEntity> SIM_CHAMBER = R.tickingBlockEntity("sim_chamber", SimChamberTileEntity::new, TickSide.SERVER, Hostile.Blocks.SIM_CHAMBER);
         public static final BlockEntityType<LootFabTileEntity> LOOT_FABRICATOR = R.tickingBlockEntity("loot_fabricator", LootFabTileEntity::new, TickSide.SERVER, Hostile.Blocks.LOOT_FABRICATOR);
         public static final BlockEntityType<DataCenterTileEntity> DATA_CENTER = R.tickingBlockEntity("data_center", DataCenterTileEntity::new, TickSide.SERVER, Hostile.Blocks.DATA_CENTER);
+        public static final BlockEntityType<DataCenterIOPortTileEntity> IO_PORT = R.blockEntity("data_center_io_port", DataCenterIOPortTileEntity::new, Hostile.Blocks.DATA_CENTER_IO_PORT);
 
         private static void bootstrap() {}
     }
