@@ -55,7 +55,7 @@ public class DataCenterIOPortTileEntity extends BlockEntity {
     @Nullable
     public DataCenterTileEntity resolveOwner() {
         if (this.ownerPos == null || this.level == null) return null;
-        if (this.level.getBlockEntity(this.ownerPos) instanceof DataCenterTileEntity dc && dc.isShellValid()) return dc;
+        if (this.level.isLoaded(this.ownerPos) && this.level.getBlockEntity(this.ownerPos) instanceof DataCenterTileEntity dc && dc.isShellValid()) return dc;
         return null;
     }
 

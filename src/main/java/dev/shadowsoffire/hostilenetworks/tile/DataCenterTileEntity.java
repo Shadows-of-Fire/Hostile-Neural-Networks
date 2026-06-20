@@ -384,13 +384,21 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
     @Override
     public void setRemoved() {
         super.setRemoved();
-        // Fires on both block break and chunk unload. On unload the BE will re-pin on its next tick.
         if (this.level instanceof ServerLevel sl) {
             this.releaseAllForcedChunks(sl);
-            for (BlockPos port : this.ownedPorts) {
-                if (sl.getBlockEntity(port) instanceof DataCenterIOPortTileEntity p) p.clearOwner();
+        }
+        this.ownedPorts.clear();
+    }
+
+    /**
+     * Clears owners from IO ports. Only called when the block is broken (but not from setRemoved) since the owner ref is persisted.
+     */
+    public void clearPortOwnersOnBreak() {
+        if (!(this.level instanceof ServerLevel sl)) return;
+        for (BlockPos port : this.ownedPorts) {
+            if (sl.isLoaded(port) && sl.getBlockEntity(port) instanceof DataCenterIOPortTileEntity p) {
+                p.clearOwner();
             }
-            this.ownedPorts.clear();
         }
     }
 

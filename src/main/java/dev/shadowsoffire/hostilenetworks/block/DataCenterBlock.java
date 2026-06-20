@@ -49,6 +49,7 @@ public class DataCenterBlock extends HorizontalDirectionalBlock implements Ticki
             BlockEntity te = pLevel.getBlockEntity(pPos);
             if (te instanceof DataCenterTileEntity dc) {
                 Containers.dropContents(pLevel, pPos, dc.getInventory().getItems());
+                dc.clearPortOwnersOnBreak();
             }
             super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
         }
