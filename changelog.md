@@ -1,3 +1,7 @@
+## 6.4.1
+* Fixed a potential deadlock when the Data Center was unloaded with IO ports on specific chunk boundaries.
+* Fixed an error in Jade plugin registration.
+
 ## 6.4.0
 ### Features
 * Added the Data Center! A 7×7×7 multiblock controller that runs up to 25 Self Aware data models in parallel.
