@@ -21,7 +21,6 @@ public class HostileJadePlugin implements IWailaPlugin, IBlockComponentProvider 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
         registration.registerBlockComponent(this, DataCenterIOPortBlock.class);
-        registration.addConfig(IO_PORT_MODE, true);
     }
 
     @Override
