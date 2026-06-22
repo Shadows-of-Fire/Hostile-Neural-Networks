@@ -22,5 +22,11 @@
             "id": "minecraft:lapis_lazuli",
             "count": 16
         }
+    ],
+    "upgrade_conditions": [
+        {
+            "condition": "minecraft:reference",
+            "name": "hostilenetworks:not_silk_touch"
+        }
     ]
 }

@@ -29,13 +29,16 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 /**
  * Stores all of the information representing an individual Data Model.
  */
 public record BlockDataModel(DisplayableBlock block, List<DisplayableBlock> variants, Optional<Component> displayName,
     TextColor nameColor, DisplayData display, int simCost, Ingredient input, ItemStack baseDrop, String triviaKey,
-    List<ItemStack> fabDrops, RequiredData requiredData, DataGained dataGained, Optional<BlockAttunement> attunement) implements DataModel {
+    List<ItemStack> fabDrops, RequiredData requiredData, DataGained dataGained, Optional<BlockAttunement> attunement,
+    List<LootItemCondition> upgradeConditions) implements DataModel {
 
     /** Formats block hardness / blast resistance, trimming trailing zeroes (e.g. {@code 1.50} -> {@code 1.5}, {@code 1200.0} -> {@code 1200}). */
     private static final DecimalFormat STAT_FORMAT = new DecimalFormat("0.##");
@@ -54,12 +57,24 @@ public record BlockDataModel(DisplayableBlock block, List<DisplayableBlock> vari
             OptionalStackCodec.INSTANCE.listOf().xmap(BlockDataModel::removeEmptyStacks, Function.identity()).fieldOf("fabricator_drops").forGetter(BlockDataModel::fabDrops),
             RequiredData.CODEC.optionalFieldOf("required_data", RequiredData.EMPTY).forGetter(BlockDataModel::requiredData),
             DataGained.CODEC.optionalFieldOf("data_gained", DataGained.EMPTY).forGetter(BlockDataModel::dataGained),
-            BlockAttunement.CODEC.optionalFieldOf("attunement").forGetter(BlockDataModel::attunement))
+            BlockAttunement.CODEC.optionalFieldOf("attunement").forGetter(BlockDataModel::attunement),
+            LootItemCondition.DIRECT_CODEC.listOf().optionalFieldOf("upgrade_conditions", List.of()).forGetter(BlockDataModel::upgradeConditions))
         .apply(inst, BlockDataModel::new));
 
     public BlockDataModel(BlockDataModel other, List<ItemStack> newResults) {
         this(other.block, other.variants, other.displayName, other.nameColor, other.display, other.simCost, other.input, other.baseDrop, other.triviaKey, newResults, other.requiredData,
-            other.dataGained, other.attunement);
+            other.dataGained, other.attunement, other.upgradeConditions);
+    }
+
+    /**
+     * Whether mining this block should grant data to the model, evaluated against the {@link LootContext} of the break.
+     * <p>
+     * Returns {@code true} when no {@code upgrade_conditions} are configured (the default); otherwise every condition
+     * must pass. Used to gate blocks that should only upgrade situationally — e.g. ores that must not upgrade when mined
+     * with Silk Touch.
+     */
+    public boolean canUpgrade(LootContext ctx) {
+        return this.upgradeConditions.isEmpty() || this.upgradeConditions.stream().allMatch(c -> c.test(ctx));
     }
 
     @Override

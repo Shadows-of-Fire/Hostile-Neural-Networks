@@ -9,6 +9,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.loot.LootContext;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
@@ -23,8 +24,8 @@ public class CuriosCompat {
         applyToEquippedDeepLearner(player, stack -> HostileEvents.updateModels(stack, type, bonus));
     }
 
-    public static void tryUpdateDeepLearner(Player player, Block block, int bonus) {
-        applyToEquippedDeepLearner(player, stack -> HostileEvents.updateModels(stack, block, bonus));
+    public static void tryUpdateDeepLearner(Player player, Block block, int bonus, LootContext ctx) {
+        applyToEquippedDeepLearner(player, stack -> HostileEvents.updateModels(stack, block, bonus, ctx));
     }
 
     private static void applyToEquippedDeepLearner(Player player, Consumer<ItemStack> mutator) {

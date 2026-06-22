@@ -1,6 +1,7 @@
 package dev.shadowsoffire.hostilenetworks;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -35,6 +36,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -144,12 +150,31 @@ public class HostileEvents {
     public static void mine(BlockEvent.BreakEvent e) {
         if (!HostileConfig.actionUpgradesModel) return;
         if (e.getPlayer() instanceof ServerPlayer p) {
-            Block block = e.getState().getBlock();
-            forEachLearner(p, dl -> updateModels(dl, block, 0));
+            BlockState state = e.getState();
+            Block block = state.getBlock();
+            LootContext ctx = createBlockBreakContext(p, e.getPos(), state);
+            forEachLearner(p, dl -> updateModels(dl, block, 0, ctx));
             if (ModList.get().isLoaded("curios")) {
-                CuriosCompat.tryUpdateDeepLearner(p, block, 0);
+                CuriosCompat.tryUpdateDeepLearner(p, block, 0, ctx);
             }
         }
+    }
+
+    /**
+     * Builds the {@link LootContext} for a block break, used to evaluate a {@link BlockDataModel}'s {@code upgrade_conditions}.
+     * Populates the {@code BLOCK} param set's required params (block state, origin, the breaking tool) plus the optional
+     * breaking player and block entity, so tool/state/entity-based conditions (e.g. a Silk Touch check) can be tested.
+     */
+    private static LootContext createBlockBreakContext(ServerPlayer player, BlockPos pos, BlockState state) {
+        ServerLevel level = player.serverLevel();
+        LootParams params = new LootParams.Builder(level)
+            .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
+            .withParameter(LootContextParams.BLOCK_STATE, state)
+            .withParameter(LootContextParams.TOOL, player.getMainHandItem())
+            .withOptionalParameter(LootContextParams.THIS_ENTITY, player)
+            .withOptionalParameter(LootContextParams.BLOCK_ENTITY, level.getBlockEntity(pos))
+            .create(LootContextParamSets.BLOCK);
+        return new LootContext.Builder(params).create(Optional.empty());
     }
 
     private static void forEachLearner(ServerPlayer p, Consumer<ItemStack> action) {
@@ -164,9 +189,10 @@ public class HostileEvents {
             && (e.entity() == type || e.variants().contains(type)), bonus);
     }
 
-    public static void updateModels(ItemStack learner, Block block, int bonus) {
+    public static void updateModels(ItemStack learner, Block block, int bonus, LootContext ctx) {
         updateModels(learner, dm -> dm instanceof BlockDataModel b
-            && (b.block().block() == block || b.variants().stream().anyMatch(v -> v.block() == block)), bonus);
+            && (b.block().block() == block || b.variants().stream().anyMatch(v -> v.block() == block))
+            && b.canUpgrade(ctx), bonus);
     }
 
     private static void updateModels(ItemStack learner, Predicate<DataModel> matcher, int bonus) {

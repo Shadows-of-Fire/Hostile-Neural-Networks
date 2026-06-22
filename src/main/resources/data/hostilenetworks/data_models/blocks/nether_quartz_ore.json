@@ -21,5 +21,11 @@
             "id": "minecraft:quartz",
             "count": 12
         }
+    ],
+    "upgrade_conditions": [
+        {
+            "condition": "minecraft:reference",
+            "name": "hostilenetworks:not_silk_touch"
+        }
     ]
 }

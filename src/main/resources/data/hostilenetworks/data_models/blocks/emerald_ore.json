@@ -22,5 +22,11 @@
             "id": "minecraft:emerald",
             "count": 6
         }
+    ],
+    "upgrade_conditions": [
+        {
+            "condition": "minecraft:reference",
+            "name": "hostilenetworks:not_silk_touch"
+        }
     ]
 }

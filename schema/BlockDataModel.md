@@ -14,7 +14,7 @@ This object references the following objects:
 5. [DataGained](./components/DataGained.md)
 6. [ModelAttunement](./components/ModelAttunement.md)
 
-The object types `Component`, `Ingredient`, `TextColor`, and `BlockPredicate` are supplied by Vanilla and are not described here.
+The object types `Component`, `Ingredient`, `TextColor`, `BlockPredicate`, and `LootItemCondition` are supplied by Vanilla and are not described here.
 
 # Schema
 ```js
@@ -36,7 +36,10 @@ The object types `Component`, `Ingredient`, `TextColor`, and `BlockPredicate` ar
     ],
     "required_data": RequiredData,              // [Optional]  || Optional overrides for the required data for individual model tiers.
     "data_gained": DataGained,                  // [Optional]  || Optional overrides for the data gained per mine for individual model tiers.
-    "attunement": ModelAttunement               // [Optional]  || Optional attunement rules. Required if multiple models exist for the same block.
+    "attunement": ModelAttunement,              // [Optional]  || Optional attunement rules. Required if multiple models exist for the same block.
+    "upgrade_conditions": [                     // [Optional]  || Loot conditions, all of which must pass against the block-break context for mining to grant data. Defaults to empty (mining always grants).
+        LootItemCondition
+    ]
 }
 ```
 
@@ -47,6 +50,8 @@ The `block` and `variants` fields accept either a plain registry-name string (in
 Block models use the `BlockPredicate` form of `attunement` (see [ModelAttunement](./components/ModelAttunement.md)). The predicate matches against the block state at the position the player right-clicked.
 
 The max value of the `sim_cost` field is `INT_MAX / 20`.
+
+The `upgrade_conditions` field accepts standard Vanilla loot conditions (the same objects usable in loot tables).
 
 # Examples
 
@@ -71,6 +76,21 @@ The Redstone Ore data model, which counts deepslate redstone ore as a variant.
         { "id": "minecraft:redstone",  "count": 16 },
         { "id": "minecraft:repeater",  "count": 4 },
         { "id": "minecraft:comparator", "count": 4 }
+    ],
+    "upgrade_conditions": [
+        {
+            "condition": "minecraft:inverted",
+            "term": {
+                "condition": "minecraft:match_tool",
+                "predicate": {
+                    "predicates": {
+                        "minecraft:enchantments": [
+                            { "enchantments": "minecraft:silk_touch", "levels": { "min": 1 } }
+                        ]
+                    }
+                }
+            }
+        }
     ]
 }
 ```
