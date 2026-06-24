@@ -1,7 +1,6 @@
 package dev.shadowsoffire.hostilenetworks.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
@@ -32,7 +31,7 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
         super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
     }
 
-    private static final MultiBufferSource.BufferSource GHOST_ENTITY_BUF = MultiBufferSource.immediate(new ByteBufferBuilder(256));
+    private static final PerTypeBufferSource GHOST_ENTITY_BUF = new PerTypeBufferSource();
     private static final ModelResourceLocation DATA_MODEL_BASE = ModelResourceLocation.standalone(HostileNetworks.loc("item/data_model_base"));
 
     @Override
@@ -138,7 +137,7 @@ public class DataModelItemStackRenderer extends BlockEntityWithoutLevelRenderer 
 
         EntityRenderDispatcher entityrenderermanager = Minecraft.getInstance().getEntityRenderDispatcher();
         entityrenderermanager.setRenderShadow(false);
-        MultiBufferSource.BufferSource rtBuffer = GHOST_ENTITY_BUF;
+        PerTypeBufferSource rtBuffer = GHOST_ENTITY_BUF;
         WeirdRenderThings.translucent = true;
         RenderSystem.runAsFancy(() -> {
             entityrenderermanager.render(entity, display.xOffset(), display.yOffset(), display.zOffset(), 0.0F, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true), matrix,
