@@ -1,3 +1,9 @@
+## 6.4.2
+* Added upgrade conditions to block data models (allowing datapack authors to prevent, e.g., gaining data with silk touch).
+* Added a workaround for an issue with geckolib-based models (specifically Winter Overhaul).
+* Quarkrus: Updated Russian translation.
+* twister716: Updated Japanese translation.
+
 ## 6.4.1
 * Fixed a potential deadlock when the Data Center was unloaded with IO ports on specific chunk boundaries.
 * Fixed an error in Jade plugin registration.
