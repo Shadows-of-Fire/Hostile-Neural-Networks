@@ -14,7 +14,7 @@
         "item": "hostilenetworks:prediction_matrix"
     },
     "base_drop": {
-        "id": "hostilenetworks:overworld_prediction"
+        "id": "minecraft:cobblestone"
     },
     "trivia": "hostilenetworks.trivia.redstone_ore",
     "fabricator_drops": [

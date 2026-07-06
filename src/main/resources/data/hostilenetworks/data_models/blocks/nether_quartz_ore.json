@@ -13,7 +13,7 @@
         "item": "hostilenetworks:prediction_matrix"
     },
     "base_drop": {
-        "id": "hostilenetworks:nether_prediction"
+        "id": "minecraft:netherrack"
     },
     "trivia": "hostilenetworks.trivia.nether_quartz_ore",
     "fabricator_drops": [
