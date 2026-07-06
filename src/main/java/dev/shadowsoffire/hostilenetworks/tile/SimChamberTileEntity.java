@@ -132,22 +132,21 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                         if (--this.runtime == 0) {
                             // Inference Mode produces the loot; Training Mode produces nothing here.
                             if (this.mode == SimMode.INFERENCE) {
-                                ItemStack stk = this.inventory.getStackInSlot(2);
+                                ItemStack baseDrop = this.inventory.getStackInSlot(2);
+                                if (baseDrop.isEmpty()) {
+                                    this.inventory.setStackInSlot(2, this.currentModel.getModel().baseDrop().copy());
+                                }
+                                else {
+                                    baseDrop.grow(1);
+                                }
+
                                 if (this.predictionSuccess > 0) {
-                                    stk = this.inventory.getStackInSlot(3);
-                                    if (stk.isEmpty()) {
+                                    ItemStack prediction = this.inventory.getStackInSlot(3);
+                                    if (prediction.isEmpty()) {
                                         this.inventory.setStackInSlot(3, this.currentModel.getPredictionDrop().copyWithCount(this.predictionSuccess));
                                     }
                                     else {
-                                        stk.grow(this.predictionSuccess);
-                                    }
-                                }
-                                else {
-                                    if (stk.isEmpty()) {
-                                        this.inventory.setStackInSlot(2, this.currentModel.getModel().baseDrop().copy());
-                                    }
-                                    else {
-                                        stk.grow(1);
+                                        prediction.grow(this.predictionSuccess);
                                     }
                                 }
                             }

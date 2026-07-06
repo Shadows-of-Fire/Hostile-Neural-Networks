@@ -272,9 +272,8 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
             return false;
         }
 
-        // Checks the success-path drop; cycles that fail their prediction roll (accuracy < 1) emit baseDrop instead.
         ItemStack expected = fabDrops.get(dropIdx);
-        if (expected.isEmpty() || this.canAcceptInOutput(expected)) {
+        if (this.canAcceptInOutput(expected) && this.canAcceptInOutput(inst.getModel().baseDrop())) {
             this.failStates[slot] = FailureState.NONE;
             return true;
         }
@@ -282,18 +281,14 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         return false;
     }
 
-    /** Success path emits {@code fabDrops[sel.current()]} × successes; failure (only possible at accuracy < 1) emits one baseDrop. */
     private void emitOutputs(ItemStack modelStack, DataModelInstance inst, int successes) {
         DataModel model = inst.getModel();
         DynamicHolder<DataModel> holder = DataModelRegistry.INSTANCE.holder(model);
         FabSelection sel = this.savedSelections.getOrDefault(holder, FabSelection.EMPTY);
         if (sel.isEmpty()) return;
 
-        if (successes <= 0) {
-            ItemStack baseDrop = model.baseDrop();
-            if (!baseDrop.isEmpty()) this.insertIntoOutput(baseDrop.copy());
-            return;
-        }
+        ItemStack baseDrop = model.baseDrop();
+        if (!baseDrop.isEmpty()) this.insertIntoOutput(baseDrop.copy());
 
         List<ItemStack> fabDrops = model.fabDrops();
         for (int s = 0; s < successes; s++) {
@@ -308,7 +303,6 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         }
     }
 
-    /** Bypasses the menu's insert filter. Items that don't fit are dropped on the floor (matches the Loot Fab). */
     private void insertIntoOutput(ItemStack stack) {
         for (int slot = OUTPUT_START; slot < TOTAL_SLOTS && !stack.isEmpty(); slot++) {
             stack = this.inventory.insertItemInternal(slot, stack, false);
@@ -316,6 +310,8 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
     }
 
     private boolean canAcceptInOutput(ItemStack stack) {
+        if (stack.isEmpty()) return true;
+
         for (int slot = OUTPUT_START; slot < TOTAL_SLOTS; slot++) {
             ItemStack remainder = this.inventory.insertItemInternal(slot, stack.copy(), true);
             if (remainder.getCount() < stack.getCount()) return true;
