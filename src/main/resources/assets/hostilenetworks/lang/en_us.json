@@ -121,6 +121,7 @@
     "hostilenetworks.fail.faulty": "Insufficient data in model. Please insert a basic model or better",
     "hostilenetworks.fail.energy_mid_cycle": "Simulation progress paused\nSystem energy levels critical",
     "hostilenetworks.fail.redstone": "Simulation progress paused\nIncorrect redstone signal applied",
+    "hostilenetworks.fail.cannot_train": "Cannot begin simulation\nModel can no longer be trained",
     "hostilenetworks.fail.shell_broken": "Multiblock shell is incomplete or invalid",
     "hostilenetworks.fail.not_self_aware": "Model requires at least Self Aware tier",
     "hostilenetworks.fail.no_selection": "No output is selected\nRight-click the slot to configure",

@@ -151,12 +151,9 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                                 }
                             }
                             // Training Mode upgrades the model's data; Inference Mode does not.
-                            ModelTier tier = this.currentModel.getTier();
-                            if (this.mode == SimMode.TRAINING && !tier.isMax() && HostileConfig.simModelUpgrade > 0) {
+                            if (this.mode == SimMode.TRAINING && this.canUpgrade(this.currentModel)) {
                                 int newData = this.currentModel.getData() + 1;
-                                if (!(HostileConfig.simModelUpgrade == 2 && newData > this.currentModel.getNextTierData())) {
-                                    this.currentModel.setData(newData);
-                                }
+                                this.currentModel.setData(newData);
                             }
                             DataModelItem.setIters(model, DataModelItem.getIters(model) + 1);
                             this.setChanged();
@@ -191,6 +188,11 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 
         if (!this.redstoneState.matches(this.level.hasNeighborSignal(this.worldPosition))) {
             this.failState = FailureState.REDSTONE;
+            return false;
+        }
+
+        if (this.mode == SimMode.TRAINING && !this.canUpgrade(this.currentModel)) {
+            this.failState = FailureState.CANNOT_TRAIN;
             return false;
         }
 
@@ -229,6 +231,20 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
      */
     public boolean hasPowerFor(DataModel model) {
         return this.energy.getEnergyStored() >= model.simCost();
+    }
+
+    public boolean canUpgrade(DataModelInstance inst) {
+        ModelTier tier = inst.getTier();
+        if (tier.isMax() || HostileConfig.simModelUpgrade == 0) {
+            return false;
+        }
+
+        int newData = inst.getData() + 1;
+        if (HostileConfig.simModelUpgrade == 2 && newData > inst.getNextTierData()) {
+            return false;
+        }
+
+        return true;
     }
 
     protected DataModelInstance getOrLoadModel(ItemStack stack) {
@@ -322,6 +338,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         FAULTY("faulty"),
         ENERGY_MID_CYCLE("energy_mid_cycle"),
         REDSTONE("redstone"),
+        CANNOT_TRAIN("cannot_train"),
         // The following failure states can only be exhibited by the Data Center.
         SHELL_BROKEN("shell_broken"),
         NOT_SELF_AWARE("not_self_aware"),
