@@ -325,7 +325,8 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         // The following failure states can only be exhibited by the Data Center.
         SHELL_BROKEN("shell_broken"),
         NOT_SELF_AWARE("not_self_aware"),
-        NO_SELECTION("no_selection");
+        NO_SELECTION("no_selection"),
+        BUFFERING("buffering");
 
         public static final IntFunction<FailureState> BY_ID = ByIdMap.continuous(Enum::ordinal, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
 

@@ -80,6 +80,13 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
     protected final int[] predictionSuccess = new int[MODEL_SLOTS];
     protected final FailureState[] failStates = Util.make(new FailureState[MODEL_SLOTS], arr -> Arrays.fill(arr, FailureState.NONE));
 
+    /**
+     * Without transactions, validating multi-slot insertions is impossible.
+     * So if an insertion fails, we mark a model as "buffering" and lock it until the entire (shared) buffer clears.
+     */
+    protected final boolean[] buffering = new boolean[MODEL_SLOTS];
+    protected final List<ItemStack> bufferedOutputs = new ArrayList<>();
+
     protected RedstoneState redstoneState = RedstoneState.IGNORED;
     protected boolean shellValid = false;
     protected int shellRecheckTimer = 0;
@@ -145,6 +152,20 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
             }
             this.maybeSyncActiveMask();
             return;
+        }
+
+        if (!this.bufferedOutputs.isEmpty()) {
+            for (int i = 0; i < this.bufferedOutputs.size(); i++) {
+                ItemStack stack = this.bufferedOutputs.get(i);
+                ItemStack remainder = this.insertIntoOutput(stack);
+                if (remainder.isEmpty()) {
+                    this.bufferedOutputs.remove(i);
+                    i--;
+                }
+                else {
+                    this.bufferedOutputs.set(i, remainder);
+                }
+            }
         }
 
         boolean anyChanged = false;
@@ -224,7 +245,9 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         this.failStates[i] = FailureState.NONE;
         this.runtimes[i]--;
         if (this.runtimes[i] == 0) {
-            this.emitOutputs(stack, inst, this.predictionSuccess[i]);
+            if (this.emitOutputs(stack, inst, this.predictionSuccess[i])) {
+                this.failStates[i] = FailureState.BUFFERING;
+            }
             DataModelItem.setIters(stack, DataModelItem.getIters(stack) + 1);
         }
         return true;
@@ -257,6 +280,10 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         FabSelection sel = this.savedSelections.getOrDefault(holder, FabSelection.EMPTY);
         List<ItemStack> fabDrops = inst.getModel().fabDrops();
         int dropIdx = sel.current();
+        if (this.failStates[slot] == FailureState.BUFFERING && !this.bufferedOutputs.isEmpty()) {
+            return false;
+        }
+
         if (sel.isEmpty() || dropIdx < 0 || dropIdx >= fabDrops.size()) {
             this.failStates[slot] = FailureState.NO_SELECTION;
             return false;
@@ -281,32 +308,49 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         return false;
     }
 
-    private void emitOutputs(ItemStack modelStack, DataModelInstance inst, int successes) {
+    private boolean emitOutputs(ItemStack modelStack, DataModelInstance inst, int successes) {
         DataModel model = inst.getModel();
         DynamicHolder<DataModel> holder = DataModelRegistry.INSTANCE.holder(model);
         FabSelection sel = this.savedSelections.getOrDefault(holder, FabSelection.EMPTY);
-        if (sel.isEmpty()) return;
+        if (sel.isEmpty()) return false;
+
+        boolean buffering = false;
 
         ItemStack baseDrop = model.baseDrop();
-        if (!baseDrop.isEmpty()) this.insertIntoOutput(baseDrop.copy());
+        if (!baseDrop.isEmpty()) {
+            ItemStack remainder = this.insertIntoOutput(baseDrop.copy());
+            if (!remainder.isEmpty()) {
+                buffering = true;
+                this.bufferedOutputs.add(remainder);
+            }
+        }
 
         List<ItemStack> fabDrops = model.fabDrops();
         for (int s = 0; s < successes; s++) {
             int idx = sel.current();
             if (idx < 0 || idx >= fabDrops.size()) break;
             ItemStack drop = fabDrops.get(idx);
-            if (!drop.isEmpty()) this.insertIntoOutput(drop.copy());
+            if (!drop.isEmpty()) {
+                ItemStack remainder = this.insertIntoOutput(drop.copy());
+                if (!remainder.isEmpty()) {
+                    buffering = true;
+                    this.bufferedOutputs.add(remainder);
+                }
+            }
             if (sel.mode() == ProductionMode.QUEUE) {
                 sel = sel.advanced();
                 this.savedSelections.put(holder, sel);
             }
         }
+
+        return buffering;
     }
 
-    private void insertIntoOutput(ItemStack stack) {
+    private ItemStack insertIntoOutput(ItemStack stack) {
         for (int slot = OUTPUT_START; slot < TOTAL_SLOTS && !stack.isEmpty(); slot++) {
             stack = this.inventory.insertItemInternal(slot, stack, false);
         }
+        return stack;
     }
 
     private boolean canAcceptInOutput(ItemStack stack) {

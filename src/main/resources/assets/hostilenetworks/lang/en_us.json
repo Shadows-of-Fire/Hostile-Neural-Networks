@@ -113,7 +113,7 @@
     "hostilenetworks.tier.advanced": "Advanced",
     "hostilenetworks.tier.superior": "Superior",
     "hostilenetworks.tier.self_aware": "Self Aware",
-    
+
     "hostilenetworks.fail.output": "Cannot begin simulation\nOutput buffers are occupied",
     "hostilenetworks.fail.energy": "Cannot begin simulation\nSystem energy levels critical",
     "hostilenetworks.fail.input": "Cannot begin simulation\nMissing input: %s",
@@ -124,7 +124,8 @@
     "hostilenetworks.fail.shell_broken": "Multiblock shell is incomplete or invalid",
     "hostilenetworks.fail.not_self_aware": "Model requires at least Self Aware tier",
     "hostilenetworks.fail.no_selection": "No output is selected\nRight-click the slot to configure",
-    
+    "hostilenetworks.fail.buffering": "Model outputs are buffering",
+
     "hostilenetworks.run.0": "> Launching runtime ",
     "hostilenetworks.run.1": "> Iteration #%s started",
     "hostilenetworks.run.2": "> Loading model from chip memory",
