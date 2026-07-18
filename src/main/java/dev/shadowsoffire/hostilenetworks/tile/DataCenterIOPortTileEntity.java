@@ -24,6 +24,9 @@ public class DataCenterIOPortTileEntity extends BlockEntity {
     @Nullable
     protected BlockPos ownerPos = null;
 
+    /** Tracks the post-load capability refresh after the controller has revalidated its shell. */
+    private boolean refreshedCaps = false;
+
     public DataCenterIOPortTileEntity(BlockPos pos, BlockState state) {
         super(Hostile.TileEntities.IO_PORT, pos, state);
     }
@@ -38,17 +41,26 @@ public class DataCenterIOPortTileEntity extends BlockEntity {
     }
 
     public void setOwner(BlockPos pos) {
-        if (pos.equals(this.ownerPos)) return;
+        if (pos.equals(this.ownerPos)) {
+            if (!this.refreshedCaps) this.refreshCapabilities();
+            return;
+        }
         this.ownerPos = pos.immutable();
         this.sync();
-        if (this.level != null) this.level.invalidateCapabilities(this.worldPosition);
+        this.refreshCapabilities();
     }
 
     public void clearOwner() {
         if (this.ownerPos == null) return;
         this.ownerPos = null;
         this.sync();
-        if (this.level != null) this.level.invalidateCapabilities(this.worldPosition);
+        this.refreshCapabilities();
+    }
+
+    private void refreshCapabilities() {
+        if (this.level == null) return;
+        this.level.invalidateCapabilities(this.worldPosition);
+        this.refreshedCaps = true;
     }
 
     /** Resolves to the owning controller iff it's loaded and its shell is currently valid; otherwise {@code null}. */
