@@ -63,7 +63,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberMenu> {
             txt.add(Component.translatable("hostilenetworks.gui.energy", this.menu.getEnergyStored(), HostileConfig.simPowerCap));
             DataModelInstance cModel = new DataModelInstance(this.menu.getSlot(0).getItem(), 0);
             if (cModel.isValid()) {
-                txt.add(Component.translatable("hostilenetworks.gui.cost", cModel.getModel().simCost()));
+                txt.add(Component.translatable("hostilenetworks.gui.cost", this.menu.getSimMode().adjustCost(cModel.getModel().simCost())));
             }
             gfx.renderComponentTooltip(this.font, txt, pX, pY);
         }
@@ -96,7 +96,8 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberMenu> {
     protected void renderLabels(GuiGraphics gfx, int pX, int pY) {
         int runtime = this.menu.getRuntime();
         if (runtime > 0) {
-            int rTime = Math.min(99, Mth.ceil(100F * (300 - runtime) / 300));
+            int maxRuntime = this.menu.getSimMode().getRuntime();
+            int rTime = Math.min(99, Mth.ceil(100F * (maxRuntime - runtime) / maxRuntime));
             gfx.drawString(this.font, rTime + "%", 184, 123, Color.AQUA, true);
         }
         DataModelInstance inst = new DataModelInstance(this.menu.getSlot(0).getItem(), 0);
@@ -170,8 +171,9 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberMenu> {
             this.runtimeTextLoaded = false;
         }
         else if (!this.runtimeTextLoaded) {
-            int ticks = 300 - this.menu.getRuntime();
-            float speed = 0.65F;
+            int ticks = this.menu.getSimMode().getRuntime() - this.menu.getRuntime();
+            // The magic constant is scaled for the 300 tick base runtime, but inference mode is faster.
+            float speed = RUNTIME_TEXT_SPEED * 300F / this.menu.getSimMode().getRuntime();
             this.body.clear();
             int iters = DataModelItem.getIters(this.menu.getSlot(0).getItem());
             boolean training = this.menu.getSimMode() == SimMode.TRAINING;

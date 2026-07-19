@@ -22,6 +22,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ByIdMap;
+import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -120,7 +121,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                 }
                 if (this.runtime == 0) {
                     if (this.canStartSimulation()) {
-                        this.runtime = 300;
+                        this.runtime = this.mode.getRuntime();
                         this.predictionSuccess = this.currentModel.rollPredictions(this.level.random);
                         this.inventory.getStackInSlot(1).shrink(1);
                         this.setChanged();
@@ -159,7 +160,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                             this.setChanged();
                         }
                         else if (this.runtime != 0) {
-                            this.energy.setEnergy(this.energy.getEnergyStored() - this.currentModel.getModel().simCost());
+                            this.energy.setEnergy(this.energy.getEnergyStored() - this.mode.adjustCost(this.currentModel.getModel().simCost()));
                             this.setChanged();
                         }
                     }
@@ -224,13 +225,13 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
     }
 
     /**
-     * Checks if the system has the power required for the tick cost of a model.
+     * Checks if the system has the power required for the tick cost of a model, adjusted for the current mode.
      *
      * @param model The model being checked.
      * @return If the chamber has more power than the sim cost of the model.
      */
     public boolean hasPowerFor(DataModel model) {
-        return this.energy.getEnergyStored() >= model.simCost();
+        return this.energy.getEnergyStored() >= this.mode.adjustCost(model.simCost());
     }
 
     public boolean canUpgrade(DataModelInstance inst) {
@@ -363,18 +364,38 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
      * <p>
      * In {@link #INFERENCE} the chamber produces loot and predictions; in {@link #TRAINING} it instead upgrades the
      * data model. The two are mutually exclusive - a run never does both.
+     * <p>
+     * Inference runs 20% faster than Training, while Training draws 20% more energy per tick.
      */
     public enum SimMode {
 
-        INFERENCE("inference", ResourceLocation.withDefaultNamespace("textures/item/ender_eye.png")),
-        TRAINING("training", ResourceLocation.withDefaultNamespace("textures/item/experience_bottle.png"));
+        INFERENCE("inference", ResourceLocation.withDefaultNamespace("textures/item/ender_eye.png"), 240, 1F),
+        TRAINING("training", ResourceLocation.withDefaultNamespace("textures/item/experience_bottle.png"), 300, 1.2F);
 
         private final String name;
         private final ResourceLocation texture;
+        private final int runtime;
+        private final float costMultiplier;
 
-        SimMode(String name, ResourceLocation texture) {
+        SimMode(String name, ResourceLocation texture, int runtime, float costMultiplier) {
             this.name = name;
             this.texture = texture;
+            this.runtime = runtime;
+            this.costMultiplier = costMultiplier;
+        }
+
+        /**
+         * The length of a single simulation run in this mode, in ticks.
+         */
+        public int getRuntime() {
+            return this.runtime;
+        }
+
+        /**
+         * Applies this mode's energy cost multiplier to a model's base sim cost.
+         */
+        public int adjustCost(int baseCost) {
+            return Mth.ceil(baseCost * this.costMultiplier);
         }
 
         public String getKey() {
