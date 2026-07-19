@@ -1,3 +1,19 @@
+## 6.5.0
+* The Simulation Chamber's modes now have different stats.
+  * Inference Mode runs faster, while Training Mode consumes more energy.
+  * This change means that it can still be worthwhile to string together Sim Chambers + Loot Fabs.
+* Added a tooltip to the Simulation Chamber's mode button.
+* Fixed an issue where the Data Center could delete some outputs if it ran out of space mid cycle.
+  * Outputs that cannot be inserted are now held internally, and the model will report "buffering" until they are extracted.
+* Fixed base drops (the generalized predictions) not being produced on successful simulations.
+* Changed the base drops of the ore data models from generalized predictions to cobblestone (or netherrack, for nether quartz ore).
+* Fixed the Simulation Chamber consuming resources in Training Mode when running a model that could not gain any more data.
+* Fixed Data Center IO Ports keeping a stale link to their controller after the multiblock was broken or removed.
+  * This fixes certain pipes failing to connect to the IO Ports on world reload.
+* Added some modded Black Stained Glass blocks to the valid data center wall blocks.
+* ProgramGames: Added French translation.
+* PrincessStellar: Updated Brazilian translation.
+
 ## 6.4.2
 * Added upgrade conditions to block data models (allowing datapack authors to prevent, e.g., gaining data with silk touch).
 * Added a workaround for an issue with geckolib-based models (specifically Winter Overhaul).
