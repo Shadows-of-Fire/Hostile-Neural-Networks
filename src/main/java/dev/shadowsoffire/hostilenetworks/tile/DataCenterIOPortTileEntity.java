@@ -41,21 +41,31 @@ public class DataCenterIOPortTileEntity extends BlockEntity {
         if (pos.equals(this.ownerPos)) return;
         this.ownerPos = pos.immutable();
         this.sync();
-        if (this.level != null) this.level.invalidateCapabilities(this.worldPosition);
+        if (this.level != null) {
+            this.invalidateCapabilities();
+        }
     }
 
     public void clearOwner() {
         if (this.ownerPos == null) return;
         this.ownerPos = null;
         this.sync();
-        if (this.level != null) this.level.invalidateCapabilities(this.worldPosition);
+        if (this.level != null) {
+            this.invalidateCapabilities();
+        }
     }
 
     /** Resolves to the owning controller iff it's loaded and its shell is currently valid; otherwise {@code null}. */
     @Nullable
     public DataCenterTileEntity resolveOwner() {
-        if (this.ownerPos == null || this.level == null) return null;
-        if (this.level.isLoaded(this.ownerPos) && this.level.getBlockEntity(this.ownerPos) instanceof DataCenterTileEntity dc && dc.isShellValid()) return dc;
+        if (this.ownerPos != null &&
+            this.level != null &&
+            this.level.isLoaded(this.ownerPos) &&
+            this.level.getBlockEntity(this.ownerPos) instanceof DataCenterTileEntity dc &&
+            dc.isShellValid()) {
+            return dc;
+        }
+        this.clearOwner();
         return null;
     }
 
