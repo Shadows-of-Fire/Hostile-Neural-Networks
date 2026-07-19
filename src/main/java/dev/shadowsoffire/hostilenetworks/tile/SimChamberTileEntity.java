@@ -365,23 +365,30 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
      * In {@link #INFERENCE} the chamber produces loot and predictions; in {@link #TRAINING} it instead upgrades the
      * data model. The two are mutually exclusive - a run never does both.
      * <p>
-     * Inference runs 20% faster than Training, while Training draws 20% more energy per tick.
+     * Inference runs 25% faster than Training, while Training draws 20% more energy per tick.
      */
     public enum SimMode {
 
-        INFERENCE("inference", ResourceLocation.withDefaultNamespace("textures/item/ender_eye.png"), 240, 1F),
-        TRAINING("training", ResourceLocation.withDefaultNamespace("textures/item/experience_bottle.png"), 300, 1.2F);
+        INFERENCE("inference", ResourceLocation.withDefaultNamespace("textures/item/ender_eye.png"), 1.25F, 1F),
+        TRAINING("training", ResourceLocation.withDefaultNamespace("textures/item/experience_bottle.png"), 1F, 1.2F);
+
+        /**
+         * The length of a simulation run at 100% speed, in ticks.
+         */
+        public static final int BASE_RUNTIME = 300;
 
         private final String name;
         private final ResourceLocation texture;
-        private final int runtime;
+        private final float speedMultiplier;
         private final float costMultiplier;
+        private final int runtime;
 
-        SimMode(String name, ResourceLocation texture, int runtime, float costMultiplier) {
+        SimMode(String name, ResourceLocation texture, float speedMultiplier, float costMultiplier) {
             this.name = name;
             this.texture = texture;
-            this.runtime = runtime;
+            this.speedMultiplier = speedMultiplier;
             this.costMultiplier = costMultiplier;
+            this.runtime = Math.round(BASE_RUNTIME / speedMultiplier);
         }
 
         /**
@@ -389,6 +396,14 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
          */
         public int getRuntime() {
             return this.runtime;
+        }
+
+        public float getSpeedMultiplier() {
+            return this.speedMultiplier;
+        }
+
+        public float getCostMultiplier() {
+            return this.costMultiplier;
         }
 
         /**

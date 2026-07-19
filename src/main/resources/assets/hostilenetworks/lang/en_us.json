@@ -101,7 +101,13 @@
     "hostilenetworks.gui.redstone.off_when_powered": "Redstone: Off When Powered",
     "hostilenetworks.gui.redstone.on_when_powered": "Redstone: On When Powered",
     "hostilenetworks.gui.mode.inference": "Mode: Inference",
+    "hostilenetworks.gui.mode.inference.desc": "Simulations produce output,",
+    "hostilenetworks.gui.mode.inference.desc2": "but models do not gain data",
     "hostilenetworks.gui.mode.training": "Mode: Training",
+    "hostilenetworks.gui.mode.training.desc": "Simulations increase model data,",
+    "hostilenetworks.gui.mode.training.desc2": "but produce no outputs",
+    "hostilenetworks.gui.mode.power": "Energy Cost: %s%%",
+    "hostilenetworks.gui.mode.speed": "Simulation Speed: %s%%",
     "hostilenetworks.gui.mode.disabled": "Training Mode is disabled by the server config",
     "hostilenetworks.gui.data_center.io": "Input / Output",
 

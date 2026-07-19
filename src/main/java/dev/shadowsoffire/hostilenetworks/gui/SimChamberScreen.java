@@ -84,10 +84,20 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberMenu> {
             gfx.renderTooltip(this.font, Component.translatable(this.menu.getRedstoneState().getKey()), pX, pY);
         }
         else if (this.isHovering(229, 19, 16, 16, pX, pY)) {
-            Component txt = HostileConfig.simModelUpgrade == 0
-                ? Component.translatable("hostilenetworks.gui.mode.disabled")
-                : Component.translatable(this.menu.getSimMode().getKey());
-            gfx.renderTooltip(this.font, txt, pX, pY);
+            if (HostileConfig.simModelUpgrade == 0) {
+                gfx.renderTooltip(this.font, Component.translatable("hostilenetworks.gui.mode.disabled"), pX, pY);
+            }
+            else {
+                SimMode mode = this.menu.getSimMode();
+                List<Component> txt = new ArrayList<>(6);
+                txt.add(Component.translatable(mode.getKey()));
+                txt.add(Component.translatable(mode.getKey() + ".desc").withStyle(ChatFormatting.GRAY));
+                txt.add(Component.translatable(mode.getKey() + ".desc2").withStyle(ChatFormatting.GRAY));
+                txt.add(Component.empty());
+                txt.add(Component.translatable("hostilenetworks.gui.mode.power", Math.round(mode.getCostMultiplier() * 100)).withColor(Color.AQUA));
+                txt.add(Component.translatable("hostilenetworks.gui.mode.speed", Math.round(mode.getSpeedMultiplier() * 100)).withColor(Color.AQUA));
+                gfx.renderComponentTooltip(this.font, txt, pX, pY);
+            }
         }
         else super.renderTooltip(gfx, pX, pY);
     }
@@ -173,7 +183,7 @@ public class SimChamberScreen extends PlaceboContainerScreen<SimChamberMenu> {
         else if (!this.runtimeTextLoaded) {
             int ticks = this.menu.getSimMode().getRuntime() - this.menu.getRuntime();
             // The magic constant is scaled for the 300 tick base runtime, but inference mode is faster.
-            float speed = RUNTIME_TEXT_SPEED * 300F / this.menu.getSimMode().getRuntime();
+            float speed = RUNTIME_TEXT_SPEED * SimMode.BASE_RUNTIME / this.menu.getSimMode().getRuntime();
             this.body.clear();
             int iters = DataModelItem.getIters(this.menu.getSlot(0).getItem());
             boolean training = this.menu.getSimMode() == SimMode.TRAINING;
