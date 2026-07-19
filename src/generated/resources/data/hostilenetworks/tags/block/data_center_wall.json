@@ -1,6 +1,30 @@
 {
   "values": [
     "minecraft:black_stained_glass",
-    "hostilenetworks:data_center_io_port"
+    "hostilenetworks:data_center_io_port",
+    {
+      "id": "#chipped:black_stained_glass",
+      "required": false
+    },
+    {
+      "id": "connectedglass:borderless_glass_black",
+      "required": false
+    },
+    {
+      "id": "connectedglass:scratched_glass_black",
+      "required": false
+    },
+    {
+      "id": "connectedglass:clear_glass_black",
+      "required": false
+    },
+    {
+      "id": "connectedglass:tinted_borderless_glass_black",
+      "required": false
+    },
+    {
+      "id": "securitycraft:reinforced_black_stained_glass",
+      "required": false
+    }
   ]
 }
