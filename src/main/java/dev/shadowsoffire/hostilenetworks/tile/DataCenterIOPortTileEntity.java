@@ -40,18 +40,22 @@ public class DataCenterIOPortTileEntity extends BlockEntity {
     public void setOwner(BlockPos pos) {
         if (pos.equals(this.ownerPos)) return;
         this.ownerPos = pos.immutable();
-        this.sync();
         if (this.level != null) {
             this.invalidateCapabilities();
+            if (!this.level.isClientSide) {
+                this.sync();
+            }
         }
     }
 
     public void clearOwner() {
         if (this.ownerPos == null) return;
         this.ownerPos = null;
-        this.sync();
         if (this.level != null) {
             this.invalidateCapabilities();
+            if (!this.level.isClientSide) {
+                this.sync();
+            }
         }
     }
 
