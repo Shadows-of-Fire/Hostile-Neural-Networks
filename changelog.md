@@ -1,3 +1,7 @@
+## 6.5.1
+* PrincessStellar: Updated Brazilian translation.
+* Fixed an issue where IO Ports could trigger a client crash.
+
 ## 6.5.0
 * The Simulation Chamber's modes now have different stats.
   * Inference Mode runs faster, while Training Mode consumes more energy.
