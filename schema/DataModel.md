@@ -6,7 +6,7 @@ A `type` field of `hostilenetworks:entity_data_model` selects this codec; it is 
 # Dependencies
 This object references the following objects:
 1. [DisplayData](./components/DisplayData.md)
-2. [ItemStack](../../../../Placebo/blob/-/schema/ItemStack.md)
+2. [ItemStack](../../../../Placebo/blob/1.21/schema/ItemStack.md)
 3. [RequiredData](./components/RequiredData.md)
 4. [DataGained](./components/DataGained.md)
 5. [ModelAttunement](./components/ModelAttunement.md)

@@ -5,7 +5,7 @@ It exists because some blocks have no item form, and some blocks look better whe
 
 # Dependencies
 This object references the following objects:
-1. [ItemStack](../../../../Placebo/blob/-/schema/ItemStack.md)
+1. [ItemStack](../../../../../Placebo/blob/1.21/schema/ItemStack.md)
 
 # Schema
 

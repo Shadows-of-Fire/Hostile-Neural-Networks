@@ -9,7 +9,7 @@ To declare a block data model, set the `type` field to `hostilenetworks:block_da
 This object references the following objects:
 1. [DisplayableBlock](./components/DisplayableBlock.md)
 2. [DisplayData](./components/DisplayData.md)
-3. [ItemStack](../../../../Placebo/blob/-/schema/ItemStack.md)
+3. [ItemStack](../../../../Placebo/blob/1.21/schema/ItemStack.md)
 4. [RequiredData](./components/RequiredData.md)
 5. [DataGained](./components/DataGained.md)
 6. [ModelAttunement](./components/ModelAttunement.md)

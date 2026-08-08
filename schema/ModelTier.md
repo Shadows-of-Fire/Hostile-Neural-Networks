@@ -4,7 +4,7 @@ Infinitely many model tiers may be created, allowing total control over the prog
 
 # Dependencies
 This object references the following objects:
-1. [Color](../../../../Placebo/blob/-/schema/Color.md)
+1. [Color](../../../../Placebo/blob/1.21/schema/Color.md)
 
 ## Schema
 ```js

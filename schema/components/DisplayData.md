@@ -4,7 +4,7 @@ Every field on this object is optional, meaning that `{}` is a legal definition 
 
 # Dependencies
 This object references the following objects:
-1. [CompoundTag](../../../../Placebo/blob/-/schema/CompoundTag.md)
+1. [CompoundTag](../../../../../Placebo/blob/1.21/schema/CompoundTag.md)
 
 # Schema
 ```js
