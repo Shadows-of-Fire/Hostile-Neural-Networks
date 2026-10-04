@@ -1,6 +1,6 @@
 package dev.shadowsoffire.hostilenetworks.util;
 
-import org.spongepowered.include.com.google.common.base.Preconditions;
+import javax.annotation.Nullable;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
@@ -9,6 +9,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.block.Block;
 
 public class DisplayableBlock {
@@ -16,22 +17,24 @@ public class DisplayableBlock {
     public static final Codec<DisplayableBlock> FULL_CODEC = RecordCodecBuilder.create(inst -> inst
         .group(
             BuiltInRegistries.BLOCK.holderByNameCodec().fieldOf("block").forGetter(b -> b.block),
-            ItemStack.CODEC.fieldOf("display_stack").forGetter(DisplayableBlock::displayStack))
+            ItemStackTemplate.CODEC.fieldOf("display_stack").forGetter(b -> b.explicitStack))
         .apply(inst, DisplayableBlock::new));
 
     public static final Codec<DisplayableBlock> CODEC = Codec.either(BuiltInRegistries.BLOCK.holderByNameCodec(), FULL_CODEC).xmap(DisplayableBlock::unwrap, DisplayableBlock::wrap);
 
     private final Holder<Block> block;
-    private final ItemStack displayStack;
 
-    public DisplayableBlock(Holder<Block> block, ItemStack displayStack) {
+    @Nullable
+    private final ItemStackTemplate explicitStack;
+
+    public DisplayableBlock(Holder<Block> block, ItemStackTemplate displayStack) {
         this.block = block;
-        this.displayStack = displayStack.copyWithCount(1);
-        Preconditions.checkArgument(!this.displayStack.isEmpty(), "Display stack for block %s cannot be empty", block.getKey().location());
+        this.explicitStack = displayStack.withCount(1);
     }
 
     public DisplayableBlock(Holder<Block> block) {
-        this(block, new ItemStack(block.value()));
+        this.block = block;
+        this.explicitStack = null;
     }
 
     public Block block() {
@@ -39,7 +42,10 @@ public class DisplayableBlock {
     }
 
     public ItemStack displayStack() {
-        return displayStack.copy();
+        if (this.explicitStack != null) {
+            return this.explicitStack.create();
+        }
+        return new ItemStack(this.block.value());
     }
 
     private static DisplayableBlock unwrap(Either<Holder<Block>, DisplayableBlock> either) {
@@ -47,11 +53,9 @@ public class DisplayableBlock {
     }
 
     private Either<Holder<Block>, DisplayableBlock> wrap() {
-        if (ItemStack.isSameItemSameComponents(displayStack, new ItemStack(this.block.value()))) {
+        if (this.explicitStack == null) {
             return Either.left(this.block);
         }
-        else {
-            return Either.right(this);
-        }
+        return Either.right(this);
     }
 }

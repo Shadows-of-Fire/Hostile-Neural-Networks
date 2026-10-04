@@ -4,7 +4,7 @@ Every field on this object is optional, meaning that `{}` is a legal definition 
 
 # Dependencies
 This object references the following objects:
-1. [CompoundTag](../../../../../Placebo/blob/1.21/schema/CompoundTag.md)
+1. [CompoundTag](../../../../../Placebo/blob/26.1/schema/CompoundTag.md)
 
 # Schema
 ```js
@@ -26,16 +26,27 @@ The Slime display data, used to make it larger (since it shows a size 1 slime):
 }
 ```
 
-The Drowned display data, used to show it holding a trident (instead of holding nothing):
+The Drowned display data, used to show it holding a trident (instead of holding nothing). Equipment uses the vanilla `equipment` map keyed by slot name (`mainhand`, `offhand`, `head`, `chest`, `legs`, `feet`, `body`, `saddle`); the pre-26.1 `HandItems`/`ArmorItems` lists are no longer read:
 ```json
 {
     "nbt": {
-        "HandItems": [
-            {
-                "id": "minecraft:trident"
-            },
-            {}
-        ]
+        "equipment": {
+            "mainhand": {
+                "id": "minecraft:trident",
+                "count": 1
+            }
+        }
+    }
+}
+```
+
+The Sheep display data, which names the sheep so it renders with rainbow wool. Text components inside the NBT are structured objects, not JSON-encoded strings:
+```json
+{
+    "nbt": {
+        "CustomName": {
+            "text": "jeb_"
+        }
     }
 }
 ```

@@ -1,0 +1,31 @@
+{
+    "entity": "minecraft:drowned",
+    "variants": [],
+    "name_color": "#3B6269",
+    "display": {
+        "nbt": {
+            "equipment": {
+                "mainhand": {
+                    "id": "minecraft:trident",
+                    "count": 1
+                }
+            }
+        }
+    },
+    "sim_cost": 128,
+    "input": "hostilenetworks:prediction_matrix",
+    "base_drop": {
+        "id": "hostilenetworks:overworld_prediction"
+    },
+    "trivia": "hostilenetworks.trivia.drowned",
+    "fabricator_drops": [
+        {
+            "id": "minecraft:rotten_flesh",
+            "count": 64
+        },
+        {
+            "id": "minecraft:copper_ingot",
+            "count": 8
+        }
+    ]
+}

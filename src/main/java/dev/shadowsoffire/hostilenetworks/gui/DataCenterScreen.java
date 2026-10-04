@@ -18,25 +18,28 @@ import dev.shadowsoffire.hostilenetworks.tile.DataCenterTileEntity;
 import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity.FailureState;
 import dev.shadowsoffire.hostilenetworks.util.Color;
 import dev.shadowsoffire.hostilenetworks.util.FabSelection;
-import dev.shadowsoffire.placebo.reload.DynamicHolder;
+import dev.shadowsoffire.placebo.dynreg.DynamicHolder;
 import dev.shadowsoffire.placebo.screen.PlaceboContainerScreen;
 import dev.shadowsoffire.placebo.util.DrawsOnLeft;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
 public class DataCenterScreen extends PlaceboContainerScreen<DataCenterMenu> implements DrawsOnLeft {
 
     public static final int WIDTH = 230;
     public static final int HEIGHT = 223;
-    public static final ResourceLocation BASE = HostileNetworks.loc("textures/gui/data_center.png");
-    public static final ResourceLocation PLAYER = HostileNetworks.loc("textures/gui/default_gui.png");
+    public static final Identifier BASE = HostileNetworks.loc("textures/gui/data_center.png");
+    public static final Identifier PLAYER = HostileNetworks.loc("textures/gui/default_gui.png");
 
     private static final int REDSTONE_X = -22;
     private static final int REDSTONE_Y = 0;
@@ -48,23 +51,22 @@ public class DataCenterScreen extends PlaceboContainerScreen<DataCenterMenu> imp
     private static final int ENERGY_H = 100;
 
     public DataCenterScreen(DataCenterMenu pMenu, Inventory pInv, Component pTitle) {
-        super(pMenu, pInv, pTitle);
-        this.imageWidth = WIDTH;
-        this.imageHeight = HEIGHT;
+        super(pMenu, pInv, pTitle, WIDTH, HEIGHT);
         this.inventoryLabelX = DataCenterMenu.PLAYER_INV_X;
         this.inventoryLabelY = DataCenterMenu.PLAYER_INV_Y - 12;
     }
 
     @Override
-    protected void renderBg(GuiGraphics gfx, float pPartialTicks, int pX, int pY) {
-        int left = this.getGuiLeft();
-        int top = this.getGuiTop();
+    public void extractBackground(GuiGraphicsExtractor gfx, int pX, int pY, float pPartialTicks) {
+        super.extractBackground(gfx, pX, pY, pPartialTicks);
+        int left = this.getLeftPos();
+        int top = this.getTopPos();
 
-        gfx.blit(BASE, left, top, 0, 0, 230, 128, 256, 256);
+        gfx.blit(RenderPipelines.GUI_TEXTURED, BASE, left, top, (float) 0, (float) 0, 230, 128, 256, 256);
 
         int cap = Math.max(1, HostileConfig.dataCenterPowerCap);
         int barHeight = Mth.clamp(Mth.floor((float) ENERGY_H * this.menu.getEnergyStored() / cap), 0, ENERGY_H);
-        gfx.blit(BASE, left + ENERGY_X, top + ENERGY_Y + ENERGY_H - barHeight, ENERGY_U, 0, ENERGY_W, barHeight, 256, 256);
+        gfx.blit(RenderPipelines.GUI_TEXTURED, BASE, left + ENERGY_X, top + ENERGY_Y + ENERGY_H - barHeight, (float) ENERGY_U, (float) 0, ENERGY_W, barHeight, 256, 256);
 
         for (int row = 0; row < 5; row++) {
             for (int col = 0; col < 5; col++) {
@@ -87,34 +89,34 @@ public class DataCenterScreen extends PlaceboContainerScreen<DataCenterMenu> imp
                 else {
                     continue;
                 }
-                gfx.blit(BASE, barX, barY, 0, barV, filled, 2, 256, 256);
+                gfx.blit(RenderPipelines.GUI_TEXTURED, BASE, barX, barY, (float) 0, (float) barV, filled, 2, 256, 256);
             }
         }
 
-        gfx.blit(BASE, left + REDSTONE_X, top + REDSTONE_Y, 18, 138, 18, 18, 256, 256);
-        gfx.blit(this.menu.getRedstoneState().getResourceLocation(), left + REDSTONE_X + 1, top + REDSTONE_Y + 1, 0, 0, 16, 16, 16, 16);
+        gfx.blit(RenderPipelines.GUI_TEXTURED, BASE, left + REDSTONE_X, top + REDSTONE_Y, (float) 18, (float) 138, 18, 18, 256, 256);
+        gfx.blit(RenderPipelines.GUI_TEXTURED, this.menu.getRedstoneState().getResourceLocation(), left + REDSTONE_X + 1, top + REDSTONE_Y + 1, (float) 0, (float) 0, 16, 16, 16, 16);
 
-        gfx.blit(PLAYER, left + DataCenterMenu.PLAYER_INV_X - 8, top + DataCenterMenu.PLAYER_INV_Y - 14, 0, 0, 176, 90, 256, 256);
+        gfx.blit(RenderPipelines.GUI_TEXTURED, PLAYER, left + DataCenterMenu.PLAYER_INV_X - 8, top + DataCenterMenu.PLAYER_INV_Y - 14, (float) 0, (float) 0, 176, 90, 256, 256);
     }
 
     @Override
-    protected void renderLabels(GuiGraphics gfx, int pX, int pY) {
-        gfx.drawString(this.font, this.title, 8, 6, Color.AQUA, false);
-        gfx.drawString(this.font, Component.translatable("hostilenetworks.gui.data_center.io"), 130, 6, Color.AQUA, false);
+    protected void extractLabels(GuiGraphicsExtractor gfx, int pX, int pY) {
+        gfx.text(this.font, this.title, 8, 6, (0xFF000000 | Color.AQUA), false);
+        gfx.text(this.font, Component.translatable("hostilenetworks.gui.data_center.io"), 130, 6, (0xFF000000 | Color.AQUA), false);
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics gfx, int pX, int pY) {
+    protected void extractTooltip(GuiGraphicsExtractor gfx, int pX, int pY) {
         if (this.isHovering(ENERGY_X, ENERGY_Y, ENERGY_W, ENERGY_H, pX, pY)) {
-            gfx.renderTooltip(this.font,
+            gfx.setTooltipForNextFrame(this.font,
                 Component.translatable("hostilenetworks.gui.energy", this.menu.getEnergyStored(), HostileConfig.dataCenterPowerCap), pX, pY);
         }
         if (this.isHovering(REDSTONE_X, REDSTONE_Y, 18, 18, pX, pY)) {
-            gfx.renderTooltip(this.font, Component.translatable(this.menu.getRedstoneState().getKey()), pX, pY);
+            gfx.setTooltipForNextFrame(this.font, Component.translatable(this.menu.getRedstoneState().getKey()), pX, pY);
         }
         if (!this.menu.isShellValid()) {
             this.renderShellInvalidTooltip(gfx);
-            super.renderTooltip(gfx, pX, pY);
+            super.extractTooltip(gfx, pX, pY);
             return;
         }
         for (int row = 0; row < 5; row++) {
@@ -131,8 +133,8 @@ public class DataCenterScreen extends PlaceboContainerScreen<DataCenterMenu> imp
                 if (fs != FailureState.NONE) {
                     if (fs == FailureState.INPUT) {
                         DynamicHolder<DataModel> failHolder = DataModelItem.getStoredModel(stack);
-                        Component inputName = failHolder.isBound() && failHolder.get().input().getItems().length > 0
-                            ? failHolder.get().input().getItems()[0].getHoverName()
+                        Component inputName = failHolder.isBound()
+                            ? failHolder.get().input().items().findFirst().<Component>map(h -> h.value().getName(ItemStack.EMPTY)).orElse(Component.literal("?"))
                             : Component.literal("?");
                         tip.add(Component.translatable(fs.getKey(), inputName).withColor(0xE05050));
                     }
@@ -150,7 +152,7 @@ public class DataCenterScreen extends PlaceboContainerScreen<DataCenterMenu> imp
 
                         FabSelection sel = this.menu.getSelection(idx);
                         int dropIdx = sel.current();
-                        List<ItemStack> fabDrops = model.fabDrops();
+                        List<ItemStack> fabDrops = model.fabDrops().stream().map(ItemStackTemplate::create).toList();
                         if (dropIdx >= 0 && dropIdx < fabDrops.size()) {
                             ItemStack drop = fabDrops.get(dropIdx);
                             Component dropLabel = drop.getCount() == 1
@@ -168,19 +170,20 @@ public class DataCenterScreen extends PlaceboContainerScreen<DataCenterMenu> imp
                     }
                 }
                 tip.add(Component.translatable("hostilenetworks.gui.data_center.click_to_config").withColor(0x808080));
-                int statusTop = this.getGuiTop() + REDSTONE_Y + 40;
-                gfx.pose().pushPose();
-                gfx.pose().translate(-3, 0, 0);
-                this.drawOnLeft(gfx, tip, statusTop, Math.min(this.getGuiLeft(), 240));
-                gfx.pose().popPose();
+                int statusTop = this.getTopPos() + REDSTONE_Y + 40;
+                gfx.pose().pushMatrix();
+                gfx.pose().translate(-3, 0);
+                this.drawOnLeft(gfx, tip, statusTop, Math.min(this.getLeftPos(), 240));
+                gfx.pose().popMatrix();
                 break;
             }
         }
-        super.renderTooltip(gfx, pX, pY);
+        super.extractTooltip(gfx, pX, pY);
     }
 
     @Override
-    public boolean mouseClicked(double pX, double pY, int pButton) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double pX = event.x(), pY = event.y(); int pButton = event.button();
         if (this.isHovering(REDSTONE_X, REDSTONE_Y, 18, 18, pX, pY)) {
             this.click(DataCenterMenu.REDSTONE_BASE + this.menu.getRedstoneState().next().ordinal());
             return true;
@@ -201,7 +204,7 @@ public class DataCenterScreen extends PlaceboContainerScreen<DataCenterMenu> imp
                 }
             }
         }
-        return super.mouseClicked(pX, pY, pButton);
+        return super.mouseClicked(event, doubleClick);
     }
 
     private void click(int id) {
@@ -209,7 +212,7 @@ public class DataCenterScreen extends PlaceboContainerScreen<DataCenterMenu> imp
         Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 
-    private void renderShellInvalidTooltip(GuiGraphics gfx) {
+    private void renderShellInvalidTooltip(GuiGraphicsExtractor gfx) {
         List<Component> tip = new ArrayList<>();
         tip.add(Component.translatable("hostilenetworks.fail.shell_broken").withColor(0xE05050));
 
@@ -232,10 +235,10 @@ public class DataCenterScreen extends PlaceboContainerScreen<DataCenterMenu> imp
             });
         }
 
-        int statusTop = this.getGuiTop() + REDSTONE_Y + 40;
-        gfx.pose().pushPose();
-        gfx.pose().translate(-3, 0, 0);
-        this.drawOnLeft(gfx, tip, statusTop, Math.min(this.getGuiLeft(), 240));
-        gfx.pose().popPose();
+        int statusTop = this.getTopPos() + REDSTONE_Y + 40;
+        gfx.pose().pushMatrix();
+        gfx.pose().translate(-3, 0);
+        this.drawOnLeft(gfx, tip, statusTop, Math.min(this.getLeftPos(), 240));
+        gfx.pose().popMatrix();
     }
 }

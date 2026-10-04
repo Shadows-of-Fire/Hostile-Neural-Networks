@@ -2,7 +2,6 @@ package dev.shadowsoffire.hostilenetworks.data;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.google.common.base.Preconditions;
@@ -17,7 +16,7 @@ import dev.shadowsoffire.hostilenetworks.util.DisplayEntity;
 import dev.shadowsoffire.hostilenetworks.util.MiscCodecs;
 import dev.shadowsoffire.hostilenetworks.util.ReflectionThings;
 import dev.shadowsoffire.hostilenetworks.util.RequiredData;
-import dev.shadowsoffire.placebo.json.OptionalStackCodec;
+import dev.shadowsoffire.placebo.json.OptionalTemplateCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -26,10 +25,12 @@ import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 
@@ -49,8 +50,8 @@ import net.minecraft.world.level.Level;
  * @param attunement   Optional attunement rules for this model.
  */
 public record EntityDataModel(EntityType<?> entity, List<EntityType<?>> variants, Optional<Component> displayName, TextColor nameColor,
-    DisplayData display, int simCost, Ingredient input, ItemStack baseDrop, String triviaKey,
-    List<ItemStack> fabDrops, RequiredData requiredData, DataGained dataGained, Optional<EntityAttunement> attunement) implements DataModel {
+    DisplayData display, int simCost, Ingredient input, ItemStackTemplate baseDrop, String triviaKey,
+    List<ItemStackTemplate> fabDrops, RequiredData requiredData, DataGained dataGained, Optional<EntityAttunement> attunement) implements DataModel {
 
     public static final Codec<EntityDataModel> NEW_CODEC = RecordCodecBuilder.create(inst -> inst
         .group(
@@ -60,10 +61,10 @@ public record EntityDataModel(EntityType<?> entity, List<EntityType<?>> variants
             TextColor.CODEC.fieldOf("name_color").forGetter(EntityDataModel::nameColor),
             DisplayData.CODEC.optionalFieldOf("display", DisplayData.DEFAULT).forGetter(EntityDataModel::display),
             Codec.intRange(0, Integer.MAX_VALUE / 20).fieldOf("sim_cost").forGetter(EntityDataModel::simCost),
-            Ingredient.CODEC_NONEMPTY.fieldOf("input").forGetter(EntityDataModel::input),
-            OptionalStackCodec.INSTANCE.fieldOf("base_drop").forGetter(EntityDataModel::baseDrop),
+            Ingredient.CODEC.fieldOf("input").forGetter(EntityDataModel::input),
+            ItemStackTemplate.CODEC.fieldOf("base_drop").forGetter(EntityDataModel::baseDrop),
             Codec.STRING.fieldOf("trivia").forGetter(EntityDataModel::triviaKey),
-            OptionalStackCodec.INSTANCE.listOf().xmap(EntityDataModel::removeEmptyStacks, Function.identity()).fieldOf("fabricator_drops").forGetter(EntityDataModel::fabDrops),
+            OptionalTemplateCodec.INSTANCE.listOf().xmap(EntityDataModel::dropEmpties, EntityDataModel::wrapWithPresent).fieldOf("fabricator_drops").forGetter(EntityDataModel::fabDrops),
             RequiredData.CODEC.optionalFieldOf("required_data", RequiredData.EMPTY).forGetter(EntityDataModel::requiredData),
             DataGained.CODEC.optionalFieldOf("data_gained", DataGained.EMPTY).forGetter(EntityDataModel::dataGained),
             EntityAttunement.CODEC.optionalFieldOf("attunement").forGetter(EntityDataModel::attunement))
@@ -77,10 +78,10 @@ public record EntityDataModel(EntityType<?> entity, List<EntityType<?>> variants
             ComponentSerialization.CODEC.fieldOf("name").forGetter(EntityDataModel::name),
             DisplayData.CODEC.optionalFieldOf("display", DisplayData.DEFAULT).forGetter(EntityDataModel::display),
             Codec.intRange(0, Integer.MAX_VALUE / 20).fieldOf("sim_cost").forGetter(EntityDataModel::simCost),
-            Ingredient.CODEC_NONEMPTY.fieldOf("input").forGetter(EntityDataModel::input),
-            OptionalStackCodec.INSTANCE.fieldOf("base_drop").forGetter(EntityDataModel::baseDrop),
+            Ingredient.CODEC.fieldOf("input").forGetter(EntityDataModel::input),
+            ItemStackTemplate.CODEC.fieldOf("base_drop").forGetter(EntityDataModel::baseDrop),
             Codec.STRING.fieldOf("trivia").forGetter(EntityDataModel::triviaKey),
-            OptionalStackCodec.INSTANCE.listOf().xmap(EntityDataModel::removeEmptyStacks, Function.identity()).fieldOf("fabricator_drops").forGetter(EntityDataModel::fabDrops),
+            OptionalTemplateCodec.INSTANCE.listOf().xmap(EntityDataModel::dropEmpties, EntityDataModel::wrapWithPresent).fieldOf("fabricator_drops").forGetter(EntityDataModel::fabDrops),
             RequiredData.CODEC.optionalFieldOf("required_data", RequiredData.EMPTY).forGetter(EntityDataModel::requiredData),
             DataGained.CODEC.optionalFieldOf("data_per_kill", DataGained.EMPTY).forGetter(EntityDataModel::dataGained),
             EntityAttunement.CODEC.optionalFieldOf("attunement").forGetter(EntityDataModel::attunement))
@@ -88,15 +89,15 @@ public record EntityDataModel(EntityType<?> entity, List<EntityType<?>> variants
 
     public static final Codec<EntityDataModel> CODEC = Codec.either(NEW_CODEC, OLD_CODEC).xmap(Either::unwrap, Either::left);
 
-    public EntityDataModel(EntityDataModel other, List<ItemStack> newResults) {
+    public EntityDataModel(EntityDataModel other, List<ItemStackTemplate> newResults) {
         this(other.entity, other.variants, other.displayName, other.nameColor, other.display, other.simCost, other.input, other.baseDrop, other.triviaKey, newResults, other.requiredData,
             other.dataGained, other.attunement);
     }
 
     @Deprecated
     public static EntityDataModel fromOld(EntityType<?> entity, List<EntityType<?>> variants, Component name,
-        DisplayData display, int simCost, Ingredient input, ItemStack baseDrop, String triviaKey,
-        List<ItemStack> fabDrops, RequiredData requiredData, DataGained dataPerKill, Optional<EntityAttunement> attunement) {
+        DisplayData display, int simCost, Ingredient input, ItemStackTemplate baseDrop, String triviaKey,
+        List<ItemStackTemplate> fabDrops, RequiredData requiredData, DataGained dataPerKill, Optional<EntityAttunement> attunement) {
 
         TextColor nameColor = name.getStyle().getColor();
         Preconditions.checkNotNull(nameColor, "[Legacy Deserialization]: A data model must supply a color for the name component.");
@@ -126,7 +127,7 @@ public record EntityDataModel(EntityType<?> entity, List<EntityType<?>> variants
 
     @Override
     public List<Component> getStatistics(Level level) {
-        if (this.entity.create(level) instanceof LivingEntity living) {
+        if (this.entity.create(level, EntitySpawnReason.LOAD) instanceof LivingEntity living) {
             return List.of(
                 Component.literal(String.valueOf((int) (living.getAttribute(Attributes.MAX_HEALTH).getBaseValue() / 2))),
                 Component.literal(String.valueOf((int) (living.getAttribute(Attributes.ARMOR).getBaseValue() / 2))),
@@ -172,8 +173,12 @@ public record EntityDataModel(EntityType<?> entity, List<EntityType<?>> variants
         return DataResult.success(model);
     }
 
-    private static List<ItemStack> removeEmptyStacks(List<ItemStack> list) {
-        return list.stream().filter(i -> !i.isEmpty()).toList();
+    private static List<ItemStackTemplate> dropEmpties(List<Optional<ItemStackTemplate>> list) {
+        return list.stream().flatMap(Optional::stream).toList();
+    }
+
+    private static List<Optional<ItemStackTemplate>> wrapWithPresent(List<ItemStackTemplate> list) {
+        return list.stream().map(Optional::of).toList();
     }
 
     // TODO: Cache these...

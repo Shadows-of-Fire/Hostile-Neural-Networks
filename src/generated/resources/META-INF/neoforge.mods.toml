@@ -8,7 +8,7 @@ license="MIT License"
 
 modId="hostilenetworks"
 
-version="6.5.1"
+version="7.0.0-beta0"
 
 displayName="Hostile Neural Networks"
 
@@ -16,26 +16,32 @@ authors="Shadows_of_Fire"
 
 description='''Defeating hostile entities - but in simulations!'''
 
-[[mixins]]
-config="hostilenetworks.mixins.json"
+
 
 [[dependencies.hostilenetworks]]
     modId="minecraft"
     type="required"
-    versionRange="[1.21.1,)"
+    versionRange="[26.1,)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.hostilenetworks]]
     modId="neoforge"
     type="required"
-    versionRange="[21.1.187,)"
+    versionRange="[26.1.0.1-beta,)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.hostilenetworks]]
     modId="placebo"
     type="required"
-    versionRange="[9.9.0,)"
+    versionRange="[10.0,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.hostilenetworks]]
+    modId="curios"
+    type="optional"
+    versionRange="[15.0.0-beta.2,)"
     ordering="NONE"
     side="BOTH"

@@ -3,18 +3,10 @@
   "category": "misc",
   "group": "hostilenetworks",
   "ingredients": [
-    {
-      "item": "minecraft:spider_eye"
-    },
-    {
-      "item": "minecraft:sugar"
-    },
-    {
-      "item": "hostilenetworks:nether_prediction"
-    },
-    {
-      "item": "hostilenetworks:nether_prediction"
-    }
+    "minecraft:spider_eye",
+    "minecraft:sugar",
+    "hostilenetworks:nether_prediction",
+    "hostilenetworks:nether_prediction"
   ],
   "result": {
     "count": 3,

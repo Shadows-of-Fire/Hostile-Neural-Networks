@@ -3,7 +3,7 @@ package dev.shadowsoffire.hostilenetworks.gui;
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.data.EntityDataModel;
 import dev.shadowsoffire.placebo.menu.PlaceboContainerMenu;
-import dev.shadowsoffire.placebo.reload.DynamicHolder;
+import dev.shadowsoffire.placebo.dynreg.DynamicHolder;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.network.FriendlyByteBuf;
@@ -46,7 +46,7 @@ public class FabDirectiveMenu extends PlaceboContainerMenu {
         // for (int row = 0; row < 9; row++) {
         // int index = row;
         // Slot slot = new Slot(this.player.getInventory(), index, 89 + row * 18, 211);
-        // if (source == DeepLearnerSource.MAIN_HAND && index == this.player.getInventory().selected) {
+        // if (source == DeepLearnerSource.MAIN_HAND && index == this.player.getInventory().getSelectedSlot()) {
         // slot = new LockedSlot(this.player.getInventory(), index, 89 + row * 18, 211);
         // }
         // this.addSlot(slot);

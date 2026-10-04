@@ -3,21 +3,11 @@
   "category": "misc",
   "group": "hostilenetworks",
   "ingredients": [
-    {
-      "item": "hostilenetworks:overworld_prediction"
-    },
-    {
-      "item": "hostilenetworks:overworld_prediction"
-    },
-    {
-      "item": "hostilenetworks:overworld_prediction"
-    },
-    {
-      "item": "hostilenetworks:overworld_prediction"
-    },
-    {
-      "item": "minecraft:rotten_flesh"
-    }
+    "hostilenetworks:overworld_prediction",
+    "hostilenetworks:overworld_prediction",
+    "hostilenetworks:overworld_prediction",
+    "hostilenetworks:overworld_prediction",
+    "minecraft:rotten_flesh"
   ],
   "result": {
     "count": 8,

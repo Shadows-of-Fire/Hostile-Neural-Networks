@@ -13,7 +13,10 @@ import com.mojang.datafixers.util.Either;
 import dev.shadowsoffire.hostilenetworks.client.DataCenterRenderer;
 import dev.shadowsoffire.hostilenetworks.client.DataModelTooltipRenderer;
 import dev.shadowsoffire.hostilenetworks.client.DeepLearnerHudRenderer;
-import dev.shadowsoffire.hostilenetworks.data.DataModel;
+import dev.shadowsoffire.hostilenetworks.client.PredictionTintSource;
+import dev.shadowsoffire.hostilenetworks.client.ghost.GhostEntityPipRenderer;
+import dev.shadowsoffire.hostilenetworks.client.ghost.GhostEntityRenderState;
+import dev.shadowsoffire.hostilenetworks.client.item.DataModelItemModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.gui.DataCenterScreen;
 import dev.shadowsoffire.hostilenetworks.gui.DeepLearnerScreen;
@@ -22,19 +25,17 @@ import dev.shadowsoffire.hostilenetworks.gui.SimChamberScreen;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
 import dev.shadowsoffire.hostilenetworks.net.OpenDeepLearnerPayload;
-import dev.shadowsoffire.hostilenetworks.util.Color;
 import dev.shadowsoffire.placebo.config.Configuration;
-import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import dev.shadowsoffire.placebo.util.Offset;
 import dev.shadowsoffire.placebo.util.Offset.AnchorPoint;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.contents.PlainTextContents.LiteralContents;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
@@ -42,38 +43,24 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.event.RegisterItemModelsEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEvent;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
-import net.neoforged.neoforge.items.ComponentItemHandler;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.transfer.item.ItemAccessItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = HostileNetworks.MODID)
 public class HostileClient {
 
-    public static final KeyMapping KEY_OPEN_DEEP_LEARNER = new KeyMapping("key.hostilenetworks.open_deep_learner", GLFW.GLFW_KEY_U, "key.categories.hostilenetworks");
-
-    @SubscribeEvent
-    public static void mrl(ModelEvent.RegisterAdditional e) {
-        e.register(ModelResourceLocation.standalone(HostileNetworks.loc("item/data_model_base")));
-    }
-
-    @SubscribeEvent
-    public static void colors(RegisterColorHandlersEvent.Item e) {
-        e.register((stack, tint) -> {
-            DynamicHolder<DataModel> model = DataModelItem.getStoredModel(stack);
-            int color = 0xFFFFFF;
-            if (model.isBound()) {
-                color = model.get().nameColor().getValue();
-            }
-            return 0xFF000000 | color;
-        }, Hostile.Items.PREDICTION.value());
-    }
+    public static final KeyMapping.Category HNN_CATEGORY = new KeyMapping.Category(HostileNetworks.loc("main"));
+    public static final KeyMapping KEY_OPEN_DEEP_LEARNER = new KeyMapping("key.hostilenetworks.open_deep_learner", GLFW.GLFW_KEY_U, HNN_CATEGORY);
 
     @SubscribeEvent
     public static void overlays(RegisterGuiLayersEvent e) {
@@ -99,7 +86,23 @@ public class HostileClient {
     }
 
     @SubscribeEvent
+    public static void tints(RegisterColorHandlersEvent.ItemTintSources e) {
+        e.register(HostileNetworks.loc("model_color"), PredictionTintSource.MAP_CODEC);
+    }
+
+    @SubscribeEvent
+    public static void itemModels(RegisterItemModelsEvent e) {
+        e.register(HostileNetworks.loc("data_model"), DataModelItemModel.Unbaked.MAP_CODEC);
+    }
+
+    @SubscribeEvent
+    public static void pipRenderers(RegisterPictureInPictureRenderersEvent e) {
+        e.register(GhostEntityRenderState.class, bufs -> new GhostEntityPipRenderer(bufs, Minecraft.getInstance().getEntityRenderDispatcher()));
+    }
+
+    @SubscribeEvent
     public static void keys(RegisterKeyMappingsEvent e) {
+        e.registerCategory(HNN_CATEGORY);
         e.register(KEY_OPEN_DEEP_LEARNER);
     }
 
@@ -140,9 +143,9 @@ public class HostileClient {
             }
 
             if (rmvIdx != -1) {
-                ComponentItemHandler inv = DeepLearnerItem.getItemHandler(stack);
+                ItemAccessItemHandler inv = DeepLearnerItem.getItemHandler(stack);
                 for (int i = 3; i >= 0; i--) {
-                    DataModelInstance model = new DataModelInstance(inv.getStackInSlot(i), i);
+                    DataModelInstance model = new DataModelInstance(ItemUtil.getStack(inv, i), i);
                     if (model.isValid()) {
                         e.getTooltipElements().add(rmvIdx, Either.right(model));
                     }
@@ -155,16 +158,38 @@ public class HostileClient {
     @SubscribeEvent
     public static void tick(ClientTickEvent.Post e) {
         if (KEY_OPEN_DEEP_LEARNER.consumeClick() && Minecraft.getInstance().screen == null) {
-            PacketDistributor.sendToServer(OpenDeepLearnerPayload.INSTANCE);
+            ClientPacketDistributor.sendToServer(OpenDeepLearnerPayload.INSTANCE);
         }
     }
 
+    /**
+     * The 1.21 lime-to-aqua tooltip border for items tagged {@code hostilenetworks:custom_tooltip_colors}.
+     * <p>
+     * {@code RenderTooltipEvent.Color} no longer exists. The 26.1 replacement is {@link RenderTooltipEvent.Texture}, which
+     * selects a tooltip style: the sprites {@code tooltip/<path>_background} and {@code tooltip/<path>_frame}. Only the
+     * border should change, so {@code hostilenetworks:tooltip/fancy_background} is an atlas alias of vanilla's background
+     * sprite (see {@code assets/minecraft/atlases/gui.json}) and only {@code fancy_frame.png} is shipped.
+     * <p>
+     * NeoForge posts the Texture event with {@code GuiGraphicsExtractor.tooltipStack}, a field that is already reset to
+     * EMPTY by the time a deferred (hovered slot) tooltip renders, whereas {@link RenderTooltipEvent.Pre} receives the
+     * stack captured for that tooltip. Both events fire synchronously inside the same {@code tooltip(...)} call, so the
+     * stack is carried over from Pre.
+     */
+    public static final Identifier FANCY_TOOLTIP = HostileNetworks.loc("fancy");
+
+    private static ItemStack tooltipStack = ItemStack.EMPTY;
+
     @SubscribeEvent
-    public static void tooltipColors(RenderTooltipEvent.Color e) {
-        if (e.getItemStack().is(Hostile.Tags.CUSTOM_TOOLTIP_BORDER)) {
-            e.setBorderStart(0xC8000000 | Color.LIME);
-            e.setBorderEnd(0xC8000000 | Color.AQUA);
-            e.setBackground(0xF0111111);
+    public static void tooltipPre(RenderTooltipEvent.Pre e) {
+        tooltipStack = e.getItemStack();
+    }
+
+    @SubscribeEvent
+    public static void tooltipTexture(RenderTooltipEvent.Texture e) {
+        ItemStack stack = e.getItemStack().isEmpty() ? tooltipStack : e.getItemStack();
+        tooltipStack = ItemStack.EMPTY;
+        if (e.getOriginalTexture() == null && stack.is(Hostile.Tags.CUSTOM_TOOLTIP_BORDER)) {
+            e.setTexture(FANCY_TOOLTIP);
         }
     }
 

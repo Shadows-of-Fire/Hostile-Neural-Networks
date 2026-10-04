@@ -3,18 +3,10 @@
   "category": "misc",
   "group": "hostilenetworks",
   "ingredients": [
-    {
-      "item": "minecraft:string"
-    },
-    {
-      "item": "minecraft:slime_ball"
-    },
-    {
-      "item": "hostilenetworks:overworld_prediction"
-    },
-    {
-      "item": "hostilenetworks:overworld_prediction"
-    }
+    "minecraft:string",
+    "minecraft:slime_ball",
+    "hostilenetworks:overworld_prediction",
+    "hostilenetworks:overworld_prediction"
   ],
   "result": {
     "count": 4,

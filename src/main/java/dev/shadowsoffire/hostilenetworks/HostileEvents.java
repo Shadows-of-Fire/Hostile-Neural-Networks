@@ -20,7 +20,7 @@ import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.item.DeepLearnerItem;
-import dev.shadowsoffire.placebo.reload.DynamicHolder;
+import dev.shadowsoffire.placebo.dynreg.DynamicHolder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
@@ -44,14 +44,15 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
-import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.items.ComponentItemHandler;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
+import net.neoforged.neoforge.transfer.item.ItemAccessItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber(modid = HostileNetworks.MODID)
@@ -71,7 +72,7 @@ public class HostileEvents {
         Player player = e.getEntity();
         ItemStack stack = player.getItemInHand(e.getHand());
         if (stack.is(Hostile.Items.BLANK_DATA_MODEL)) {
-            if (!player.level().isClientSide) {
+            if (!player.level().isClientSide()) {
                 Collection<EntityDataModel> models = DataModelRegistry.INSTANCE.getForEntity(e.getTarget().getType());
                 EntityDataModel match = pickMatch(player, models, m -> m.attunesTo((ServerPlayer) player, e.getTarget()));
                 if (match == null) return;
@@ -147,7 +148,7 @@ public class HostileEvents {
     }
 
     @SubscribeEvent
-    public static void mine(BlockEvent.BreakEvent e) {
+    public static void mine(BreakBlockEvent e) {
         if (!HostileConfig.actionUpgradesModel) return;
         if (e.getPlayer() instanceof ServerPlayer p) {
             BlockState state = e.getState();
@@ -166,7 +167,7 @@ public class HostileEvents {
      * breaking player and block entity, so tool/state/entity-based conditions (e.g. a Silk Touch check) can be tested.
      */
     private static LootContext createBlockBreakContext(ServerPlayer player, BlockPos pos, BlockState state) {
-        ServerLevel level = player.serverLevel();
+        ServerLevel level = player.level();
         LootParams params = new LootParams.Builder(level)
             .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
             .withParameter(LootContextParams.BLOCK_STATE, state)
@@ -178,7 +179,7 @@ public class HostileEvents {
     }
 
     private static void forEachLearner(ServerPlayer p, Consumer<ItemStack> action) {
-        p.getInventory().items.stream().filter(s -> s.is(Items.DEEP_LEARNER)).forEach(action);
+        p.getInventory().getNonEquipmentItems().stream().filter(s -> s.is(Items.DEEP_LEARNER)).forEach(action);
         if (p.getOffhandItem().is(Items.DEEP_LEARNER)) {
             action.accept(p.getOffhandItem());
         }
@@ -196,23 +197,24 @@ public class HostileEvents {
     }
 
     private static void updateModels(ItemStack learner, Predicate<DataModel> matcher, int bonus) {
-        ComponentItemHandler handler = DeepLearnerItem.getItemHandler(learner);
+        ItemAccessItemHandler handler = DeepLearnerItem.getItemHandler(learner);
         for (int i = 0; i < 4; i++) {
-            ItemStack model = handler.getStackInSlot(i);
+            ItemStack model = ItemUtil.getStack(handler, i);
             if (model.isEmpty()) continue;
             DynamicHolder<DataModel> dModel = DataModelItem.getStoredModel(model);
             if (dModel.isBound() && matcher.test(dModel.get())) {
                 int data = DataModelItem.getData(model);
                 ModelTier tier = ModelTierRegistry.getByData(dModel.get(), data);
                 DataModelItem.setData(model, data + dModel.get().getDataGained(tier) + bonus);
-                handler.setStackInSlot(i, model);
+                DeepLearnerItem.setStackInSlot(handler, i, model);
             }
         }
     }
 
     @SubscribeEvent
-    public static void reload(AddReloadListenerEvent e) {
-        e.addListener((ResourceManagerReloadListener) resman -> HostileNetworks.cfg = HostileConfig.load());
+    public static void reload(AddServerReloadListenersEvent e) {
+        e.addListener(HostileNetworks.loc("config_reload"),
+            (ResourceManagerReloadListener) resman -> HostileNetworks.cfg = HostileConfig.load());
     }
 
     @SubscribeEvent

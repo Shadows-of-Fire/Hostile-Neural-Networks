@@ -3,18 +3,10 @@
   "category": "misc",
   "group": "hostilenetworks",
   "ingredients": [
-    {
-      "item": "minecraft:sandstone"
-    },
-    {
-      "item": "minecraft:sandstone"
-    },
-    {
-      "item": "minecraft:ender_pearl"
-    },
-    {
-      "item": "hostilenetworks:end_prediction"
-    }
+    "minecraft:sandstone",
+    "minecraft:sandstone",
+    "minecraft:ender_pearl",
+    "hostilenetworks:end_prediction"
   ],
   "result": {
     "count": 8,

@@ -1,6 +1,7 @@
 package dev.shadowsoffire.hostilenetworks.datagen;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -52,7 +53,7 @@ public class LootProvider extends LootTableProvider {
 
         @Override
         protected Iterable<Block> getKnownBlocks() {
-            return BuiltInRegistries.BLOCK.holders().filter(h -> h.getKey().location().getNamespace().equals(HostileNetworks.MODID)).map(Holder::value).toList();
+            return BuiltInRegistries.BLOCK.entrySet().stream().filter(e -> e.getKey().identifier().getNamespace().equals(HostileNetworks.MODID)).map(Map.Entry::getValue).toList();
         }
 
         protected void dropSelf(Holder<Block> block) {

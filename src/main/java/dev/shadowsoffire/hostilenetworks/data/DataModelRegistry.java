@@ -13,9 +13,11 @@ import com.google.gson.JsonElement;
 
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.util.DisplayableBlock;
-import dev.shadowsoffire.placebo.reload.DynamicRegistry;
+import dev.shadowsoffire.placebo.dynreg.DynamicRegistry;
+import dev.shadowsoffire.placebo.dynreg.RegistrySerializer;
+import dev.shadowsoffire.placebo.dynreg.SubtypedSerializer;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.EntityType;
@@ -23,19 +25,17 @@ import net.minecraft.world.level.block.Block;
 
 public class DataModelRegistry extends DynamicRegistry<DataModel> {
 
+    public static final SubtypedSerializer<DataModel> SERIALIZER = RegistrySerializer.<DataModel>subtypedSynced("data_model_type")
+        .registerDefault(HostileNetworks.loc("entity_data_model"), EntityDataModel.CODEC)
+        .register(HostileNetworks.loc("block_data_model"), BlockDataModel.CODEC);
+
     public static final DataModelRegistry INSTANCE = new DataModelRegistry();
 
     private Multimap<EntityType<?>, EntityDataModel> modelsByType = HashMultimap.create();
     private Multimap<Block, BlockDataModel> modelsByBlock = HashMultimap.create();
 
     public DataModelRegistry() {
-        super(HostileNetworks.LOGGER, "data_models", true, true);
-    }
-
-    @Override
-    protected void registerBuiltinCodecs() {
-        this.registerDefaultCodec(HostileNetworks.loc("entity_data_model"), EntityDataModel.CODEC);
-        this.registerCodec(HostileNetworks.loc("block_data_model"), BlockDataModel.CODEC);
+        super(HostileNetworks.LOGGER, HostileNetworks.loc("data_models"), SERIALIZER);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class DataModelRegistry extends DynamicRegistry<DataModel> {
      * This method places the model into the appropriate by-target lookup if it is valid.
      */
     @Override
-    protected void validateItem(ResourceLocation key, DataModel model) {
+    protected void validateItem(Identifier key, DataModel model) {
         switch (model) {
             case EntityDataModel entityModel -> validateEntity(key, entityModel);
             case BlockDataModel blockModel -> validateBlock(key, blockModel);
@@ -68,7 +68,7 @@ public class DataModelRegistry extends DynamicRegistry<DataModel> {
         }
     }
 
-    private void validateEntity(ResourceLocation key, EntityDataModel entityModel) {
+    private void validateEntity(Identifier key, EntityDataModel entityModel) {
         entityModel.entityAndVariants().forEach(type -> {
             Collection<EntityDataModel> existingModels = this.modelsByType.get(type);
             if (existingModels.isEmpty()) {
@@ -93,7 +93,7 @@ public class DataModelRegistry extends DynamicRegistry<DataModel> {
         });
     }
 
-    private void validateBlock(ResourceLocation key, BlockDataModel blockModel) {
+    private void validateBlock(Identifier key, BlockDataModel blockModel) {
         Stream<Block> blocks = Stream.concat(
             Stream.of(blockModel.block().block()),
             blockModel.variants().stream().map(DisplayableBlock::block));
@@ -129,11 +129,11 @@ public class DataModelRegistry extends DynamicRegistry<DataModel> {
     }
 
     @Override
-    public Map<ResourceLocation, JsonElement> prepare(ResourceManager pResourceManager, ProfilerFiller pProfiler) {
+    public Map<Identifier, JsonElement> prepare(ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         return super.prepare(pResourceManager, pProfiler);
     }
 
-    private void throwAttunementError(ResourceLocation key, String targetKind, ResourceLocation targetId, Collection<? extends DataModel> existingModels) {
+    private void throwAttunementError(Identifier key, String targetKind, Identifier targetId, Collection<? extends DataModel> existingModels) {
         String msg = "Attempted to register multiple models for %s %s without specifying an attunement. When registering multiple models, ALL models must specify an attunement!";
         msg += " Existing models: " + existingModels.stream().map(this::getKey).toList();
         msg += " New model: " + key;

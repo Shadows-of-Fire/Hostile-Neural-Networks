@@ -3,12 +3,8 @@
   "category": "misc",
   "group": "hostilenetworks",
   "ingredients": [
-    {
-      "item": "hostilenetworks:nether_prediction"
-    },
-    {
-      "item": "minecraft:sand"
-    }
+    "hostilenetworks:nether_prediction",
+    "minecraft:sand"
   ],
   "result": {
     "count": 4,

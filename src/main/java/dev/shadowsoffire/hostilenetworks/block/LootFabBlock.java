@@ -9,10 +9,8 @@ import dev.shadowsoffire.placebo.block_entity.TickingEntityBlock;
 import dev.shadowsoffire.placebo.menu.MenuUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -52,22 +50,11 @@ public class LootFabBlock extends HorizontalDirectionalBlock implements TickingE
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (stack.getItem() instanceof FabDirectiveItem) {
-            return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
-    }
-
-    @Override
-    public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
-        if (!pState.is(pNewState.getBlock())) {
-            BlockEntity te = pLevel.getBlockEntity(pPos);
-            if (te instanceof LootFabTileEntity fab) {
-                Containers.dropContents(pLevel, pPos, fab.getInventory().getItems());
-            }
-            super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
-        }
     }
 
     @Override

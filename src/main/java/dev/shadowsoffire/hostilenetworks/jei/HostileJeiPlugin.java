@@ -9,7 +9,7 @@ import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
-import dev.shadowsoffire.placebo.reload.DynamicHolder;
+import dev.shadowsoffire.placebo.dynreg.DynamicHolder;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
@@ -19,13 +19,13 @@ import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 @JeiPlugin
 public class HostileJeiPlugin implements IModPlugin {
 
-    public static final ResourceLocation UID = HostileNetworks.loc("plugin");
+    public static final Identifier UID = HostileNetworks.loc("plugin");
 
     @Override
     public void registerItemSubtypes(ISubtypeRegistration reg) {
@@ -51,50 +51,45 @@ public class HostileJeiPlugin implements IModPlugin {
         }
         reg.addRecipes(LootFabCategory.TYPE, fabRecipes);
 
-        // Each call to addIngredientInfo creates a new page.
-        reg.addIngredientInfo(Hostile.Blocks.DATA_CENTER.value(),
+        // Each call to addItemStackInfo creates a new page.
+        reg.addItemStackInfo(new ItemStack(Hostile.Blocks.DATA_CENTER.value()),
             Component.translatable("hostilenetworks.jei.data_center.intro"));
 
-        reg.addIngredientInfo(Hostile.Blocks.DATA_CENTER.value(),
+        reg.addItemStackInfo(new ItemStack(Hostile.Blocks.DATA_CENTER.value()),
             Component.translatable("hostilenetworks.jei.data_center.shell"));
 
-        reg.addIngredientInfo(Hostile.Blocks.DATA_CENTER.value(),
+        reg.addItemStackInfo(new ItemStack(Hostile.Blocks.DATA_CENTER.value()),
             Component.translatable("hostilenetworks.jei.data_center.operation"));
 
-        reg.addIngredientInfo(Hostile.Blocks.DATA_CENTER.value(),
+        reg.addItemStackInfo(new ItemStack(Hostile.Blocks.DATA_CENTER.value()),
             Component.translatable("hostilenetworks.jei.data_center.io_port"));
 
-        reg.addIngredientInfo(Hostile.Blocks.DATA_CENTER_IO_PORT.value(),
+        reg.addItemStackInfo(new ItemStack(Hostile.Blocks.DATA_CENTER_IO_PORT.value()),
             Component.translatable("hostilenetworks.jei.io_port.intro"));
 
-        reg.addIngredientInfo(Hostile.Blocks.DATA_CENTER_IO_PORT.value(),
+        reg.addItemStackInfo(new ItemStack(Hostile.Blocks.DATA_CENTER_IO_PORT.value()),
             Component.translatable("hostilenetworks.jei.io_port.modes"));
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration reg) {
-        reg.addRecipeCatalyst(new ItemStack(Hostile.Blocks.SIM_CHAMBER.value()), SimChamberCategory.TYPE);
-        reg.addRecipeCatalyst(new ItemStack(Hostile.Blocks.LOOT_FABRICATOR.value()), LootFabCategory.TYPE);
+        reg.addCraftingStation(SimChamberCategory.TYPE, new ItemStack(Hostile.Blocks.SIM_CHAMBER.value()));
+        reg.addCraftingStation(LootFabCategory.TYPE, new ItemStack(Hostile.Blocks.LOOT_FABRICATOR.value()));
     }
 
     private static class ModelSubtypes implements ISubtypeInterpreter<ItemStack> {
 
         @Override
-        public DynamicHolder<DataModel> getSubtypeData(ItemStack stack, UidContext context) {
-            return DataModelItem.getStoredModel(stack);
-        }
-
-        @Override
-        public String getLegacyStringSubtypeInfo(ItemStack stack, UidContext context) {
+        public Object getSubtypeData(ItemStack stack, UidContext context) {
             DynamicHolder<DataModel> dm = DataModelItem.getStoredModel(stack);
             if (!dm.isBound()) return "NULL";
-            return dm.getId().toString();
+            return dm.getId();
         }
 
     }
 
     @Override
-    public ResourceLocation getPluginUid() {
+    public Identifier getPluginUid() {
         return UID;
     }
 

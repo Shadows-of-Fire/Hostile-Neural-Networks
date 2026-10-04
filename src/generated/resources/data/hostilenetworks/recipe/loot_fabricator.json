@@ -3,21 +3,11 @@
   "category": "misc",
   "group": "hostilenetworks",
   "key": {
-    "C": {
-      "item": "minecraft:comparator"
-    },
-    "G": {
-      "tag": "c:gems/diamond"
-    },
-    "I": {
-      "tag": "c:ingots/netherite"
-    },
-    "N": {
-      "tag": "c:ingots/gold"
-    },
-    "O": {
-      "tag": "c:obsidians"
-    }
+    "C": "minecraft:comparator",
+    "G": "#c:gems/diamond",
+    "I": "#c:ingots/netherite",
+    "N": "#c:ingots/gold",
+    "O": "#c:obsidians"
   },
   "pattern": [
     " I ",
@@ -25,7 +15,6 @@
     "NCN"
   ],
   "result": {
-    "count": 1,
     "id": "hostilenetworks:loot_fabricator"
   }
 }

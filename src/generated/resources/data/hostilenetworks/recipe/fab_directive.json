@@ -3,15 +3,9 @@
   "category": "misc",
   "group": "hostilenetworks",
   "key": {
-    "G": {
-      "tag": "hostilenetworks:generalized_predictions"
-    },
-    "P": {
-      "item": "minecraft:paper"
-    },
-    "R": {
-      "item": "hostilenetworks:prediction_matrix"
-    }
+    "G": "#hostilenetworks:generalized_predictions",
+    "P": "minecraft:paper",
+    "R": "hostilenetworks:prediction_matrix"
   },
   "pattern": [
     " G ",
@@ -19,7 +13,6 @@
     " P "
   ],
   "result": {
-    "count": 1,
     "id": "hostilenetworks:fab_directive"
   }
 }

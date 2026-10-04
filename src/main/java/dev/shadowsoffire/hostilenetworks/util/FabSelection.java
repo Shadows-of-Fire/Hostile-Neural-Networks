@@ -9,7 +9,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 
 /**
@@ -74,16 +74,16 @@ public record FabSelection(ProductionMode mode, List<Integer> entries, int curso
      */
     public enum ProductionMode implements StringRepresentable {
 
-        FIXED("fixed", ResourceLocation.withDefaultNamespace("textures/item/item_frame.png")),
-        QUEUE("queue", ResourceLocation.withDefaultNamespace("textures/item/knowledge_book.png"));
+        FIXED("fixed", Identifier.withDefaultNamespace("textures/item/item_frame.png")),
+        QUEUE("queue", Identifier.withDefaultNamespace("textures/item/knowledge_book.png"));
 
         public static final Codec<ProductionMode> CODEC = StringRepresentable.fromEnum(ProductionMode::values);
         public static final StreamCodec<ByteBuf, ProductionMode> STREAM_CODEC = ByteBufCodecs.idMapper(i -> values()[i], ProductionMode::ordinal);
 
         private final String name;
-        private final ResourceLocation texture;
+        private final Identifier texture;
 
-        ProductionMode(String name, ResourceLocation texture) {
+        ProductionMode(String name, Identifier texture) {
             this.name = name;
             this.texture = texture;
         }
@@ -97,7 +97,7 @@ public record FabSelection(ProductionMode mode, List<Integer> entries, int curso
             return "hostilenetworks.gui.fab_mode." + this.name;
         }
 
-        public ResourceLocation getResourceLocation() {
+        public Identifier getResourceLocation() {
             return this.texture;
         }
 

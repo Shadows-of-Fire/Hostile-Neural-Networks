@@ -8,9 +8,10 @@ import java.util.List;
 import com.mojang.serialization.Codec;
 
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
-import dev.shadowsoffire.placebo.reload.DynamicHolder;
-import dev.shadowsoffire.placebo.reload.DynamicRegistry;
-import net.minecraft.resources.ResourceLocation;
+import dev.shadowsoffire.placebo.dynreg.DynamicHolder;
+import dev.shadowsoffire.placebo.dynreg.DynamicRegistry;
+import dev.shadowsoffire.placebo.dynreg.RegistrySerializer;
+import net.minecraft.resources.Identifier;
 
 public class ModelTierRegistry extends DynamicRegistry<ModelTier> {
 
@@ -22,7 +23,7 @@ public class ModelTierRegistry extends DynamicRegistry<ModelTier> {
     private LinkedList<ModelTier> sorted = new LinkedList<>();
 
     public ModelTierRegistry() {
-        super(HostileNetworks.LOGGER, "model_tiers", true, false);
+        super(HostileNetworks.LOGGER, HostileNetworks.loc("model_tiers"), RegistrySerializer.synced(ModelTier.CODEC));
     }
 
     public static ModelTier getMaxTier() {
@@ -101,19 +102,14 @@ public class ModelTierRegistry extends DynamicRegistry<ModelTier> {
     }
 
     @Override
-    protected void registerBuiltinCodecs() {
-        this.registerDefaultCodec(HostileNetworks.loc("model_tier"), ModelTier.CODEC);
-    }
-
-    @Override
-    protected void validateItem(ResourceLocation key, ModelTier value) {
+    protected void validateItem(Identifier key, ModelTier value) {
         if (!HostileNetworks.MODID.equals(key.getNamespace())) {
             throw new UnsupportedOperationException("Model Tiers must be registered under the `hostilenetworks` namespace.");
         }
     }
 
     public static Codec<DynamicHolder<ModelTier>> tierHolderCodec() {
-        return Codec.STRING.xmap(HostileNetworks::loc, ResourceLocation::getPath).xmap(ModelTierRegistry.INSTANCE::holder, DynamicHolder::getId);
+        return Codec.STRING.xmap(HostileNetworks::loc, Identifier::getPath).xmap(ModelTierRegistry.INSTANCE::holder, DynamicHolder::getId);
     }
 
 }

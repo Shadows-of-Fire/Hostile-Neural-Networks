@@ -3,6 +3,7 @@ package dev.shadowsoffire.hostilenetworks.jei;
 import org.jetbrains.annotations.Nullable;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
+import dev.shadowsoffire.hostilenetworks.util.Templates;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
@@ -26,7 +27,7 @@ public class TickingDataModelWrapper {
         DataModelItem.setStoredModel(this.model, src);
         DataModelItem.setData(this.model, 0);
         this.input = src.input();
-        this.baseDrop = src.baseDrop().copy();
+        this.baseDrop = Templates.create(src.baseDrop());
         this.prediction = src.getPredictionDrop();
     }
 

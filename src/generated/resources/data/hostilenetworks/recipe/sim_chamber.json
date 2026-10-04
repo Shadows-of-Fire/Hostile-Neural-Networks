@@ -3,21 +3,11 @@
   "category": "misc",
   "group": "hostilenetworks",
   "key": {
-    "C": {
-      "item": "minecraft:comparator"
-    },
-    "E": {
-      "item": "minecraft:ender_pearl"
-    },
-    "G": {
-      "tag": "c:glass_panes"
-    },
-    "M": {
-      "tag": "c:gems/lapis"
-    },
-    "O": {
-      "tag": "c:obsidians"
-    }
+    "C": "minecraft:comparator",
+    "E": "minecraft:ender_pearl",
+    "G": "#c:glass_panes",
+    "M": "#c:gems/lapis",
+    "O": "#c:obsidians"
   },
   "pattern": [
     " G ",
@@ -25,7 +15,6 @@
     "MCM"
   ],
   "result": {
-    "count": 1,
     "id": "hostilenetworks:sim_chamber"
   }
 }

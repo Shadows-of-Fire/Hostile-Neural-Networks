@@ -3,12 +3,8 @@
   "category": "misc",
   "group": "hostilenetworks",
   "ingredients": [
-    {
-      "item": "hostilenetworks:overworld_prediction"
-    },
-    {
-      "item": "minecraft:wheat_seeds"
-    }
+    "hostilenetworks:overworld_prediction",
+    "minecraft:wheat_seeds"
   ],
   "result": {
     "count": 2,

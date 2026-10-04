@@ -3,21 +3,11 @@
   "category": "misc",
   "group": "hostilenetworks",
   "key": {
-    "E": {
-      "item": "minecraft:echo_shard"
-    },
-    "L": {
-      "item": "hostilenetworks:loot_fabricator"
-    },
-    "N": {
-      "item": "minecraft:nether_star"
-    },
-    "O": {
-      "tag": "c:obsidians"
-    },
-    "S": {
-      "item": "hostilenetworks:sim_chamber"
-    }
+    "E": "minecraft:echo_shard",
+    "L": "hostilenetworks:loot_fabricator",
+    "N": "minecraft:nether_star",
+    "O": "#c:obsidians",
+    "S": "hostilenetworks:sim_chamber"
   },
   "pattern": [
     "ENE",
@@ -25,7 +15,6 @@
     "OOO"
   ],
   "result": {
-    "count": 1,
     "id": "hostilenetworks:data_center"
   }
 }

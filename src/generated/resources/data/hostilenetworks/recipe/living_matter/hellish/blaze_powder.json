@@ -3,12 +3,8 @@
   "category": "misc",
   "group": "hostilenetworks",
   "ingredients": [
-    {
-      "item": "hostilenetworks:nether_prediction"
-    },
-    {
-      "item": "minecraft:gunpowder"
-    }
+    "hostilenetworks:nether_prediction",
+    "minecraft:gunpowder"
   ],
   "result": {
     "count": 2,

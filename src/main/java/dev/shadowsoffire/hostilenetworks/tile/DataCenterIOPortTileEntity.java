@@ -16,8 +16,11 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 public class DataCenterIOPortTileEntity extends BlockEntity {
 
@@ -42,7 +45,7 @@ public class DataCenterIOPortTileEntity extends BlockEntity {
         this.ownerPos = pos.immutable();
         if (this.level != null) {
             this.invalidateCapabilities();
-            if (!this.level.isClientSide) {
+            if (!this.level.isClientSide()) {
                 this.sync();
             }
         }
@@ -53,7 +56,7 @@ public class DataCenterIOPortTileEntity extends BlockEntity {
         this.ownerPos = null;
         if (this.level != null) {
             this.invalidateCapabilities();
-            if (!this.level.isClientSide) {
+            if (!this.level.isClientSide()) {
                 this.sync();
             }
         }
@@ -79,15 +82,15 @@ public class DataCenterIOPortTileEntity extends BlockEntity {
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        super.saveAdditional(tag, regs);
-        if (this.ownerPos != null) tag.putLong("owner", this.ownerPos.asLong());
+    public void saveAdditional(ValueOutput out) {
+        super.saveAdditional(out);
+        if (this.ownerPos != null) out.putLong("owner", this.ownerPos.asLong());
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        super.loadAdditional(tag, regs);
-        this.ownerPos = tag.contains("owner") ? BlockPos.of(tag.getLong("owner")) : null;
+    public void loadAdditional(ValueInput in) {
+        super.loadAdditional(in);
+        this.ownerPos = in.getLong("owner").map(BlockPos::of).orElse(null);
     }
 
     @Override
@@ -95,13 +98,13 @@ public class DataCenterIOPortTileEntity extends BlockEntity {
         return ClientboundBlockEntityDataPacket.create(this, (be, regs) -> ((DataCenterIOPortTileEntity) be).writeSync());
     }
 
-    public IEnergyStorage getEnergyHandler(Direction side) {
+    public EnergyHandler getEnergyHandler(Direction side) {
         if (this.getMode() != IOPortMode.ENERGY) return null;
         DataCenterTileEntity owner = this.resolveOwner();
         return owner != null ? owner.getEnergy() : null;
     }
 
-    public IItemHandler getItemHandler(Direction side) {
+    public ResourceHandler<ItemResource> getItemHandler(Direction side) {
         DataCenterTileEntity owner = this.resolveOwner();
         if (owner == null) return null;
         return switch (this.getMode()) {
@@ -119,8 +122,8 @@ public class DataCenterIOPortTileEntity extends BlockEntity {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider regs) {
-        this.readSyncTag(pkt.getTag());
+    public void onDataPacket(Connection net, ValueInput in) {
+        this.readSyncTag(in);
     }
 
     @Override
@@ -131,12 +134,12 @@ public class DataCenterIOPortTileEntity extends BlockEntity {
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider regs) {
-        super.handleUpdateTag(tag, regs);
-        this.readSyncTag(tag);
+    public void handleUpdateTag(ValueInput in) {
+        super.handleUpdateTag(in);
+        this.readSyncTag(in);
     }
 
-    private void readSyncTag(CompoundTag tag) {
-        this.ownerPos = tag.contains("owner") ? BlockPos.of(tag.getLong("owner")) : null;
+    private void readSyncTag(ValueInput in) {
+        this.ownerPos = in.getLong("owner").map(BlockPos::of).orElse(null);
     }
 }

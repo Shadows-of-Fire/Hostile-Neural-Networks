@@ -3,18 +3,11 @@
   "category": "misc",
   "group": "hostilenetworks",
   "ingredients": [
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "item": "hostilenetworks:nether_prediction"
-    },
-    {
-      "item": "hostilenetworks:nether_prediction"
-    }
+    "minecraft:bone",
+    "hostilenetworks:nether_prediction",
+    "hostilenetworks:nether_prediction"
   ],
   "result": {
-    "count": 1,
     "id": "minecraft:blaze_rod"
   }
 }

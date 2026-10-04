@@ -1,13 +1,15 @@
 package dev.shadowsoffire.hostilenetworks;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import dev.shadowsoffire.hostilenetworks.Hostile.Items;
 import dev.shadowsoffire.hostilenetworks.Hostile.Tabs;
 import dev.shadowsoffire.hostilenetworks.HostileConfig.ConfigPayload;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
+import dev.shadowsoffire.hostilenetworks.datagen.BlockTagProvider;
+import dev.shadowsoffire.hostilenetworks.datagen.HNNRecipeProvider;
 import dev.shadowsoffire.hostilenetworks.datagen.LootProvider;
 import dev.shadowsoffire.hostilenetworks.net.OpenDeepLearnerPayload;
 import dev.shadowsoffire.hostilenetworks.tile.DataCenterIOPortTileEntity;
@@ -16,14 +18,13 @@ import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage;
-import net.neoforged.neoforge.capabilities.Capabilities.ItemHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.world.chunk.RegisterTicketControllersEvent;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -33,7 +34,7 @@ public class HostileNetworks {
 
     public static final String MODID = "hostilenetworks";
     public static final String VERSION = ModList.get().getModContainerById(MODID).get().getModInfo().getVersion().toString();
-    public static final Logger LOGGER = LogManager.getLogger(MODID);
+    public static final Logger LOGGER = LoggerFactory.getLogger(MODID);
     public static Configuration cfg;
 
     public HostileNetworks(IEventBus bus) {
@@ -62,27 +63,27 @@ public class HostileNetworks {
 
     @SubscribeEvent
     public void caps(RegisterCapabilitiesEvent e) {
-        e.registerBlockEntity(EnergyStorage.BLOCK, Hostile.TileEntities.LOOT_FABRICATOR, (be, side) -> be.getEnergy());
-        e.registerBlockEntity(ItemHandler.BLOCK, Hostile.TileEntities.LOOT_FABRICATOR, (be, side) -> be.getInventory());
-        e.registerBlockEntity(EnergyStorage.BLOCK, Hostile.TileEntities.SIM_CHAMBER, (be, side) -> be.getEnergy());
-        e.registerBlockEntity(ItemHandler.BLOCK, Hostile.TileEntities.SIM_CHAMBER, (be, side) -> be.getInventory());
-        e.registerBlockEntity(EnergyStorage.BLOCK, Hostile.TileEntities.DATA_CENTER, (be, side) -> be.getEnergy());
-        e.registerBlockEntity(ItemHandler.BLOCK, Hostile.TileEntities.DATA_CENTER, (be, side) -> be.getInventory());
-        e.registerBlockEntity(EnergyStorage.BLOCK, Hostile.TileEntities.IO_PORT, DataCenterIOPortTileEntity::getEnergyHandler);
-        e.registerBlockEntity(ItemHandler.BLOCK, Hostile.TileEntities.IO_PORT, DataCenterIOPortTileEntity::getItemHandler);
+        e.registerBlockEntity(Capabilities.Energy.BLOCK, Hostile.TileEntities.LOOT_FABRICATOR, (be, side) -> be.getEnergy());
+        e.registerBlockEntity(Capabilities.Item.BLOCK, Hostile.TileEntities.LOOT_FABRICATOR, (be, side) -> be.getInventory());
+        e.registerBlockEntity(Capabilities.Energy.BLOCK, Hostile.TileEntities.SIM_CHAMBER, (be, side) -> be.getEnergy());
+        e.registerBlockEntity(Capabilities.Item.BLOCK, Hostile.TileEntities.SIM_CHAMBER, (be, side) -> be.getInventory());
+        e.registerBlockEntity(Capabilities.Energy.BLOCK, Hostile.TileEntities.DATA_CENTER, (be, side) -> be.getEnergy());
+        e.registerBlockEntity(Capabilities.Item.BLOCK, Hostile.TileEntities.DATA_CENTER, (be, side) -> be.getInventory());
+        e.registerBlockEntity(Capabilities.Energy.BLOCK, Hostile.TileEntities.IO_PORT, DataCenterIOPortTileEntity::getEnergyHandler);
+        e.registerBlockEntity(Capabilities.Item.BLOCK, Hostile.TileEntities.IO_PORT, DataCenterIOPortTileEntity::getItemHandler);
     }
 
     @SubscribeEvent
-    public void data(GatherDataEvent e) {
+    public void data(GatherDataEvent.Client e) {
         e.getGenerator().addProvider(true, LootProvider.create(e.getGenerator().getPackOutput(), e.getLookupProvider()));
-        e.getGenerator().addProvider(true, new dev.shadowsoffire.hostilenetworks.datagen.BlockTagProvider(
-            e.getGenerator().getPackOutput(), e.getLookupProvider(), e.getExistingFileHelper()));
-        e.getGenerator().addProvider(true, new dev.shadowsoffire.hostilenetworks.datagen.HNNRecipeProvider(
+        e.getGenerator().addProvider(true, new BlockTagProvider(
+            e.getGenerator().getPackOutput(), e.getLookupProvider()));
+        e.getGenerator().addProvider(true, new HNNRecipeProvider(
             e.getGenerator().getPackOutput(), e.getLookupProvider()));
     }
 
-    public static ResourceLocation loc(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
+    public static Identifier loc(String path) {
+        return Identifier.fromNamespaceAndPath(MODID, path);
     }
 
     /**

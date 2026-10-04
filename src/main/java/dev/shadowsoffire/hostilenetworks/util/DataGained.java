@@ -6,7 +6,7 @@ import com.mojang.serialization.Codec;
 
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
-import dev.shadowsoffire.placebo.reload.DynamicHolder;
+import dev.shadowsoffire.placebo.dynreg.DynamicHolder;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 
 /**

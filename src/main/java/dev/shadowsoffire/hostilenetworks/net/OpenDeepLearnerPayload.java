@@ -46,7 +46,7 @@ public record OpenDeepLearnerPayload() implements CustomPacketPayload {
         }
 
         @Override
-        public void handle(OpenDeepLearnerPayload msg, IPayloadContext ctx) {
+        public void handleServer(OpenDeepLearnerPayload msg, IPayloadContext ctx) {
             Player player = ctx.player();
             if (ModList.get().isLoaded("curios") && player.containerMenu == player.inventoryMenu) {
                 ItemStack stack = CuriosCompat.getDeepLearner(player);

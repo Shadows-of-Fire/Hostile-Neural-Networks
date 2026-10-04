@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
+import dev.shadowsoffire.hostilenetworks.util.Templates;
 import dev.shadowsoffire.hostilenetworks.HostileConfig;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
@@ -16,11 +17,11 @@ import dev.shadowsoffire.hostilenetworks.util.FabSelection.ProductionMode;
 import dev.shadowsoffire.hostilenetworks.util.RedstoneState;
 import dev.shadowsoffire.placebo.block_entity.TickingBlockEntity;
 import dev.shadowsoffire.placebo.cap.InternalItemHandler;
-import dev.shadowsoffire.placebo.cap.ModifiableEnergyStorage;
+import dev.shadowsoffire.hostilenetworks.util.ModifiableEnergyStorage;
 import dev.shadowsoffire.placebo.menu.SimpleDataSlots;
 import dev.shadowsoffire.placebo.menu.SimpleDataSlots.IDataAutoRegister;
 import dev.shadowsoffire.placebo.network.VanillaPacketDispatcher;
-import dev.shadowsoffire.placebo.reload.DynamicHolder;
+import dev.shadowsoffire.placebo.dynreg.DynamicHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -30,14 +31,21 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Containers;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity, IDataAutoRegister {
 
@@ -64,8 +72,14 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
     }
 
     @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (this.level != null) Containers.dropContents(this.level, pos, this.inventory.getItems());
+        super.preRemoveSideEffects(pos, state);
+    }
+
+    @Override
     public void serverTick(Level level, BlockPos pos, BlockState state) {
-        DynamicHolder<DataModel> dm = DataModelItem.getStoredModel(this.inventory.getStackInSlot(0));
+        DynamicHolder<DataModel> dm = DataModelItem.getStoredModel(ItemUtil.getStack(this.inventory, 0));
         if (dm.isBound()) {
             int selection = this.getSelectedDrop(dm.get());
             if (this.currentSel != selection) {
@@ -78,11 +92,15 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
                 // can freely edit a queue without the fabricator consuming a prediction mid-edit.
                 if (!this.redstoneState.matches(level.hasNeighborSignal(this.worldPosition))) return;
                 if (this.runtime >= 60) {
-                    ItemStack out = dm.get().fabDrops().get(selection).copy();
-                    if (this.insertInOutput(out, true)) {
+                    ItemStack out = Templates.create(dm.get().fabDrops().get(selection));
+                    if (this.tryInsertInOutput(out, true)) {
                         this.runtime = 0;
-                        this.insertInOutput(out, false);
-                        this.inventory.getStackInSlot(0).shrink(1);
+                        this.tryInsertInOutput(out, false);
+                        try (Transaction tx = Transaction.openRoot()) {
+                            // The public extract blocks slot 0 (menu-side); consume via the internal path like 1.21's shrink.
+                            this.inventory.extractInternal(0, this.inventory.getResource(0), 1, tx);
+                            tx.commit();
+                        }
                         this.advanceQueue(dm);
                         this.setChanged();
                     }
@@ -99,19 +117,23 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         else this.runtime = 0;
     }
 
-    protected boolean insertInOutput(ItemStack stack, boolean sim) {
-        for (int i = 1; i < 17; i++) {
-            stack = this.inventory.insertItemInternal(i, stack, sim);
-            if (stack.isEmpty()) return true;
+    protected boolean tryInsertInOutput(ItemStack stack, boolean sim) {
+        int remaining = stack.getCount();
+        ItemResource res = ItemResource.of(stack);
+        try (Transaction tx = Transaction.openRoot()) {
+            for (int i = 1; i < 17 && remaining > 0; i++) {
+                remaining -= this.inventory.insertInternal(i, res, remaining, tx);
+            }
+            if (remaining == 0 && !sim) tx.commit();
         }
-        return false;
+        return remaining == 0;
     }
 
     public FabItemHandler getInventory() {
         return this.inventory;
     }
 
-    public IEnergyStorage getEnergy() {
+    public EnergyHandler getEnergy() {
         return this.energy;
     }
 
@@ -139,7 +161,6 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         FabSelection sel = this.savedSelections.getOrDefault(model, FabSelection.EMPTY);
         FabSelection updated;
         if (sel.mode().next() == ProductionMode.QUEUE) {
-            // The Fixed pick (if any) becomes the queue's first entry.
             updated = new FabSelection(ProductionMode.QUEUE, List.copyOf(sel.entries()), 0);
         }
         else {
@@ -151,9 +172,6 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         this.sync();
     }
 
-    /**
-     * Sets the model's Fixed-mode drop. An index of {@code -1} clears the model's selection entirely.
-     */
     public void setFixedDrop(DynamicHolder<DataModel> model, int index) {
         if (index == -1) {
             this.savedSelections.remove(model);
@@ -164,9 +182,6 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         this.sync();
     }
 
-    /**
-     * Appends a drop index to the model's production queue, switching it to Queue mode if needed.
-     */
     public void appendToQueue(DynamicHolder<DataModel> model, int index) {
         DataModel dm = model.get();
         if (dm == null || index < 0 || index >= dm.fabDrops().size()) return;
@@ -177,9 +192,6 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         this.sync();
     }
 
-    /**
-     * Empties the model's production queue while keeping it in Queue mode (ready to receive new appends).
-     */
     public void clearQueue(DynamicHolder<DataModel> model) {
         FabSelection sel = this.savedSelections.get(model);
         if (sel == null || sel.mode() != ProductionMode.QUEUE) return;
@@ -187,9 +199,6 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         this.sync();
     }
 
-    /**
-     * Removes the queue entry at the given position, keeping the cursor pointing at the same upcoming entry.
-     */
     public void removeFromQueue(DynamicHolder<DataModel> model, int pos) {
         FabSelection sel = this.savedSelections.get(model);
         if (sel == null || pos < 0 || pos >= sel.entries().size()) return;
@@ -202,9 +211,6 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         this.sync();
     }
 
-    /**
-     * After a Queue-mode model fabricates an item, steps its cursor to the next entry.
-     */
     private void advanceQueue(DynamicHolder<DataModel> model) {
         FabSelection sel = this.savedSelections.get(model);
         if (sel != null && sel.mode() == ProductionMode.QUEUE) {
@@ -219,25 +225,25 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        super.saveAdditional(tag, regs);
-        tag.put("saved_selections", this.writeSelections(new CompoundTag()));
-        tag.put("inventory", this.inventory.serializeNBT(regs));
-        tag.putInt("energy", this.energy.getEnergyStored());
-        tag.putInt("runtime", this.runtime);
-        tag.putInt("selection", this.currentSel);
-        tag.putInt("redstoneState", this.redstoneState.ordinal());
+    public void saveAdditional(ValueOutput out) {
+        super.saveAdditional(out);
+        out.store("saved_selections", CompoundTag.CODEC, this.writeSelections(new CompoundTag()));
+        this.inventory.serialize(out);
+        out.putInt("energy", this.energy.getEnergyStored());
+        out.putInt("runtime", this.runtime);
+        out.putInt("selection", this.currentSel);
+        out.putInt("redstoneState", this.redstoneState.ordinal());
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        super.loadAdditional(tag, regs);
-        this.readSelections(tag.getCompound("saved_selections"));
-        this.inventory.deserializeNBT(regs, tag.getCompound("inventory"));
-        this.energy.setEnergy(tag.getInt("energy"));
-        this.runtime = tag.getInt("runtime");
-        this.currentSel = tag.getInt("selection");
-        this.redstoneState = RedstoneState.values()[tag.getInt("redstoneState")];
+    public void loadAdditional(ValueInput in) {
+        super.loadAdditional(in);
+        this.readSelections(in.read("saved_selections", CompoundTag.CODEC).orElse(new CompoundTag()));
+        this.inventory.deserialize(in);
+        this.energy.setEnergy(in.getIntOr("energy", 0));
+        this.runtime = in.getIntOr("runtime", 0);
+        this.currentSel = in.getIntOr("selection", -1);
+        this.redstoneState = RedstoneState.values()[in.getIntOr("redstoneState", 0)];
     }
 
     @Override
@@ -252,8 +258,8 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider regs) {
-        this.readSelections(pkt.getTag().getCompound("saved_selections"));
+    public void onDataPacket(Connection net, ValueInput in) {
+        this.readSelections(in.read("saved_selections", CompoundTag.CODEC).orElse(new CompoundTag()));
     }
 
     @Override
@@ -261,6 +267,12 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         CompoundTag tag = super.getUpdateTag(regs);
         tag.put("saved_selections", this.writeSelections(new CompoundTag()));
         return tag;
+    }
+
+    @Override
+    public void handleUpdateTag(ValueInput in) {
+        super.handleUpdateTag(in);
+        this.readSelections(in.read("saved_selections", CompoundTag.CODEC).orElse(new CompoundTag()));
     }
 
     private CompoundTag writeSelections(CompoundTag tag) {
@@ -273,13 +285,13 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
 
     private void readSelections(CompoundTag tag) {
         this.savedSelections.clear();
-        for (String s : tag.getAllKeys()) {
-            DynamicHolder<DataModel> dm = DataModelRegistry.INSTANCE.holder(ResourceLocation.tryParse(s));
+        for (String s : tag.keySet()) {
+            DynamicHolder<DataModel> dm = DataModelRegistry.INSTANCE.holder(Identifier.tryParse(s));
             Tag value = tag.get(s);
+            if (value == null) continue;
             FabSelection sel;
             if (value instanceof IntTag intTag) {
-                // Legacy format: a bare int index, pre-dating production modes.
-                sel = FabSelection.fixed(intTag.getAsInt());
+                sel = FabSelection.fixed(intTag.intValue());
             }
             else {
                 sel = FabSelection.CODEC.parse(NbtOps.INSTANCE, value).result().orElse(FabSelection.EMPTY);
@@ -305,12 +317,6 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         return this.redstoneState;
     }
 
-    /**
-     * Returns the index of the selected drop for a given data model.
-     * 
-     * @param model The model to check
-     * @return The index of the selected drop, or -1 if no selection is present.
-     */
     public int getSelectedDrop(DataModel model) {
         if (model == null) return -1;
         FabSelection sel = this.savedSelections.get(DataModelRegistry.INSTANCE.holder(model));
@@ -327,25 +333,25 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
         }
 
         @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            if (slot == 0) return stack.is(Hostile.Items.PREDICTION);
+        public boolean isValid(int index, ItemResource resource) {
+            if (index == 0) return resource.is(Hostile.Items.PREDICTION);
             return true;
         }
 
         @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if (slot > 0) return stack;
-            return super.insertItem(slot, stack, simulate);
+        public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            if (index > 0) return 0;
+            return super.insert(index, resource, amount, transaction);
         }
 
         @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            if (slot == 0) return ItemStack.EMPTY;
-            return super.extractItem(slot, amount, simulate);
+        public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            if (index == 0) return 0;
+            return super.extract(index, resource, amount, transaction);
         }
 
         @Override
-        protected void onContentsChanged(int slot) {
+        protected void onContentsChanged(int index, ItemStack oldContents) {
             LootFabTileEntity.this.setChanged();
         }
 

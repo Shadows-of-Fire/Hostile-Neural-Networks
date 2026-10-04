@@ -3,12 +3,8 @@
   "category": "misc",
   "group": "hostilenetworks",
   "ingredients": [
-    {
-      "item": "hostilenetworks:overworld_prediction"
-    },
-    {
-      "item": "minecraft:quartz"
-    }
+    "hostilenetworks:overworld_prediction",
+    "minecraft:quartz"
   ],
   "result": {
     "count": 2,

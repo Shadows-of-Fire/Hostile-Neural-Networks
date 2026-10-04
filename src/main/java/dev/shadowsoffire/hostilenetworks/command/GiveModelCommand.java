@@ -20,9 +20,9 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -42,26 +42,26 @@ import net.minecraft.world.item.ItemStack;
  */
 public class GiveModelCommand {
 
-    public static final SuggestionProvider<CommandSourceStack> SUGGEST_MODEL_TIER = (ctx, builder) -> SharedSuggestionProvider.suggest(ModelTierRegistry.INSTANCE.getKeys().stream().map(ResourceLocation::getPath), builder);
+    public static final SuggestionProvider<CommandSourceStack> SUGGEST_MODEL_TIER = (ctx, builder) -> SharedSuggestionProvider.suggest(ModelTierRegistry.INSTANCE.getKeys().stream().map(Identifier::getPath), builder);
 
     public static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
         root.then(
             Commands.literal("give_model")
-                .requires(s -> s.hasPermission(2))
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .then(Commands.argument("targets", EntityArgument.players())
-                    .then(Commands.argument("model", ResourceLocationArgument.id()).suggests(GenerateModelCommand.SUGGEST_DATA_MODEL)
+                    .then(Commands.argument("model", IdentifierArgument.id()).suggests(GenerateModelCommand.SUGGEST_DATA_MODEL)
                         .then(Commands.argument("tier", StringArgumentType.word()).suggests(SUGGEST_MODEL_TIER)
                             .executes(c -> {
-                                return giveItem(c.getSource(), ResourceLocationArgument.getId(c, "model"), EntityArgument.getPlayers(c, "targets"), StringArgumentType.getString(c, "tier"), 0);
+                                return giveItem(c.getSource(), IdentifierArgument.getId(c, "model"), EntityArgument.getPlayers(c, "targets"), StringArgumentType.getString(c, "tier"), 0);
                             })
                             .then(Commands.argument("data", IntegerArgumentType.integer(0))
                                 .executes(c -> {
-                                    return giveItem(c.getSource(), ResourceLocationArgument.getId(c, "model"), EntityArgument.getPlayers(c, "targets"), StringArgumentType.getString(c, "tier"),
+                                    return giveItem(c.getSource(), IdentifierArgument.getId(c, "model"), EntityArgument.getPlayers(c, "targets"), StringArgumentType.getString(c, "tier"),
                                         IntegerArgumentType.getInteger(c, "data"));
                                 }))))));
     }
 
-    private static int giveItem(CommandSourceStack pSource, ResourceLocation modelId, Collection<ServerPlayer> pTargets, String tierName, int bonusData) throws CommandSyntaxException {
+    private static int giveItem(CommandSourceStack pSource, Identifier modelId, Collection<ServerPlayer> pTargets, String tierName, int bonusData) throws CommandSyntaxException {
         DataModel model = DataModelRegistry.INSTANCE.getValue(modelId);
         if (model == null) {
             pSource.sendFailure(Component.literal("Invalid model: " + modelId));

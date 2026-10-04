@@ -2,6 +2,7 @@ package dev.shadowsoffire.hostilenetworks.util;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 
 public class Color {
     public static final int AQUA = 0x62D8FF;
@@ -11,7 +12,7 @@ public class Color {
     public static final int BRIGHT_PURPLE = 0xC768DB;
 
     public static Component withColor(String key, int color) {
-        Style style = Style.EMPTY.withColor(net.minecraft.network.chat.TextColor.fromRgb(color));
+        Style style = Style.EMPTY.withColor(TextColor.fromRgb(color));
         return Component.translatable(key).withStyle(style);
     }
 }

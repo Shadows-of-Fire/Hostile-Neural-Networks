@@ -3,18 +3,10 @@
   "category": "misc",
   "group": "hostilenetworks",
   "key": {
-    "D": {
-      "tag": "c:dusts/redstone"
-    },
-    "G": {
-      "tag": "c:glass_panes"
-    },
-    "O": {
-      "tag": "c:obsidians"
-    },
-    "R": {
-      "item": "minecraft:repeater"
-    }
+    "D": "#c:dusts/redstone",
+    "G": "#c:glass_panes",
+    "O": "#c:obsidians",
+    "R": "minecraft:repeater"
   },
   "pattern": [
     "ORO",
@@ -22,7 +14,6 @@
     "ODO"
   ],
   "result": {
-    "count": 1,
     "id": "hostilenetworks:deep_learner"
   }
 }

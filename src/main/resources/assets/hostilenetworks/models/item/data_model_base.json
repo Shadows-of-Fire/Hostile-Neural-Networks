@@ -1,6 +1,145 @@
 {
-  "parent": "item/generated",
-  "textures": {
-    "layer0": "hostilenetworks:item/blank_data_model"
-  }
+    "parent": "item/generated",
+    "gui_light": "side",
+    "textures": {
+        "layer0": "hostilenetworks:item/blank_data_model"
+    },
+    "display": {
+        "gui": {
+            "rotation": [
+                -75,
+                0,
+                45
+            ],
+            "translation": [
+                -0.11,
+                -5.5,
+                -31.9
+            ],
+            "scale": [
+                0.9,
+                0.9,
+                0.9
+            ]
+        },
+        "fixed": {
+            "rotation": [
+                180,
+                0,
+                0
+            ],
+            "translation": [
+                0,
+                0,
+                0
+            ],
+            "scale": [
+                0.5,
+                0.5,
+                0.5
+            ]
+        },
+        "ground": {
+            "rotation": [
+                90,
+                0,
+                0
+            ],
+            "translation": [
+                0,
+                0,
+                0
+            ],
+            "scale": [
+                0.5,
+                0.5,
+                0.5
+            ]
+        },
+        "head": {
+            "rotation": [
+                90,
+                0,
+                0
+            ],
+            "translation": [
+                0,
+                0,
+                0
+            ],
+            "scale": [
+                0.5,
+                0.5,
+                0.5
+            ]
+        },
+        "firstperson_righthand": {
+            "rotation": [
+                90,
+                0,
+                0
+            ],
+            "translation": [
+                0,
+                0,
+                0
+            ],
+            "scale": [
+                0.5,
+                0.5,
+                0.5
+            ]
+        },
+        "firstperson_lefthand": {
+            "rotation": [
+                90,
+                0,
+                0
+            ],
+            "translation": [
+                0,
+                0,
+                0
+            ],
+            "scale": [
+                0.5,
+                0.5,
+                0.5
+            ]
+        },
+        "thirdperson_righthand": {
+            "rotation": [
+                90,
+                0,
+                0
+            ],
+            "translation": [
+                0,
+                0,
+                0
+            ],
+            "scale": [
+                0.5,
+                0.5,
+                0.5
+            ]
+        },
+        "thirdperson_lefthand": {
+            "rotation": [
+                90,
+                0,
+                0
+            ],
+            "translation": [
+                0,
+                0,
+                0
+            ],
+            "scale": [
+                0.5,
+                0.5,
+                0.5
+            ]
+        }
+    }
 }

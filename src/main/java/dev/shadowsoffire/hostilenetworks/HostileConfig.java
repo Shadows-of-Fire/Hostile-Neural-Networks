@@ -114,7 +114,7 @@ public class HostileConfig {
             }
 
             @Override
-            public void handle(ConfigPayload msg, IPayloadContext ctx) {
+            public void handleClient(ConfigPayload msg, IPayloadContext ctx) {
                 HostileConfig.simPowerCap = msg.simPowerCap;
                 HostileConfig.fabPowerCap = msg.fabPowerCap;
                 HostileConfig.fabPowerCost = msg.fabPowerCost;

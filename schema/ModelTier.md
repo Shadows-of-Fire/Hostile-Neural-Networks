@@ -4,7 +4,7 @@ Infinitely many model tiers may be created, allowing total control over the prog
 
 # Dependencies
 This object references the following objects:
-1. [Color](../../../../Placebo/blob/1.21/schema/Color.md)
+1. [Color](../../../../Placebo/blob/26.1/schema/Color.md)
 
 ## Schema
 ```js
@@ -18,6 +18,8 @@ This object references the following objects:
 ```
 
 ## Notes
+Model Tier files live at `data/hostilenetworks/hostilenetworks/model_tiers/<name>.json`.
+
 Model Tiers may only be created under the `hostilenetworks` namespace; attempting to register a tier under a different namespace will error.  
 As such, tiers are not namespaced when being referenced, as the namespace is implied to be `hostilenetworks`.
 

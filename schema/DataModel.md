@@ -6,12 +6,14 @@ A `type` field of `hostilenetworks:entity_data_model` selects this codec; it is 
 # Dependencies
 This object references the following objects:
 1. [DisplayData](./components/DisplayData.md)
-2. [ItemStack](../../../../Placebo/blob/1.21/schema/ItemStack.md)
+2. [ItemStackTemplate](../../../../Placebo/blob/26.1/schema/ItemStackTemplate.md)
 3. [RequiredData](./components/RequiredData.md)
 4. [DataGained](./components/DataGained.md)
 5. [ModelAttunement](./components/ModelAttunement.md)
 
 The object types `Component`, `Ingredient`, and `TextColor` are supplied by Vanilla and are not described here.
+
+Data model files live at `data/<namespace>/hostilenetworks/data_models/<path>.json` (note the `hostilenetworks` folder between the namespace and the registry folder), and are registered as `<namespace>:<path>`.
 
 ## Schema
 ```js
@@ -24,11 +26,11 @@ The object types `Component`, `Ingredient`, and `TextColor` are supplied by Vani
     "name_color": TextColor,        // [Mandatory] || Color used for the model name in tooltips and the prediction item.
     "display": DisplayData,         // [Optional]  || Display data used to adjust the holographic mob shown on the data model.
     "sim_cost": integer,            // [Mandatory] || The cost, in FE/t, to simulate this model in the Simulation Chamber.
-    "input": Ingredient,            // [Mandatory] || The input item when simulating this data model.
-    "base_drop": ItemStack,         // [Mandatory] || The base drop when simulating the data model. May be an empty item stack.
+    "input": Ingredient,            // [Mandatory] || The input item when simulating this data model. A bare item id, a `#tag`, or a list of item ids.
+    "base_drop": ItemStackTemplate, // [Mandatory] || The base drop when simulating the data model. Must be a real (non-air) item.
     "trivia": "string",             // [Mandatory] || The localization key for the trivia string displayed in the Deep Learner.
-    "fabricator_drops": [           // [Mandatory] || The list of items that may be obtained from the Loot Fabricator. Empty stacks will be ignored.
-        ItemStack
+    "fabricator_drops": [           // [Mandatory] || The list of items that may be obtained from the Loot Fabricator. Entries marked `"optional": true` whose item is missing are ignored.
+        ItemStackTemplate
     ],
     "required_data": RequiredData,  // [Optional]  || Optional overrides for the required data for individual model tiers.
     "data_gained": DataGained,      // [Optional]  || Optional overrides for the data gained per kill for individual model tiers. (Legacy name: `data_per_kill`.)
@@ -40,6 +42,8 @@ The object types `Component`, `Ingredient`, and `TextColor` are supplied by Vani
 Unknown entity names in the `variants` list will be silently ignored, allowing model authors to supply variant names even if the target mod is not loaded. The slime data model does this by default.
 
 The max value of the `sim_cost` field is `INT_MAX / 20`.
+
+`input` uses the vanilla ingredient format: a bare item id (`"minecraft:stick"`), a tag (`"#minecraft:logs"`), or a list of item ids. The pre-26.1 object form (`{ "item": "..." }`) is no longer accepted. NeoForge custom ingredients may be supplied as an object with a `neoforge:ingredient_type` key.
 
 ## Migration
 
@@ -54,9 +58,7 @@ The Blaze data model, which includes optional support for Reliquary drops. `name
     "name_color": "#FFD528",
     "display": {},
     "sim_cost": 256,
-    "input": {
-        "item": "hostilenetworks:prediction_matrix"
-    },
+    "input": "hostilenetworks:prediction_matrix",
     "base_drop": {
         "id": "hostilenetworks:nether_prediction"
     },

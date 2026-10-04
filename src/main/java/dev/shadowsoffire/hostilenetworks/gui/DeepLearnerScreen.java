@@ -4,15 +4,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.joml.Quaternionf;
-
-import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import org.joml.Vector3f;
 
 import dev.shadowsoffire.hostilenetworks.HostileConfig;
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
-import dev.shadowsoffire.hostilenetworks.client.WrappedRTBuffer;
+import dev.shadowsoffire.hostilenetworks.client.ghost.GhostEntityPipRenderer;
+import dev.shadowsoffire.hostilenetworks.client.ghost.GhostEntityRenderState;
+import dev.shadowsoffire.hostilenetworks.client.ghost.GhostEntityStates;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
@@ -24,21 +22,16 @@ import dev.shadowsoffire.placebo.screen.PlaceboContainerScreen;
 import dev.shadowsoffire.placebo.screen.TickableTextList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.WidgetSprites;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerMenu> {
@@ -46,9 +39,10 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerMenu> {
     public static final int WIDTH = 338;
     public static final int HEIGHT = 235;
     public static final int MAX_TEXT_WIDTH = 200;
+    private static final int GHOST_ALPHA = 0xBB;
 
-    public static final ResourceLocation BASE = HostileNetworks.loc("textures/gui/deep_learner.png");
-    public static final ResourceLocation PLAYER = HostileNetworks.loc("textures/gui/default_gui.png");
+    public static final Identifier BASE = HostileNetworks.loc("textures/gui/deep_learner.png");
+    public static final Identifier PLAYER = HostileNetworks.loc("textures/gui/default_gui.png");
     public static final WidgetSprites LEFT_BUTTON = makeSprites("widget/left", "widget/left_hovered");
     public static final WidgetSprites RIGHT_BUTTON = makeSprites("widget/right", "widget/right_hovered");
 
@@ -69,11 +63,8 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerMenu> {
     private int nameLines = 1;
 
     public DeepLearnerScreen(DeepLearnerMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
-        super(pMenu, pPlayerInventory, pTitle);
-        this.imageWidth = WIDTH;
-        this.imageHeight = HEIGHT;
+        super(pMenu, pPlayerInventory, pTitle, WIDTH, HEIGHT);
         Arrays.fill(models, DataModelInstance.EMPTY);
-        this.minecraft = Minecraft.getInstance();
         pMenu.setNotifyCallback(slotId -> {
             ItemStack stack = pMenu.getSlot(slotId).getItem();
             DataModelInstance old = this.models[slotId];
@@ -102,11 +93,11 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerMenu> {
     @Override
     public void init() {
         super.init();
-        this.btnLeft = this.addRenderableWidget(new ImageButton(this.getGuiLeft() - 27, this.getGuiTop() + 105, 24, 24, LEFT_BUTTON, btn -> {
+        this.btnLeft = this.addRenderableWidget(new ImageButton(this.getLeftPos() - 27, this.getTopPos() + 105, 24, 24, LEFT_BUTTON, btn -> {
             this.selectLeft();
         }));
 
-        this.btnRight = this.addRenderableWidget(new ImageButton(this.getGuiLeft() - 1, this.getGuiTop() + 105, 24, 24, RIGHT_BUTTON, btn -> {
+        this.btnRight = this.addRenderableWidget(new ImageButton(this.getLeftPos() - 1, this.getTopPos() + 105, 24, 24, RIGHT_BUTTON, btn -> {
             this.selectRight();
         }));
 
@@ -149,10 +140,11 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerMenu> {
     }
 
     @Override
-    protected void renderBg(GuiGraphics gfx, float pPartialTicks, int pX, int pY) {
-        int left = this.getGuiLeft();
-        int top = this.getGuiTop();
-        gfx.blit(BASE, left + 41, top, 0, 0, 256, 140);
+    public void extractBackground(GuiGraphicsExtractor gfx, int pX, int pY, float pPartialTicks) {
+        super.extractBackground(gfx, pX, pY, pPartialTicks);
+        int left = this.getLeftPos();
+        int top = this.getTopPos();
+        gfx.blit(RenderPipelines.GUI_TEXTURED, BASE, left + 41, top, 0F, 0F, 256, 140, 256, 256);
 
         if (this.numModels > 0) {
             DataModelInstance inst = this.getCurrentModel();
@@ -162,29 +154,26 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerMenu> {
 
             if (iconColumn >= 0) {
                 for (int i = 0; i < 3; i++) {
-                    gfx.blit(BASE, left + WIDTH - 49 - this.stats.getWidth(), top + 8 + this.font.lineHeight + (this.font.lineHeight + 2) * i, iconColumn, 140 + 9 * i, 9, 9);
+                    gfx.blit(RenderPipelines.GUI_TEXTURED, BASE, left + WIDTH - 49 - this.stats.getWidth(), top + 8 + this.font.lineHeight + (this.font.lineHeight + 2) * i, (float) iconColumn, (float) (140 + 9 * i), 9, 9, 256, 256);
                 }
             }
 
-            gfx.blit(BASE, left - 41, top, 9, 140, 75, 101);
+            gfx.blit(RenderPipelines.GUI_TEXTURED, BASE, left - 41, top, 9F, 140F, 75, 101, 256, 256);
 
             if (inst.isValid()) {
                 DisplayEntity display = inst.getDisplayEntity(this.minecraft.level, this.variant);
                 Entity ent = ClientEntityCache.computeIfAbsent(display, this.minecraft.level);
-                if (ent instanceof LivingEntity living) {
-                    living.yBodyRot = this.spin % 360;
-                }
-                this.renderEntityInInventory(gfx, left - 4, top + 90, 40, 0, 0, ent, display);
+                if (ent != null) this.submitGhostEntity(gfx, left, top, ent, display, pPartialTicks);
             }
 
             if (iconColumn >= 0) {
                 for (int i = 0; i < 3; i++) {
-                    gfx.drawString(this.font, this.statArray[i], left + WIDTH - 36 - this.stats.getWidth(), top + 9 + this.font.lineHeight + (this.font.lineHeight + 2) * i, Color.WHITE);
+                    gfx.text(this.font, this.statArray[i], left + WIDTH - 36 - this.stats.getWidth(), top + 9 + this.font.lineHeight + (this.font.lineHeight + 2) * i, (0xFF000000 | Color.WHITE));
                 }
             }
         }
 
-        gfx.blit(PLAYER, left + 81, top + 145, 0, 0, 176, 90);
+        gfx.blit(RenderPipelines.GUI_TEXTURED, PLAYER, left + 81, top + 145, 0F, 0F, 176, 90, 256, 256);
         if (this.numModels <= 1) {
             this.btnLeft.visible = false;
             this.btnRight.visible = false;
@@ -196,7 +185,7 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerMenu> {
     }
 
     @Override
-    protected void renderLabels(GuiGraphics gfx, int pX, int pY) {
+    protected void extractLabels(GuiGraphicsExtractor gfx, int pX, int pY) {
         int left = 49;
         int top = 6;
         this.mainText.render(gfx, left, top);
@@ -317,58 +306,27 @@ public class DeepLearnerScreen extends PlaceboContainerScreen<DeepLearnerMenu> {
         this.stats.addLine(Component.translatable("hostilenetworks.gui.stats").withColor(Color.AQUA));
     }
 
-    @SuppressWarnings("deprecation")
-    public void renderEntityInInventory(GuiGraphics gfx, float pPosX, float pPosY, float scale, float pMouseX, float pMouseY, Entity entity, DisplayEntity display) {
-        float partialTicks = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
-        float mouseAtan = (float) Math.atan(pMouseY / 40.0F);
-        PoseStack pose = gfx.pose();
-        pose.pushPose();
-        scale *= display.scale();
+    /**
+     * Submits the display entity as a spinning, translucent ghost inside the 75x101 entity panel at (left - 41, top).
+     * <p>
+     * Replaces the 1.21 {@code renderEntityInInventory}: the entity is drawn into a picture-in-picture texture by
+     * {@link GhostEntityPipRenderer}, whose origin is the center of the panel. The 1.21 code placed the entity's feet at
+     * {@code (left - 4, top + 90)} with 40 pixels per block.
+     */
+    private void submitGhostEntity(GuiGraphicsExtractor gfx, int left, int top, Entity entity, DisplayEntity display, float partialTicks) {
+        EntityRenderState state = GhostEntityStates.extract(entity, partialTicks);
+        if (state == null) return;
 
-        pose.translate(pPosX, pPosY, 50.0F); // Mirrors magic z value used by InventoryScreen#renderEntityInInventory
-        pose.scale(scale, scale, -scale);
+        int x0 = left - 41, y0 = top, x1 = left + 34, y1 = top + 101;
+        float scale = 40F * display.scale();
+        float feetX = left - 4, feetY = top + 90;
+        float centerX = (x0 + x1) / 2F, centerY = (y0 + y1) / 2F;
+        Vector3f translation = new Vector3f((feetX - centerX) / scale, (feetY - centerY) / scale, 0);
 
-        Quaternionf quaternion = Axis.ZP.rotationDegrees(180.0F);
-        Quaternionf quaternion1 = Axis.XP.rotationDegrees(mouseAtan * 20.0F);
-        quaternion.mul(quaternion1);
-        pose.mulPose(quaternion);
-        pose.mulPose(Axis.YP.rotationDegrees((this.spin + partialTicks) * 2.25F % 360));
-        entity.setYRot(0);
-        if (entity instanceof LivingEntity living) {
-            living.yBodyRot = entity.getYRot();
-            living.yHeadRot = entity.getYRot();
-            living.yHeadRotO = entity.getYRot();
-        }
-
-        // When rendering an item entity, we want to prevent any bobbing or spinning from occurring.
-        // To do that, we have to apply the inverse transforms that would normally be applied so when the real ones apply (in ItemEntityRenderer), they cancel out.
-        if (entity instanceof ItemEntity item) {
-            ItemStack itemstack = item.getItem();
-            ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-            BakedModel bakedmodel = itemRenderer.getModel(itemstack, entity.level(), null, entity.getId());
-
-            boolean shouldBob = net.neoforged.neoforge.client.extensions.common.IClientItemExtensions.of(itemstack).shouldBobAsEntity(itemstack);
-            float f1 = shouldBob ? Mth.sin(((float) item.getAge() + partialTicks) / 10.0F + item.bobOffs) * 0.1F + 0.1F : 0;
-            float f2 = bakedmodel.getTransforms().getTransform(ItemDisplayContext.GROUND).scale.y();
-
-            float f3 = item.getSpin(partialTicks);
-            pose.mulPose(Axis.YP.rotation(-f3));
-
-            pose.translate(0.0F, -(f1 + 0.25F * f2), 0.0F);
-        }
-
-        EntityRenderDispatcher entityrenderermanager = Minecraft.getInstance().getEntityRenderDispatcher();
-        quaternion1.conjugate();
-        entityrenderermanager.overrideCameraOrientation(quaternion1);
-        entityrenderermanager.setRenderShadow(false);
-        MultiBufferSource.BufferSource rtBuffer = Minecraft.getInstance().renderBuffers().bufferSource();
-        RenderSystem.runAsFancy(() -> {
-            entityrenderermanager.render(entity, display.xOffset(), display.yOffset(), display.zOffset(), 0.0F, partialTicks, pose, new WrappedRTBuffer(rtBuffer), 0xF000F0);
-        });
-        rtBuffer.endBatch();
-        entityrenderermanager.setRenderShadow(true);
-        pose.popPose();
-        Lighting.setupFor3DItems();
+        float spinDeg = (this.spin + partialTicks) * 2.25F % 360;
+        Quaternionf rotation = new Quaternionf().rotationZ((float) Math.PI).rotateY(spinDeg * Mth.DEG_TO_RAD);
+        Vector3f offset = new Vector3f(display.xOffset(), display.yOffset(), display.zOffset());
+        gfx.submitPictureInPictureRenderState(new GhostEntityRenderState(state, translation, rotation, null, offset, GHOST_ALPHA, x0, y0, x1, y1, scale, gfx.peekScissorStack()));
     }
 
     public static WidgetSprites makeSprites(String base, String hovered) {

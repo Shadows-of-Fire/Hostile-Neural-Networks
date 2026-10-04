@@ -115,9 +115,9 @@ public final class DataCenterShell {
         }
 
         public static DataCenterShell.Layout readLayout(CompoundTag tag, BlockPos controllerPos) {
-            if (!tag.contains("wallFaceOrd") || !tag.contains("shellMinX")) return null;
-            Direction wallFace = Direction.from3DDataValue(tag.getInt("wallFaceOrd"));
-            BlockPos shellMin = new BlockPos(tag.getInt("shellMinX"), tag.getInt("shellMinY"), tag.getInt("shellMinZ"));
+            if (tag.getInt("wallFaceOrd").isEmpty() || tag.getInt("shellMinX").isEmpty()) return null;
+            Direction wallFace = Direction.from3DDataValue(tag.getIntOr("wallFaceOrd", 0));
+            BlockPos shellMin = new BlockPos(tag.getIntOr("shellMinX", 0), tag.getIntOr("shellMinY", 0), tag.getIntOr("shellMinZ", 0));
             BlockPos shellMax = shellMin.offset(DataCenterShell.SHELL_SIZE - 1, DataCenterShell.SHELL_SIZE - 1, DataCenterShell.SHELL_SIZE - 1);
             BlockPos centerPos = shellMin.offset(DataCenterShell.RADIUS, DataCenterShell.RADIUS, DataCenterShell.RADIUS);
             return new DataCenterShell.Layout(controllerPos, wallFace, shellMin, shellMax, centerPos);

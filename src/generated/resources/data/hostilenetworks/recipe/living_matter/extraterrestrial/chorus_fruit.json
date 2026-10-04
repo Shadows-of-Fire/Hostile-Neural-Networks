@@ -3,15 +3,10 @@
   "category": "misc",
   "group": "hostilenetworks",
   "ingredients": [
-    {
-      "item": "hostilenetworks:end_prediction"
-    },
-    {
-      "item": "minecraft:apple"
-    }
+    "hostilenetworks:end_prediction",
+    "minecraft:apple"
   ],
   "result": {
-    "count": 1,
     "id": "minecraft:chorus_fruit"
   }
 }

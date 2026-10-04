@@ -1,12 +1,13 @@
 package dev.shadowsoffire.hostilenetworks.item;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.block.Block;
 
 public class TooltipBlockItem extends BlockItem {
@@ -19,10 +20,10 @@ public class TooltipBlockItem extends BlockItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> list, TooltipFlag flag) {
         for (int i = 0; i < lines; i++) {
             String key = this.getDescriptionId() + ".desc" + (i > 0 ? String.valueOf(i + 1) : "");
-            list.add(Component.translatable(key).withStyle(ChatFormatting.GRAY));
+            list.accept(Component.translatable(key).withStyle(ChatFormatting.GRAY));
         }
     }
 }

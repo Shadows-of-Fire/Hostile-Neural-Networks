@@ -34,14 +34,13 @@ public class DataCenterIOPortBlock extends BaseEntityBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (level.isClientSide) return InteractionResult.SUCCESS;
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
         BlockState next = state.cycle(MODE);
         level.setBlock(pos, next, Block.UPDATE_ALL);
         level.invalidateCapabilities(pos);
-        player.displayClientMessage(
+        player.sendOverlayMessage(
             Component.translatable("hostilenetworks.io_port.mode_set",
-                Component.translatable(next.getValue(MODE).getTranslationKey())),
-            true);
+                Component.translatable(next.getValue(MODE).getTranslationKey())));
         return InteractionResult.SUCCESS;
     }
 

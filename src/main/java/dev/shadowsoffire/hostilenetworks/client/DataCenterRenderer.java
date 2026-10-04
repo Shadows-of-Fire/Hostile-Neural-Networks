@@ -1,13 +1,16 @@
 package dev.shadowsoffire.hostilenetworks.client;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import org.jspecify.annotations.Nullable;
+
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 
+import dev.shadowsoffire.hostilenetworks.client.ghost.GhostCollector;
+import dev.shadowsoffire.hostilenetworks.client.ghost.GhostEntityStates;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.multiblock.DataCenterShell;
@@ -15,27 +18,39 @@ import dev.shadowsoffire.hostilenetworks.tile.DataCenterTileEntity;
 import dev.shadowsoffire.hostilenetworks.util.ClientEntityCache;
 import dev.shadowsoffire.hostilenetworks.util.Color;
 import dev.shadowsoffire.hostilenetworks.util.DisplayEntity;
-import dev.shadowsoffire.placebo.reload.DynamicHolder;
+import dev.shadowsoffire.placebo.dynreg.DynamicHolder;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ShapeRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 
-public class DataCenterRenderer implements BlockEntityRenderer<DataCenterTileEntity> {
+/**
+ * Renders the Data Center: an outline of the multiblock shell plus up to {@link DataCenterTileEntity#DISPLAY_SLOT_COUNT}
+ * translucent ghosts of the stored data models' display entities, cycling over time.
+ * <p>
+ * Entity render states are extracted in {@link #extractRenderState} and submitted through a {@link GhostCollector} in
+ * {@link #submit}.
+ */
+public class DataCenterRenderer implements BlockEntityRenderer<DataCenterTileEntity, DataCenterRenderer.State> {
 
-    private static final float OUTLINE_R = ((Color.AQUA >> 16) & 0xFF) / 255f;
-    private static final float OUTLINE_G = ((Color.AQUA >> 8) & 0xFF) / 255f;
-    private static final float OUTLINE_B = (Color.AQUA & 0xFF) / 255f;
-    private static final float OUTLINE_A = 1.0f;
+    private static final int OUTLINE_COLOR = ARGB.opaque(Color.AQUA);
+    private static final int GHOST_ALPHA = 0xBB;
 
     private static final float WORLD_SCALE_FACTOR = 1.5f;
     private static final float DISPLAY_SCALE_FACTOR = 0.55f;
@@ -46,8 +61,6 @@ public class DataCenterRenderer implements BlockEntityRenderer<DataCenterTileEnt
 
     private static final long SEED_MIX_SLOT = 0x9E3779B97F4A7C15L;
     private static final long SEED_MIX_CYCLE = 0xC6BC279692B5C323L;
-
-    private static final MultiBufferSource.BufferSource GHOST_BUFFER = MultiBufferSource.immediate(new ByteBufferBuilder(256));
 
     public DataCenterRenderer(BlockEntityRendererProvider.Context ctx) {}
 
@@ -66,30 +79,29 @@ public class DataCenterRenderer implements BlockEntityRenderer<DataCenterTileEnt
     }
 
     @Override
-    public void render(DataCenterTileEntity tile, float partialTick, PoseStack pose, MultiBufferSource bufs, int light, int overlay) {
+    public State createRenderState() {
+        return new State();
+    }
+
+    @Override
+    public void extractRenderState(DataCenterTileEntity tile, State state, float partialTicks, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay crumbling) {
+        BlockEntityRenderer.super.extractRenderState(tile, state, partialTicks, cameraPosition, crumbling);
+        state.outline = null;
+        state.displays.clear();
+
         if (!tile.isShellValid()) return;
         DataCenterShell.Layout layout = tile.getCachedLayout();
         if (layout == null) return;
 
-        drawShellOutline(tile, layout, pose, bufs);
-        drawDisplaySlots(tile, layout, partialTick, pose);
-    }
-
-    private void drawShellOutline(DataCenterTileEntity tile, DataCenterShell.Layout layout, PoseStack pose, MultiBufferSource bufs) {
         BlockPos here = tile.getBlockPos();
-        double minX = layout.shellMin().getX() - here.getX();
-        double minY = layout.shellMin().getY() - here.getY();
-        double minZ = layout.shellMin().getZ() - here.getZ();
-        double maxX = layout.shellMax().getX() - here.getX() + 1;
-        double maxY = layout.shellMax().getY() - here.getY() + 1;
-        double maxZ = layout.shellMax().getZ() - here.getZ() + 1;
+        state.outline = new AABB(
+            layout.shellMin().getX() - here.getX(), layout.shellMin().getY() - here.getY(), layout.shellMin().getZ() - here.getZ(),
+            layout.shellMax().getX() - here.getX() + 1, layout.shellMax().getY() - here.getY() + 1, layout.shellMax().getZ() - here.getZ() + 1);
 
-        VertexConsumer lines = bufs.getBuffer(RenderType.lines());
-        LevelRenderer.renderLineBox(pose, lines, minX, minY, minZ, maxX, maxY, maxZ, OUTLINE_R, OUTLINE_G, OUTLINE_B, OUTLINE_A);
+        this.extractDisplaySlots(tile, state, layout, partialTicks);
     }
 
-    @SuppressWarnings("deprecation")
-    private void drawDisplaySlots(DataCenterTileEntity tile, DataCenterShell.Layout layout, float partialTick, PoseStack pose) {
+    private void extractDisplaySlots(DataCenterTileEntity tile, State state, DataCenterShell.Layout layout, float partialTick) {
         if (tile.displaySlotPositions == null) generateSlotLayout(tile);
 
         int activeMask = tile.getActiveSlotsMask();
@@ -107,70 +119,61 @@ public class DataCenterRenderer implements BlockEntityRenderer<DataCenterTileEnt
         float baseSpin = ((mc.player != null ? mc.player.tickCount : 0) + partialTick) * 2f;
         float now = mc.level.getGameTime() + partialTick;
 
-        EntityRenderDispatcher dispatcher = mc.getEntityRenderDispatcher();
-        dispatcher.setRenderShadow(false);
-        WeirdRenderThings.translucent = true;
-        try {
-            final float pt = partialTick;
-            final int finalActiveMask = activeMask;
-            RenderSystem.runAsFancy(() -> {
-                for (int i = 0; i < DataCenterTileEntity.DISPLAY_SLOT_COUNT; i++) {
-                    drawOneDisplaySlot(tile, i, finalActiveMask, now, baseSpin, cx, cy, cz, pt, pose, dispatcher, mc);
-                }
-            });
-            GHOST_BUFFER.endBatch();
-        }
-        finally {
-            WeirdRenderThings.translucent = false;
-            dispatcher.setRenderShadow(true);
+        for (int slotIdx = 0; slotIdx < DataCenterTileEntity.DISPLAY_SLOT_COUNT; slotIdx++) {
+            float localTime = now - tile.displaySlotPhaseOffsets[slotIdx];
+            int cycleIdx = Mth.floor(localTime / CYCLE_TICKS);
+            float t = (localTime - cycleIdx * CYCLE_TICKS) / CYCLE_TICKS;
+            float envelope = envelopeAt(t);
+            if (envelope <= 0.001f) continue;
+
+            // Picked entity index is locked for the full cycle; if the slot empties mid-cycle we just stop rendering it.
+            if (tile.displaySlotCycleIdx[slotIdx] != cycleIdx) {
+                tile.displaySlotCycleIdx[slotIdx] = cycleIdx;
+                tile.displaySlotEntityIdx[slotIdx] = pickEntityForCycle(activeMask, here, slotIdx, cycleIdx);
+            }
+            int entityIdx = tile.displaySlotEntityIdx[slotIdx];
+            if (entityIdx < 0 || entityIdx >= DataCenterTileEntity.MODEL_SLOTS) continue;
+
+            ItemStack stack = ItemUtil.getStack(tile.getInventory(), entityIdx);
+            DynamicHolder<DataModel> model = DataModelItem.getStoredModel(stack);
+            if (!model.isBound()) continue;
+            DisplayEntity display = model.get().displayEntity(mc.level);
+            Entity ent = ClientEntityCache.computeIfAbsent(display, mc.level);
+            if (ent == null) continue;
+
+            EntityRenderState renderState = GhostEntityStates.extract(ent, partialTick);
+            if (renderState == null) continue;
+
+            float[] off = tile.displaySlotPositions[slotIdx];
+            float scale = WORLD_SCALE_FACTOR * DISPLAY_SCALE_FACTOR * display.scale() * envelope;
+            float spin = baseSpin + (slotIdx * 360f / DataCenterTileEntity.DISPLAY_SLOT_COUNT);
+            state.displays.add(new SlotDisplay(renderState, cx + off[0], cy + off[1], cz + off[2], scale, spin, display));
         }
     }
 
-    private void drawOneDisplaySlot(DataCenterTileEntity tile, int slotIdx, int activeMask, float now, float baseSpin,
-        float cx, float cy, float cz, float partialTick, PoseStack pose, EntityRenderDispatcher dispatcher, Minecraft mc) {
-
-        float localTime = now - tile.displaySlotPhaseOffsets[slotIdx];
-        int cycleIdx = Mth.floor(localTime / CYCLE_TICKS);
-        float t = (localTime - cycleIdx * CYCLE_TICKS) / CYCLE_TICKS;
-        float envelope = envelopeAt(t);
-        if (envelope <= 0.001f) return;
-
-        // Picked entity index is locked for the full cycle; if the slot empties mid-cycle we just stop rendering it.
-        if (tile.displaySlotCycleIdx[slotIdx] != cycleIdx) {
-            tile.displaySlotCycleIdx[slotIdx] = cycleIdx;
-            tile.displaySlotEntityIdx[slotIdx] = pickEntityForCycle(activeMask, tile.getBlockPos(), slotIdx, cycleIdx);
-        }
-        int entityIdx = tile.displaySlotEntityIdx[slotIdx];
-        if (entityIdx < 0 || entityIdx >= DataCenterTileEntity.MODEL_SLOTS) return;
-
-        ItemStack stack = tile.getInventory().getStackInSlot(entityIdx);
-        DynamicHolder<DataModel> model = DataModelItem.getStoredModel(stack);
-        if (!model.isBound()) return;
-        DisplayEntity display = model.get().displayEntity(mc.level);
-        Entity ent = ClientEntityCache.computeIfAbsent(display, mc.level);
-        if (ent == null) return;
-
-        if (mc.player != null) ent.tickCount = mc.player.tickCount;
-
-        ent.setYRot(0);
-        if (ent instanceof LivingEntity living) {
-            living.yBodyRot = 0;
-            living.yBodyRotO = 0;
-            living.yHeadRot = 0;
-            living.yHeadRotO = 0;
+    @Override
+    public void submit(State state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
+        if (state.outline != null) {
+            AABB box = state.outline;
+            collector.submitCustomGeometry(pose, RenderTypes.lines(), (p, buffer) -> {
+                PoseStack stack = new PoseStack();
+                stack.last().pose().set(p.pose());
+                stack.last().normal().set(p.normal());
+                ShapeRenderer.renderShape(stack, buffer, Shapes.create(box), 0, 0, 0, OUTLINE_COLOR, 1.0F);
+            });
         }
 
-        float[] off = tile.displaySlotPositions[slotIdx];
-        float scale = WORLD_SCALE_FACTOR * DISPLAY_SCALE_FACTOR * display.scale() * envelope;
-        float spin = baseSpin + (slotIdx * 360f / DataCenterTileEntity.DISPLAY_SLOT_COUNT);
-
-        pose.pushPose();
-        pose.translate(cx + off[0], cy + off[1], cz + off[2]);
-        pose.scale(scale, scale, scale);
-        pose.mulPose(Axis.YP.rotationDegrees(spin));
-        dispatcher.render(ent, display.xOffset(), display.yOffset(), display.zOffset(),
-            0f, partialTick, pose, new WrappedRTBuffer(GHOST_BUFFER), 0xF000F0);
-        pose.popPose();
+        if (state.displays.isEmpty()) return;
+        EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+        GhostCollector ghost = new GhostCollector(collector, GHOST_ALPHA);
+        for (SlotDisplay slot : state.displays) {
+            pose.pushPose();
+            pose.translate(slot.x(), slot.y(), slot.z());
+            pose.scale(slot.scale(), slot.scale(), slot.scale());
+            pose.mulPose(Axis.YP.rotationDegrees(slot.spin()));
+            dispatcher.submit(slot.state(), camera, slot.display().xOffset(), slot.display().yOffset(), slot.display().zOffset(), pose, ghost);
+            pose.popPose();
+        }
     }
 
     private static float envelopeAt(float t) {
@@ -217,4 +220,24 @@ public class DataCenterRenderer implements BlockEntityRenderer<DataCenterTileEnt
         tile.displaySlotPositions = positions;
         tile.displaySlotPhaseOffsets = phases;
     }
+
+    /**
+     * A display slot ready to be submitted.
+     *
+     * @param state   The extracted (ghost-normalized) entity render state.
+     * @param x       Render position relative to the controller, in blocks.
+     * @param y       Render position relative to the controller, in blocks.
+     * @param z       Render position relative to the controller, in blocks.
+     * @param scale   Uniform scale, including the cycle envelope.
+     * @param spin    Y rotation in degrees.
+     * @param display The data model's display entity data (for its offsets).
+     */
+    public record SlotDisplay(EntityRenderState state, float x, float y, float z, float scale, float spin, DisplayEntity display) {}
+
+    public static class State extends BlockEntityRenderState {
+        @Nullable
+        public AABB outline;
+        public final List<SlotDisplay> displays = new ArrayList<>();
+    }
+
 }

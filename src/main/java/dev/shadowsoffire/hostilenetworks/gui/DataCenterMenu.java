@@ -2,6 +2,7 @@ package dev.shadowsoffire.hostilenetworks.gui;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
+import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.tile.DataCenterTileEntity;
 import dev.shadowsoffire.hostilenetworks.tile.DataCenterTileEntity.DataCenterItemHandler;
@@ -11,11 +12,12 @@ import dev.shadowsoffire.hostilenetworks.util.FabSelection.ProductionMode;
 import dev.shadowsoffire.hostilenetworks.util.RedstoneState;
 import dev.shadowsoffire.placebo.menu.BlockEntityMenu;
 import dev.shadowsoffire.placebo.menu.FilteredSlot;
-import dev.shadowsoffire.placebo.reload.DynamicHolder;
+import dev.shadowsoffire.placebo.dynreg.DynamicHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 
 public class DataCenterMenu extends BlockEntityMenu<DataCenterTileEntity> {
 
@@ -71,7 +73,7 @@ public class DataCenterMenu extends BlockEntityMenu<DataCenterTileEntity> {
     private boolean isAnyInstalledModelInput(ItemStack stack) {
         DataCenterItemHandler inv = this.tile.getInventory();
         for (int m = 0; m < DataCenterTileEntity.MODEL_SLOTS; m++) {
-            ItemStack modelStack = inv.getStackInSlot(m);
+            ItemStack modelStack = ItemUtil.getStack(inv, m);
             if (!modelStack.isEmpty() && DataModelItem.matchesModelInput(modelStack, stack)) return true;
         }
         return false;
@@ -138,7 +140,7 @@ public class DataCenterMenu extends BlockEntityMenu<DataCenterTileEntity> {
 
     private DynamicHolder<DataModel> boundModelAt(int slotIdx) {
         if (slotIdx < 0 || slotIdx >= DataCenterTileEntity.MODEL_SLOTS) return null;
-        DynamicHolder<DataModel> holder = DataModelItem.getStoredModel(this.tile.getInventory().getStackInSlot(slotIdx));
+        DynamicHolder<DataModel> holder = DataModelItem.getStoredModel(ItemUtil.getStack(this.tile.getInventory(), slotIdx));
         return holder.isBound() ? holder : null;
     }
 
@@ -150,7 +152,7 @@ public class DataCenterMenu extends BlockEntityMenu<DataCenterTileEntity> {
 
     public DynamicHolder<DataModel> getModelHolder(int slotIdx) {
         DynamicHolder<DataModel> holder = this.boundModelAt(slotIdx);
-        return holder != null ? holder : dev.shadowsoffire.hostilenetworks.data.DataModelRegistry.INSTANCE.emptyHolder();
+        return holder != null ? holder : DataModelRegistry.INSTANCE.emptyHolder();
     }
 
     public int getEnergyStored() {

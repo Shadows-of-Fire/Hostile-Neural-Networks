@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
+import dev.shadowsoffire.hostilenetworks.util.Templates;
 import dev.shadowsoffire.hostilenetworks.HostileConfig;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
@@ -13,22 +14,27 @@ import dev.shadowsoffire.hostilenetworks.item.DataModelItem;
 import dev.shadowsoffire.hostilenetworks.util.RedstoneState;
 import dev.shadowsoffire.placebo.block_entity.TickingBlockEntity;
 import dev.shadowsoffire.placebo.cap.InternalItemHandler;
-import dev.shadowsoffire.placebo.cap.ModifiableEnergyStorage;
+import dev.shadowsoffire.hostilenetworks.util.ModifiableEnergyStorage;
 import dev.shadowsoffire.placebo.menu.SimpleDataSlots;
 import dev.shadowsoffire.placebo.menu.SimpleDataSlots.IDataAutoRegister;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Containers;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 public class SimChamberTileEntity extends BlockEntity implements TickingBlockEntity, IDataAutoRegister {
 
@@ -68,34 +74,40 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        super.saveAdditional(tag, regs);
-        tag.put("inventory", this.inventory.serializeNBT(regs));
-        tag.putInt("energy", this.energy.getEnergyStored());
-        tag.putString("model", !this.currentModel.isValid() ? "null" : DataModelRegistry.INSTANCE.getKey(this.currentModel.getModel()).toString());
-        tag.putInt("runtime", this.runtime);
-        tag.putInt("predSuccess", this.predictionSuccess);
-        tag.putInt("failState", this.failState.ordinal());
-        tag.putInt("redstoneState", this.redstoneState.ordinal());
-        tag.putInt("simMode", this.mode.ordinal());
+    public void saveAdditional(ValueOutput out) {
+        super.saveAdditional(out);
+        this.inventory.serialize(out);
+        out.putInt("energy", this.energy.getEnergyStored());
+        out.putString("model", !this.currentModel.isValid() ? "null" : DataModelRegistry.INSTANCE.getKey(this.currentModel.getModel()).toString());
+        out.putInt("runtime", this.runtime);
+        out.putInt("predSuccess", this.predictionSuccess);
+        out.putInt("failState", this.failState.ordinal());
+        out.putInt("redstoneState", this.redstoneState.ordinal());
+        out.putInt("simMode", this.mode.ordinal());
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        super.loadAdditional(tag, regs);
-        this.inventory.deserializeNBT(regs, tag.getCompound("inventory"));
-        this.energy.setEnergy(tag.getInt("energy"));
-        ItemStack model = this.inventory.getStackInSlot(0);
+    public void loadAdditional(ValueInput in) {
+        super.loadAdditional(in);
+        this.inventory.deserialize(in);
+        this.energy.setEnergy(in.getIntOr("energy", 0));
+        ItemStack model = ItemUtil.getStack(this.inventory, 0);
         DataModelInstance cModel = this.getOrLoadModel(model);
-        ResourceLocation modelId = ResourceLocation.parse(tag.getString("model"));
+        Identifier modelId = Identifier.parse(in.getStringOr("model", "null"));
         if (cModel.isValid() && DataModelRegistry.INSTANCE.getKey(cModel.getModel()).equals(modelId)) {
             this.currentModel = cModel;
         }
-        this.runtime = tag.getInt("runtime");
-        this.predictionSuccess = tag.getInt("predSuccess");
-        this.failState = FailureState.values()[tag.getInt("failState")];
-        this.redstoneState = RedstoneState.values()[tag.getInt("redstoneState")];
-        this.mode = SimMode.values()[tag.getInt("simMode")];
+        this.runtime = in.getIntOr("runtime", 0);
+        this.predictionSuccess = in.getIntOr("predSuccess", 0);
+        this.failState = FailureState.values()[in.getIntOr("failState", 0)];
+        this.redstoneState = RedstoneState.values()[in.getIntOr("redstoneState", 0)];
+        this.mode = SimMode.values()[in.getIntOr("simMode", 0)];
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (this.level != null) Containers.dropContents(this.level, pos, this.inventory.getItems());
+        super.preRemoveSideEffects(pos, state);
     }
 
     @Override
@@ -106,7 +118,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
             this.setChanged();
         }
 
-        ItemStack model = this.inventory.getStackInSlot(0);
+        ItemStack model = ItemUtil.getStack(this.inventory, 0);
         if (!model.isEmpty()) {
             DataModelInstance oldModel = this.currentModel;
             this.currentModel = this.getOrLoadModel(model);
@@ -122,8 +134,11 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                 if (this.runtime == 0) {
                     if (this.canStartSimulation()) {
                         this.runtime = this.mode.getRuntime();
-                        this.predictionSuccess = this.currentModel.rollPredictions(this.level.random);
-                        this.inventory.getStackInSlot(1).shrink(1);
+                        this.predictionSuccess = this.currentModel.rollPredictions(this.level.getRandom());
+                        try (Transaction tx = Transaction.openRoot()) {
+                            this.inventory.extractInternal(1, this.inventory.getResource(1), 1, tx);
+                            tx.commit();
+                        }
                         this.setChanged();
                     }
                 }
@@ -133,21 +148,19 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                         if (--this.runtime == 0) {
                             // Inference Mode produces the loot; Training Mode produces nothing here.
                             if (this.mode == SimMode.INFERENCE) {
-                                ItemStack baseDrop = this.inventory.getStackInSlot(2);
-                                if (baseDrop.isEmpty()) {
-                                    this.inventory.setStackInSlot(2, this.currentModel.getModel().baseDrop().copy());
-                                }
-                                else {
-                                    baseDrop.grow(1);
+                                ItemStack baseDrop = Templates.create(this.currentModel.getModel().baseDrop());
+                                if (!baseDrop.isEmpty()) {
+                                    try (Transaction tx = Transaction.openRoot()) {
+                                        this.inventory.insertInternal(2, ItemResource.of(baseDrop), baseDrop.getCount(), tx);
+                                        tx.commit();
+                                    }
                                 }
 
                                 if (this.predictionSuccess > 0) {
-                                    ItemStack prediction = this.inventory.getStackInSlot(3);
-                                    if (prediction.isEmpty()) {
-                                        this.inventory.setStackInSlot(3, this.currentModel.getPredictionDrop().copyWithCount(this.predictionSuccess));
-                                    }
-                                    else {
-                                        prediction.grow(this.predictionSuccess);
+                                    ItemStack prediction = this.currentModel.getPredictionDrop().copyWithCount(this.predictionSuccess);
+                                    try (Transaction tx = Transaction.openRoot()) {
+                                        this.inventory.insertInternal(3, ItemResource.of(prediction), prediction.getCount(), tx);
+                                        tx.commit();
                                     }
                                 }
                             }
@@ -156,7 +169,11 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
                                 int newData = this.currentModel.getData() + 1;
                                 this.currentModel.setData(newData);
                             }
-                            DataModelItem.setIters(model, DataModelItem.getIters(model) + 1);
+                            // The training write above and the iteration counter land on the instance's source stack,
+                            // which is a copy of the handler contents. Store it back so the change persists.
+                            ItemStack src = this.currentModel.getSourceStack();
+                            DataModelItem.setIters(src, DataModelItem.getIters(src) + 1);
+                            this.inventory.set(0, ItemResource.of(src), model.getCount());
                             this.setChanged();
                         }
                         else if (this.runtime != 0) {
@@ -182,7 +199,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
      * Checks if the output slots are clear and there is enough power for a sim run.
      */
     public boolean canStartSimulation() {
-        if (!DataModelItem.matchesModelInput(this.inventory.getStackInSlot(0), this.inventory.getStackInSlot(1))) {
+        if (!DataModelItem.matchesModelInput(ItemUtil.getStack(this.inventory, 0), ItemUtil.getStack(this.inventory, 1))) {
             this.failState = FailureState.INPUT;
             return false;
         }
@@ -198,9 +215,9 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         }
 
         DataModel model = this.currentModel.getModel();
-        ItemStack nOut = this.inventory.getStackInSlot(2);
-        ItemStack pOut = this.inventory.getStackInSlot(3);
-        ItemStack nOutExp = model.baseDrop();
+        ItemStack nOut = ItemUtil.getStack(this.inventory, 2);
+        ItemStack pOut = ItemUtil.getStack(this.inventory, 3);
+        ItemStack nOutExp = Templates.create(model.baseDrop());
         ItemStack pOutExp = this.currentModel.getPredictionDrop();
 
         if (this.canStack(nOut, nOutExp) && this.canStack(pOut, pOutExp)) {
@@ -249,7 +266,9 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
     }
 
     protected DataModelInstance getOrLoadModel(ItemStack stack) {
-        if (this.currentModel.getSourceStack() == stack) return this.currentModel;
+        // ItemUtil.getStack returns a fresh copy on every call, so the 1.21 identity check would never match and the
+        // instance (and runtime) would reset every tick. Compare contents instead; model stacks are never stackable.
+        if (ItemStack.isSameItemSameComponents(this.currentModel.getSourceStack(), stack)) return this.currentModel;
         else return new DataModelInstance(stack, 0);
     }
 
@@ -257,7 +276,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         return this.inventory;
     }
 
-    public IEnergyStorage getEnergy() {
+    public EnergyHandler getEnergy() {
         return energy;
     }
 
@@ -301,26 +320,26 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         }
 
         @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            if (slot == 0) return stack.getItem() instanceof DataModelItem;
-            else if (slot == 1) return DataModelItem.matchesModelInput(this.getStackInSlot(0), stack);
+        public boolean isValid(int index, ItemResource resource) {
+            if (index == 0) return resource.getItem() instanceof DataModelItem;
+            else if (index == 1) return DataModelItem.matchesModelInput(ItemUtil.getStack(this, 0), resource.toStack(1));
             return true;
         }
 
         @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if (slot > 1) return stack;
-            return super.insertItem(slot, stack, simulate);
+        public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            if (index > 1) return 0;
+            return super.insert(index, resource, amount, transaction);
         }
 
         @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            if (slot <= 1) return ItemStack.EMPTY;
-            return super.extractItem(slot, amount, simulate);
+        public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            if (index <= 1) return 0;
+            return super.extract(index, resource, amount, transaction);
         }
 
         @Override
-        protected void onContentsChanged(int slot) {
+        protected void onContentsChanged(int index, ItemStack oldContents) {
             SimChamberTileEntity.this.setChanged();
         }
 
@@ -369,8 +388,8 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
      */
     public enum SimMode {
 
-        INFERENCE("inference", ResourceLocation.withDefaultNamespace("textures/item/ender_eye.png"), 1.25F, 1F),
-        TRAINING("training", ResourceLocation.withDefaultNamespace("textures/item/experience_bottle.png"), 1F, 1.2F);
+        INFERENCE("inference", Identifier.withDefaultNamespace("textures/item/ender_eye.png"), 1.25F, 1F),
+        TRAINING("training", Identifier.withDefaultNamespace("textures/item/experience_bottle.png"), 1F, 1.2F);
 
         /**
          * The length of a simulation run at 100% speed, in ticks.
@@ -378,12 +397,12 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         public static final int BASE_RUNTIME = 300;
 
         private final String name;
-        private final ResourceLocation texture;
+        private final Identifier texture;
         private final float speedMultiplier;
         private final float costMultiplier;
         private final int runtime;
 
-        SimMode(String name, ResourceLocation texture, float speedMultiplier, float costMultiplier) {
+        SimMode(String name, Identifier texture, float speedMultiplier, float costMultiplier) {
             this.name = name;
             this.texture = texture;
             this.speedMultiplier = speedMultiplier;
@@ -417,7 +436,7 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
             return "hostilenetworks.gui.mode." + this.name;
         }
 
-        public ResourceLocation getResourceLocation() {
+        public Identifier getResourceLocation() {
             return this.texture;
         }
 

@@ -3,15 +3,9 @@
   "category": "misc",
   "group": "hostilenetworks",
   "ingredients": [
-    {
-      "tag": "minecraft:leaves"
-    },
-    {
-      "item": "minecraft:dirt"
-    },
-    {
-      "item": "hostilenetworks:overworld_prediction"
-    }
+    "#minecraft:leaves",
+    "minecraft:dirt",
+    "hostilenetworks:overworld_prediction"
   ],
   "result": {
     "count": 4,

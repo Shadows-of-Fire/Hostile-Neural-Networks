@@ -4,25 +4,23 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
-import dev.shadowsoffire.hostilenetworks.client.DataModelItemStackRenderer;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
 import dev.shadowsoffire.hostilenetworks.data.ModelTier;
 import dev.shadowsoffire.hostilenetworks.data.ModelTierRegistry;
 import dev.shadowsoffire.hostilenetworks.util.Color;
-import dev.shadowsoffire.placebo.reload.DynamicHolder;
+import dev.shadowsoffire.placebo.dynreg.DynamicHolder;
 import dev.shadowsoffire.placebo.tabs.ITabFiller;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 public class DataModelItem extends Item implements ITabFiller {
@@ -32,38 +30,38 @@ public class DataModelItem extends Item implements ITabFiller {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> list, TooltipFlag flag) {
         DataModelInstance inst = new DataModelInstance(stack, 0);
         if (!inst.isValid()) {
-            list.add(Component.translatable("Error: %s", Component.literal("Broke_AF").withStyle(ChatFormatting.OBFUSCATED, ChatFormatting.GRAY)));
+            list.accept(Component.translatable("Error: %s", Component.literal("Broke_AF").withStyle(ChatFormatting.OBFUSCATED, ChatFormatting.GRAY)));
             return;
         }
         int data = getData(stack);
         DataModel model = inst.getModel();
         ModelTier tier = ModelTierRegistry.getByData(model, data);
-        list.add(Component.translatable("hostilenetworks.info.tier", tier.getComponent()));
+        list.accept(Component.translatable("hostilenetworks.info.tier", tier.getComponent()));
 
         int dProg = data - inst.getTierData();
         int dMax = inst.getNextTierData() - inst.getTierData();
         if (!tier.isMax()) {
-            list.add(Component.translatable("hostilenetworks.info.data", Component.translatable("hostilenetworks.info.dprog", dProg, dMax).withStyle(ChatFormatting.GRAY)));
+            list.accept(Component.translatable("hostilenetworks.info.data", Component.translatable("hostilenetworks.info.dprog", dProg, dMax).withStyle(ChatFormatting.GRAY)));
             int dataGained = inst.getDataGained();
             String dpaKey = model.dataPerActionKey();
             if (dataGained == 0) {
                 Component c1 = Component.literal("000 ").withStyle(ChatFormatting.GRAY, ChatFormatting.OBFUSCATED);
-                list.add(Component.translatable(dpaKey, c1).append(Component.translatable("hostilenetworks.info.disabled").withStyle(ChatFormatting.RED)));
+                list.accept(Component.translatable(dpaKey, c1).append(Component.translatable("hostilenetworks.info.disabled").withStyle(ChatFormatting.RED)));
             }
             else {
-                list.add(Component.translatable(dpaKey, Component.literal("" + dataGained).withStyle(ChatFormatting.GRAY)));
+                list.accept(Component.translatable(dpaKey, Component.literal("" + dataGained).withStyle(ChatFormatting.GRAY)));
             }
         }
-        list.add(Component.translatable("hostilenetworks.info.sim_cost", Component.translatable("hostilenetworks.info.rft", model.simCost()).withStyle(ChatFormatting.GRAY)));
+        list.accept(Component.translatable("hostilenetworks.info.sim_cost", Component.translatable("hostilenetworks.info.rft", model.simCost()).withStyle(ChatFormatting.GRAY)));
 
         List<Component> variants = model.variantNames();
         if (!variants.isEmpty()) {
-            list.add(Component.translatable("hostilenetworks.info.subtypes"));
+            list.accept(Component.translatable("hostilenetworks.info.subtypes"));
             for (Component v : variants) {
-                list.add(Component.translatable("hostilenetworks.info.sub_list", v).withStyle(Style.EMPTY.withColor(Color.LIME)));
+                list.accept(Component.translatable("hostilenetworks.info.sub_list", v).withStyle(Style.EMPTY.withColor(Color.LIME)));
             }
         }
     }
@@ -85,19 +83,7 @@ public class DataModelItem extends Item implements ITabFiller {
             modelName = Component.literal("BROKEN").withStyle(ChatFormatting.OBFUSCATED);
         }
         else modelName = model.get().name().plainCopy();
-        return Component.translatable(this.getDescriptionId(pStack), modelName);
-    }
-
-    @Override
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(new IClientItemExtensions(){
-            DataModelItemStackRenderer dmisr = new DataModelItemStackRenderer();
-
-            @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                return this.dmisr;
-            }
-        });
+        return Component.translatable(this.getDescriptionId(), modelName);
     }
 
     /**

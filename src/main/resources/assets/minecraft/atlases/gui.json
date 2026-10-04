@@ -1,0 +1,9 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:gui/sprites/tooltip/background",
+      "sprite": "hostilenetworks:tooltip/fancy_background"
+    }
+  ]
+}

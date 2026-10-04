@@ -3,12 +3,8 @@
   "category": "misc",
   "group": "hostilenetworks",
   "ingredients": [
-    {
-      "item": "hostilenetworks:overworld_prediction"
-    },
-    {
-      "item": "minecraft:stick"
-    }
+    "hostilenetworks:overworld_prediction",
+    "minecraft:stick"
   ],
   "result": {
     "count": 2,

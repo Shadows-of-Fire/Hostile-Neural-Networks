@@ -5,7 +5,7 @@ It exists because some blocks have no item form, and some blocks look better whe
 
 # Dependencies
 This object references the following objects:
-1. [ItemStack](../../../../../Placebo/blob/1.21/schema/ItemStack.md)
+1. [ItemStackTemplate](../../../../../Placebo/blob/26.1/schema/ItemStackTemplate.md)
 
 # Schema
 
@@ -22,7 +22,7 @@ A bare block registry name. The display stack defaults to `new ItemStack(block)`
 ```js
 {
     "block": "string",          // [Mandatory] || Block registry name.
-    "display_stack": ItemStack  // [Mandatory] || The item stack rendered for this block.
+    "display_stack": ItemStackTemplate  // [Mandatory] || The item stack rendered for this block.
 }
 ```
 

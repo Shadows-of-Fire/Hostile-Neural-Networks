@@ -3,15 +3,9 @@
   "category": "misc",
   "group": "hostilenetworks",
   "key": {
-    "B": {
-      "item": "minecraft:black_stained_glass"
-    },
-    "I": {
-      "tag": "c:ingots/iron"
-    },
-    "R": {
-      "item": "minecraft:redstone_block"
-    }
+    "B": "minecraft:black_stained_glass",
+    "I": "#c:ingots/iron",
+    "R": "minecraft:redstone_block"
   },
   "pattern": [
     "IBI",
@@ -19,7 +13,6 @@
     "IBI"
   ],
   "result": {
-    "count": 1,
     "id": "hostilenetworks:data_center_io_port"
   }
 }

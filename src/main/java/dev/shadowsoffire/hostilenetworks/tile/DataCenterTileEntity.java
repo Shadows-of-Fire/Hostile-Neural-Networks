@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import dev.shadowsoffire.hostilenetworks.Hostile;
+import dev.shadowsoffire.hostilenetworks.util.Templates;
 import dev.shadowsoffire.hostilenetworks.HostileConfig;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
@@ -24,12 +25,21 @@ import dev.shadowsoffire.hostilenetworks.util.FabSelection.ProductionMode;
 import dev.shadowsoffire.hostilenetworks.util.RedstoneState;
 import dev.shadowsoffire.placebo.block_entity.TickingBlockEntity;
 import dev.shadowsoffire.placebo.cap.InternalItemHandler;
-import dev.shadowsoffire.placebo.cap.ModifiableEnergyStorage;
+import dev.shadowsoffire.hostilenetworks.util.ModifiableEnergyStorage;
 import dev.shadowsoffire.placebo.menu.SimpleDataSlots;
 import dev.shadowsoffire.placebo.menu.SimpleDataSlots.IDataAutoRegister;
 import dev.shadowsoffire.placebo.network.VanillaPacketDispatcher;
-import dev.shadowsoffire.placebo.reload.DynamicHolder;
-import net.minecraft.Util;
+import dev.shadowsoffire.placebo.dynreg.DynamicHolder;
+import net.minecraft.world.Containers;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -42,7 +52,7 @@ import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.DataSlot;
@@ -53,7 +63,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.world.chunk.TicketHelper;
 import net.neoforged.neoforge.common.world.chunk.TicketSet;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 
 /**
  * Controller BE for the Data Center multiblock. Runs up to {@value #MODEL_SLOTS} parallel sim loops + per-model
@@ -128,6 +137,15 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
     }
 
     @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        // Only fires on real block removal (LevelChunk#setBlockState), never on chunk unload, so cross-chunk port
+        // cleanup is safe here. See setRemoved() for why it must not live there.
+        if (this.level != null) Containers.dropContents(this.level, pos, this.inventory.getItems());
+        this.clearPortOwnersOnBreak();
+        super.preRemoveSideEffects(pos, state);
+    }
+
+    @Override
     public void serverTick(Level level, BlockPos pos, BlockState state) {
         if (--this.shellRecheckTimer <= 0) {
             this.shellRecheckTimer = SHELL_RECHECK_INTERVAL;
@@ -146,7 +164,7 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         boolean powered = level.hasNeighborSignal(pos);
         if (!this.redstoneState.matches(powered)) {
             for (int i = 0; i < MODEL_SLOTS; i++) {
-                if (!this.inventory.getStackInSlot(i).isEmpty()) {
+                if (!ItemUtil.getStack(this.inventory, i).isEmpty()) {
                     this.failStates[i] = FailureState.REDSTONE;
                 }
             }
@@ -191,7 +209,7 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
     }
 
     private boolean tickModelSlot(Level level, int i) {
-        ItemStack stack = this.inventory.getStackInSlot(i);
+        ItemStack stack = ItemUtil.getStack(this.inventory, i);
         if (stack.isEmpty()) {
             if (this.runtimes[i] != 0 || this.failStates[i] != FailureState.MODEL) {
                 this.runtimes[i] = 0;
@@ -232,7 +250,7 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
             float accuracy = inst.getAccuracy();
             int floor = (int) accuracy;
             float frac = accuracy - floor;
-            this.predictionSuccess[i] = floor + (level.random.nextFloat() < frac ? 1 : 0);
+            this.predictionSuccess[i] = floor + (level.getRandom().nextFloat() < frac ? 1 : 0);
             this.failStates[i] = FailureState.NONE;
             return true;
         }
@@ -249,16 +267,19 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
                 this.failStates[i] = FailureState.BUFFERING;
             }
             DataModelItem.setIters(stack, DataModelItem.getIters(stack) + 1);
+            this.inventory.set(i, ItemResource.of(stack), stack.getCount()); // stack is a copy; store it back
         }
         return true;
     }
 
     private void consumeInput(ItemStack modelStack) {
         for (int s = INPUT_START; s < OUTPUT_START; s++) {
-            ItemStack inputStack = this.inventory.getStackInSlot(s);
+            ItemStack inputStack = ItemUtil.getStack(this.inventory, s);
             if (!inputStack.isEmpty() && DataModelItem.matchesModelInput(modelStack, inputStack)) {
-                inputStack.shrink(1);
-                this.inventory.setStackInSlot(s, inputStack);
+                try (Transaction tx = Transaction.openRoot()) {
+                    this.inventory.extract(s, this.inventory.getResource(s), 1, tx);
+                    tx.commit();
+                }
                 return;
             }
         }
@@ -266,7 +287,7 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
 
     private boolean hasMatchingInput(ItemStack modelStack) {
         for (int s = INPUT_START; s < OUTPUT_START; s++) {
-            ItemStack inputStack = this.inventory.getStackInSlot(s);
+            ItemStack inputStack = ItemUtil.getStack(this.inventory, s);
             if (!inputStack.isEmpty() && DataModelItem.matchesModelInput(modelStack, inputStack)) return true;
         }
         return false;
@@ -278,7 +299,7 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
 
         DynamicHolder<DataModel> holder = DataModelRegistry.INSTANCE.holder(inst.getModel());
         FabSelection sel = this.savedSelections.getOrDefault(holder, FabSelection.EMPTY);
-        List<ItemStack> fabDrops = inst.getModel().fabDrops();
+        List<ItemStackTemplate> fabDrops = inst.getModel().fabDrops();
         int dropIdx = sel.current();
         if (this.failStates[slot] == FailureState.BUFFERING && !this.bufferedOutputs.isEmpty()) {
             return false;
@@ -299,8 +320,8 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
             return false;
         }
 
-        ItemStack expected = fabDrops.get(dropIdx);
-        if (this.canAcceptInOutput(expected) && this.canAcceptInOutput(inst.getModel().baseDrop())) {
+        ItemStack expected = Templates.create(fabDrops.get(dropIdx));
+        if (this.canAcceptInOutput(expected) && this.canAcceptInOutput(Templates.create(inst.getModel().baseDrop()))) {
             this.failStates[slot] = FailureState.NONE;
             return true;
         }
@@ -316,22 +337,22 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
 
         boolean buffering = false;
 
-        ItemStack baseDrop = model.baseDrop();
+        ItemStack baseDrop = Templates.create(model.baseDrop());
         if (!baseDrop.isEmpty()) {
-            ItemStack remainder = this.insertIntoOutput(baseDrop.copy());
+            ItemStack remainder = this.insertIntoOutput(baseDrop);
             if (!remainder.isEmpty()) {
                 buffering = true;
                 this.bufferedOutputs.add(remainder);
             }
         }
 
-        List<ItemStack> fabDrops = model.fabDrops();
+        List<ItemStackTemplate> fabDrops = model.fabDrops();
         for (int s = 0; s < successes; s++) {
             int idx = sel.current();
             if (idx < 0 || idx >= fabDrops.size()) break;
-            ItemStack drop = fabDrops.get(idx);
+            ItemStack drop = Templates.create(fabDrops.get(idx));
             if (!drop.isEmpty()) {
-                ItemStack remainder = this.insertIntoOutput(drop.copy());
+                ItemStack remainder = this.insertIntoOutput(drop);
                 if (!remainder.isEmpty()) {
                     buffering = true;
                     this.bufferedOutputs.add(remainder);
@@ -346,21 +367,35 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         return buffering;
     }
 
+    /**
+     * Inserts into the output slots, bypassing the menu's insert filter.
+     *
+     * @return The portion of the stack that did not fit (empty if everything was inserted).
+     */
     private ItemStack insertIntoOutput(ItemStack stack) {
-        for (int slot = OUTPUT_START; slot < TOTAL_SLOTS && !stack.isEmpty(); slot++) {
-            stack = this.inventory.insertItemInternal(slot, stack, false);
+        int remaining = stack.getCount();
+        ItemResource res = ItemResource.of(stack);
+        try (Transaction tx = Transaction.openRoot()) {
+            for (int slot = OUTPUT_START; slot < TOTAL_SLOTS && remaining > 0; slot++) {
+                remaining -= this.inventory.insertInternal(slot, res, remaining, tx);
+            }
+            tx.commit();
         }
-        return stack;
+        return remaining <= 0 ? ItemStack.EMPTY : stack.copyWithCount(remaining);
     }
 
     private boolean canAcceptInOutput(ItemStack stack) {
         if (stack.isEmpty()) return true;
 
-        for (int slot = OUTPUT_START; slot < TOTAL_SLOTS; slot++) {
-            ItemStack remainder = this.inventory.insertItemInternal(slot, stack.copy(), true);
-            if (remainder.getCount() < stack.getCount()) return true;
+        // The transaction is never committed, so this is a pure simulation.
+        try (Transaction tx = Transaction.openRoot()) {
+            int amount = stack.getCount();
+            ItemResource res = ItemResource.of(stack);
+            for (int slot = OUTPUT_START; slot < TOTAL_SLOTS; slot++) {
+                if (this.inventory.insertInternal(slot, res, amount, tx) > 0) return true;
+            }
+            return false;
         }
-        return false;
     }
 
     private void recheckShell(Level level, BlockPos pos, BlockState state) {
@@ -403,20 +438,20 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         while (it.hasNext()) {
             long key = it.next();
             if (!needed.contains(key)) {
-                Hostile.Tickets.DATA_CENTER.forceChunk(level, this.worldPosition, ChunkPos.getX(key), ChunkPos.getZ(key), false, false);
+                Hostile.Tickets.DATA_CENTER.forceChunk(level, this.worldPosition, ChunkPos.unpack(key).x(), ChunkPos.unpack(key).z(), false, false);
                 it.remove();
             }
         }
         for (Long key : needed) {
             if (this.forcedChunks.add(key)) {
-                Hostile.Tickets.DATA_CENTER.forceChunk(level, this.worldPosition, ChunkPos.getX(key), ChunkPos.getZ(key), true, false);
+                Hostile.Tickets.DATA_CENTER.forceChunk(level, this.worldPosition, ChunkPos.unpack(key).x(), ChunkPos.unpack(key).z(), true, false);
             }
         }
     }
 
     private void releaseAllForcedChunks(ServerLevel level) {
         for (Long key : this.forcedChunks) {
-            Hostile.Tickets.DATA_CENTER.forceChunk(level, this.worldPosition, ChunkPos.getX(key), ChunkPos.getZ(key), false, false);
+            Hostile.Tickets.DATA_CENTER.forceChunk(level, this.worldPosition, ChunkPos.unpack(key).x(), ChunkPos.unpack(key).z(), false, false);
         }
         this.forcedChunks.clear();
     }
@@ -455,7 +490,7 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         for (int cx = minCX; cx <= maxCX; cx++) {
             for (int cz = minCZ; cz <= maxCZ; cz++) {
                 if (cx == ourCX && cz == ourCZ) continue;
-                needed.add(ChunkPos.asLong(cx, cz));
+                needed.add(ChunkPos.pack(cx, cz));
             }
         }
         return needed;
@@ -473,10 +508,10 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
             }
             DataCenterShell.Layout layout = DataCenterShell.findFor(owner, state, level).orElse(null);
             Set<Long> needed = computeNeededShellChunks(layout, owner);
-            for (long chunk : tickets.nonTicking()) {
+            for (long chunk : tickets.normal()) {
                 if (!needed.contains(chunk)) helper.removeTicket(owner, chunk, false);
             }
-            for (long chunk : tickets.ticking()) {
+            for (long chunk : tickets.naturalSpawning()) {
                 if (!needed.contains(chunk)) helper.removeTicket(owner, chunk, true);
             }
         }
@@ -551,7 +586,7 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         return this.inventory;
     }
 
-    public IEnergyStorage getEnergy() {
+    public EnergyHandler getEnergy() {
         return this.energy;
     }
 
@@ -591,69 +626,55 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        super.saveAdditional(tag, regs);
-        tag.put("inventory", this.inventory.serializeNBT(regs));
-        tag.putInt("energy", this.energy.getEnergyStored());
-        tag.put("runtimes", writeIntArray(this.runtimes));
-        tag.put("predSuccess", writeIntArray(this.predictionSuccess));
-        tag.put("failStates", writeIntArray(Arrays.stream(this.failStates).mapToInt(Enum::ordinal).toArray()));
-        tag.putInt("redstoneState", this.redstoneState.ordinal());
-        tag.putByte("ejectDirIndex", this.ejectDirIndex);
-        tag.put("saved_selections", this.writeSelections(new CompoundTag()));
+    public void saveAdditional(ValueOutput out) {
+        super.saveAdditional(out);
+        this.inventory.serialize(out);
+        out.putInt("energy", this.energy.getEnergyStored());
+        out.putIntArray("runtimes", this.runtimes);
+        out.putIntArray("predSuccess", this.predictionSuccess);
+        out.putIntArray("failStates", Arrays.stream(this.failStates).mapToInt(Enum::ordinal).toArray());
+        out.putInt("redstoneState", this.redstoneState.ordinal());
+        out.putByte("ejectDirIndex", this.ejectDirIndex);
+        out.store("saved_selections", CompoundTag.CODEC, this.writeSelections(new CompoundTag()));
         // forcedChunks is not persisted; the ticket controller persists tickets itself + validateLoadedTickets reconciles.
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider regs) {
-        super.loadAdditional(tag, regs);
-        this.inventory.deserializeNBT(regs, tag.getCompound("inventory"));
-        this.energy.setEnergy(tag.getInt("energy"));
-        readIntArray(tag.getList("runtimes", Tag.TAG_INT), this.runtimes);
-        readIntArray(tag.getList("predSuccess", Tag.TAG_INT), this.predictionSuccess);
-        int i = 0;
-        for (Tag t : tag.getList("failStates", Tag.TAG_INT)) {
-            this.failStates[i++] = FailureState.BY_ID.apply(((NumericTag) t).getAsInt());
+    public void loadAdditional(ValueInput in) {
+        super.loadAdditional(in);
+        this.inventory.deserialize(in);
+        this.energy.setEnergy(in.getIntOr("energy", 0));
+        int[] readRuntimes = in.getIntArray("runtimes").orElse(new int[MODEL_SLOTS]);
+        System.arraycopy(readRuntimes, 0, this.runtimes, 0, Math.min(readRuntimes.length, this.runtimes.length));
+        int[] readPred = in.getIntArray("predSuccess").orElse(new int[MODEL_SLOTS]);
+        System.arraycopy(readPred, 0, this.predictionSuccess, 0, Math.min(readPred.length, this.predictionSuccess.length));
+        int[] readFail = in.getIntArray("failStates").orElse(new int[MODEL_SLOTS]);
+        for (int i = 0; i < Math.min(readFail.length, this.failStates.length); i++) {
+            this.failStates[i] = FailureState.BY_ID.apply(readFail[i]);
         }
-        this.redstoneState = RedstoneState.values()[tag.getInt("redstoneState")];
-        this.ejectDirIndex = tag.getByte("ejectDirIndex");
-        this.readSelections(tag.getCompound("saved_selections"));
+        this.redstoneState = RedstoneState.values()[in.getIntOr("redstoneState", 0)];
+        this.ejectDirIndex = in.getByteOr("ejectDirIndex", (byte) 0);
+        this.readSelections(in.read("saved_selections", CompoundTag.CODEC).orElse(new CompoundTag()));
     }
 
-    private static ListTag writeIntArray(int[] src) {
-        ListTag list = new ListTag();
-        for (int v : src) list.add(IntTag.valueOf(v));
-        return list;
-    }
-
-    private static void readIntArray(ListTag list, int[] dest) {
-        int n = Math.min(list.size(), dest.length);
-        for (int i = 0; i < n; i++) dest[i] = list.getInt(i);
-        for (int i = n; i < dest.length; i++) dest[i] = 0;
-    }
-
+    /**
+     * Both sync paths (chunk load and {@link #sync()}) carry the full saved state plus the sync-only keys. The renderer
+     * reads the stored models from the client-side inventory, so every nearby client must receive it, not only the player
+     * who inserted the models through the menu.
+     */
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this, (be, regs) -> ((DataCenterTileEntity) be).writeSync());
-    }
-
-    private CompoundTag writeSync() {
-        CompoundTag tag = new CompoundTag();
-        tag.put("saved_selections", this.writeSelections(new CompoundTag()));
-        tag.putInt("activeMask", this.activeSlotsMask);
-        tag.putBoolean("shellValid", this.shellValid);
-        if (this.cachedLayout != null) DataCenterShell.Layout.writeLayout(tag, this.cachedLayout);
-        return tag;
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider regs) {
-        this.readSyncTag(pkt.getTag());
+    public void onDataPacket(Connection net, ValueInput in) {
+        this.handleUpdateTag(in);
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider regs) {
-        CompoundTag tag = super.getUpdateTag(regs);
+        CompoundTag tag = this.saveCustomOnly(regs);
         tag.put("saved_selections", this.writeSelections(new CompoundTag()));
         tag.putInt("activeMask", this.activeSlotsMask);
         tag.putBoolean("shellValid", this.shellValid);
@@ -663,16 +684,21 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
 
     /** Vanilla's default just calls loadAdditional which ignores the sync-only keys getUpdateTag wrote. */
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider regs) {
-        super.handleUpdateTag(tag, regs);
-        this.readSyncTag(tag);
+    public void handleUpdateTag(ValueInput in) {
+        super.handleUpdateTag(in);
+        this.readSyncTag(in);
     }
 
-    private void readSyncTag(CompoundTag tag) {
-        this.readSelections(tag.getCompound("saved_selections"));
-        this.activeSlotsMask = tag.getInt("activeMask");
-        this.shellValid = tag.getBoolean("shellValid");
-        this.cachedLayout = DataCenterShell.Layout.readLayout(tag, this.worldPosition);
+    private void readSyncTag(ValueInput in) {
+        this.readSelections(in.read("saved_selections", CompoundTag.CODEC).orElse(new CompoundTag()));
+        this.activeSlotsMask = in.getIntOr("activeMask", 0);
+        this.shellValid = in.getBooleanOr("shellValid", false);
+        CompoundTag layoutTag = new CompoundTag();
+        in.getInt("wallFaceOrd").ifPresent(v -> layoutTag.putInt("wallFaceOrd", v));
+        in.getInt("shellMinX").ifPresent(v -> layoutTag.putInt("shellMinX", v));
+        in.getInt("shellMinY").ifPresent(v -> layoutTag.putInt("shellMinY", v));
+        in.getInt("shellMinZ").ifPresent(v -> layoutTag.putInt("shellMinZ", v));
+        this.cachedLayout = DataCenterShell.Layout.readLayout(layoutTag, this.worldPosition);
     }
 
     public int getActiveSlotsMask() {
@@ -689,9 +715,10 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
 
     private void readSelections(CompoundTag tag) {
         this.savedSelections.clear();
-        for (String s : tag.getAllKeys()) {
-            DynamicHolder<DataModel> dm = DataModelRegistry.INSTANCE.holder(ResourceLocation.tryParse(s));
+        for (String s : tag.keySet()) {
+            DynamicHolder<DataModel> dm = DataModelRegistry.INSTANCE.holder(Identifier.tryParse(s));
             Tag value = tag.get(s);
+            if (value == null) continue;
             FabSelection sel = FabSelection.CODEC.parse(NbtOps.INSTANCE, value).result().orElse(FabSelection.EMPTY);
             this.savedSelections.put(dm, sel);
         }
@@ -705,11 +732,12 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         }
 
         @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            if (slot < INPUT_START) return stack.getItem() instanceof DataModelItem;
-            if (slot < OUTPUT_START) {
+        public boolean isValid(int index, ItemResource resource) {
+            if (index < INPUT_START) return resource.getItem() instanceof DataModelItem;
+            if (index < OUTPUT_START) {
+                ItemStack stack = resource.toStack(1);
                 for (int m = 0; m < MODEL_SLOTS; m++) {
-                    ItemStack modelStack = this.getStackInSlot(m);
+                    ItemStack modelStack = ItemUtil.getStack(this, m);
                     if (!modelStack.isEmpty() && DataModelItem.matchesModelInput(modelStack, stack)) return true;
                 }
                 return false;
@@ -718,19 +746,19 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         }
 
         @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if (slot >= OUTPUT_START) return stack;
-            return super.insertItem(slot, stack, simulate);
+        public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            if (index >= OUTPUT_START) return 0;
+            return super.insert(index, resource, amount, transaction);
         }
 
         @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            if (slot < INPUT_START) return ItemStack.EMPTY;
-            return super.extractItem(slot, amount, simulate);
+        public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            if (index < INPUT_START) return 0;
+            return super.extract(index, resource, amount, transaction);
         }
 
         @Override
-        protected void onContentsChanged(int slot) {
+        protected void onContentsChanged(int index, ItemStack oldContents) {
             DataCenterTileEntity.this.setChanged();
         }
 

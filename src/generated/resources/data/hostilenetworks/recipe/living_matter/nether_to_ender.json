@@ -3,12 +3,8 @@
   "category": "misc",
   "group": "hostilenetworks",
   "key": {
-    "E": {
-      "item": "minecraft:end_stone"
-    },
-    "N": {
-      "item": "hostilenetworks:nether_prediction"
-    }
+    "E": "minecraft:end_stone",
+    "N": "hostilenetworks:nether_prediction"
   },
   "pattern": [
     " N ",
@@ -16,7 +12,6 @@
     " N "
   ],
   "result": {
-    "count": 1,
     "id": "hostilenetworks:end_prediction"
   }
 }

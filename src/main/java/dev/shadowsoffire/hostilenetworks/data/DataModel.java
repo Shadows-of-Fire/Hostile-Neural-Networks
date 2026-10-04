@@ -11,6 +11,7 @@ import dev.shadowsoffire.placebo.codec.CodecProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 
@@ -40,11 +41,11 @@ public sealed interface DataModel extends CodecProvider<DataModel>
 
     Ingredient input();
 
-    ItemStack baseDrop();
+    ItemStackTemplate baseDrop();
 
     String triviaKey();
 
-    List<ItemStack> fabDrops();
+    List<ItemStackTemplate> fabDrops();
 
     RequiredData requiredData();
 

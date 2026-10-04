@@ -1,0 +1,9 @@
+{
+    "model": {
+        "type": "minecraft:model",
+        "model": "hostilenetworks:item/prediction",
+        "tints": [
+            { "type": "hostilenetworks:model_color", "default": -1 }
+        ]
+    }
+}

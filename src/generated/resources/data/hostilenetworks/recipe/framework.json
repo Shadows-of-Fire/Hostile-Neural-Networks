@@ -3,21 +3,11 @@
   "category": "misc",
   "group": "hostilenetworks",
   "key": {
-    "C": {
-      "item": "minecraft:clay_ball"
-    },
-    "D": {
-      "tag": "c:dusts/redstone"
-    },
-    "I": {
-      "tag": "c:ingots/gold"
-    },
-    "R": {
-      "item": "minecraft:repeater"
-    },
-    "S": {
-      "item": "minecraft:smooth_stone"
-    }
+    "C": "minecraft:clay_ball",
+    "D": "#c:dusts/redstone",
+    "I": "#c:ingots/gold",
+    "R": "minecraft:repeater",
+    "S": "minecraft:smooth_stone"
   },
   "pattern": [
     "CRC",
@@ -25,7 +15,6 @@
     "CIC"
   ],
   "result": {
-    "count": 1,
     "id": "hostilenetworks:blank_data_model"
   }
 }

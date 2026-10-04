@@ -56,7 +56,7 @@
     "text.hostilenetworks.selections_applied": "Applied %s selections from %s",
     "text.hostilenetworks.selections_copied" : "Copied %s selections from %s",
 
-    "key.categories.hostilenetworks": "Hostile Neural Networks",
+    "key.category.hostilenetworks.main": "Hostile Neural Networks",
     "key.hostilenetworks.open_deep_learner": "Open Deep Learner Curio",
 
     "itemGroup.hostilenetworks": "Hostile Neural Networks",

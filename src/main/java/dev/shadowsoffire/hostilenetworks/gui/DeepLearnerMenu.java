@@ -14,23 +14,25 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.ComponentItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerCopySlot;
+import net.neoforged.neoforge.transfer.item.ItemAccessItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class DeepLearnerMenu extends PlaceboContainerMenu {
 
     protected final DeepLearnerSource source;
     protected final Player player;
     protected final ItemStack deepLearner;
-    protected final ComponentItemHandler learnerInv;
+    protected final ItemAccessItemHandler learnerInv;
     protected Consumer<Integer> notifyCallback;
 
     public DeepLearnerMenu(int id, Inventory pInv, DeepLearnerSource source) {
         super(Hostile.Containers.DEEP_LEARNER, id, pInv);
         this.source = source;
         this.player = pInv.player;
-        this.deepLearner = source.getStack(player);
+        ItemStack learner = source.getStack(player);
+        // ItemAccess.forStack rejects an empty stack. The client may construct this menu after the hand or curio slot
+        // changed; use a placeholder so construction succeeds and stillValid closes the menu on its next check.
+        this.deepLearner = learner.isEmpty() ? new ItemStack(Hostile.Items.DEEP_LEARNER) : learner;
         this.learnerInv = DeepLearnerItem.getItemHandler(this.deepLearner);
 
         this.addSlot(new DataModelSlot(this.learnerInv, 0, 256, 99));
@@ -53,7 +55,7 @@ public class DeepLearnerMenu extends PlaceboContainerMenu {
         for (int row = 0; row < 9; row++) {
             int index = row;
             Slot slot = new Slot(this.player.getInventory(), index, 89 + row * 18, 211);
-            if (source == DeepLearnerSource.MAIN_HAND && index == this.player.getInventory().selected) {
+            if (source == DeepLearnerSource.MAIN_HAND && index == this.player.getInventory().getSelectedSlot()) {
                 slot = new LockedSlot(this.player.getInventory(), index, 89 + row * 18, 211);
             }
             this.addSlot(slot);
@@ -80,15 +82,15 @@ public class DeepLearnerMenu extends PlaceboContainerMenu {
     public boolean hasModels() {
         boolean hasModels = false;
         for (int i = 0; i < 4; i++) {
-            if (!this.learnerInv.getStackInSlot(i).isEmpty()) hasModels = true;
+            if (!this.learnerInv.getResource(i).isEmpty()) hasModels = true;
         }
         return hasModels;
     }
 
-    public class DataModelSlot extends ItemHandlerCopySlot {
+    public class DataModelSlot extends ResourceHandlerSlot {
 
-        public DataModelSlot(IItemHandler handler, int index, int x, int y) {
-            super(handler, index, x, y);
+        public DataModelSlot(ItemAccessItemHandler handler, int index, int x, int y) {
+            super(handler, (idx, resource, amount) -> DeepLearnerItem.setStackInSlot(handler, idx, resource.toStack(amount)), index, x, y);
         }
 
         @Override

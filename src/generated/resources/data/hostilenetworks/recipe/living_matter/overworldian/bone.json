@@ -3,12 +3,8 @@
   "category": "misc",
   "group": "hostilenetworks",
   "ingredients": [
-    {
-      "item": "hostilenetworks:overworld_prediction"
-    },
-    {
-      "item": "minecraft:bone_meal"
-    }
+    "hostilenetworks:overworld_prediction",
+    "minecraft:bone_meal"
   ],
   "result": {
     "count": 22,

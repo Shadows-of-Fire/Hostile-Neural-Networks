@@ -1,0 +1,6 @@
+{
+    "model": {
+        "type": "minecraft:model",
+        "model": "hostilenetworks:item/nether_prediction"
+    }
+}

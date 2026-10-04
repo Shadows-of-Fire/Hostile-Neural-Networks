@@ -29,7 +29,7 @@ import dev.shadowsoffire.hostilenetworks.tile.SimChamberTileEntity;
 import dev.shadowsoffire.hostilenetworks.util.SavedSelections;
 import dev.shadowsoffire.placebo.block_entity.TickingBlockEntityType.TickSide;
 import dev.shadowsoffire.placebo.registry.DeferredHelper;
-import dev.shadowsoffire.placebo.reload.DynamicHolder;
+import dev.shadowsoffire.placebo.dynreg.DynamicHolder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;

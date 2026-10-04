@@ -3,12 +3,8 @@
   "category": "misc",
   "group": "hostilenetworks",
   "ingredients": [
-    {
-      "item": "hostilenetworks:nether_prediction"
-    },
-    {
-      "item": "minecraft:red_mushroom"
-    }
+    "hostilenetworks:nether_prediction",
+    "minecraft:red_mushroom"
   ],
   "result": {
     "count": 4,

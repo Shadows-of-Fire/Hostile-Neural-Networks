@@ -6,8 +6,11 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 import dev.shadowsoffire.hostilenetworks.HostileNetworks;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -27,8 +30,10 @@ public class ClientEntityCache {
     public static Entity computeIfAbsent(DisplayEntity display, Level level) {
         var map = CACHE.computeIfAbsent(level, l -> new HashMap<>());
         return map.computeIfAbsent(display, k -> {
-            Entity ent = k.type().create(level);
-            ent.load(display.nbt());
+            Entity ent = k.type().create(level, EntitySpawnReason.LOAD);
+            try (var scope = new ProblemReporter.ScopedCollector(HostileNetworks.LOGGER)) {
+                ent.load(TagValueInput.create(scope, level.registryAccess(), display.nbt()));
+            }
             return ent;
         });
     }

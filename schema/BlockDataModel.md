@@ -9,12 +9,14 @@ To declare a block data model, set the `type` field to `hostilenetworks:block_da
 This object references the following objects:
 1. [DisplayableBlock](./components/DisplayableBlock.md)
 2. [DisplayData](./components/DisplayData.md)
-3. [ItemStack](../../../../Placebo/blob/1.21/schema/ItemStack.md)
+3. [ItemStackTemplate](../../../../Placebo/blob/26.1/schema/ItemStackTemplate.md)
 4. [RequiredData](./components/RequiredData.md)
 5. [DataGained](./components/DataGained.md)
 6. [ModelAttunement](./components/ModelAttunement.md)
 
 The object types `Component`, `Ingredient`, `TextColor`, `BlockPredicate`, and `LootItemCondition` are supplied by Vanilla and are not described here.
+
+Block data model files live alongside entity models at `data/<namespace>/hostilenetworks/data_models/<path>.json`.
 
 # Schema
 ```js
@@ -28,11 +30,11 @@ The object types `Component`, `Ingredient`, `TextColor`, `BlockPredicate`, and `
     "name_color": TextColor,                    // [Mandatory] || Color used for the model name in tooltips and the prediction item.
     "display": DisplayData,                     // [Optional]  || Display data used to scale and offset the rendered block stack.
     "sim_cost": integer,                        // [Mandatory] || The cost, in FE/t, to simulate this model in the Simulation Chamber.
-    "input": Ingredient,                        // [Mandatory] || The input item when simulating this data model. Usually the prediction matrix.
-    "base_drop": ItemStack,                     // [Mandatory] || The base drop when simulating the data model. May be an empty item stack.
+    "input": Ingredient,                        // [Mandatory] || The input item when simulating this data model. Usually the prediction matrix. A bare item id, a `#tag`, or a list of item ids.
+    "base_drop": ItemStackTemplate,             // [Mandatory] || The base drop when simulating the data model. Must be a real (non-air) item.
     "trivia": "string",                         // [Mandatory] || The localization key for the trivia string displayed in the Deep Learner.
-    "fabricator_drops": [                       // [Mandatory] || The list of items that may be obtained from the Loot Fabricator. Empty stacks will be ignored.
-        ItemStack
+    "fabricator_drops": [                       // [Mandatory] || The list of items that may be obtained from the Loot Fabricator. Entries marked `"optional": true` whose item is missing are ignored.
+        ItemStackTemplate
     ],
     "required_data": RequiredData,              // [Optional]  || Optional overrides for the required data for individual model tiers.
     "data_gained": DataGained,                  // [Optional]  || Optional overrides for the data gained per mine for individual model tiers.
@@ -65,9 +67,7 @@ The Redstone Ore data model, which counts deepslate redstone ore as a variant.
     "name_color": "#FFD528",
     "display": { "scale": 3 },
     "sim_cost": 256,
-    "input": {
-        "item": "hostilenetworks:prediction_matrix"
-    },
+    "input": "hostilenetworks:prediction_matrix",
     "base_drop": {
         "id": "hostilenetworks:overworld_prediction"
     },
