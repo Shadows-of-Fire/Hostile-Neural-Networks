@@ -1,3 +1,7 @@
+## 7.0.0
+* Updated to Minecraft 26.1.2
+  * Datapacks and worlds from 1.21.1 are not compatible with this update.
+
 ## 6.5.1
 * PrincessStellar: Updated Brazilian translation.
 * Fixed an issue where IO Ports could trigger a client crash.
