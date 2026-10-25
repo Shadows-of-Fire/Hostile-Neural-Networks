@@ -162,6 +162,50 @@
         {
             "id": "artifacts:umbrella",
             "count": 1
+        },
+        {
+            "id": "artifacts:anglers_hat",
+            "count": 1
+        },
+        {
+            "id": "artifacts:charm_of_shrinking",
+            "count": 1
+        },
+        {
+            "id": "artifacts:chorus_totem",
+            "count": 1
+        },
+        {
+            "id": "artifacts:cowboy_hat",
+            "count": 1
+        },
+        {
+            "id": "artifacts:onion_ring",
+            "count": 1
+        },
+        {
+            "id": "artifacts:pickaxe_heater",
+            "count": 1
+        },
+        {
+            "id": "artifacts:rooted_boots",
+            "count": 1
+        },
+        {
+            "id": "artifacts:snowshoes",
+            "count": 1
+        },
+        {
+            "id": "artifacts:strider_shoes",
+            "count": 1
+        },
+        {
+            "id": "artifacts:warp_drive",
+            "count": 1
+        },
+        {
+            "id": "artifacts:withered_bracelet",
+            "count": 1
         }
     ],
     "tier_data": {
