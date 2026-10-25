@@ -3,7 +3,7 @@
     "block.hostilenetworks.sim_chamber.desc": "通过模拟战斗训练数据模型",
     "block.hostilenetworks.loot_fabricator": "战利品制造器",
     "block.hostilenetworks.loot_fabricator.desc": "将预测产物具象化为真实物品",
-    "block.hostilenetworks.loot_fabricator.desc2": "制造指令可以复制其配置方案",
+    "block.hostilenetworks.loot_fabricator.desc2": "制造指令单可以复制其配置方案",
     "block.hostilenetworks.data_center": "数据中心",
     "block.hostilenetworks.data_center.desc": "模拟技术的巅峰！最多可同时运行25个数据模型",
     "block.hostilenetworks.data_center.desc2": "需要7×7×7的强化外壳",
@@ -27,11 +27,12 @@
     "hostilenetworks.gui.data_center.power_cost": "功耗：%s FE/t",
     "hostilenetworks.gui.data_center.producing": "正在产出：%s",
     "hostilenetworks.gui.data_center.progress": "进度：%s秒 / %s秒",
-    "hostilenetworks.gui.data_center.shell_invalid.obsidian_missing": "缺少黑曜石地板",
+    "hostilenetworks.gui.data_center.shell_invalid.obsidian_missing": "缺少黑曜石底盘",
     "hostilenetworks.gui.data_center.shell_invalid.glass_missing": "缺少黑色染色玻璃",
     "hostilenetworks.gui.data_center.shell_invalid.not_air": "内部空间被阻塞",
     "hostilenetworks.gui.data_center.shell_invalid.at_pos": "%s，位于（%s，%s，%s）",
     "hostilenetworks.gui.data_center.shell_invalid.multi_y": "Y = %s 处存在问题",
+
     "item.hostilenetworks.deep_learner": "深度学习器",
     "item.hostilenetworks.data_model": "%s数据模型",
     "item.hostilenetworks.blank_data_model": "模型框架",
@@ -41,9 +42,10 @@
     "item.hostilenetworks.nether_prediction": "通用下界预测产物",
     "item.hostilenetworks.end_prediction": "通用末地预测产物",
     "item.hostilenetworks.twilight_prediction": "通用暮色森林预测产物",
-    "item.hostilenetworks.fab_directive": "制造指令",
+    "item.hostilenetworks.fab_directive": "制造指令单",
     "item.hostilenetworks.fab_directive.desc": "存储来自战利品制造器的选择配置",
     "item.hostilenetworks.fab_directive.desc2": "右键点击复制，Shift+右键点击应用",
+
     "text.hostilenetworks.stored_selection": "已存储的选择 %s/%s",
     "text.hostilenetworks.invalid_selection.model": "选择出错：无法识别的模型（%s）",
     "text.hostilenetworks.invalid_selection.index": "选择出错：无效的序号（%s）",
@@ -53,9 +55,12 @@
     "text.hostilenetworks.selection.queue": "%s -> %s（还有%s个排队中）",
     "text.hostilenetworks.selections_applied": "已从%2$s应用了%1$s个选择",
     "text.hostilenetworks.selections_copied": "已从%2$s复制了%1$s个选择",
+
     "key.categories.hostilenetworks": "敌对神经网络",
     "key.hostilenetworks.open_deep_learner": "打开深度学习器饰品",
+
     "itemGroup.hostilenetworks": "敌对神经网络",
+
     "hostilenetworks.gui.learner_empty.0": "未找到数据模型",
     "hostilenetworks.gui.learner_empty.1": "请插入数据模型！",
     "hostilenetworks.gui.learner_empty.2": "你的模型将会在",
@@ -93,8 +98,8 @@
     "hostilenetworks.gui.variant": "%s（变体）",
     "hostilenetworks.gui.upgrade_disabled": "模型无法通过世界中的行为进行升级。",
     "hostilenetworks.gui.redstone.ignored": "红石：忽略",
-    "hostilenetworks.gui.redstone.off_when_powered": "红石：充能时关闭",
-    "hostilenetworks.gui.redstone.on_when_powered": "红石：充能时开启",
+    "hostilenetworks.gui.redstone.off_when_powered": "红石：有信号时关闭",
+    "hostilenetworks.gui.redstone.on_when_powered": "红石：有信号时开启",
     "hostilenetworks.gui.mode.inference": "模式：推理",
     "hostilenetworks.gui.mode.inference.desc": "模拟会产出物品，",
     "hostilenetworks.gui.mode.inference.desc2": "但模型不会获得数据",
@@ -105,14 +110,17 @@
     "hostilenetworks.gui.mode.speed": "模拟速度：%s%%",
     "hostilenetworks.gui.mode.disabled": "训练模式已被服务器配置禁用",
     "hostilenetworks.gui.data_center.io": "输入 / 输出",
+
     "hostilenetworks.hud.model": " 模型",
     "hostilenetworks.hud.kills": "还剩 %s",
+
     "hostilenetworks.tier.faulty": "故障",
     "hostilenetworks.tier.basic": "基础",
     "hostilenetworks.tier.advanced": "进阶",
     "hostilenetworks.tier.superior": "卓越",
     "hostilenetworks.tier.self_aware": "自我意识",
-    "hostilenetworks.fail.output": "无法开始模拟\n输出缓冲区已被占用",
+
+    "hostilenetworks.fail.output": "无法开始模拟\n输出缓冲区已满",
     "hostilenetworks.fail.energy": "无法开始模拟\n系统能量水平危急",
     "hostilenetworks.fail.input": "无法开始模拟\n缺少输入：%s",
     "hostilenetworks.fail.model": "请插入数据模型以开始模拟",
@@ -124,6 +132,7 @@
     "hostilenetworks.fail.not_self_aware": "模型需要至少达到自我意识等级",
     "hostilenetworks.fail.no_selection": "未选择任何输出\n右键点击该槽位进行配置",
     "hostilenetworks.fail.buffering": "模型输出正在缓冲",
+
     "hostilenetworks.run.0": "> 启动运行时 ",
     "hostilenetworks.run.1": "> 开始第 %s 次迭代",
     "hostilenetworks.run.2": "> 从芯片内存加载模型",
@@ -131,6 +140,7 @@
     "hostilenetworks.run.4": "> 正在与敌对生物交战",
     "hostilenetworks.run.5": "> 序列预测 ",
     "hostilenetworks.run.6": "> 正在处理结果...",
+
     "hostilenetworks.run.train.0": "> 启动运行时 ",
     "hostilenetworks.run.train.1": "> 开始第 %s 次迭代",
     "hostilenetworks.run.train.2": "> 从芯片内存加载模型",
@@ -138,6 +148,7 @@
     "hostilenetworks.run.train.4": "> 运行反向传播",
     "hostilenetworks.run.train.5": "> 优化模型权重",
     "hostilenetworks.run.train.6": "> 正在保存检查点...",
+
     "hostilenetworks.info.click_to_attune": "%s一个生物或方块以%s",
     "hostilenetworks.info.attunment_disabled": "模型调谐功能已被禁用",
     "hostilenetworks.info.disabled": "（已禁用）",
@@ -155,6 +166,7 @@
     "hostilenetworks.info.looting": "抢夺等级：%s",
     "hostilenetworks.info.subtypes": "变体：",
     "hostilenetworks.info.sub_list": "  - %s",
+
     "_comment": "Block Sound Types (keyed by break sound id)",
     "hostilenetworks.sound_type.minecraft:block.stone.break": "石头",
     "hostilenetworks.sound_type.minecraft:block.wood.break": "木材",
@@ -183,6 +195,7 @@
     "hostilenetworks.sound_type.minecraft:block.anvil.break": "铁砧",
     "hostilenetworks.sound_type.minecraft:block.froglight.break": "蛙明灯",
     "hostilenetworks.sound_type.minecraft:intentionally_empty": "无声",
+
     "hostilenetworks.color_text.build": "构建数据模型",
     "hostilenetworks.color_text.shift": "Shift",
     "hostilenetworks.color_text.rclick": "右键点击",
@@ -191,9 +204,11 @@
     "hostilenetworks.color_text.success": "成功",
     "hostilenetworks.color_text.true": "是",
     "hostilenetworks.color_text.false": "否",
+
     "hostilenetworks.msg.multiple_models": "多个模型（%s与%s）匹配了该目标。这是整合包的配置问题。",
     "hostilenetworks.msg.no_model": "此物种没有已知的模型",
     "hostilenetworks.msg.built": "成功构建了%s数据模型",
+
     "_comment": "Vanilla Ores",
     "hostilenetworks.trivia.coal_ore": "一种平平无奇的燃料。\n然而对你却至关重要。\n世间万物有多少都仰赖着它。",
     "hostilenetworks.trivia.iron_ore": "差不多算是默认金属了。\n做镐、做剑，随便什么都行！\n又或者，用南瓜赋予它生命。",
@@ -204,6 +219,7 @@
     "hostilenetworks.trivia.diamond_ore": "人见人爱的宝石。\n曾造出全城最好的装备和工具！\n直到下界合金的出现……",
     "hostilenetworks.trivia.emerald_ore": "真的假的，土里还能挖出货币来？\n看着实在愚蠢。\n可惜有一整个文明都在用它。",
     "hostilenetworks.trivia.nether_quartz_ore": "来自地狱的神秘碎片。\n我猜你也是来把它取走的。\n可你拿它究竟有什么用呢？",
+    
     "_comment": "Vanilla Passives",
     "hostilenetworks.trivia.glow_squid": "深藏于海洋之中。\n身披冷光的恩赐。\n你敢将它据为己有吗？",
     "hostilenetworks.trivia.sheep": "色彩与温暖的大师。\n平日低调蛰伏，除非蒙受_jeb的祝福。",
@@ -219,6 +235,7 @@
     "hostilenetworks.trivia.snow_golem": "又是一颗南瓜的头脑。\n它多半连十都数不到。",
     "hostilenetworks.trivia.cod": "鱼。\n\n\n鱼——————。",
     "hostilenetworks.trivia.pig": "猪是个有意思的例子。\n论掉落不如牛，\n论骑乘不如马。\n或许杀戮反倒是一种仁慈……",
+    
     "_comment": "Vanilla Hostiles",
     "hostilenetworks.trivia.breeze": "烈焰人的风流亲戚，\n旋风人只栖身于\n试炼密室的墙垣之内。",
     "hostilenetworks.trivia.blaze": "提着水桶，绝望地看着\n它把水蒸发殆尽，然后一切都\n烧了起来。你也烧起来了。",
@@ -243,13 +260,17 @@
     "hostilenetworks.trivia.vindicator": "挥舞斧头的疯子。\n最好还是保持\n安全距离。",
     "hostilenetworks.trivia.warden": "远古之城中\n沉睡的主人。\n他看不见，\n但他也无需看见。",
     "hostilenetworks.trivia.zombified_piglin": "一个沦为僵尸的\n可怜下界居民。\n不过金子倒是不少。",
+    
     "_comment": "Ars Nouveau",
     "name.hostilenetworks.ars_wilden": "荒野生物",
     "hostilenetworks.trivia.ars_wilden": "荒野的守护者。\n形态取决于它们栖身的家园。\n哦对了，其中一种还会召唤狼。",
+    
     "_comment": "Artifacts",
     "hostilenetworks.trivia.mimic": "一只饥肠辘辘的箱子。\n一个你妄图洗劫的对象。\n千万当心，\n免得被撕成碎片。",
+    
     "_comment": "AllTheModium",
     "hostilenetworks.trivia.piglich": "他居于异界之中。\n他的血条让弱者不寒而栗。\n祈祷他别说出那句话：\n“你妈妈。”",
+    
     "_comment": "Twilight Forest",
     "hostilenetworks.trivia.raven": "一只漆黑的鸟，满载传说。\n乌鸦说道：“永不复还。”",
     "hostilenetworks.trivia.alpha_yeti": "雪怪部落的首领。\n这洞穴是他的手笔。\n不知能否贿赂他一下，\n让你免了这场恶战。",
@@ -279,11 +300,15 @@
     "hostilenetworks.trivia.winter_wolf": "在雪地中\n如鱼得水的群体猎手。\n出人意料的是，它们的毛皮\n竟和雪怪一模一样。",
     "hostilenetworks.trivia.twilight_wraith": "一位早已逝去的国王的幽魂。\n一门心思不让你\n拿走他的东西。",
     "hostilenetworks.trivia.yeti": "一只平平无奇的逊雪怪。\n总盼着自己能像\n阿尔法雪怪那样威风。",
+    
     "_comment": "Thermal",
     "hostilenetworks.trivia.basalz": "我们那位易燃朋友的\n更加敦实的表亲。\n被赋予了大地之力。",
     "hostilenetworks.trivia.blitz": "风元素，\n换了个名字而已。\n所幸它们还掌控不了\n雷霆。",
     "hostilenetworks.trivia.blizz": "取一尊烈焰人，\n抽走热量。\n剩下的空壳便是\n冰冷的暴雪人。",
+    
     "hostilenetworks.info.no_base_drop": "不产出基础掉落物",
+    
     "enchantment.level.0": "0",
+    
     "curios.identifier.deep_learner": "深度学习器"
 }
