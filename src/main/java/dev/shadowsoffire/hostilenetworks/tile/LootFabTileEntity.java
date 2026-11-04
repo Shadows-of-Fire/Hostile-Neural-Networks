@@ -33,6 +33,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Clearable;
 import net.minecraft.world.Containers;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.ItemStack;
@@ -47,7 +48,7 @@ import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity, IDataAutoRegister {
+public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity, IDataAutoRegister, Clearable {
 
     protected final FabItemHandler inventory = new FabItemHandler();
     protected final ModifiableEnergyStorage energy = new ModifiableEnergyStorage(HostileConfig.fabPowerCap, HostileConfig.fabPowerCap);
@@ -135,6 +136,14 @@ public class LootFabTileEntity extends BlockEntity implements TickingBlockEntity
 
     public EnergyHandler getEnergy() {
         return this.energy;
+    }
+
+    @Override
+    public void clearContent() {
+        for (int i = 0; i < this.inventory.size(); i++) {
+            this.inventory.set(i, ItemResource.EMPTY, 0);
+        }
+        this.energy.setEnergy(0);
     }
 
     public Map<DynamicHolder<DataModel>, FabSelection> getSelections() {

@@ -22,6 +22,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Clearable;
 import net.minecraft.world.Containers;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.ItemStack;
@@ -36,7 +37,7 @@ import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-public class SimChamberTileEntity extends BlockEntity implements TickingBlockEntity, IDataAutoRegister {
+public class SimChamberTileEntity extends BlockEntity implements TickingBlockEntity, IDataAutoRegister, Clearable {
 
     protected final SimItemHandler inventory = new SimItemHandler();
     protected final ModifiableEnergyStorage energy = new ModifiableEnergyStorage(HostileConfig.simPowerCap, HostileConfig.simPowerCap);
@@ -278,6 +279,14 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 
     public EnergyHandler getEnergy() {
         return energy;
+    }
+
+    @Override
+    public void clearContent() {
+        for (int i = 0; i < this.inventory.size(); i++) {
+            this.inventory.set(i, ItemResource.EMPTY, 0);
+        }
+        this.energy.setEnergy(0);
     }
 
     public int getEnergyStored() {

@@ -55,6 +55,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Clearable;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
@@ -68,7 +69,7 @@ import net.neoforged.neoforge.common.world.chunk.TicketSet;
  * Controller BE for the Data Center multiblock. Runs up to {@value #MODEL_SLOTS} parallel sim loops + per-model
  * {@link FabSelection} production queues. See {@link DataCenterShell} for the 7×7×7 geometry.
  */
-public class DataCenterTileEntity extends BlockEntity implements TickingBlockEntity, IDataAutoRegister {
+public class DataCenterTileEntity extends BlockEntity implements TickingBlockEntity, IDataAutoRegister, Clearable {
 
     public static final int MODEL_SLOTS = 25;
     public static final int INPUT_SLOTS = 4;
@@ -588,6 +589,15 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
 
     public EnergyHandler getEnergy() {
         return this.energy;
+    }
+
+    @Override
+    public void clearContent() {
+        for (int i = 0; i < this.inventory.size(); i++) {
+            this.inventory.set(i, ItemResource.EMPTY, 0);
+        }
+        this.bufferedOutputs.clear();
+        this.energy.setEnergy(0);
     }
 
     public int getEnergyStored() {
