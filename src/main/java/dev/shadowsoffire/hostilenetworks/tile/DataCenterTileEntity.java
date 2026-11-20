@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,7 +42,6 @@ import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
@@ -58,12 +56,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.world.chunk.TicketHelper;
-import net.neoforged.neoforge.common.world.chunk.TicketSet;
 
 /**
  * Controller BE for the Data Center multiblock. Runs up to {@value #MODEL_SLOTS} parallel sim loops + per-model
@@ -112,9 +107,6 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
     public float[] displaySlotPhaseOffsets = null;
     public final int[] displaySlotCycleIdx = Util.make(new int[DISPLAY_SLOT_COUNT], arr -> Arrays.fill(arr, Integer.MIN_VALUE));
     public final int[] displaySlotEntityIdx = Util.make(new int[DISPLAY_SLOT_COUNT], arr -> Arrays.fill(arr, -1));
-
-    /** Force-loaded shell chunks, owned by {@code worldPosition} in {@link Hostile.Tickets#DATA_CENTER}. */
-    protected final Set<Long> forcedChunks = new HashSet<>();
 
     /** IO Port positions in this controller's shell, refreshed on each {@link #recheckShell} pass. */
     protected final Set<BlockPos> ownedPorts = new HashSet<>();
@@ -404,18 +396,19 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         this.cachedLayout = layout;
         boolean wasValid = this.shellValid;
         this.shellValid = layout != null;
-        if (level instanceof ServerLevel sl) this.ensureShellChunksForced(sl, layout);
         this.refreshOwnedPorts(level, layout);
         if (this.shellValid != wasValid) this.sync();
     }
 
-    /** Walks the shell's wall + ceiling cells, claims any IO Port BEs as owned, and releases ports no longer in the shell. */
+    /**
+     * Walks the shell's wall + ceiling cells, claims any IO Port BEs as owned, and releases ports no longer in the shell.
+     */
     private void refreshOwnedPorts(Level level, DataCenterShell.Layout layout) {
         Set<BlockPos> current = new HashSet<>();
         if (this.shellValid && layout != null) {
             layout.forEachCell((cursor, kind) -> {
                 if (kind != DataCenterShell.CellKind.WALL && kind != DataCenterShell.CellKind.CEILING) return;
-                if (level.getBlockEntity(cursor) instanceof DataCenterIOPortTileEntity port) {
+                if (level.isLoaded(cursor) && level.getBlockEntity(cursor) instanceof DataCenterIOPortTileEntity port) {
                     BlockPos immut = cursor.immutable();
                     current.add(immut);
                     port.setOwner(this.worldPosition);
@@ -423,7 +416,11 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
             });
         }
         for (BlockPos prev : this.ownedPorts) {
-            if (!current.contains(prev) && level.getBlockEntity(prev) instanceof DataCenterIOPortTileEntity stale) {
+            if (current.contains(prev)) continue;
+            if (!level.isLoaded(prev)) {
+                current.add(prev);
+            }
+            else if (level.getBlockEntity(prev) instanceof DataCenterIOPortTileEntity stale) {
                 stale.clearOwner();
             }
         }
@@ -431,38 +428,9 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         this.ownedPorts.addAll(current);
     }
 
-    /** Tickets are non-ticking and per-BE-position, so two Data Centers can independently claim the same chunk. */
-    private void ensureShellChunksForced(ServerLevel level, DataCenterShell.Layout layout) {
-        Set<Long> needed = computeNeededShellChunks(layout, this.worldPosition);
-
-        Iterator<Long> it = this.forcedChunks.iterator();
-        while (it.hasNext()) {
-            long key = it.next();
-            if (!needed.contains(key)) {
-                Hostile.Tickets.DATA_CENTER.forceChunk(level, this.worldPosition, ChunkPos.unpack(key).x(), ChunkPos.unpack(key).z(), false, false);
-                it.remove();
-            }
-        }
-        for (Long key : needed) {
-            if (this.forcedChunks.add(key)) {
-                Hostile.Tickets.DATA_CENTER.forceChunk(level, this.worldPosition, ChunkPos.unpack(key).x(), ChunkPos.unpack(key).z(), true, false);
-            }
-        }
-    }
-
-    private void releaseAllForcedChunks(ServerLevel level) {
-        for (Long key : this.forcedChunks) {
-            Hostile.Tickets.DATA_CENTER.forceChunk(level, this.worldPosition, ChunkPos.unpack(key).x(), ChunkPos.unpack(key).z(), false, false);
-        }
-        this.forcedChunks.clear();
-    }
-
     @Override
     public void setRemoved() {
         super.setRemoved();
-        if (this.level instanceof ServerLevel sl) {
-            this.releaseAllForcedChunks(sl);
-        }
         this.ownedPorts.clear();
     }
 
@@ -474,46 +442,6 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         for (BlockPos port : this.ownedPorts) {
             if (sl.isLoaded(port) && sl.getBlockEntity(port) instanceof DataCenterIOPortTileEntity p) {
                 p.clearOwner();
-            }
-        }
-    }
-
-    /** Excludes the controller's own chunk, which is loaded by virtue of the BE existing. */
-    private static Set<Long> computeNeededShellChunks(DataCenterShell.Layout layout, BlockPos controllerPos) {
-        Set<Long> needed = new HashSet<>(4);
-        if (layout == null) return needed;
-        int minCX = SectionPos.blockToSectionCoord(layout.shellMin().getX());
-        int maxCX = SectionPos.blockToSectionCoord(layout.shellMax().getX());
-        int minCZ = SectionPos.blockToSectionCoord(layout.shellMin().getZ());
-        int maxCZ = SectionPos.blockToSectionCoord(layout.shellMax().getZ());
-        int ourCX = SectionPos.blockToSectionCoord(controllerPos.getX());
-        int ourCZ = SectionPos.blockToSectionCoord(controllerPos.getZ());
-        for (int cx = minCX; cx <= maxCX; cx++) {
-            for (int cz = minCZ; cz <= maxCZ; cz++) {
-                if (cx == ourCX && cz == ourCZ) continue;
-                needed.add(ChunkPos.pack(cx, cz));
-            }
-        }
-        return needed;
-    }
-
-    /** Released persisted tickets whose owner is no longer a Data Center, or whose layout no longer needs the chunk. */
-    public static void validateLoadedTickets(ServerLevel level, TicketHelper helper) {
-        for (Map.Entry<BlockPos, TicketSet> entry : helper.getBlockTickets().entrySet()) {
-            BlockPos owner = entry.getKey();
-            TicketSet tickets = entry.getValue();
-            BlockState state = level.getBlockState(owner);
-            if (!state.is(Hostile.Blocks.DATA_CENTER)) {
-                helper.removeAllTickets(owner);
-                continue;
-            }
-            DataCenterShell.Layout layout = DataCenterShell.findFor(owner, state, level).orElse(null);
-            Set<Long> needed = computeNeededShellChunks(layout, owner);
-            for (long chunk : tickets.normal()) {
-                if (!needed.contains(chunk)) helper.removeTicket(owner, chunk, false);
-            }
-            for (long chunk : tickets.naturalSpawning()) {
-                if (!needed.contains(chunk)) helper.removeTicket(owner, chunk, true);
             }
         }
     }
@@ -646,7 +574,6 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         out.putInt("redstoneState", this.redstoneState.ordinal());
         out.putByte("ejectDirIndex", this.ejectDirIndex);
         out.store("saved_selections", CompoundTag.CODEC, this.writeSelections(new CompoundTag()));
-        // forcedChunks is not persisted; the ticket controller persists tickets itself + validateLoadedTickets reconciles.
     }
 
     @Override
