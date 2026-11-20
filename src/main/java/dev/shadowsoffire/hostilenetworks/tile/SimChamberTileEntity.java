@@ -266,6 +266,17 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
         return true;
     }
 
+    /**
+     * Checks if the model in the chamber has finished training, at which point automation may extract it.
+     */
+    public boolean isTrainingComplete() {
+        if (this.mode != SimMode.TRAINING || this.runtime != 0) return false;
+        ItemStack model = ItemUtil.getStack(this.inventory, 0);
+        if (model.isEmpty()) return false;
+        DataModelInstance inst = this.getOrLoadModel(model);
+        return inst.isValid() && !this.canUpgrade(inst);
+    }
+
     protected DataModelInstance getOrLoadModel(ItemStack stack) {
         // ItemUtil.getStack returns a fresh copy on every call, so the 1.21 identity check would never match and the
         // instance (and runtime) would reset every tick. Compare contents instead; model stacks are never stackable.
@@ -343,7 +354,9 @@ public class SimChamberTileEntity extends BlockEntity implements TickingBlockEnt
 
         @Override
         public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
-            if (index <= 1) return 0;
+            // The model is the product of Training Mode, so automation may collect it once training is complete.
+            if (index == 0 && !SimChamberTileEntity.this.isTrainingComplete()) return 0;
+            if (index == 1) return 0;
             return super.extract(index, resource, amount, transaction);
         }
 
