@@ -396,6 +396,12 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
     @Override
     public void setRemoved() {
         super.setRemoved();
+        // Invalidate port caps when we go out of scope since they proxy us.
+        if (this.level != null) {
+            for (BlockPos port : this.ownedPorts) {
+                this.level.invalidateCapabilities(port);
+            }
+        }
         this.ownedPorts.clear();
     }
 
