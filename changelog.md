@@ -1,3 +1,13 @@
+## 6.6.0
+* Added support for Sable (via `Clearable`), which prevents a dupe.
+* Data Centers no longer attempt to force load chunks when crossing chunk boundaries.
+* Fixed a bug in initial chunk sync for data centers, which caused ghost entities to not spawn until the GUI was opened.
+* Fully-trained models may now be extracted from the Simulation Chamber.
+* IO ports can now be locked via shift-right-click, which prevents their mode from being accidentally changed.
+  * IO Port modes will no longer cycle at all unless the player has an empty hand.
+* Grath: Updated Mimic prediction tables.
+* BlueMaple: Updated Chinese translation.
+
 ## 6.5.1
 * PrincessStellar: Updated Brazilian translation.
 * Fixed an issue where IO Ports could trigger a client crash.
