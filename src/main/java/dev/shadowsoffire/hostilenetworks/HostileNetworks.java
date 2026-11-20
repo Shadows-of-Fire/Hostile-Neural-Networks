@@ -25,7 +25,6 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage;
 import net.neoforged.neoforge.capabilities.Capabilities.ItemHandler;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.common.world.chunk.RegisterTicketControllersEvent;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 @Mod(HostileNetworks.MODID)
@@ -53,11 +52,6 @@ public class HostileNetworks {
         });
         DataModelRegistry.INSTANCE.registerToBus();
         ModelTierRegistry.INSTANCE.registerToBus();
-    }
-
-    @SubscribeEvent
-    public void tickets(RegisterTicketControllersEvent e) {
-        e.register(Hostile.Tickets.DATA_CENTER);
     }
 
     @SubscribeEvent

@@ -43,7 +43,6 @@ import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.common.world.chunk.TicketController;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public class Hostile {
@@ -182,14 +181,6 @@ public class Hostile {
             BlockDataModelsCondition.CODEC);
 
         private static void bootstrap() {}
-    }
-
-    public static class Tickets {
-
-        /**
-         * Chunk-loading ticket controller for the Data Center multiblock. Ensures that the 7x7 is always loaded as to avoid chunk boundary issues.
-         */
-        public static final TicketController DATA_CENTER = new TicketController(HostileNetworks.loc("data_center"), DataCenterTileEntity::validateLoadedTickets);
     }
 
     static void bootstrap(IEventBus bus) {

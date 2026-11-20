@@ -10,7 +10,7 @@ import dev.shadowsoffire.hostilenetworks.Hostile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -28,7 +28,7 @@ public final class DataCenterShell {
 
     private DataCenterShell() {}
 
-    public static Optional<Layout> findFor(BlockPos controllerPos, BlockState controllerState, LevelReader level) {
+    public static Optional<Layout> findFor(BlockPos controllerPos, BlockState controllerState, Level level) {
         if (!controllerState.hasProperty(HorizontalDirectionalBlock.FACING)) return Optional.empty();
         Direction facing = controllerState.getValue(HorizontalDirectionalBlock.FACING);
         Direction wallFace = facing.getOpposite();
@@ -64,7 +64,7 @@ public final class DataCenterShell {
     }
 
     /** Short-circuits on the first violation. Use {@link #findInvalidPositions} for a full list. */
-    public static boolean validate(Layout layout, LevelReader level) {
+    public static boolean validate(Layout layout, Level level) {
         return findInvalidPositions(layout, level, 1).isEmpty();
     }
 
@@ -147,11 +147,11 @@ public final class DataCenterShell {
     public record InvalidEntry(BlockPos pos, InvalidType type) {}
 
     /** Returns up to {@link #MAX_REPORTED_INVALID} failing positions. Empty when the shell is valid. */
-    public static List<InvalidEntry> findInvalidPositions(Layout layout, LevelReader level) {
+    public static List<InvalidEntry> findInvalidPositions(Layout layout, Level level) {
         return findInvalidPositions(layout, level, MAX_REPORTED_INVALID);
     }
 
-    private static List<InvalidEntry> findInvalidPositions(Layout layout, LevelReader level, int limit) {
+    private static List<InvalidEntry> findInvalidPositions(Layout layout, Level level, int limit) {
         List<InvalidEntry> out = new ArrayList<>();
         layout.forEachCellUntil((cursor, kind) -> {
             InvalidType problem = problemAt(level, cursor, kind);
@@ -163,8 +163,8 @@ public final class DataCenterShell {
     }
 
     /** Returns the per-cell validation failure (or {@code null} when the cell satisfies its expected contents). */
-    private static InvalidType problemAt(LevelReader level, BlockPos pos, CellKind kind) {
-        if (kind == CellKind.CONTROLLER) return null;
+    private static InvalidType problemAt(Level level, BlockPos pos, CellKind kind) {
+        if (kind == CellKind.CONTROLLER || !level.isLoaded(pos)) return null; // Assume unloaded chunks were valid until they come back.
         BlockState state = level.getBlockState(pos);
         return switch (kind) {
             case FLOOR -> state.is(Hostile.Tags.DATA_CENTER_FLOOR) ? null : InvalidType.OBSIDIAN_MISSING;
@@ -176,7 +176,7 @@ public final class DataCenterShell {
     }
 
     /** Returns the candidate with the fewest failures, so the screen can still describe issues when no candidate fully validates. */
-    public static Optional<Layout> bestGuessLayout(BlockPos controllerPos, BlockState controllerState, LevelReader level) {
+    public static Optional<Layout> bestGuessLayout(BlockPos controllerPos, BlockState controllerState, Level level) {
         if (!controllerState.hasProperty(HorizontalDirectionalBlock.FACING)) return Optional.empty();
         Direction facing = controllerState.getValue(HorizontalDirectionalBlock.FACING);
         Direction wallFace = facing.getOpposite();
