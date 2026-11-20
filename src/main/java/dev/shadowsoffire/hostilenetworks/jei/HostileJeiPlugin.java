@@ -69,6 +69,9 @@ public class HostileJeiPlugin implements IModPlugin {
 
         reg.addIngredientInfo(Hostile.Blocks.DATA_CENTER_IO_PORT.value(),
             Component.translatable("hostilenetworks.jei.io_port.modes"));
+
+        reg.addIngredientInfo(Hostile.Blocks.DATA_CENTER_IO_PORT.value(),
+            Component.translatable("hostilenetworks.jei.io_port.lock"));
     }
 
     @Override
