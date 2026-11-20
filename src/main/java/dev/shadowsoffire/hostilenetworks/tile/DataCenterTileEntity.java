@@ -590,11 +590,9 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider regs) {
-        CompoundTag tag = super.getUpdateTag(regs);
-        tag.put("saved_selections", this.writeSelections(new CompoundTag()));
-        tag.putInt("activeMask", this.activeSlotsMask);
-        tag.putBoolean("shellValid", this.shellValid);
-        if (this.cachedLayout != null) DataCenterShell.Layout.writeLayout(tag, this.cachedLayout);
+        CompoundTag tag = this.writeSync();
+        // The renderer needs the inventory to display ghost models.
+        tag.put("inventory", this.inventory.serializeNBT(regs));
         return tag;
     }
 
