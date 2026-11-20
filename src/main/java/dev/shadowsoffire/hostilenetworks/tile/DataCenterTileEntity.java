@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 import dev.shadowsoffire.hostilenetworks.Hostile;
 import dev.shadowsoffire.hostilenetworks.util.Templates;
 import dev.shadowsoffire.hostilenetworks.HostileConfig;
+import dev.shadowsoffire.hostilenetworks.HostileNetworks;
 import dev.shadowsoffire.hostilenetworks.data.DataModel;
 import dev.shadowsoffire.hostilenetworks.data.DataModelInstance;
 import dev.shadowsoffire.hostilenetworks.data.DataModelRegistry;
@@ -32,12 +33,14 @@ import dev.shadowsoffire.placebo.dynreg.DynamicHolder;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -594,28 +597,34 @@ public class DataCenterTileEntity extends BlockEntity implements TickingBlockEnt
         this.readSelections(in.read("saved_selections", CompoundTag.CODEC).orElse(new CompoundTag()));
     }
 
-    /**
-     * Both sync paths (chunk load and {@link #sync()}) carry the full saved state plus the sync-only keys. The renderer
-     * reads the stored models from the client-side inventory, so every nearby client must receive it, not only the player
-     * who inserted the models through the menu.
-     */
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
+        return ClientboundBlockEntityDataPacket.create(this, (be, regs) -> ((DataCenterTileEntity) be).writeSync());
     }
 
-    @Override
-    public void onDataPacket(Connection net, ValueInput in) {
-        this.handleUpdateTag(in);
-    }
-
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider regs) {
-        CompoundTag tag = this.saveCustomOnly(regs);
+    private CompoundTag writeSync() {
+        CompoundTag tag = new CompoundTag();
         tag.put("saved_selections", this.writeSelections(new CompoundTag()));
         tag.putInt("activeMask", this.activeSlotsMask);
         tag.putBoolean("shellValid", this.shellValid);
         if (this.cachedLayout != null) DataCenterShell.Layout.writeLayout(tag, this.cachedLayout);
+        return tag;
+    }
+
+    @Override
+    public void onDataPacket(Connection net, ValueInput in) {
+        this.readSyncTag(in);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider regs) {
+        CompoundTag tag = this.writeSync();
+        // The renderer needs the inventory to display ghost models.
+        try (var scope = new ProblemReporter.ScopedCollector(HostileNetworks.LOGGER)) {
+            TagValueOutput out = TagValueOutput.createWithContext(scope, regs);
+            this.inventory.serialize(out);
+            tag.merge(out.buildResult());
+        }
         return tag;
     }
 
