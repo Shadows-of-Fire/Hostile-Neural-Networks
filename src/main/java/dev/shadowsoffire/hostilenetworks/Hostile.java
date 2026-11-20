@@ -78,7 +78,7 @@ public class Hostile {
         public static final Holder<Item> SIM_CHAMBER = R.blockItem("sim_chamber", Blocks.SIM_CHAMBER, (b, p) -> new TooltipBlockItem(b, p, 1), p -> p);
         public static final Holder<Item> LOOT_FABRICATOR = R.blockItem("loot_fabricator", Blocks.LOOT_FABRICATOR, (b, p) -> new TooltipBlockItem(b, p, 2), p -> p);
         public static final Holder<Item> DATA_CENTER = R.blockItem("data_center", Blocks.DATA_CENTER, (b, p) -> new TooltipBlockItem(b, p, 2), p -> p);
-        public static final Holder<Item> DATA_CENTER_IO_PORT = R.blockItem("data_center_io_port", Blocks.DATA_CENTER_IO_PORT, (b, p) -> new TooltipBlockItem(b, p, 2), p -> p);
+        public static final Holder<Item> DATA_CENTER_IO_PORT = R.blockItem("data_center_io_port", Blocks.DATA_CENTER_IO_PORT, (b, p) -> new TooltipBlockItem(b, p, 3), p -> p);
         public static final Holder<Item> FAB_DIRECTIVE = R.item("fab_directive", FabDirectiveItem::new, p -> p.stacksTo(1));
 
         private static void bootstrap() {}

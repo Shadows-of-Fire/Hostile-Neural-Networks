@@ -29,6 +29,9 @@ public class HostileJadePlugin implements IWailaPlugin, IBlockComponentProvider 
         IOPortMode mode = accessor.getBlockState().getValue(DataCenterIOPortBlock.MODE);
         tooltip.add(Component.translatable("hostilenetworks.io_port.mode_set",
             Component.translatable(mode.getTranslationKey())));
+        if (accessor.getBlockState().getValue(DataCenterIOPortBlock.LOCKED)) {
+            tooltip.add(Component.translatable("hostilenetworks.io_port.locked"));
+        }
     }
 
     @Override
